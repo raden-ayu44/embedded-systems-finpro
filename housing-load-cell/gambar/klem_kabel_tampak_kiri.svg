@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="1200" viewBox="0 0 1100 1200">
+<title>Klem kabel tampak kiri potongan A-A v1 - embedded system</title>
+<defs>
+  <pattern id="xMET" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+    <rect width="7" height="7" fill="#b4b9bf"/><line x1="0" y1="0" x2="0" y2="7" stroke="#4d545c" stroke-width="1"/></pattern>
+  <pattern id="xLC" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(-45)">
+    <rect width="10" height="10" fill="#d3d7dc"/><line x1="0" y1="0" x2="0" y2="10" stroke="#7d848d" stroke-width="0.9"/></pattern>
+  <pattern id="xPLA" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+    <rect width="6" height="6" fill="#f6ad55"/><line x1="0" y1="0" x2="0" y2="6" stroke="#b4631a" stroke-width="1"/></pattern>
+</defs>
+<rect x="0" y="0" width="1100" height="1200" fill="#ffffff"/>
+<text class="lbl" x="30.0" y="38.0" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="19" text-anchor="start" font-weight="bold" fill="#1f2328">Klem Kabel v1 — Tampak Kiri, Potongan A-A (x = 4,2)</text>
+<text class="lbl" x="30.0" y="60.0" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="12" text-anchor="start" font-weight="normal" fill="#5b6169">embedded system · ukuran dalam mm dari fusion_parameters_housing_grip_v8.csv · skala 1 mm = 10 px</text>
+<text class="lbl" x="30.0" y="77.0" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="12" text-anchor="start" font-weight="normal" fill="#5b6169">dilihat dari ujung tetap ke arah +x · kanan gambar = muka depan (muka kabel) · pelat A di atas, pelat B di bawah</text>
+<line x1="30.0" y1="88.0" x2="1070.0" y2="88.0" stroke="#9aa1aa" stroke-width="1" />
+<rect x="250.0" y="320.0" width="300.0" height="100.0" fill="url(#xMET)" stroke="#4d545c" stroke-width="1.4" />
+<rect x="260.0" y="445.0" width="280.0" height="215.0" fill="url(#xLC)" stroke="#4d545c" stroke-width="1.4" />
+<rect x="250.0" y="685.0" width="300.0" height="100.0" fill="url(#xMET)" stroke="#4d545c" stroke-width="1.4" />
+<rect x="400.0" y="527.5" width="140.0" height="50.0" fill="#ffffff" stroke="#4d545c" stroke-width="1.2" />
+<path d="M260.0,420.0 L640.0,420.0 L640.0,445.0 L630.0,445.0 L630.0,532.0 L550.0,532.0 L550.0,445.0 L260.0,445.0 Z" fill="url(#xPLA)" stroke="#b4631a" stroke-width="1.5" />
+<rect x="550.0" y="573.0" width="80.0" height="21.0" fill="url(#xPLA)" stroke="#b4631a" stroke-width="1.5" />
+<path d="M420,552.5 H630.0 A100.0,100.0 0 0 1 730.0,652.5 V849.0" fill="none" stroke="#2b2e33" stroke-width="40.0" stroke-linecap="butt"/>
+<path d="M704.0,847.0 L756.0,847.0 L730.0,865.0 Z" fill="#2b2e33" stroke="#2b2e33" stroke-width="0.5" />
+<text class="lbl" x="760.0" y="861.0" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="12" text-anchor="start" font-weight="bold" fill="#1f2328" paint-order="stroke" stroke="#ffffff" stroke-width="3.5" stroke-linejoin="round">ke arah B (rute kabel)</text>
+<line x1="624.0" y1="652.5" x2="636.0" y2="652.5" stroke="#5b6169" stroke-width="1" />
+<line x1="630.0" y1="646.5" x2="630.0" y2="658.5" stroke="#5b6169" stroke-width="1" />
+<line x1="630.0" y1="652.5" x2="700.7" y2="581.8" stroke="#5b6169" stroke-width="0.9" />
+<text class="lbl" x="765.0" y="542.5" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="12.5" text-anchor="start" font-weight="bold" fill="#5b6169" paint-order="stroke" stroke="#ffffff" stroke-width="3.5" stroke-linejoin="round">R10 (asumsi)</text>
+<line x1="764.0" y1="538.5" x2="712.7" y2="571.8" stroke="#5b6169" stroke-width="0.8" />
+<line x1="380.0" y1="552.5" x2="430.0" y2="552.5" stroke="#6b7280" stroke-width="0.9" stroke-dasharray="10 3 2 3" />
+<line x1="550.0" y1="418.0" x2="550.0" y2="276.0" stroke="#5b6169" stroke-width="0.8" />
+<line x1="630.0" y1="418.0" x2="630.0" y2="276.0" stroke="#5b6169" stroke-width="0.8" />
+<line x1="540.0" y1="418.0" x2="540.0" y2="176.0" stroke="#5b6169" stroke-width="0.8" />
+<line x1="640.0" y1="418.0" x2="640.0" y2="176.0" stroke="#5b6169" stroke-width="0.8" />
+<line x1="550.0" y1="280.0" x2="630.0" y2="280.0" stroke="#5b6169" stroke-width="1" />
+<path d="M550.0,280.0 L557.0,277.4 L557.0,282.6 Z" fill="#5b6169" stroke="#5b6169" stroke-width="0.5" />
+<path d="M630.0,280.0 L623.0,277.4 L623.0,282.6 Z" fill="#5b6169" stroke="#5b6169" stroke-width="0.5" />
+<text class="lbl" x="590.0" y="275.0" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="11.5" text-anchor="middle" font-weight="normal" fill="#5b6169" paint-order="stroke" stroke="#ffffff" stroke-width="3.5" stroke-linejoin="round">8 (blok)</text>
+<line x1="540.0" y1="180.0" x2="640.0" y2="180.0" stroke="#5b6169" stroke-width="1" />
+<path d="M540.0,180.0 L547.0,177.4 L547.0,182.6 Z" fill="#5b6169" stroke="#5b6169" stroke-width="0.5" />
+<path d="M640.0,180.0 L633.0,177.4 L633.0,182.6 Z" fill="#5b6169" stroke="#5b6169" stroke-width="0.5" />
+<text class="lbl" x="590.0" y="175.0" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="11.5" text-anchor="middle" font-weight="normal" fill="#5b6169" paint-order="stroke" stroke="#ffffff" stroke-width="3.5" stroke-linejoin="round">rak menjulur 10</text>
+<line x1="248.0" y1="420.0" x2="136.0" y2="420.0" stroke="#5b6169" stroke-width="0.8" />
+<line x1="398.0" y1="552.5" x2="206.0" y2="552.5" stroke="#5b6169" stroke-width="0.8" />
+<line x1="548.0" y1="594.0" x2="136.0" y2="594.0" stroke="#5b6169" stroke-width="0.6" stroke-dasharray="4 3" />
+<line x1="248.0" y1="685.0" x2="136.0" y2="685.0" stroke="#5b6169" stroke-width="0.8" />
+<line x1="210.0" y1="420.0" x2="210.0" y2="552.5" stroke="#5b6169" stroke-width="1" />
+<path d="M210.0,420.0 L207.4,427.0 L212.6,427.0 Z" fill="#5b6169" stroke="#5b6169" stroke-width="0.5" />
+<path d="M210.0,552.5 L207.4,545.5 L212.6,545.5 Z" fill="#5b6169" stroke="#5b6169" stroke-width="0.5" />
+<text class="lbl" x="202.0" y="490.2" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="12" text-anchor="end" font-weight="normal" fill="#5b6169" paint-order="stroke" stroke="#ffffff" stroke-width="3.5" stroke-linejoin="round">13,25</text>
+<line x1="140.0" y1="420.0" x2="140.0" y2="594.0" stroke="#5b6169" stroke-width="1" />
+<path d="M140.0,420.0 L137.4,427.0 L142.6,427.0 Z" fill="#5b6169" stroke="#5b6169" stroke-width="0.5" />
+<path d="M140.0,594.0 L137.4,587.0 L142.6,587.0 Z" fill="#5b6169" stroke="#5b6169" stroke-width="0.5" />
+<text class="lbl" x="132.0" y="511.0" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="12" text-anchor="end" font-weight="normal" fill="#5b6169" paint-order="stroke" stroke="#ffffff" stroke-width="3.5" stroke-linejoin="round">17,4</text>
+<line x1="140.0" y1="594.0" x2="140.0" y2="685.0" stroke="#5b6169" stroke-width="1" />
+<path d="M140.0,594.0 L137.4,601.0 L142.6,601.0 Z" fill="#5b6169" stroke="#5b6169" stroke-width="0.5" />
+<path d="M140.0,685.0 L137.4,678.0 L142.6,678.0 Z" fill="#5b6169" stroke="#5b6169" stroke-width="0.5" />
+<text class="lbl" x="132.0" y="643.5" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="12" text-anchor="end" font-weight="normal" fill="#5b6169" paint-order="stroke" stroke="#ffffff" stroke-width="3.5" stroke-linejoin="round">≈9,1 ke B</text>
+<line x1="400.0" y1="615.0" x2="540.0" y2="615.0" stroke="#5b6169" stroke-width="1" />
+<path d="M400.0,615.0 L407.0,612.4 L407.0,617.6 Z" fill="#5b6169" stroke="#5b6169" stroke-width="0.5" />
+<path d="M540.0,615.0 L533.0,612.4 L533.0,617.6 Z" fill="#5b6169" stroke="#5b6169" stroke-width="0.5" />
+<text class="lbl" x="470.0" y="610.0" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="11.5" text-anchor="middle" font-weight="normal" fill="#5b6169" paint-order="stroke" stroke="#ffffff" stroke-width="3.5" stroke-linejoin="round"></text>
+<line x1="400.0" y1="579.5" x2="400.0" y2="619.0" stroke="#5b6169" stroke-width="0.8" />
+<text class="lbl" x="470.0" y="609.0" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="11.5" text-anchor="middle" font-weight="normal" fill="#1f2328" paint-order="stroke" stroke="#ffffff" stroke-width="3.5" stroke-linejoin="round">≈14 (asumsi, belum terukur)</text>
+<text class="lbl" x="470.0" y="646.0" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="11.5" text-anchor="middle" font-weight="normal" fill="#1f2328" paint-order="stroke" stroke="#ffffff" stroke-width="3.5" stroke-linejoin="round">kedalaman lubang Ø5</text>
+<text class="lbl" x="258.0" y="374.0" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="12" text-anchor="start" font-weight="bold" fill="#1f2328" paint-order="stroke" stroke="#ffffff" stroke-width="3.5" stroke-linejoin="round">pelat A</text>
+<text class="lbl" x="258.0" y="739.0" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="12" text-anchor="start" font-weight="bold" fill="#1f2328" paint-order="stroke" stroke="#ffffff" stroke-width="3.5" stroke-linejoin="round">pelat B</text>
+<text class="lbl" x="280.0" y="490.0" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="12" text-anchor="start" font-weight="bold" fill="#1f2328" paint-order="stroke" stroke="#ffffff" stroke-width="3.5" stroke-linejoin="round">load cell</text>
+<text class="lbl" x="280.0" y="436.5" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="11" text-anchor="start" font-weight="bold" fill="#1f2328" paint-order="stroke" stroke="#ffffff" stroke-width="3.5" stroke-linejoin="round">Spacer A</text>
+<text class="lbl" x="652.0" y="437.5" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="11" text-anchor="start" font-weight="bold" fill="#1f2328" paint-order="stroke" stroke="#ffffff" stroke-width="3.5" stroke-linejoin="round">rak</text>
+<text class="lbl" x="590.0" y="485.0" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="11" text-anchor="middle" font-weight="bold" fill="#1f2328" paint-order="stroke" stroke="#ffffff" stroke-width="3.5" stroke-linejoin="round">blok</text>
+<line x1="30.0" y1="920.0" x2="1070.0" y2="920.0" stroke="#9aa1aa" stroke-width="0.8" />
+<text class="lbl" x="30.0" y="950.0" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="12.5" text-anchor="start" font-weight="normal" fill="#1f2328">Bidang potong A-A di sumbu lubang (x = 4,2) diarsir: pelat A dan B, load cell, Spacer A + rak + blok (satu cetakan PLA).</text>
+<text class="lbl" x="30.0" y="970.0" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="12.5" text-anchor="start" font-weight="normal" fill="#1f2328">Blok terpotong dua oleh lubang Ø4,1: z 0 sampai 11,2 (sisi A) dan z 15,3 sampai 17,4 (sisi B).</text>
+<text class="lbl" x="30.0" y="990.0" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="12.5" text-anchor="start" font-weight="normal" fill="#1f2328">Celah blok ke load cell 1. Dinding lubang: 2,1 ke arah B dan 11,2 ke arah A (diukur dari muka pelat A, termasuk rak 2,5).</text>
+<text class="lbl" x="30.0" y="1010.0" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="12.5" text-anchor="start" font-weight="normal" fill="#1f2328">Celah kabel Ø4 ke lubang Ø5 = (5 − 4) / 2 = 0,5 per sisi. Kabel dilem tembak lurus di lubang blok, tanpa lem ke aluminium.</text>
+<text class="lbl" x="30.0" y="1030.0" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="12.5" text-anchor="start" font-weight="normal" fill="#1f2328">Setelah blok kabel menekuk bebas ke arah B, R10 (asumsi), pusat busur di d = 9, z = 23,25; hanya arah rute.</text>
+<text class="lbl" x="30.0" y="1050.0" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="12.5" text-anchor="start" font-weight="normal" fill="#1f2328">Arah pandang: dari ujung tetap ke arah +x. A di atas, B di bawah. Sumber protokol: V1.</text>
+</svg>
