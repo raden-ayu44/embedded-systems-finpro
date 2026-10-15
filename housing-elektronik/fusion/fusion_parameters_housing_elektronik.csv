@@ -1,0 +1,31 @@
+Name,Unit,Expression,Value,Comments,Favorite
+PCB_L,mm,80 mm,80 mm,"panjang PCB LCD; terukur, sama dengan datasheet SunFounder LCD-1602A",false
+PCB_W,mm,36 mm,36 mm,"lebar PCB LCD; terukur, sama dengan datasheet",false
+PCB_H,mm,1.5 mm,1.5 mm,tebal PCB LCD (terukur kira-kira; datasheet 1.6),false
+PCB_hole_d,mm,3 mm,3 mm,diameter lubang mounting PCB LCD (4 lubang; terukur),false
+PCB_hole_pos,mm,1 mm,1 mm,jarak tepi lubang mounting ke tepi PCB (terukur),false
+frame_L,mm,71.5 mm,71.5 mm,panjang bingkai hitam (terukur),false
+frame_W,mm,24 mm,24 mm,lebar bingkai hitam (terukur),false
+frame_x_pos,mm,( PCB_L - frame_L ) / 2,4.25 mm,jarak bingkai hitam ke tepi kiri dan kanan PCB (bingkai di tengah),false
+frame_y_pos,mm,7 mm,7 mm,"jarak bingkai hitam ke tepi atas PCB (sisi header 16 pin); terukur. Sisi bawah = PCB_W - frame_W - frame_y_pos = 5 mm",false
+PCB_frame_H,mm,8.5 mm,8.5 mm,tinggi bingkai hitam + PCB,false
+frame_H,mm,PCB_frame_H - PCB_H,7 mm,tinggi bingkai hitam saja,false
+trap_H,mm,4 mm - PCB_H,2.5 mm,tinggi bagian putih trapesium (disolder ke PCB; keluar dari bingkai hitam),false
+trap_l_pos,mm,2.5 mm,2.5 mm,posisi sisi panjang trapesium: 2.5 mm dari tepi atas dan bawah bingkai,false
+trap_s_L,mm,4 mm,4 mm,panjang sisi pendek trapesium,false
+total_H,mm,16.9 mm,16.9 mm,tinggi total modul dengan backpack (dipakai untuk desain housing),true
+bp_H,mm,total_H - PCB_frame_H,8.4 mm,tinggi backpack di belakang PCB (total_H diukur dari muka bingkai hitam ke titik tertinggi backpack),false
+bp_L,mm,41.6 mm,41.6 mm,panjang backpack I2C,false
+bp_W,mm,18.8 mm,18.8 mm,lebar backpack I2C,false
+bp_r_pos,mm,47.8 mm,47.8 mm,tepi kanan backpack ke tepi kiri PCB,false
+bp_b_pos,mm,20 mm,20 mm,tepi bawah backpack ke tepi atas PCB,false
+bp_cable_L,mm,52 mm,52 mm,panjang kabel dari backpack,false
+cable_fillet_r,mm,5 mm,5 mm,jari-jari belokan kabel,false
+PCB_cable_L,mm,90 mm,90 mm,panjang kabel ke PCB (minimum),false
+comp_xy,mm,0.6 mm,0.6 mm,"kompensasi susut bukaan, tepi lurus sejajar build plate (total per dimensi, 0.3 per sisi); dari laporan modul 3D: LCD 80.6->80.0 dan 36.6->36.0, USB 16->15.4, HX711 12->11.3",true
+comp_z,mm,1 mm,1 mm,"kompensasi susut tinggi bukaan di dinding tegak (arah Z); dari laporan modul 3D: USB 8->7.0, HX711 6->5.0",true
+comp_hole,mm,1 mm,1 mm,"kompensasi susut lubang bulat kecil (diameter); dari laporan modul 3D: M3 3.4->2.4",true
+view_L,mm,64.5 mm,64.5 mm,"panjang area tampilan (layar) LCD; terukur",false
+view_W,mm,14 mm,14 mm,"lebar area tampilan (layar) LCD; terukur",false
+view_x_pos,mm,3 mm,3 mm,"jarak layar ke tepi kiri dan kanan bingkai hitam (terukur 3 mm per sisi); CEK: 64.5 + 2 x 3 = 70.5, bukan frame_L 71.5",false
+view_y_pos,mm,( frame_W - view_W ) / 2,5 mm,"jarak layar ke tepi atas dan bawah bingkai hitam (terukur 5 mm per sisi; cocok dengan frame_W)",false

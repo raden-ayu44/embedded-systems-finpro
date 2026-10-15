@@ -59,7 +59,7 @@ Cara pakai: isi semua baris yang bertanda **ISI**. Baris yang sudah terisi beras
 | Pin RATE (10 atau 80 SPS) pada papan | **ISI**: dihubungkan ke apa, bisa diubah? |
 | Tegangan AVDD yang sebenarnya di papan | **ISI**: ukur dengan multimeter (3,3 V atau 5 V) |
 | Dipakai di bagian | Perhitungan noise (0,4 g / 0,7 g), kalibrasi, firmware |
-| Diverifikasi dengan | **ISI** (uji noise 1000 sampel pada 10 dan 80 SPS) |
+| Diverifikasi dengan | Uji noise E1 pada 10 SPS, 706 sampel (15 Okt. 2026): σ 38,2 counts. 80 SPS: **ISI** |
 
 ### DS-ESP: ESP32
 
@@ -79,9 +79,9 @@ Cara pakai: isi semua baris yang bertanda **ISI**. Baris yang sudah terisi beras
 |---|---|
 | Kode | DS-LCD1 |
 | Pengontrol dan chip I2C | **ISI** (mis. HD44780 dan PCF8574 atau setara) |
-| Alamat I2C | **ISI** (0x27 atau 0x3F?) |
-| Tegangan dan arus | **ISI** |
-| Dimensi PCB dan jendela tampilan | **ISI** (rujuk tabel D1-D6 di catatan proyek) |
+| Alamat I2C | 0x27 (pindai, 15 Okt. 2026) |
+| Tegangan dan arus | Catu 5 V (VIN); di 3,3 V kontras gagal. SDA/SCL diam 4,93 V → level shifter BSS138 (DS-LLS1). Arus: **ISI** |
+| Dimensi PCB dan jendela tampilan | PCB 80 x 36; layar 64,5 x 14,0; tinggi total 16,9 (tab LCD I2C di [tabel-pengukuran-hgd.xlsx](../pengukuran/tabel-pengukuran-hgd.xlsx)) |
 | Dokumen | **ISI** |
 
 ### DS-LED, DS-RES, DS-BTN: komponen kecil
@@ -89,16 +89,16 @@ Cara pakai: isi semua baris yang bertanda **ISI**. Baris yang sudah terisi beras
 | Komponen | Isian |
 |---|---|
 | LED 5 mm | **ISI**: warna, tegangan maju, arus maksimum, dokumen |
-| Resistor pembatas | **ISI**: nilai, daya, perhitungan arus |
+| Resistor pembatas | 220 ohm, 1/4 W; (3,3 - 2,0) / 220 ≈ 6 mA (Vf LED **ISI**) |
 | Tombol tactile | **ISI**: tipe, arus kontak, dimensi, dokumen |
 
 ### DS-PWR: catu daya
 
 | Isian | Nilai |
 |---|---|
-| Sumber (USB, baterai, adaptor) | **ISI** |
+| Sumber (USB, baterai, adaptor) | USB saja; tanpa baterai (15 Okt. 2026) |
 | Regulator (jika ada) | **ISI**: tipe, noise keluaran |
-| Kapasitor decoupling untuk HX711 | **ISI**: nilai dan lokasi |
+| Kapasitor decoupling untuk HX711 | 100 nF keramik + 10 µF elektrolit di +3V3 dekat J1; 10 µF + 100 nF di +5V dekat J2 (LCD) |
 
 ### DS-MAT: bahan
 
