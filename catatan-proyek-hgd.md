@@ -428,7 +428,7 @@ Lihat Bagian 4 di [desain-pcb-hgd.md](pcb/desain-pcb-hgd.md). Jangan dibawa lewa
 | Housing grip | ◐ | Desain dan hitungan ada; menunggu sisa pengukuran load cell dan prototipe kardus |
 | Housing elektronik | ▣ | Rencana; belum dimodelkan |
 | Kalibrasi | ▣ | Protokol ada; belum dijalankan |
-| Pengujian | ◐ | U1-U3 ✔; sisanya menunggu perangkat |
+| Pengujian | ◐ | U1-U4, U7, U8 ✔ (U4/U7/U8 di breadboard 15 Okt. 2026, [hasil](firmware/sketches/hgd_bench_test/hasil-uji-2026-10-15.md)); sisanya menunggu perangkat |
 | Dokumen | ◐ | Catatan proyek v42, alur program v1, desain PCB v1, tabel pengukuran v1, sitasi v1, datasheet library |
 
 ### 15.2 Yang akan dikerjakan berikutnya

@@ -712,11 +712,11 @@ Menyala sepanjang `GENGGAM` (kedua fase, termasuk saat auto-reset), mati di luar
 | U1 | Loopback pin proyek (18, 19, 21, 22, 25, 27) | Semua pin lolos | ✔ 8 Okt. 2026 |
 | U2 | Catu papan (multimeter) | 3V3 ≈ 3,3 V, VIN ≈ 5 V | ✔ 3,26-3,34 V; 4,98-5,08 V |
 | U3 | Resistansi load cell (6 pasangan) | Masukan 401 ±10, keluaran 350 ±5 ohm | ✔ 10 Okt. 2026 (393; 347) |
-| U4 | Pemindai I2C | Alamat LCD terbaca (0x27/0x3F) | ▣ menunggu backpack diukur |
+| U4 | Pemindai I2C | Alamat LCD terbaca (0x27/0x3F) | ✔ 15 Okt. 2026: 0x27 ([hasil](sketches/hgd_bench_test/hasil-uji-2026-10-15.md)) |
 | U5 | Tegangan SDA/SCL backpack saat diam | Sesuai keputusan Bagian 6 di [desain-pcb-hgd.md](../pcb/desain-pcb-hgd.md) | ▣ |
 | U6 | E+ dan E− modul HX711; DVDD dari VCC? | E− ke GND, E+ stabil | ▣ menunggu modul |
-| U7 | Baca HX711 (sketsa uji lokal): respons, noise, tare, tanda | Tidak "NO RESPONSE", nilai berubah saat ditekan | ▣ menunggu modul |
-| U8 | Tombol: debounce, tap vs tahan | Satu tekanan = satu event | ▣ |
+| U7 | Baca HX711 ([hgd_bench_test.ino](sketches/hgd_bench_test/hgd_bench_test.ino)): respons, noise, tare, tanda | Tidak "NO RESPONSE", nilai berubah saat ditekan | ✔ 15 Okt. 2026 di breadboard; σ diam ≈ 0,9 g (kasar); tanda belum pasti; ada pencilan ≈ 79 kg ([hasil](sketches/hgd_bench_test/hasil-uji-2026-10-15.md)) |
+| U8 | Tombol: debounce, tap vs tahan | Satu tekanan = satu event | ✔ 15 Okt. 2026: 3 tap, 1 tahan, masing-masing satu event |
 | U9 | ACK: 100 baris, tiap baris berbalas | 100/100 ACK | ▣ |
 | U10 | Format baris dan checksum | Baris rusak dibalas NAK | ▣ |
 
@@ -751,7 +751,7 @@ Menyala sepanjang `GENGGAM` (kedua fase, termasuk saat auto-reset), mati di luar
 4. Untuk kalibrasi: `python kalibrasi.py <berkas-hasil>`.
 
 ### 12.3 Uji cepat load cell
-Sketsa uji cepat lokal, tidak di repo (DT = 18, SCK = 19): pembacaan 24 bit dengan pulsa ke-25, rata-rata 5 sampel dengan selisih terkecil dan terbesar, tare saat mulai dan lewat serial `t`, taksiran kg dengan 53.687 counts/kg, peringatan "NO RESPONSE" dan nilai macet. Dijalankan saat modul HX711 tiba.
+[hgd_bench_test.ino](sketches/hgd_bench_test/hgd_bench_test.ino) (DT = 18, SCK = 19): pembacaan 24 bit dengan pulsa ke-25, rata-rata 5 sampel dengan selisih terkecil dan terbesar, tare saat mulai, lewat serial `t`, dan lewat tahan tombol, taksiran kg dengan 53.687 counts/kg, peringatan "NO RESPONSE", saturasi, dan nilai macet, uji noise 60 s (`e`, E1), tombol tap/tahan, dan pemindai I2C. Dijalankan 15 Okt. 2026 di breadboard; hasil di [hasil-uji-2026-10-15.md](sketches/hgd_bench_test/hasil-uji-2026-10-15.md).
 
 ---
 

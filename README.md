@@ -7,7 +7,7 @@ Design and documentation for a hand grip strength meter, made for an embedded sy
 - Housing: two plain Al 6061-T6 plates (170 × 30 × 10 mm) with PLA spacers (28 × 28 × 2.5 mm), joined to the load cell with M6 × 25 bolts. The cable clamp is printed as one piece with spacer A.
 - Budget: maximum Rp300.000.
 
-**Status:** design and documentation stage. The ESP32 and its project pins have been tested; the housing, wiring and calibration are proposals. There is no load cell measurement data yet, and nothing here has been verified on hardware. Documents are written in Indonesian.
+**Status:** design and documentation stage. The ESP32 and its project pins have been tested; the housing, wiring and calibration are proposals. On 15 Oct. 2026 the whole circuit ran on a breadboard with the bench test sketch (I2C/LCD, HX711 reading the load cell, button, LED; results in [`firmware/sketches/hgd_bench_test/`](firmware/sketches/hgd_bench_test/hasil-uji-2026-10-15.md)). The load cell is not calibrated yet, and the PCB and housing are not built. Documents are written in Indonesian.
 
 ## Start here
 
@@ -17,7 +17,7 @@ Design and documentation for a hand grip strength meter, made for an embedded sy
 
 | Folder | Contents |
 |---|---|
-| [`firmware/`](firmware/) | `alur-program-hgd.md`: program flow for the ESP32 firmware and the laptop-side logger (data, constants, functions, state machine, logging); `sketches/esp32_uji_awal/` is the pin loopback test sketch |
+| [`firmware/`](firmware/) | `alur-program-hgd.md`: program flow for the ESP32 firmware and the laptop-side logger (data, constants, functions, state machine, logging); `sketches/esp32_uji_awal/` is the pin loopback test sketch; `sketches/hgd_bench_test/` is the breadboard bench test and its results |
 | [`pcb/`](pcb/) | `desain-pcb-hgd.md` (schematic and PCB design), `pcb_netlist.xlsx` (components with official part names, KiCad symbols and footprints, netlist), and [`kicad/`](pcb/kicad/README.md), the hub for KiCad files |
 | [`housing-load-cell/`](housing-load-cell/) | Grip housing design, assumptions (`asumsi.md`), drawings in `gambar/` (SVG), Fusion 360 parameters and instructions in `fusion/` |
 | [`housing-elektronik/`](housing-elektronik/) | Electronics housing plan |

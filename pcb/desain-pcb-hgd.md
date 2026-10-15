@@ -192,14 +192,14 @@ Penempatan memakai pinout DevKit V1 30 pin (kiri, antena di atas: EN, 36, 39, 34
 | Resistansi (multimeter DT9205A, rentang 2k, hasil tampil dalam kohm: 0,306 = 306 ohm) | Hitam-putih 393 ohm; merah-hijau 347 ohm; empat pasangan silang 260-306 ohm. Diulang dua kali, nilai sama | Pasangan masukan (eksitasi): datasheet 401 +-10 ohm, terukur 393, di dalam rentang. Pasangan keluaran (sinyal): datasheet 350 +-5 ohm, terukur 347, di dalam rentang. Pasangan silang memberi angka antara keduanya, sesuai jembatan penuh |
 | Pemetaan warna | **Eksitasi = hitam dan putih; sinyal = merah dan hijau** | Bertentangan dengan datasheet (merah/hitam eksitasi, hijau/putih sinyal) dan listing penjual. Jangan menyambung berdasarkan warna datasheet |
 | Polaritas (E+/E-, S+/S-) | Belum diketahui | Penukaran hanya membalik tanda pembacaan; tentukan di uji bertegangan pertama |
-| Uji bertegangan | Belum | Perlu modul HX711 atau catu 5 V dari ESP32 dan sel yang dijepit |
+| Uji bertegangan | Sebagian (15 Okt. 2026, HX711 pada 3V3, breadboard) | Sel merespons tekanan; noise diam ≈ 0,9 g (kasar). Tanda belum pasti karena sel belum dijepit ([hasil](../firmware/sketches/hgd_bench_test/hasil-uji-2026-10-15.md)) |
 
 Penyimpanan: kotak kedap udara dengan gelembung plastik (sisi gelembung menghadap sel), paket silika gel di luar bungkus gelembung, di laci bawah lemari; jauhkan dari kulkas (kondensasi dan getaran); jangan ada beban di atasnya dan jangan dibawa lewat kabel. Ujung kabel telanjang ditutup (isolasi PVC atau selongsong susut; selotip kertas hanya untuk label), dan tiap kabel diberi label peran dan hasil ukur. Biarkan kotak mencapai suhu ruang 10-15 menit sebelum dibuka.
 
 ### 9.5 Kode uji
 
 - [esp32_uji_awal.ino](../firmware/sketches/esp32_uji_awal/esp32_uji_awal.ino): uji loopback pin proyek (DS-ESP1).
-- Sketsa uji cepat HX711 (lokal, tidak di repo; Arduino IDE): DT = GPIO18, SCK = GPIO19; pembacaan 24 bit dengan pulsa ke-25; rata-rata 5 sampel dengan selisih terkecil dan terbesar; tare saat mulai dan lewat serial `t`; taksiran kg dengan 53.687 counts per kg (perkiraan awal); melaporkan "NO RESPONSE" dan nilai yang macet. Belum dijalankan karena menunggu modul HX711.
+- [hgd_bench_test.ino](../firmware/sketches/hgd_bench_test/hgd_bench_test.ino): uji bench seluruh rangkaian di breadboard (I2C/LCD, HX711 dan load cell, tombol, LED, uji noise E1). Dijalankan 15 Okt. 2026: U4, U7, U8 lolos; hasil di [hasil-uji-2026-10-15.md](../firmware/sketches/hgd_bench_test/hasil-uji-2026-10-15.md).
 
 ### 9.6 Sisa pekerjaan
 
