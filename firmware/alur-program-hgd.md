@@ -174,7 +174,7 @@ Hanya dua: `StatusTombol.flag` dan `StatusTombol.tsInt`, keduanya `volatile`. Va
 | `I2C_HZ` | 100000 | Kecepatan I2C LCD |
 | `BAUD` | 115200 | Serial ke laptop |
 | `OVERLOAD_KGF` | 96 (120% F.S.) | Batas aman desain load cell |
-| `LAJU_HX711` | 10 SPS | Bawaan papan modul |
+| `LAJU_HX711` | 10 SPS | Bawaan papan modul; terukur ≈ 11,8 SPS (E1, 15 Okt. 2026) |
 
 ### 3.2 Nilai awal yang disetel lewat eksperimen
 | Konstanta | Nilai awal | Cara menyetel |
@@ -193,7 +193,7 @@ Hanya dua: `StatusTombol.flag` dan `StatusTombol.tsInt`, keduanya `volatile`. Va
 ### 3.3 Eksperimen penyetelan
 | ID | Eksperimen | Keluaran |
 |----|------------|----------|
-| E1 | Noise load cell diam 60 s (alat sudah terpasang dan hangat 10 menit) | σ, threshold onset, durasi tare |
+| E1 | Noise load cell diam 60 s (alat sudah terpasang dan hangat 10 menit) | σ, threshold onset, durasi tare. Bench 15 Okt. 2026 (tanpa housing): σ = 38,2 counts ≈ 0,7 g, onset tetap 1,0 kg ([hasil](sketches/hgd_bench_test/hasil-uji-2026-10-15.md)); ulangi setelah housing jadi |
 | E2 | Lima genggaman latihan per anggota tim | Threshold stabilitas |
 | E3 | Pola jalan cahaya di LCD, delay 50-500 ms | Refresh LCD |
 | E4 | Uji tekan-tahan (tap vs tahan) | Ambang tahan |
