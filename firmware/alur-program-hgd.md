@@ -3,10 +3,10 @@ title: Alur Program - Hand Grip Dynamometer
 
 ---
 
-# Alur Program - Hand Grip Dynamometer (v1)
+# Alur Program - Hand Grip Dynamometer (v2)
 **Proyek akhir - embedded system**
 
-> **Status: rancangan.** Firmware dan perangkat lunak laptop belum dikode; semua isi di bawah adalah rencana kecuali yang bertanda ✔. Versi v1 (13 Okt. 2026), disusun dari alur proyek WIP-0.1 (10 Okt. 2026) dan Bagian 6-8 catatan lama. Tanda (✔ ▣ ◐ `[sitasi]`) dijelaskan di [catatan-proyek-hgd.md](../catatan-proyek-hgd.md); sumber `[sitasi]` ada di [sitasi-hgd.md](../sitasi/sitasi-hgd.md).
+> **Status: rancangan.** Firmware dan perangkat lunak laptop belum dikode; semua isi di bawah adalah rencana kecuali yang bertanda ✔. Sketsa uji modul (U4, U7, U8) sudah ada di `sketches/` (Bagian 11.3). Versi v2 (15 Okt. 2026): sitasi dan rujukan silang dikoreksi terhadap modul praktikum dan buku, hal terbuka dicatat di Bagian 18; keputusan desain tidak berubah. Versi v1 (13 Okt. 2026) disusun dari alur proyek WIP-0.1 (10 Okt. 2026) dan Bagian 6-8 catatan lama. Tanda (✔ ▣ ◐ `[sitasi]`) dijelaskan di [catatan-proyek-hgd.md](../catatan-proyek-hgd.md); sumber `[sitasi]` ada di [sitasi-hgd.md](../sitasi/sitasi-hgd.md).
 
 Dokumen ini memuat semua yang berkaitan dengan firmware ESP32 dan program sisi laptop: data dan state, konstanta, perlindungan input, fungsi, alur utama, pembacaan HX711, logging, antarmuka, pengujian modul, dan cara build. Fungsinya sama dengan "Alur Program" pada proyek C: menjawab *apa yang terjadi, urutannya, dan kenapa dipilih begitu*. Perangkat keras ada di [desain-pcb-hgd.md](../pcb/desain-pcb-hgd.md), prosedur kalibrasi di [protokol-kalibrasi-hgd.md](../kalibrasi/protokol-kalibrasi-hgd.md). Bagian 15-17 adalah lampiran dari catatan proyek lama yang sebagian tumpang tindih dengan Bagian 6 dan 10; perlu digabung kemudian.
 
@@ -29,6 +29,7 @@ Dokumen ini memuat semua yang berkaitan dengan firmware ESP32 dan program sisi l
 15. Lampiran: arsitektur sistem dan state machine (dari catatan proyek)
 16. Lampiran: narasi pengalaman pengguna (dari catatan proyek)
 17. Lampiran: catatan platform, ESP32 vs Raspberry Pi (dari catatan proyek)
+18. Hal terbuka dari pemeriksaan terhadap modul praktikum
 
 ---
 
@@ -58,9 +59,9 @@ Dokumen ini memuat semua yang berkaitan dengan firmware ESP32 dan program sisi l
 > Keduanya dipisah jelas dalam kode: ISR dan flag untuk event, fungsi `layaniGenggam()` untuk aliran data.
 
 ### 1.3 Dua lapisan state
-- **Lapisan luar (sesi):** `SiklusPercobaan` diulang 3 kali, lalu `RINGKASAN`. Satu interrupt transition di batas `SiklusPercobaan` menangani semua kegagalan sensor, tanpa panah `Error` dari tiap state anak `[sitasi]`.
+- **Lapisan luar (sesi):** `SiklusPercobaan` diulang 3 kali, lalu `RINGKASAN`. Satu transisi pengecualian di batas `SiklusPercobaan` menangani semua kegagalan sensor, tanpa panah `Error` dari tiap state anak `[sitasi]`. Istilah "transisi pengecualian" mengikuti Marwedel (keluar dari superstate untuk menangani exception); sebelumnya disebut "interrupt transition", diganti supaya tidak tertukar dengan interrupt perangkat keras.
 - **Lapisan dalam (percobaan):** `SIAP → GENGGAM → HITUNG → RESPON_ISTIRAHAT`.
-- **Implementasi:** state machine **berbasis tabel** (tabel baris `state × event → aksi, state berikut`) dengan satu mesin umum, supaya tiap baris mudah diuji terpisah `[sitasi]`.
+- **Implementasi:** state machine **berbasis tabel** (tabel baris `state × event → aksi, state berikut`) dengan satu mesin umum, supaya tiap baris mudah diuji terpisah. Ini pilihan tim: White membahas tabel sebagai salah satu cara mengkodekan state machine, tetapi menyarankan memilih bentuk dengan kode paling sedikit dan paling mudah dibaca (W3; bentuk akhir diputuskan saat pengkodean).
 
 ### 1.4 Struktur berkas firmware (Arduino IDE, tab)
 | Berkas | Isi |
@@ -182,7 +183,7 @@ Hanya dua: `StatusTombol.flag` dan `StatusTombol.tsInt`, keduanya `volatile`. Va
 | `THRESHOLD_ONSET_KG` | 1,0 | **E1**: rekam 60 detik load cell diam; ambil simpangan baku σ; onset = maks(1,0 kg; 10σ). Satu nilai dipakai untuk onset (naik), dilepas-terlalu-awal (turun), dan lepas di `RESPON_ISTIRAHAT` |
 | `THRESHOLD_STABIL_KG` | 0,5 | **E2**: genggaman latihan; selisih tertinggi-terendah buffer 5 sampel pada plateau nyata; threshold di atas fluktuasi tahan stabil |
 | `T_TARE_SAMPEL` | 10 | Tare = rata-rata 10 sampel ≈ 1 detik pada 10 SPS; diperiksa di **E1** |
-| `T_REFRESH_LCD_MS` | 250 | **E3**: coba 50-500 ms dengan pola jalan cahaya (tanpa tombol); pilih yang terbaca mata; + ≈ 20 ms cadangan I2C |
+| `T_REFRESH_LCD_MS` | 250 | **E3**: coba 50-500 ms dengan angka yang berubah di LCD (sketsa `uji_lcd_i2c`); pilih yang terbaca mata; + ≈ 20 ms cadangan I2C. Aturan modul praktikum ADC dan serial: layar tidak digambar ulang lebih cepat dari dua kali per detik (500 ms), karena tiap redraw berisi puluhan transaksi I2C; nilai 250 ms perlu alasan sendiri bila dipertahankan (Bagian 18) |
 | `T_TUNGGU_HX711_MS` | 1000 | Waktu maksimum menunggu `is_ready()`; HX711 10 SPS siap tiap ≈ 100 ms, jadi 1 s adalah 10× margin |
 | `T_TAHAN_MS` | 1500 | **E4**: uji tekan-tahan dengan beberapa orang; ambang di antara 1000 dan 2000 yang tidak terpicu tak sengaja |
 | `T_ACK_MS` | 2000 | **E5**: ukur waktu balasan `logger.py` pada 100 baris; ambang = 10× balasan terlama, tidak kurang dari 500 ms |
@@ -195,7 +196,7 @@ Hanya dua: `StatusTombol.flag` dan `StatusTombol.tsInt`, keduanya `volatile`. Va
 |----|------------|----------|
 | E1 | Noise load cell diam 60 s (alat sudah terpasang dan hangat 10 menit) | σ, threshold onset, durasi tare |
 | E2 | Lima genggaman latihan per anggota tim | Threshold stabilitas |
-| E3 | Pola jalan cahaya di LCD, delay 50-500 ms | Refresh LCD |
+| E3 | Angka berubah di LCD, refresh 50-500 ms (sketsa `uji_lcd_i2c` mencetak durasi tiap redraw) | Refresh LCD |
 | E4 | Uji tekan-tahan (tap vs tahan) | Ambang tahan |
 | E5 | 100 baris CSV + ACK | Timeout ACK |
 | E6 | Tarik kabel load cell perlahan | Besar pergeseran pembacaan akibat kabel (dokumen [desain-housing-load-cell.md](../housing-load-cell/desain-housing-load-cell.md)) |
@@ -205,13 +206,13 @@ Hanya dua: `StatusTombol.flag` dan `StatusTombol.tsInt`, keduanya `volatile`. Va
 ## 4. FUNGSI PELINDUNG
 
 ### 4.1 Debounce software (di dalam ISR)
-Kontak mekanik tombol memantul beberapa milidetik sehingga satu tekanan terbaca berkali-kali `[sitasi]`. Di dalam ISR: bila `millis() − tsInt < T_DEBOUNCE_MS`, interrupt diabaikan; selain itu `tsInt = millis()` dan `flag = true`.
+Kontak mekanik tombol memantul beberapa milidetik sehingga satu tekanan terbaca berkali-kali (modul praktikum GPIO; Russell soal 6.3). Pola debounce di dalam ISR mengikuti contoh interrupt pin di modul praktikum pewaktuan. Catatan: White (W1) justru menyebut pantulan sebagai ringing induktif, bukan mekanik; penjelasan yang dipakai di sini adalah versi modul. Di dalam ISR: bila `millis() − tsInt < T_DEBOUNCE_MS`, interrupt diabaikan; selain itu `tsInt = millis()` dan `flag = true`.
 
 ### 4.2 Pull-up internal
 Pin tombol memakai `INPUT_PULLUP`. Pin masukan yang tidak disambung ke apa pun mengambang dan dapat memicu interrupt acak `[sitasi]`.
 
 ### 4.3 `volatile`
-Variabel yang diubah ISR (`flag`, `tsInt`) dideklarasikan `volatile`. Tanpa itu compiler dapat meng-cache nilainya dan mesin state macet di `SIAP` walau tombol sudah ditekan `[sitasi]`.
+Variabel yang diubah ISR (`flag`, `tsInt`) dideklarasikan `volatile`. Tanpa itu compiler dapat meng-cache nilainya dan mesin state macet di `SIAP` walau tombol sudah ditekan (White bab 4; modul praktikum pewaktuan). Russell §9.1.2 (RU1) membahas salinan atomik variabel bersama, bukan `volatile`.
 
 ### 4.4 Reset flag tombol
 `flag` dan `tsMulaiTekan` di-reset tiap **masuk** state yang menunggu tombol: `SIAP`, `ERROR`, `GAGALSIMPAN`, sub-fase 2 `RESPON_ISTIRAHAT`, dan `RINGKASAN`. Tekanan nyasar dari state lain tidak tersimpan diam-diam lalu terkonsumsi di state yang sedang menunggu. Ini generalisasi dari aturan `volatile`.
@@ -253,17 +254,17 @@ Timer pengawas ESP32 (task watchdog) diaktifkan dengan **satu titik** `esp_task_
 > Daftar fungsi yang akan dikode. Format: tujuan, masukan/keluaran, langkah, pemakai.
 
 ### 5.1 `setup()` ▣
-Inisialisasi sekali: `Serial.begin(BAUD)`; `Wire.begin(21, 22)`; `Wire.setClock(I2C_HZ)`; LCD `begin`; `pinMode(LED, OUTPUT)`; `pinMode(TOMBOL, INPUT_PULLUP)` + `attachInterrupt(FALLING)`; `sensorInit()`; `mesinInit()` (sesi 1, percobaan 1, state `SIAP`); watchdog (setelah stabil).
+Inisialisasi sekali: `Serial.begin(BAUD)`; `Wire.begin(21, 22)`; `Wire.setClock(I2C_HZ)`; LCD `lcd.init()` dan `lcd.backlight()` (seperti modul praktikum ADC dan serial); `pinMode(LED, OUTPUT)`; `pinMode(TOMBOL, INPUT_PULLUP)` + `attachInterrupt(FALLING)`; `sensorInit()`; `mesinInit()` (sesi 1, percobaan 1, state `SIAP`); watchdog (setelah stabil).
 **Pemakai:** dijalankan Arduino core satu kali.
 
 ### 5.2 `loop()` ▣
 Satu pola: `tombolUpdate(); mesinJalan(); watchdogReset();`. Tidak ada `delay()` panjang; semua pewaktuan memakai `millis()`. Satu-satunya pemanggilan blocking adalah `sensorTare()` dan `sensorBaca()` (alasan di Bagian 6.4).
 
 ### 5.3 `isrTombol()` ▣
-ISR `IRAM_ATTR`. Menerapkan debounce 6.1. Hanya menulis `flag` dan `tsInt`. Tidak memanggil `Serial`, `Wire`, atau `millis` selain yang diperlukan.
+ISR `IRAM_ATTR`. Menerapkan debounce 4.1. Hanya menulis `flag` dan `tsInt`. Tidak memanggil `Serial`, `Wire`, atau `millis` selain yang diperlukan.
 
 ### 5.4 `tombolUpdate()` ▣
-Membaca level pin dan `flag`, menjalankan klasifikasi 6.5, dan mengisi `Tekan tekanan` (TIDAK/TAP/TAHAN). Dipanggil sekali per `loop()`.
+Membaca level pin dan `flag`, menjalankan klasifikasi 4.5, dan mengisi `Tekan tekanan` (TIDAK/TAP/TAHAN). Dipanggil sekali per `loop()`.
 **Pemakai:** `mesinJalan()`.
 
 ### 5.5 `tombolReset()` ▣
@@ -304,13 +305,13 @@ Menyusun baris `HGD,<jenis>,...*<checksum>` dengan `seq` berikutnya, mengirim le
 Non-blocking: dipanggil tiap loop sampai `ACK,<seq>` diterima (→ sukses), `NAK` atau `T_ACK_MS` lewat (→ kirim ulang sekali; bila gagal lagi → gagal).
 
 ### 5.17 `galatTahan(jenis, data)` ▣
-Lihat 6.6. Menampilkan jenis galat dan `raw` live (atau data yang gagal tersimpan), menunggu `TAHAN`.
+Lihat 4.6. Menampilkan jenis galat dan `raw` live (atau data yang gagal tersimpan), menunggu `TAHAN`.
 
 ### 5.18 `tampil*()` ▣
 Satu fungsi per state yang menggambar teks 16 karakter per baris (Bagian 10). Pembaruan LCD dibatasi `T_REFRESH_LCD_MS` agar tidak membanjiri bus I2C.
 
 ### 5.19 `mesinJalan()` ▣
-Memilih fungsi sesuai `State` saat ini lewat tabel transisi (Bagian 6.3), menangani interrupt transition ke `ERROR`, dan memanggil `*Masuk()` saat state berganti.
+Memilih fungsi sesuai `State` saat ini lewat tabel transisi (Bagian 6.3), menangani transisi pengecualian ke `ERROR`, dan memanggil `*Masuk()` saat state berganti.
 
 ### 5.20 `mesinSesiBaru()` ▣
 Mereset struct sesi (`memset`), menaikkan `nomorSesi`, `percobaanKe = 1`, `t0Ms = millis()`, state `SIAP`. Dipanggil dari `RINGKASAN` dan `GAGALSIMPAN` setelah RESTART.
@@ -335,7 +336,7 @@ MULAI (ESP32 dicatu USB; logger.py sudah berjalan di laptop)
 └─ loop() berulang selamanya:
    │
    ├─ tombolUpdate()        → TIDAK / TAP / TAHAN
-   ├─ mesinJalan()          → jalankan state aktif; cek interrupt transition
+   ├─ mesinJalan()          → jalankan state aktif; cek transisi pengecualian
    └─ watchdogReset()       → satu titik
 
 SESI (3 percobaan)
@@ -359,7 +360,7 @@ SESI (3 percobaan)
    │    ├─ ref = rata-rata buffer → hasil[percobaanKe]
    │    └─ validasiRef(ref):
    │         ├─ valid   → RESPON_ISTIRAHAT
-   │         └─ invalid → interrupt → ERROR (DI_LUAR_RENTANG)
+   │         └─ invalid → pengecualian → ERROR (DI_LUAR_RENTANG)
    │
    └─ [RESPON_ISTIRAHAT]  LED mati
         ├─ Sub-fase 1 LEPAS_ISTIRAHAT: LCD hasil + "Lepas, rest 60s";
@@ -368,7 +369,7 @@ SESI (3 percobaan)
              ├─ percobaanKe < 3 → percobaanKe++ → SIAP
              └─ percobaanKe = 3 → RINGKASAN
 
-[Interrupt transition dari batas SiklusPercobaan]
+[Transisi pengecualian dari batas SiklusPercobaan]
    HX711_TIMEOUT / ADC_SATURASI / DI_LUAR_RENTANG ──► [ERROR]
    [ERROR]: catat galat ke CSV; galatTahan(); TAHAN → SIAP (percobaanKe tidak berubah)
 
@@ -378,7 +379,7 @@ SESI (3 percobaan)
    └─ ACK gagal          → [GAGALSIMPAN]; galatTahan(); TAHAN → mesinSesiBaru()
 ```
 
-> **Kenapa hierarki dua lapisan?** Satu panah interrupt di batas `SiklusPercobaan` menggantikan satu panah `ERROR` dari tiap state anak; seperti aturan "alarm kebakaran: semua keluar gedung" tanpa aturan per ruangan `[sitasi]`.
+> **Kenapa hierarki dua lapisan?** Satu panah pengecualian di batas `SiklusPercobaan` menggantikan satu panah `ERROR` dari tiap state anak; seperti aturan "alarm kebakaran: semua keluar gedung" tanpa aturan per ruangan `[sitasi]`.
 
 ### 6.2 Rincian state
 
@@ -507,7 +508,7 @@ skala  = counts per kg dari regresi kalibrasi
 
 ### 7.3 Noise dan kestabilan
 - Noise masukan HX711 ≈ 50 nV rms (datasheet); pada 3,3 V noise relatif ≈ 1,5× pada 5 V karena sinyal 0,083 mV/kg versus 0,125 mV/kg. Diukur di E1, bukan diasumsikan.
-- Buffer melingkar 5 sampel dan rata-rata menekan noise acak; median disimpan sebagai cadangan bila ada pencilan `[sitasi]`.
+- Buffer melingkar 5 sampel dan rata-rata menekan noise acak; median disimpan sebagai cadangan bila ada pencilan (belum ada sumber buku terverifikasi; lihat Bagian 18).
 - Laju 10 SPS dipilih bawaan modul (80 SPS butuh modifikasi resistor 0 ohm pada papan, bukan lewat firmware).
 
 ### 7.4 Deteksi kegagalan sensor
@@ -663,9 +664,10 @@ timestamp,sesi,jenis,percobaan,gaya_kg,rerata_kg,catatan
 ## 10. ANTARMUKA PENGGUNA
 
 ### 10.1 Prinsip
-- LCD 16x2: **maksimal 16 karakter per baris**. Teks di bawah adalah bentuk ringkas dari kalimat lengkap pada tabel transisi (Bagian 4.3).
+- LCD 16x2: **maksimal 16 karakter per baris**. Teks di bawah adalah bentuk ringkas dari kalimat lengkap pada tabel transisi (Bagian 6.3).
 - Pengguna tidak melihat angka mentah (counts) yang belum terkalibrasi; pengecualian hanya untuk pengawas pada `ERROR` dan `GAGALSIMPAN`.
-- Refresh LCD diperlambat (`T_REFRESH_LCD_MS`) agar angka terbaca mata.
+- Refresh LCD diperlambat (`T_REFRESH_LCD_MS`) agar angka terbaca mata dan bus I2C tidak jenuh (modul praktikum ADC dan serial: tidak lebih cepat dari dua kali per detik).
+- Bidang angka ditulis dengan lebar tetap atau diakhiri spasi: LCD tidak menghapus sendiri, jadi angka yang memendek (25.3 menjadi 9.8) meninggalkan digit lama (modul praktikum ADC dan serial).
 - Kegagalan pembacaan tidak boleh senyap.
 
 ### 10.2 Teks per state (≤ 16 karakter per baris)
@@ -712,11 +714,11 @@ Menyala sepanjang `GENGGAM` (kedua fase, termasuk saat auto-reset), mati di luar
 | U1 | Loopback pin proyek (18, 19, 21, 22, 25, 27) | Semua pin lolos | ✔ 8 Okt. 2026 |
 | U2 | Catu papan (multimeter) | 3V3 ≈ 3,3 V, VIN ≈ 5 V | ✔ 3,26-3,34 V; 4,98-5,08 V |
 | U3 | Resistansi load cell (6 pasangan) | Masukan 401 ±10, keluaran 350 ±5 ohm | ✔ 10 Okt. 2026 (393; 347) |
-| U4 | Pemindai I2C | Alamat LCD terbaca (0x27/0x3F) | ▣ menunggu backpack diukur |
+| U4 | Pemindai I2C (sketsa `uji_lcd_i2c`) | Alamat LCD terbaca (0x27/0x3F) | ▣ menunggu backpack diukur |
 | U5 | Tegangan SDA/SCL backpack saat diam | Sesuai keputusan Bagian 6 di [desain-pcb-hgd.md](../pcb/desain-pcb-hgd.md) | ▣ |
 | U6 | E+ dan E− modul HX711; DVDD dari VCC? | E− ke GND, E+ stabil | ▣ menunggu modul |
-| U7 | Baca HX711 (sketsa uji lokal): respons, noise, tare, tanda | Tidak "NO RESPONSE", nilai berubah saat ditekan | ▣ menunggu modul |
-| U8 | Tombol: debounce, tap vs tahan | Satu tekanan = satu event | ▣ |
+| U7 | Baca HX711 (sketsa `uji_hx711`): respons, noise, tare, tanda, lama tunggu DT | Tidak "NO RESPONSE", nilai berubah saat ditekan; lama tunggu DT dicatat (Bagian 18) | ▣ menunggu modul |
+| U8 | Tombol dan LED (sketsa `uji_tombol_led`): debounce, tap vs tahan | 10 tap = 10 TAP; 10 tahan = 10 TAHAN tanpa TAP tambahan saat dilepas | ▣ |
 | U9 | ACK: 100 baris, tiap baris berbalas | 100/100 ACK | ▣ |
 | U10 | Format baris dan checksum | Baris rusak dibalas NAK | ▣ |
 
@@ -734,15 +736,26 @@ Menyala sepanjang `GENGGAM` (kedua fase, termasuk saat auto-reset), mati di luar
 | X9 | Tekan tombol sebelum masuk `SIAP` | Tekanan nyasar tidak terkonsumsi |
 | X10 | Tahan genggaman 5+ detik tanpa plateau | Force-stop, `HITUNG` dengan nilai buffer terbaik |
 
+### 11.3 Sketsa uji modul
+| Sketsa | Uji | Isi |
+|--------|-----|-----|
+| [`esp32_uji_awal`](sketches/esp32_uji_awal/esp32_uji_awal.ino) | U1 | Identitas chip, loopback pin, pindai I2C, lebar pulsa SCK |
+| [`uji_lcd_i2c`](sketches/uji_lcd_i2c/uji_lcd_i2c.ino) | U4, E3 | Pindai I2C, `lcd.init()`, angka berubah tiap 100 ms dengan redraw tiap `T_REFRESH_LCD_MS`; mencetak durasi I2C tiap redraw |
+| [`uji_hx711`](sketches/uji_hx711/uji_hx711.ino) | U7, X1 | Baca bit-bang 24 bit + pulsa ke-25, tare (`t`), rata-rata 10 sampel (`k`), status (`p`), taksiran kg 53.687 counts/kg, NO RESPONSE, saturasi, nilai macet, lama tunggu DT |
+| [`uji_tombol_led`](sketches/uji_tombol_led/uji_tombol_led.ino) | U8, X8 | ISR FALLING dengan debounce 50 ms, tap vs tahan 1500 ms, LED menyala selama ditekan; mencetak jumlah ISR diterima dan tepi mentah |
+
+Ketiga sketsa baru dikompilasi bersih untuk Arduino-ESP32 core 3.0.7 (papan DOIT ESP32 DEVKIT V1) dan belum dijalankan di perangkat keras. Semua memakai API yang sama di core 2.x dan 3.x.
+
 ---
 
 ## 12. BUILD DAN CARA MENJALANKAN
 
 ### 12.1 Firmware (Arduino IDE)
-1. Pasang dukungan papan ESP32; pilih papan **ESP32 Dev Module** (DevKit V1).
+1. Pasang dukungan papan ESP32 **core 3.x** (seluruh kode modul praktikum ditulis untuk core 3.x; API timer dan LEDC berbeda di core 2.x); pilih papan **ESP32 Dev Module** atau **DOIT ESP32 DEVKIT V1**.
 2. Pasang library: **HX711** dan library **LCD I2C** (LiquidCrystal_I2C atau yang kompatibel dengan PCF8574).
-3. Buka folder `hgd/` (tab-tab di 2.4), pilih port, kompilasi, unggah.
-4. Buka Serial Monitor pada **115200** baud untuk pemeriksaan.
+3. Buka folder `hgd/` (tab-tab di 1.4), pilih port, kompilasi, unggah.
+4. Buka Serial Monitor pada **115200** baud untuk pemeriksaan. Tutup Serial Monitor sebelum menjalankan `logger.py`: hanya satu program yang dapat memegang port.
+5. PlatformIO (env `esp32doit-devkit-v1`) juga bisa dipakai. Platform bawaan PlatformIO memakai core 2.x; sketsa uji di 11.3 kompatibel dengan keduanya, firmware utama perlu dicek bila memakai API timer atau LEDC.
 
 ### 12.2 Sisi laptop
 1. Pasang Python 3 dan `pip install pyserial`.
@@ -751,7 +764,7 @@ Menyala sepanjang `GENGGAM` (kedua fase, termasuk saat auto-reset), mati di luar
 4. Untuk kalibrasi: `python kalibrasi.py <berkas-hasil>`.
 
 ### 12.3 Uji cepat load cell
-Sketsa uji cepat lokal, tidak di repo (DT = 18, SCK = 19): pembacaan 24 bit dengan pulsa ke-25, rata-rata 5 sampel dengan selisih terkecil dan terbesar, tare saat mulai dan lewat serial `t`, taksiran kg dengan 53.687 counts/kg, peringatan "NO RESPONSE" dan nilai macet. Dijalankan saat modul HX711 tiba.
+Sketsa [`uji_hx711`](sketches/uji_hx711/uji_hx711.ino) (DT = 18, SCK = 19), menggantikan sketsa uji lokal sebelumnya: pembacaan 24 bit dengan pulsa ke-25, rata-rata 5 sampel dengan selisih terkecil dan terbesar, tare saat mulai dan lewat serial `t`, taksiran kg dengan 53.687 counts/kg, peringatan "NO RESPONSE" dan nilai macet, ditambah deteksi saturasi dan pencatatan lama tunggu DT. Dijalankan saat modul HX711 tiba.
 
 ---
 
@@ -806,10 +819,10 @@ Dirancang berlapis (hierarchical state, lihat §6.4) - bukan satu loop datar sep
 
 ### 15.1 Lapisan luar (per sesi)
 
-Ada satu **interrupt transition** yang berlaku untuk seluruh isi kotak `SiklusPercobaan` - bukan transisi dari satu state tertentu di dalamnya:
+Ada satu **transisi pengecualian** (dulu: interrupt transition) yang berlaku untuk seluruh isi kotak `SiklusPercobaan` - bukan transisi dari satu state tertentu di dalamnya:
 
 ```
-[Siklus percobaan] --(interrupt: kondisi error terdeteksi)--> [Error: tahan, tampilkan detail]
+[Siklus percobaan] --(pengecualian: kondisi error terdeteksi)--> [Error: tahan, tampilkan detail]
 [Error] --(tombol restart ditekan pengawas)--> kembali ke [Siklus percobaan]
 [Siklus percobaan] --(< 3 kali)--> kembali ke [Siklus percobaan] (siklus baru dari SIAP)
 [Siklus percobaan] --(= 3 kali)--> [Ringkasan: rata-rata & histori]
@@ -820,8 +833,8 @@ Ada satu **interrupt transition** yang berlaku untuk seluruh isi kotak `SiklusPe
 - **Catatan tampilan LCD**: teks layar tiap state untuk jalur normal tercatat di Bagian 15.2c. Tampilan layar `Error` dan `GagalSimpan` baru berupa garis besar (jenis kesalahan dan nilai ADC mentah live); bentuk finalnya ditentukan setelah modul Error Handling Library (W2) benar-benar dikoding, bukan didesain visual lebih dulu.
 - **Error**: state "tahan" (hold) sungguhan - alat berhenti total, menampilkan jenis error dan pembacaan ADC mentah **secara live** supaya pengawas bisa memeriksa fisik alat. Layar tidak berubah sampai pengawas menekan tombol RESTART (tekan-tahan, lihat bawah) - pola **"Error Handling Library"** (W2), dipakai lagi di `GagalSimpan`. Percobaan yang error TIDAK dihitung sebagai salah satu dari 3. Audiens: pengawas (TA/tim riset), bukan partisipan - larangan "tidak boleh lihat angka mentah" di Bagian 16 sengaja dikecualikan di sini. **Dicatat OTOMATIS ke CSV** (jenis error + `T+mm:ss`) - **keputusan direvisi** dari rencana logbook manual sebelumnya, berdasarkan pengalaman lab langsung: logbook manual di tengah kesibukan sesi pengukuran ternyata kurang efektif/sering terlewat dalam praktik, jadi dipindah ke mekanisme otomatis. Reuse infrastruktur CSV yang sama dengan Fitur #5 (logging data pengukuran) - cuma jenis barisnya beda (baris event error, bukan baris hasil pengukuran). **Kondisi pemicu (hanya kegagalan sensor/hardware, BUKAN human error - lihat pembagian filosofi di §6.2):** HX711 gagal `is_ready()`, ADC mendekati saturasi, nilai `ref` di luar rentang fisik masuk akal (terdeteksi di titik masuk RESPON+ISTIRAHAT, lihat §6.2).
 - **Satu tombol fisik untuk semua fungsi** (START, NEXT, RESTART - label beda secara fungsional/dokumentasi, tombol fisik sama) - keputusan direvisi dari draf lama yang sempat pakai 2 tombol terpisah. Alasan: di v5 (Bagian 5 di [catatan-proyek-hgd.md](../catatan-proyek-hgd.md)), yang menggenggam alat cuma anggota tim sendiri, jadi pembedaan "partisipan awam vs pengawas" yang jadi alasan 2-tombol dulu sudah tidak relevan. **`GagalSimpan` dan `Error` sama-sama dilabeli "RESTART" dan sama-sama butuh tekan-tahan ~1-2 detik** - direvisi dari rencana awal (`GagalSimpan` sempat cukup tap biasa dengan alasan "data sudah aman sebelum titik ini"). Itu **tidak lagi berlaku** sejak CSV jadi mekanisme logging inti (bukan cloud, lihat `Ringkasan` di bawah) - kalau CSV gagal ditulis, data **belum** aman, profil risikonya sama dengan `Error`.
-  - **Teknik implementasi tekan-tahan**: perpanjangan dari mekanisme debounce (W1) - sampling berkala + counter, ambang durasinya diperpanjang dari orde puluhan-ratusan ms (filter noise listrik) ke 1-2 detik (konfirmasi kesengajaan). Tidak ada sitasi buku spesifik untuk pola ini - sudah dicek ke Marwedel dan White, tidak dibahas eksplisit di keduanya. **Angka 1-2 detik masih tentatif (subject to change)** - perlu diuji fisik dulu. Sengaja tidak ditampilkan caranya di LCD - pengetahuan pengawas, bukan instruksi ke layar.
-- **Disiplin reset flag**: `tombolDitekan` (dan variabel durasi tekan terkait) wajib di-reset tiap masuk state yang akan menunggu tombol (`Siap`, `Error`, `GagalSimpan`, sub-fase 2 `Respon+Istirahat`) - supaya tekanan "nyasar" dari state lain tidak tersimpan diam-diam lalu tiba-tiba terkonsumsi di state lain yang sedang menunggu. Generalisasi dari RU1 (`volatile`).
+  - **Teknik implementasi tekan-tahan**: perpanjangan dari mekanisme debounce (modul praktikum GPIO) - sampling berkala + counter, ambang durasinya diperpanjang dari orde puluhan-ratusan ms (filter noise listrik) ke 1-2 detik (konfirmasi kesengajaan). Tidak ada sitasi buku spesifik untuk pola ini - sudah dicek ke Marwedel dan White, tidak dibahas eksplisit di keduanya. **Angka 1-2 detik masih tentatif (subject to change)** - perlu diuji fisik dulu. Sengaja tidak ditampilkan caranya di LCD - pengetahuan pengawas, bukan instruksi ke layar.
+- **Disiplin reset flag**: `tombolDitekan` (dan variabel durasi tekan terkait) wajib di-reset tiap masuk state yang akan menunggu tombol (`Siap`, `Error`, `GagalSimpan`, sub-fase 2 `Respon+Istirahat`) - supaya tekanan "nyasar" dari state lain tidak tersimpan diam-diam lalu tiba-tiba terkonsumsi di state lain yang sedang menunggu. Generalisasi dari aturan `volatile` (White bab 4) dan aturan modul praktikum pewaktuan "hapus flag sebelum kerja".
 - **Ringkasan**: terjadi satu kali saja, setelah percobaan ke-3. Hitung rata-rata 3 percobaan, ambil riwayat sesi lalu (sumbernya belum ditentukan, lihat Bagian 7 di [catatan-proyek-hgd.md](../catatan-proyek-hgd.md)), lalu kirim hasil sebagai baris CSV lewat USB-Serial. Pembagian peran: ESP32 hanya `Serial.print()` baris CSV, sedangkan skrip Python `logger.py` (pyserial, modul `csv` bawaan, `f.flush()` tiap baris; modul praktikum) di laptop yang benar-benar menulis berkas. Cloud bukan requirement (stretch goal, asinkron).
   - **Data tertulis**: tampilkan Peak HGS dan Avg HGS, tunggu tombol RESTART (tap biasa) untuk sesi baru.
   - **Data tidak terkonfirmasi tersimpan**: kondisi merugikan (data pengukuran berisiko hilang), jadi memicu pola Error Handling Library (W2) dan masuk state `GagalSimpan`: hold, tampilan live, keluar dengan tekan-tahan 1-2 detik. Nilai selalu juga dicetak ke Serial Monitor sehingga pengawas bisa menyalinnya manual sebelum keluar. `GagalSimpan` langsung ke akhir sesi (data pengukurannya sendiri benar, hanya tidak tersimpan; setelah diselamatkan manual tidak perlu mengulang sesi).
@@ -830,9 +843,9 @@ Ada satu **interrupt transition** yang berlaku untuk seluruh isi kotak `SiklusPe
 ### 15.2 Lapisan dalam (satu siklus percobaan): SIAP -> GENGGAM -> HITUNG
 
 **[SIAP]**
-- Menunggu interrupt tombol (bukan polling `digitalRead()`), agar tetap non-blocking (topik kuliah). Debounce **software** - abaikan re-trigger < ~50ms sejak interrupt terakhir (dicek di dalam ISR pakai `millis()`), teknik dari (W1) - dikonfirmasi juga di modul praktikum.
+- Menunggu interrupt tombol (bukan polling `digitalRead()`). Alasannya: loop bisa tertahan sampai ≈ 100 ms oleh pembacaan HX711 dan ≈ 1 s oleh tare, sehingga tap singkat bisa terlewat bila hanya di-polling. Polling dengan `millis()` sendiri tetap non-blocking (modul praktikum GPIO), jadi "agar non-blocking" bukan alasannya. Debounce **software** - abaikan re-trigger < ~50ms sejak interrupt terakhir (dicek di dalam ISR pakai `millis()`), pola dari modul praktikum (contoh interrupt pin dengan debounce di dalam ISR).
 - **Pin tombol wajib pakai pull-up** (internal `INPUT_PULLUP`, bukan dibiarkan floating) - kalau pin input tidak disambung ke apapun saat tidak ditekan, sinyalnya "mengambang" dan bisa memicu interrupt palsu secara acak (RU2).
-- **Variabel yang diubah di dalam ISR (misal flag "tombol ditekan") wajib dideklarasikan `volatile`** - tanpa ini, compiler bisa meng-optimasi pembacaan variabel itu di loop utama seolah nilainya tidak pernah berubah dari luar, dan state machine bisa macet permanen di `Siap` walau tombol sudah ditekan (RU1). Kalau nanti ada variabel multi-byte (misal timestamp `unsigned long`) yang dibaca ISR **dan** loop utama sekaligus, perlu hati-hati juga terhadap risiko "setengah lama-setengah baru" saat interrupt terjadi persis di tengah pembacaan (RU1) - untuk desain sekarang risiko ini belum relevan karena variabel debounce cuma diakses di dalam ISR sendiri, tapi perlu diingat kalau nanti ada variabel baru yang dishare ke loop utama.
+- **Variabel yang diubah di dalam ISR (misal flag "tombol ditekan") wajib dideklarasikan `volatile`** - tanpa ini, compiler bisa meng-optimasi pembacaan variabel itu di loop utama seolah nilainya tidak pernah berubah dari luar, dan state machine bisa macet permanen di `Siap` walau tombol sudah ditekan (White bab 4; modul praktikum pewaktuan). Kalau nanti ada variabel multi-byte (misal timestamp `unsigned long`) yang dibaca ISR **dan** loop utama sekaligus, perlu hati-hati juga terhadap risiko "setengah lama-setengah baru" saat interrupt terjadi persis di tengah pembacaan (RU1) - untuk desain sekarang risiko ini belum relevan karena variabel debounce cuma diakses di dalam ISR sendiri, tapi perlu diingat kalau nanti ada variabel baru yang dishare ke loop utama.
 - Auto-tare, dijalankan tiap masuk state ini (termasuk setelah kembali dari siklus sebelumnya) - **keputusan desain kami sendiri** (bukan dari sumber eksternal manapun - tidak ada satupun dari 5 paper referensi yang membahas auto-tare per percobaan), diputuskan karena kami membandingkan 3 percobaan dalam satu sesi untuk dirata-ratakan, jadi konsistensi titik nol antar percobaan penting untuk validitas data. Dua langkah berurutan dalam state yang sama: (1) tampilkan `"Menyesuaikan nol..."` di LCD, jalankan fungsi `tare()` (**blocking, diputuskan eksplisit** - dan ini bukan pilihan independen: `tare()` secara internal memanggil fungsi baca library HX711 yang sama dengan `get_units()` untuk menentukan offset nol, jadi blocking-nya adalah konsekuensi langsung dari memakai library HX711, sama seperti di GENGGAM - bukan dua keputusan terpisah, satu akar sebab yang sama. Diterima karena durasinya singkat dan tare cuma terjadi sekali per siklus, bukan berulang tiap iterasi loop); (2) begitu selesai (~1 detik, angka pasti menunggu pengujian fisik), ganti tampilan jadi `"Siap - tekan tombol"`. Tidak perlu animasi/state terpisah - durasi tare cukup singkat untuk cukup ditandai teks statis.
 - Tidak ada jalur ke ERROR dari state ini.
 
@@ -840,7 +853,7 @@ Ada satu **interrupt transition** yang berlaku untuk seluruh isi kotak `SiklusPe
 
 *Fase 1 - Menunggu mulai:* begitu masuk dari SIAP, timer 3-5 detik **belum jalan**. LED menyala (lihat rasional LED di bawah), LCD menampilkan `"Menunggu genggaman"`. Sistem cuma menunggu fluktuasi gaya pertama melewati **threshold onset** (nilai pasti menunggu eksperimen - sama metodologi dengan threshold kestabilan: ukur noise alami load cell diam, threshold di atas itu).
 
-*Fase 2 - Menghitung:* begitu threshold onset terlampaui, timer 3-5 detik mulai, LCD ganti jadi `"Tahan selama 3-5 detik"` (teks berbeda dari Fase 1 supaya pengguna tahu timer sudah berjalan). Baca ADC dari HX711, terapkan `calibration_factor`. HX711 `get_units()` bersifat blocking (~100ms pada 10Hz) - **diterima apa adanya**, sudah dibahas modul praktikum soal kapan delay masih acceptable. **Smoothing + deteksi plateau** (circular buffer, W5+W6): simpan 5 pembacaan terakhir dalam buffer melingkar, bandingkan selisih (tertinggi-terendah) terhadap threshold kestabilan. Konsep "tunggu sampai plateau" sejalan dengan protokol Box 1 (V1): *"squeeze... until I say stop (when the needle stops rising)"*.
+*Fase 2 - Menghitung:* begitu threshold onset terlampaui, timer 3-5 detik mulai, LCD ganti jadi `"Tahan selama 3-5 detik"` (teks berbeda dari Fase 1 supaya pengguna tahu timer sudah berjalan). Baca ADC dari HX711, terapkan `calibration_factor`. HX711 `get_units()` bersifat blocking (~100ms pada 10Hz) - **diterima apa adanya** (keputusan tim). Modul praktikum pewaktuan hanya membenarkan tunggu blocking sekali di `setup()`, saat belum ada tugas lain; dampaknya ke S2 dicatat di Bagian 18. **Smoothing + deteksi plateau** (circular buffer, W5+W6): simpan 5 pembacaan terakhir dalam buffer melingkar, bandingkan selisih (tertinggi-terendah) terhadap threshold kestabilan. Konsep "tunggu sampai plateau" sejalan dengan protokol Box 1 (V1): *"squeeze... until I say stop (when the needle stops rising)"*.
 
 **Threshold onset dan threshold "dilepas terlalu awal" adalah nilai yang SAMA, dicek dua arah** - naik melewati threshold saat Fase 1 = mulai (masuk Fase 2); turun kembali di bawah threshold itu **sebelum 3 detik** = dilepas terlalu awal. Ini simplifikasi sengaja - cuma butuh satu eksperimen kalibrasi, bukan dua threshold terpisah.
 
@@ -853,7 +866,7 @@ Ada satu **interrupt transition** yang berlaku untuk seluruh isi kotak `SiklusPe
 
 Tidak ada kondisi "gaya turun ke ambang" generik lagi seperti draf sangat awal - sudah digantikan mekanisme onset/plateau/5-detik di atas (dicek juga ke R2 & G2: tidak ada satupun referensi yang pakai threshold gaya untuk deteksi akhir - tetapi onset dan early-release di sini beda kategori: threshold hanya menentukan kapan timer mulai dan kapan percobaan di-reset, sedangkan akhir genggaman tetap ditentukan oleh plateau atau batas 5 detik).
 
-Refresh rate LCD tetap dipisah dari sample rate sensor via timer terpisah (`millis()`). Metodologi penentuan angka: eksperimen langsung (tantangan Walking Light dari modul praktikum tanpa tombol, coba delay 50-500ms) + ~20ms buffer kompensasi I2C (**estimasi teknis kami sendiri**). **Angka final masih menunggu hasil eksperimen.**
+Refresh rate LCD tetap dipisah dari sample rate sensor via timer terpisah (`millis()`). Metodologi penentuan angka: eksperimen E3 (angka berubah di LCD, coba 50-500 ms; tantangan Walking Light di modul praktikum GPIO adalah bar LED per tekanan tombol, bukan uji refresh LCD) + ~20ms buffer kompensasi I2C (**estimasi teknis kami sendiri**). Batas dari modul praktikum ADC dan serial: tidak lebih cepat dari dua kali per detik. **Angka final masih menunggu hasil eksperimen.**
 
 **Rasional LED (keputusan kami sendiri, bukan sitasi eksternal):** LED menyala sepanjang GENGGAM (kedua fase) sampai keluar (ke HITUNG atau ERROR). Alasannya murni aksesibilitas - refresh LCD **sengaja dilambatkan** (angka pasti belum ditentukan; kisaran uji 50-500 ms, lihat paragraf refresh rate di atas) supaya mata manusia bisa mengikuti angka yang berubah, tapi ini berarti pengguna belum tentu bisa "keep up" secara visual dengan LCD saat itu juga. LED jadi sinyal biner sederhana ("sedang aktif direkam") yang jauh lebih mudah diikuti mata dibanding membaca angka fluktuatif - pelengkap LCD, bukan pengganti.
 
@@ -863,7 +876,7 @@ Refresh rate LCD tetap dipisah dari sample rate sensor via timer terpisah (`mill
 - Sengaja TIDAK menghitung relative HGS (V3) di sini - dipindah ke analisis data pasca-pengukuran (Bagian 6 di [catatan-proyek-hgd.md](../catatan-proyek-hgd.md)).
 - Smoothing sudah selesai di GENGGAM - alasannya murni kualitas pengalaman, bukan soal larangan nilai mentah di Bagian 16.
 - Nilai float mentah tetap disimpan di memori sebelum dibulatkan untuk LCD nanti, supaya presisi tidak hilang untuk analisis akurasi (M5).
-- Transisi keluar: langsung ke RESPON+ISTIRAHAT (lihat bawah) - **validasi rentang nilai `ref` terjadi tepat di titik masuk RESPON+ISTIRAHAT ini, bukan di dalam HITUNG sendiri** (reject kalau `ref` > 100kg atau `ref` < 0 - **angka 100kg dari data Gotthelf (G1)**, angka ambang pasti menunggu pengujian fisik). Kalau valid → masuk RESPON+ISTIRAHAT normal. Kalau invalid (overshoot/undershoot) → interrupt transition ke ERROR dari batas SiklusPercobaan (§6.1) - ini kategori **kegagalan sensor**, jadi TETAP didokumentasikan penuh (beda dari early-release GENGGAM yang human error).
+- Transisi keluar: langsung ke RESPON+ISTIRAHAT (lihat bawah) - **validasi rentang nilai `ref` terjadi tepat di titik masuk RESPON+ISTIRAHAT ini, bukan di dalam HITUNG sendiri** (reject kalau `ref` > 100kg atau `ref` < 0 - **angka 100kg dari data Gotthelf (G1)**, angka ambang pasti menunggu pengujian fisik). Kalau valid → masuk RESPON+ISTIRAHAT normal. Kalau invalid (overshoot/undershoot) → transisi pengecualian ke ERROR dari batas SiklusPercobaan (§6.1) - ini kategori **kegagalan sensor**, jadi TETAP didokumentasikan penuh (beda dari early-release GENGGAM yang human error).
 
 **[RESPON+ISTIRAHAT]** - satu state, dua sub-fase berurutan (pola sama seperti GENGGAM dua fase).
 
@@ -890,7 +903,7 @@ stateDiagram-v2
         RESPON_ISTIRAHAT --> [*]: tombol ditekan (NEXT)
     }
 
-    SiklusPercobaan --> Error: interrupt - HX711 gagal / ADC saturasi / nilai di luar rentang (kegagalan sensor, untuk didokumentasikan di CSV error log)
+    SiklusPercobaan --> Error: pengecualian - HX711 gagal / ADC saturasi / nilai di luar rentang (kegagalan sensor, untuk didokumentasikan di CSV error log)
     Error --> SiklusPercobaan: tombol ditekan & tahan 1-2 detik (RESTART)
 
     SiklusPercobaan --> SiklusPercobaan: percobaan < 3 (siklus baru dimulai dari SIAP)
@@ -913,7 +926,7 @@ stateDiagram-v2
 
 | State | Yang terjadi (entry + loop) | Variabel kunci | Kondisi keluar → tujuan | Mekanisme waktu | Sitasi/basis | Status |
 |---|---|---|---|---|---|---|
-| SIAP | Entry: LCD "Menyesuaikan nol...", jalankan `tare()` (**blocking** - sama akar sebab dengan `get_units()`, dua-duanya panggilan library HX711). Setelah ~1s, LCD → "Siap - tekan tombol". Tunggu interrupt tombol. | `volatile bool tombolDitekan`; timestamp debounce di ISR | Tombol ditekan (lolos debounce ~50ms) → GENGGAM | `tare()` blocking ~1s (konsekuensi library HX711, bukan pilihan terpisah dari GENGGAM); sisanya interrupt-driven non-blocking | W1, RU1, RU2 | Closed |
+| SIAP | Entry: LCD "Menyesuaikan nol...", jalankan `tare()` (**blocking** - sama akar sebab dengan `get_units()`, dua-duanya panggilan library HX711). Setelah ~1s, LCD → "Siap - tekan tombol". Tunggu interrupt tombol. | `volatile bool tombolDitekan`; timestamp debounce di ISR | Tombol ditekan (lolos debounce ~50ms) → GENGGAM | `tare()` blocking ~1s (konsekuensi library HX711, bukan pilihan terpisah dari GENGGAM); sisanya interrupt-driven non-blocking | Modul praktikum GPIO dan pewaktuan, RU1, RU2, White bab 4 | Closed |
 | GENGGAM - Fase 1 | Entry: LED on, LCD "Menunggu genggaman". Polling ADC, bandingkan ke `thresholdOnset`. | `thresholdOnset` (TBD) | Force > `thresholdOnset` → lanjut Fase 2 (internal, state sama) | Non-blocking, belum ada timer aktif | Keputusan kami sendiri | Angka threshold masih open |
 | GENGGAM - Fase 2 | Mulai timer, LCD ganti "Tahan selama 3-5 detik". Baca HX711, isi circular buffer 5 sampel, cek stabilitas, update LCD tiap refresh interval. | `buffer[5]`, `thresholdStabilitas` (TBD), `startTime`, `elapsed` | (a) elapsed<3000ms & force<thresholdOnset → **auto-reset ringan ke Fase 1** (human error, TIDAK didokumentasikan, TIDAK masuk ERROR). (b) elapsed≥3000ms & buffer stabil → HITUNG. (c) elapsed≥5000ms → HITUNG paksa (force-stop) | Campuran: loop non-blocking; `get_units()` blocking ~100ms/baca | V1, W5+W6, R2+G2 | thresholdStabilitas dan refresh rate LCD masih pending eksperimen |
 | HITUNG | Simpan `ref` ke slot percobaan ke-n. **Tidak ada tampilan LCD.** Validasi rentang (0<ref≤100kg) terjadi di TITIK MASUK RESPON+ISTIRAHAT, bukan di sini. | `ref` (float presisi penuh), `percobaanKe` | → RESPON+ISTIRAHAT (kalau valid). Invalid → ERROR (kategori kegagalan sensor, didokumentasikan) | Non-blocking, one-shot | G1, M5, V3 | Angka ambang pasti (selain placeholder 100kg) masih pending fisik |
@@ -938,13 +951,13 @@ Pin dan antarmuka ada di Bagian 9 di [desain-pcb-hgd.md](../pcb/desain-pcb-hgd.m
 - Aktuator/PWM (dasar teori, meski buzzer akhirnya dilepas - LED di GENGGAM): **M4**
 - Metodologi validasi akurasi (Bagian 7 di [catatan-proyek-hgd.md](../catatan-proyek-hgd.md)): **M5**
 - Metodologi daftar risiko (Bagian 7 di [catatan-proyek-hgd.md](../catatan-proyek-hgd.md)): **M6**
-- Debounce tombol (SIAP): **W1**
+- Debounce tombol (SIAP): modul praktikum GPIO dan pewaktuan; Russell soal 6.3 (bukan W1, lihat §4.1)
 - Pull-up internal, hindari floating pin (SIAP): **RU2**
-- Kebenaran teknis ISR-loop utama, `volatile` (SIAP): **RU1**
+- Kebenaran teknis ISR-loop utama, salinan atomik (SIAP): **RU1**; `volatile`: White bab 4
 - Pola shared-module Error/GagalSimpan (§6.1): **W2**
 - Cara implementasi kode state machine (belum dikerjakan; diputuskan saat implementasi firmware): **W3**
 - Watchdog (belum diintegrasikan; dipertimbangkan saat implementasi firmware): **W4**
-- Smoothing nilai puncak (GENGGAM): **W5, W6**
+- Smoothing nilai puncak (GENGGAM): **W5, W6** (bagian median W6 belum terverifikasi)
 - Event-driven vs data-driven, dasar kenapa GENGGAM "terasa beda": **W7**
 - Durasi tahan, rest antar percobaan (GENGGAM, Istirahat): **V1**
 - Deteksi plateau (GENGGAM): **V1**
@@ -986,3 +999,19 @@ Pin dan antarmuka ada di Bagian 9 di [desain-pcb-hgd.md](../pcb/desain-pcb-hgd.m
 | Safety-critical | Mungkin | Biasanya tidak |
 
 Argumen: alat genggam butuh ukuran kompak, daya rendah, dan pewaktuan yang bisa diprediksi (non-blocking) - ESP32 cocok, PC/laptop tidak.
+
+---
+
+## 18. HAL TERBUKA DARI PEMERIKSAAN TERHADAP MODUL PRAKTIKUM
+
+*Dicatat 15 Okt. 2026. Keputusan desain di atas tidak diubah; tiap butir menunggu keputusan tim atau hasil uji. Kode A di kolom pertama sama dengan catatan pemeriksaan tim.*
+
+| Kode | Hal | Menurut modul praktikum | Cara menyelesaikan |
+|------|-----|-------------------------|--------------------|
+| A5 | `sensorBaca()` menunggu DT turun sampai ≈ 100 ms tiap baca; tare ≈ 1 s tiap masuk `SIAP` | Tunggu blocking hanya dibenarkan sekali di `setup()`. Satu putaran lambat menggeser semua tugas terjadwal; rubrik praktikum menempatkan blocking di loop utama di pita B/C. S2 (update 100 ms, ±10-20 ms) tidak dapat dijamin bila satu putaran menunggu HX711, termasuk di `RESPON_ISTIRAHAT` | Lihat lama tunggu DT dari `uji_hx711` (U7). Pilihan: tetap blocking dan S2 direvisi, atau baca hanya saat DT sudah rendah (pembacaan 25 pulsa sendiri ≈ 50 µs) |
+| A6 | `T_REFRESH_LCD_MS` = 250 ms | Tidak lebih cepat dari dua kali per detik (500 ms) | Hasil E3 dari `uji_lcd_i2c`; bila 250 ms dipertahankan, tulis alasannya |
+| A7 | Hitung mundur diperbarui tiap 100 ms "tanpa ganti layar" | Layar menampilkan detik bulat dan redraw dibatasi `T_REFRESH_LCD_MS`, jadi update 100 ms tidak tampak | Tetapkan apa yang diukur S2: pembaruan nilai internal, atau pembaruan layar |
+| A8 | Cadangan: salin nilai dari Serial Monitor saat `GAGALSIMPAN` (§4.8, §9.6, §10.5, X4) | Hanya satu program dapat memegang port; membuka port me-reset ESP32 (karena itu contoh `logger.py` menunggu 2 detik). Membuka Serial Monitor, atau menjalankan ulang `logger.py`, setelah `logger.py` mati akan me-reset alat dan menghapus data sesi di RAM | Tetapkan cadangan yang tidak membuka port: konsol `logger.py` selama masih hidup, atau layar LCD (saat ini `GAGALSIMPAN` hanya menampilkan puncak dan rerata) |
+| A12 | Debounce ISR 50 ms dari tepi pertama; klasifikasi tap dan tahan dari level pin | Pantulan saat **lepas** setelah tekanan > 50 ms dapat menghasilkan tepi FALLING baru yang diterima ISR. Modul praktikum GPIO mempercayai level hanya setelah stabil 50 ms, dan mencatat debounce perangkat keras lebih tepat bila tepi langsung memicu interrupt | Uji `uji_tombol_led` (U8): bandingkan jumlah tekanan fisik dengan "ISR diterima" dan jumlah TAP |
+| A13 | Median sebagai cadangan pencilan (W6) | Tidak ada di PDF White yang dipakai tim; yang ada rolling average dan block average | Cek edisi cetak, atau hapus sitasi |
+

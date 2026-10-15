@@ -3,7 +3,7 @@ title: Catatan Proyek - Hand Grip Dynamometer
 
 ---
 
-# Catatan Proyek - Hand Grip Dynamometer (v42)
+# Catatan Proyek - Hand Grip Dynamometer (v43)
 **Proyek akhir - embedded system**
 
 > Catatan kerja proyek akhir mata kuliah embedded system, sekaligus **dokumen induk**: ringkasan, kebutuhan, rumusan masalah, spesifikasi, BOM, risiko, jadwal, anggaran, keselamatan, riwayat keputusan, dan log audit ada di sini; bahan teknis dipecah ke dokumen di peta di bawah. Ditulis supaya bisa dibaca sendiri (offline). Dipakai untuk G2-G4, makalah akhir, dan demo.
@@ -12,7 +12,7 @@ title: Catatan Proyek - Hand Grip Dynamometer
 
 | Dokumen | Isi | Status |
 |---|---|---|
-| [firmware/alur-program-hgd.md](firmware/alur-program-hgd.md) | Seluruh firmware dan perangkat lunak laptop: struktur berkas, struktur data, konstanta, fungsi, state machine, HX711 dan sinyal, kalibrasi (pengolahan data), logging, antarmuka, uji modul, build, constraint | Rencana (v1); belum dikode |
+| [firmware/alur-program-hgd.md](firmware/alur-program-hgd.md) | Seluruh firmware dan perangkat lunak laptop: struktur berkas, struktur data, konstanta, fungsi, state machine, HX711 dan sinyal, kalibrasi (pengolahan data), logging, antarmuka, uji modul, build, constraint, hal terbuka (Bagian 18) | Rencana (v2); firmware utama belum dikode; sketsa uji U4, U7, U8 ada di `firmware/sketches/` |
 | [pcb/desain-pcb-hgd.md](pcb/desain-pcb-hgd.md) | Skema dan PCB: komponen, alokasi pin, rantai sinyal, load cell, catu, wiring, netlist, pemeriksaan komponen, sisa pekerjaan | Draf PCB v1 (non-formal) untuk 14 Okt. 2026 |
 | [pcb/pcb_netlist.xlsx](pcb/pcb_netlist.xlsx) | Netlist; komponen dengan nama umum, nama part resmi, simbol dan footprint KiCad; modul di luar PCB; asumsi dan sisa | Draf take-home |
 | [pcb/kicad/README.md](pcb/kicad/README.md) | Hub berkas KiCad: simbol dan footprint kustom, struktur folder untuk proyek, pustaka, PDF, dan Gerber | Rencana; belum ada berkas KiCad |
@@ -429,7 +429,7 @@ Lihat Bagian 4 di [desain-pcb-hgd.md](pcb/desain-pcb-hgd.md). Jangan dibawa lewa
 | Housing elektronik | ▣ | Rencana; belum dimodelkan |
 | Kalibrasi | ▣ | Protokol ada; belum dijalankan |
 | Pengujian | ◐ | U1-U3 ✔; sisanya menunggu perangkat |
-| Dokumen | ◐ | Catatan proyek v42, alur program v1, desain PCB v1, tabel pengukuran v1, sitasi v1, datasheet library |
+| Dokumen | ◐ | Catatan proyek v43, alur program v2, desain PCB v1, tabel pengukuran v1, sitasi v1, datasheet library |
 
 ### 15.2 Yang akan dikerjakan berikutnya
 1. Draf PCB v1 dibawa ke kelas 14 Okt. 2026; catat persyaratan tugas PCB dari kelas.
@@ -458,6 +458,7 @@ Lihat Bagian 4 di [desain-pcb-hgd.md](pcb/desain-pcb-hgd.md). Jangan dibawa lewa
 - Tenggat gerber: konflik panduan (Minggu 7) dan panduan tugas (Minggu 8) belum terkonfirmasi (Bagian 4.1).
 - Media logging: SD card hanya fasilitas opsional lab (satu unit); cloud opsional menurut Panduan; keputusan: CSV lewat USB-Serial sebagai inti (Bagian 5 dan Bagian 15.1 di [alur-program-hgd.md](firmware/alur-program-hgd.md)).
 - Persyaratan format resmi: status per item di Bagian 4.3.
+- v43 (15 Okt. 2026): alur program menjadi v2 (sitasi dan rujukan silang dikoreksi terhadap modul praktikum dan buku, istilah "interrupt transition" menjadi "transisi pengecualian", hal terbuka A5-A13 di Bagian 18); sketsa uji `uji_lcd_i2c`, `uji_hx711`, `uji_tombol_led` ditambahkan.
 - v42 (13 Okt. 2026): catatan dipecah menjadi dokumen induk (ini) dan dokumen terpisah: `alur-program-hgd.md` (semua firmware, dari `alur-proyek-hgd.md` dan Bagian 6-8 lama), `desain-pcb-hgd.md` (Bagian 16 lama dan perangkat keras di alur), `desain-housing-elektronik.md`, `tabel-pengukuran-hgd.xlsx` (Bagian 15 lama), dan `sitasi-hgd.md` (Bagian 11 lama dan sitasi alur). `alur-proyek-hgd.md` dihapus; isi housing grip di alur sudah tercakup `desain-housing-load-cell.md`. Penomoran bagian berubah; nomor bagian di entri log v41 ke bawah memakai penomoran sebelum pemecahan.
 - v41 (13 Okt. 2026): isi proposal dihapus dari catatan ini (Bagian 13 dikosongkan, audit proposal v26 dihapus, rujukan "sudah di proposal" diganti status dari catatan sendiri); catatan belum merujuk dokumen formal.
 - v40 (13 Okt. 2026): ditambahkan Bagian 11.10 (daftar pustaka gaya IEEE untuk buku dan paper pada Bagian 11, dengan pemetaan kode lokal ke entri).
