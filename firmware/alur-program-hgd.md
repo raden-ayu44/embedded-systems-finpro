@@ -3,10 +3,10 @@ title: Alur Program - Hand Grip Dynamometer
 
 ---
 
-# Alur Program - Hand Grip Dynamometer (v2)
+# Alur Program - Hand Grip Dynamometer (v3)
 **Proyek akhir - embedded system**
 
-> **Status: rancangan.** Firmware dan perangkat lunak laptop belum dikode; semua isi di bawah adalah rencana kecuali yang bertanda ✔. Sketsa uji modul (U4, U7, U8) sudah ada di `sketches/` (Bagian 11.3). Versi v2 (15 Okt. 2026): sitasi dan rujukan silang dikoreksi terhadap modul praktikum dan buku, hal terbuka dicatat di Bagian 18; keputusan desain tidak berubah. Versi v1 (13 Okt. 2026) disusun dari alur proyek WIP-0.1 (10 Okt. 2026) dan Bagian 6-8 catatan lama. Tanda (✔ ▣ ◐ `[sitasi]`) dijelaskan di [catatan-proyek-hgd.md](../catatan-proyek-hgd.md); sumber `[sitasi]` ada di [sitasi-hgd.md](../sitasi/sitasi-hgd.md).
+> **Status: rancangan.** Firmware dan perangkat lunak laptop belum dikode; semua isi di bawah adalah rencana kecuali yang bertanda ✔. Sketsa uji modul (U4, U7, U8) sudah ada di `sketches/` (Bagian 11.3). Versi v3 (16 Okt. 2026): hasil uji bench 15 Okt. 2026 (U4, U5, U7, U8 sebagian, E1) dicatat; `THRESHOLD_ONSET_KG` = 1,0 kg terkonfirmasi E1; data untuk A5 dan A12 di Bagian 18. Versi v2 (15 Okt. 2026): sitasi dan rujukan silang dikoreksi terhadap modul praktikum dan buku, hal terbuka dicatat di Bagian 18; keputusan desain tidak berubah. Versi v1 (13 Okt. 2026) disusun dari alur proyek WIP-0.1 (10 Okt. 2026) dan Bagian 6-8 catatan lama. Tanda (✔ ▣ ◐ `[sitasi]`) dijelaskan di [catatan-proyek-hgd.md](../catatan-proyek-hgd.md); sumber `[sitasi]` ada di [sitasi-hgd.md](../sitasi/sitasi-hgd.md).
 
 Dokumen ini memuat semua yang berkaitan dengan firmware ESP32 dan program sisi laptop: data dan state, konstanta, perlindungan input, fungsi, alur utama, pembacaan HX711, logging, antarmuka, pengujian modul, dan cara build. Fungsinya sama dengan "Alur Program" pada proyek C: menjawab *apa yang terjadi, urutannya, dan kenapa dipilih begitu*. Perangkat keras ada di [desain-pcb-hgd.md](../pcb/desain-pcb-hgd.md), prosedur kalibrasi di [protokol-kalibrasi-hgd.md](../kalibrasi/protokol-kalibrasi-hgd.md). Bagian 15-17 adalah lampiran dari catatan proyek lama yang sebagian tumpang tindih dengan Bagian 6 dan 10; perlu digabung kemudian.
 
@@ -86,8 +86,8 @@ Dokumen ini memuat semua yang berkaitan dengan firmware ESP32 dan program sisi l
 | Unit | Isi |
 |------|-----|
 | Housing grip | Hanya pelat A/B + load cell + spacer + baut + penjepit kabel |
-| Housing elektronik | PCB (ESP32, tombol, LED, resistor), LCD, modul HX711 |
-| Penghubung | Kabel load cell (4 inti) ke modul HX711; kabel jumper F-M dari PCB ke LCD dan HX711; USB ke laptop |
+| Housing elektronik | PCB (ESP32, modul HX711 dan level shifter dicolok ke soket, tombol, LED, resistor), LCD di tutup |
+| Penghubung | Kabel load cell (4 inti) ke modul HX711; kabel jumper F-M dari PCB (J2) ke LCD; USB ke laptop |
 
 ---
 
@@ -180,9 +180,9 @@ Hanya dua: `StatusTombol.flag` dan `StatusTombol.tsInt`, keduanya `volatile`. Va
 ### 3.2 Nilai awal yang disetel lewat eksperimen
 | Konstanta | Nilai awal | Cara menyetel |
 |-----------|------------|---------------|
-| `THRESHOLD_ONSET_KG` | 1,0 | **E1**: rekam 60 detik load cell diam; ambil simpangan baku σ; onset = maks(1,0 kg; 10σ). Satu nilai dipakai untuk onset (naik), dilepas-terlalu-awal (turun), dan lepas di `RESPON_ISTIRAHAT` |
+| `THRESHOLD_ONSET_KG` | 1,0 ✔ | **E1**: rekam 60 detik load cell diam; ambil simpangan baku σ; onset = maks(1,0 kg; 10σ). Satu nilai dipakai untuk onset (naik), dilepas-terlalu-awal (turun), dan lepas di `RESPON_ISTIRAHAT`. **Hasil 15 Okt. 2026:** σ = 38,2 counts = 0,0007 kg, jadi 10σ = 0,007 kg dan onset tetap 1,0 kg |
 | `THRESHOLD_STABIL_KG` | 0,5 | **E2**: genggaman latihan; selisih tertinggi-terendah buffer 5 sampel pada plateau nyata; threshold di atas fluktuasi tahan stabil |
-| `T_TARE_SAMPEL` | 10 | Tare = rata-rata 10 sampel ≈ 1 detik pada 10 SPS; diperiksa di **E1** |
+| `T_TARE_SAMPEL` | 10 | Tare = rata-rata 10 sampel ≈ 1 detik pada 10 SPS; diperiksa di **E1** (15 Okt. 2026: sebaran 10 sampel tare 48 counts ≈ 0,9 g) |
 | `T_REFRESH_LCD_MS` | 250 | **E3**: coba 50-500 ms dengan angka yang berubah di LCD (sketsa `uji_lcd_i2c`); pilih yang terbaca mata; + ≈ 20 ms cadangan I2C. Aturan modul praktikum ADC dan serial: layar tidak digambar ulang lebih cepat dari dua kali per detik (500 ms), karena tiap redraw berisi puluhan transaksi I2C; nilai 250 ms perlu alasan sendiri bila dipertahankan (Bagian 18) |
 | `T_TUNGGU_HX711_MS` | 1000 | Waktu maksimum menunggu `is_ready()`; HX711 10 SPS siap tiap ≈ 100 ms, jadi 1 s adalah 10× margin |
 | `T_TAHAN_MS` | 1500 | **E4**: uji tekan-tahan dengan beberapa orang; ambang di antara 1000 dan 2000 yang tidak terpicu tak sengaja |
@@ -194,7 +194,7 @@ Hanya dua: `StatusTombol.flag` dan `StatusTombol.tsInt`, keduanya `volatile`. Va
 ### 3.3 Eksperimen penyetelan
 | ID | Eksperimen | Keluaran |
 |----|------------|----------|
-| E1 | Noise load cell diam 60 s (alat sudah terpasang dan hangat 10 menit) | σ, threshold onset, durasi tare |
+| E1 | Noise load cell diam 60 s (alat sudah terpasang dan hangat 10 menit) | σ, threshold onset, durasi tare. ✔ 15 Okt. 2026 di bench (load cell belum di housing): n = 706, σ 38,2 counts (0,0007 kg), peak-to-peak 206 counts (0,004 kg), drift baseline ≈ 60 counts (≈ 1 g) dalam ≈ 2 menit. Ulangi setelah housing dirakit |
 | E2 | Lima genggaman latihan per anggota tim | Threshold stabilitas |
 | E3 | Angka berubah di LCD, refresh 50-500 ms (sketsa `uji_lcd_i2c` mencetak durasi tiap redraw) | Refresh LCD |
 | E4 | Uji tekan-tahan (tap vs tahan) | Ambang tahan |
@@ -507,7 +507,7 @@ skala  = counts per kg dari regresi kalibrasi
 - Satuan Newton: `N = kg × 9,80665`, ditampilkan bila layar mengizinkan.
 
 ### 7.3 Noise dan kestabilan
-- Noise masukan HX711 ≈ 50 nV rms (datasheet); pada 3,3 V noise relatif ≈ 1,5× pada 5 V karena sinyal 0,083 mV/kg versus 0,125 mV/kg. Diukur di E1, bukan diasumsikan.
+- Noise masukan HX711 ≈ 50 nV rms (datasheet); pada 3,3 V noise relatif ≈ 1,5× pada 5 V karena sinyal 0,083 mV/kg versus 0,125 mV/kg. **Terukur (E1, 15 Okt. 2026, catu 3,3 V, 10 SPS):** σ 38,2 counts ≈ 0,7 g; peak-to-peak 206 counts ≈ 4 g (≈ 5,4σ, sebaran acak biasa). Percobaan E1 pertama tidak valid karena jumper DT/SCK longgar menghasilkan pembacaan bergeser bit; di PCB modul HX711 dicolok langsung ke soket J1.
 - Buffer melingkar 5 sampel dan rata-rata menekan noise acak; median disimpan sebagai cadangan bila ada pencilan (belum ada sumber buku terverifikasi; lihat Bagian 18).
 - Laju 10 SPS dipilih bawaan modul (80 SPS butuh modifikasi resistor 0 ohm pada papan, bukan lewat firmware).
 
@@ -714,11 +714,11 @@ Menyala sepanjang `GENGGAM` (kedua fase, termasuk saat auto-reset), mati di luar
 | U1 | Loopback pin proyek (18, 19, 21, 22, 25, 27) | Semua pin lolos | ✔ 8 Okt. 2026 |
 | U2 | Catu papan (multimeter) | 3V3 ≈ 3,3 V, VIN ≈ 5 V | ✔ 3,26-3,34 V; 4,98-5,08 V |
 | U3 | Resistansi load cell (6 pasangan) | Masukan 401 ±10, keluaran 350 ±5 ohm | ✔ 10 Okt. 2026 (393; 347) |
-| U4 | Pemindai I2C (sketsa `uji_lcd_i2c`) | Alamat LCD terbaca (0x27/0x3F) | ▣ menunggu backpack diukur |
-| U5 | Tegangan SDA/SCL backpack saat diam | Sesuai keputusan Bagian 6 di [desain-pcb-hgd.md](../pcb/desain-pcb-hgd.md) | ▣ |
-| U6 | E+ dan E− modul HX711; DVDD dari VCC? | E− ke GND, E+ stabil | ▣ menunggu modul |
-| U7 | Baca HX711 (sketsa `uji_hx711`): respons, noise, tare, tanda, lama tunggu DT | Tidak "NO RESPONSE", nilai berubah saat ditekan; lama tunggu DT dicatat (Bagian 18) | ▣ menunggu modul |
-| U8 | Tombol dan LED (sketsa `uji_tombol_led`): debounce, tap vs tahan | 10 tap = 10 TAP; 10 tahan = 10 TAHAN tanpa TAP tambahan saat dilepas | ▣ |
+| U4 | Pemindai I2C (sketsa `uji_lcd_i2c`) | Alamat LCD terbaca (0x27/0x3F) | ✔ 15 Okt. 2026: 0x27 |
+| U5 | Tegangan SDA/SCL backpack saat diam | Sesuai keputusan Bagian 6 di [desain-pcb-hgd.md](../pcb/desain-pcb-hgd.md) | ✔ 15 Okt. 2026: 4,93 V dengan backpack di VIN → level shifter BSS138; di 3V3 kontras LCD gagal |
+| U6 | E+ dan E− modul HX711; DVDD dari VCC? | E− ke GND, E+ stabil | ▣ modul sudah ada; belum diukur |
+| U7 | Baca HX711 (sketsa `uji_hx711`): respons, noise, tare, tanda, lama tunggu DT | Tidak "NO RESPONSE", nilai berubah saat ditekan; lama tunggu DT dicatat (Bagian 18) | ✔ 15 Okt. 2026: DT turun, nilai berubah saat ditekan; ≈ 11,8 sampel/s |
+| U8 | Tombol dan LED (sketsa `uji_tombol_led`): debounce, tap vs tahan | 10 tap = 10 TAP; 10 tahan = 10 TAHAN tanpa TAP tambahan saat dilepas | ◐ 15 Okt. 2026: 3 tap = 3 TAP, 1 tahan = 1 TAHAN, tanpa TAP tambahan; uji 10/10 belum |
 | U9 | ACK: 100 baris, tiap baris berbalas | 100/100 ACK | ▣ |
 | U10 | Format baris dan checksum | Baris rusak dibalas NAK | ▣ |
 
@@ -743,6 +743,7 @@ Menyala sepanjang `GENGGAM` (kedua fase, termasuk saat auto-reset), mati di luar
 | [`uji_lcd_i2c`](sketches/uji_lcd_i2c/uji_lcd_i2c.ino) | U4, E3 | Pindai I2C, `lcd.init()`, angka berubah tiap 100 ms dengan redraw tiap `T_REFRESH_LCD_MS`; mencetak durasi I2C tiap redraw |
 | [`uji_hx711`](sketches/uji_hx711/uji_hx711.ino) | U7, X1 | Baca bit-bang 24 bit + pulsa ke-25, tare (`t`), rata-rata 10 sampel (`k`), status (`p`), taksiran kg 53.687 counts/kg, NO RESPONSE, saturasi, nilai macet, lama tunggu DT |
 | [`uji_tombol_led`](sketches/uji_tombol_led/uji_tombol_led.ino) | U8, X8 | ISR FALLING dengan debounce 50 ms, tap vs tahan 1500 ms, LED menyala selama ditekan; mencetak jumlah ISR diterima dan tepi mentah |
+| [`uji_bench_hgd`](sketches/uji_bench_hgd/uji_bench_hgd.ino) | U4, U7, U8, E1 | Satu sketsa breadboard (komentar berbahasa Inggris): pindai I2C dan LCD, baca HX711 dengan tare/rata-rata/saturasi/nilai macet, tap (LED) vs tahan 1,5 s (tare ulang), uji noise 60 s dengan σ dan saran `THRESHOLD_ONSET_KG`. Dipakai pada uji 15 Okt. 2026 |
 
 Ketiga sketsa baru dikompilasi bersih untuk Arduino-ESP32 core 3.0.7 (papan DOIT ESP32 DEVKIT V1) dan belum dijalankan di perangkat keras. Semua memakai API yang sama di core 2.x dan 3.x.
 
@@ -795,11 +796,11 @@ Semua alokasi statis (tanpa `malloc`/`new` di jalur utama); tidak ada struktur d
 | Tare, kalibrasi, pengukuran pada orientasi sama | Kalibrasi | Massa B ≈ 138 g menggeser offset |
 | Pemetaan kabel: eksitasi hitam/putih, sinyal merah/hijau | Load cell | Terukur; berbeda dari datasheet; jangan menyambung berdasarkan warna datasheet |
 | Polaritas sinyal belum diketahui | Uji bertegangan | Tertukar = tanda terbalik; tukar dua kabel sinyal atau skala negatif |
-| Backpack tidak dicatu 5 V sebelum SDA/SCL diukur | Catu | Pull-up ke VCC dapat menarik SDA/SCL ke 5 V (> batas ESP32 ≈ 3,6 V) |
+| SDA/SCL ESP32 hanya ke sisi LV level shifter | Catu | Backpack di 5 V menarik SDA/SCL ke 4,93 V (terukur), di atas batas ESP32 ≈ 3,6 V |
 | Level logika DT HX711 | Catu HX711 | Modul dicatu 3,3 V supaya DT tidak melebihi batas GPIO |
-| `VIN` tidak dipakai | PCB | Papan dicatu USB; jangan menyambung catu luar bersamaan |
+| `VIN` hanya keluaran 5 V dari USB | PCB | VIN mencatu LCD dan sisi HV level shifter; jangan menyambung catu luar ke VIN bersamaan dengan USB; tanpa baterai |
 | Antena modul bebas tembaga | PCB | Tembaga di bawah antena melemahkan radio |
-| Elektrolit + ke 3V3 | PCB | Polaritas kapasitor |
+| Elektrolit + ke rail (3V3 atau 5V) | PCB | Polaritas kapasitor |
 | Hanya 6 pin proyek dipakai; GPIO 16/17 dihindari | Pin | PSRAM pada WROVER |
 | Lenturan Al 10 mm 0,24 mm < celah 2,5 mm | Housing | A dan B tidak boleh bersentuh |
 | Lenturan A saat digenggam tidak teruji di kalibrasi | Kalibrasi | A bertumpu pada meja |
@@ -939,7 +940,7 @@ stateDiagram-v2
 
 `Load cell -> HX711 (amplifier + ADC 24-bit, bit-bang GPIO DOUT/SCK) -> ESP32 -> {LCD 16x2 (I2C), LED (GPIO output), tombol (GPIO interrupt), USB-Serial ke laptop (logging CSV), WiFi (cloud, stretch goal)}`
 
-Pin dan antarmuka ada di Bagian 9 di [desain-pcb-hgd.md](../pcb/desain-pcb-hgd.md) (netlist PCB v1). Pembagian hardware: load cell dan grip berada di housing terpisah ([desain housing](../housing-load-cell/desain-housing-load-cell.md#hl1-keputusan-dua-housing-terpisah)); ESP32 DevKit V1 duduk di PCB kustom lewat dua soket betina 1x15 (bukan disolder langsung), bersama tombol, LED, dan resistor; modul HX711 dan LCD tersambung lewat header pin jantan di PCB dan kabel jumper betina-jantan (Bagian 9.2 di [desain-pcb-hgd.md](../pcb/desain-pcb-hgd.md)). Cara menyambung kabel load cell ke modul HX711 belum diputuskan.
+Pin dan antarmuka ada di Bagian 2 dan 8 di [desain-pcb-hgd.md](../pcb/desain-pcb-hgd.md) (netlist PCB `hgd-v1`). Pembagian hardware: load cell dan grip berada di housing terpisah ([desain housing](../housing-load-cell/desain-housing-load-cell.md#hl1-keputusan-dua-housing-terpisah)); ESP32 DevKit V1 duduk di PCB kustom lewat dua soket betina 1x15 (bukan disolder langsung), bersama tombol, LED, dan resistor; modul HX711 dan level shifter dicolok ke soket betina di PCB, LCD tersambung lewat kabel jumper betina-jantan ke J2 (Bagian 7 dan 8 di [desain-pcb-hgd.md](../pcb/desain-pcb-hgd.md)). Cara menyambung kabel load cell ke modul HX711 belum diputuskan.
 
 ### 15.4 Referensi teori
 
@@ -1008,10 +1009,10 @@ Argumen: alat genggam butuh ukuran kompak, daya rendah, dan pewaktuan yang bisa 
 
 | Kode | Hal | Menurut modul praktikum | Cara menyelesaikan |
 |------|-----|-------------------------|--------------------|
-| A5 | `sensorBaca()` menunggu DT turun sampai ≈ 100 ms tiap baca; tare ≈ 1 s tiap masuk `SIAP` | Tunggu blocking hanya dibenarkan sekali di `setup()`. Satu putaran lambat menggeser semua tugas terjadwal; rubrik praktikum menempatkan blocking di loop utama di pita B/C. S2 (update 100 ms, ±10-20 ms) tidak dapat dijamin bila satu putaran menunggu HX711, termasuk di `RESPON_ISTIRAHAT` | Lihat lama tunggu DT dari `uji_hx711` (U7). Pilihan: tetap blocking dan S2 direvisi, atau baca hanya saat DT sudah rendah (pembacaan 25 pulsa sendiri ≈ 50 µs) |
+| A5 | `sensorBaca()` menunggu DT turun sampai ≈ 100 ms tiap baca; tare ≈ 1 s tiap masuk `SIAP` | Tunggu blocking hanya dibenarkan sekali di `setup()`. Satu putaran lambat menggeser semua tugas terjadwal; rubrik praktikum menempatkan blocking di loop utama di pita B/C. S2 (update 100 ms, ±10-20 ms) tidak dapat dijamin bila satu putaran menunggu HX711, termasuk di `RESPON_ISTIRAHAT` | Lihat lama tunggu DT dari `uji_hx711` (U7). Pilihan: tetap blocking dan S2 direvisi, atau baca hanya saat DT sudah rendah (pembacaan 25 pulsa sendiri ≈ 50 µs). **Data 15 Okt. 2026:** 706 sampel dalam 60 s, jadi satu sampel tiap ≈ 85 ms; baca blocking bisa menunggu sampai ≈ 85 ms, lebih panjang dari jendela S2 (±10-20 ms) |
 | A6 | `T_REFRESH_LCD_MS` = 250 ms | Tidak lebih cepat dari dua kali per detik (500 ms) | Hasil E3 dari `uji_lcd_i2c`; bila 250 ms dipertahankan, tulis alasannya |
 | A7 | Hitung mundur diperbarui tiap 100 ms "tanpa ganti layar" | Layar menampilkan detik bulat dan redraw dibatasi `T_REFRESH_LCD_MS`, jadi update 100 ms tidak tampak | Tetapkan apa yang diukur S2: pembaruan nilai internal, atau pembaruan layar |
 | A8 | Cadangan: salin nilai dari Serial Monitor saat `GAGALSIMPAN` (§4.8, §9.6, §10.5, X4) | Hanya satu program dapat memegang port; membuka port me-reset ESP32 (karena itu contoh `logger.py` menunggu 2 detik). Membuka Serial Monitor, atau menjalankan ulang `logger.py`, setelah `logger.py` mati akan me-reset alat dan menghapus data sesi di RAM | Tetapkan cadangan yang tidak membuka port: konsol `logger.py` selama masih hidup, atau layar LCD (saat ini `GAGALSIMPAN` hanya menampilkan puncak dan rerata) |
-| A12 | Debounce ISR 50 ms dari tepi pertama; klasifikasi tap dan tahan dari level pin | Pantulan saat **lepas** setelah tekanan > 50 ms dapat menghasilkan tepi FALLING baru yang diterima ISR. Modul praktikum GPIO mempercayai level hanya setelah stabil 50 ms, dan mencatat debounce perangkat keras lebih tepat bila tepi langsung memicu interrupt | Uji `uji_tombol_led` (U8): bandingkan jumlah tekanan fisik dengan "ISR diterima" dan jumlah TAP |
+| A12 | Debounce ISR 50 ms dari tepi pertama; klasifikasi tap dan tahan dari level pin | Pantulan saat **lepas** setelah tekanan > 50 ms dapat menghasilkan tepi FALLING baru yang diterima ISR. Modul praktikum GPIO mempercayai level hanya setelah stabil 50 ms, dan mencatat debounce perangkat keras lebih tepat bila tepi langsung memicu interrupt | Uji `uji_tombol_led` (U8): bandingkan jumlah tekanan fisik dengan "ISR diterima" dan jumlah TAP. **Sebagian 15 Okt. 2026:** 3 tap dan 1 tahan terbaca benar, tanpa TAP tambahan saat dilepas; sampel terlalu kecil, uji 10/10 belum |
 | A13 | Median sebagai cadangan pencilan (W6) | Tidak ada di PDF White yang dipakai tim; yang ada rolling average dan block average | Cek edisi cetak, atau hapus sitasi |
 

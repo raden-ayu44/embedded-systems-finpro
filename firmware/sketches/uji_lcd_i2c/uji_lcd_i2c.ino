@@ -1,6 +1,6 @@
 // uji_lcd_i2c.ino  -  uji U4 (pemindai I2C) dan tampilan LCD 16x2 + backpack PCF8574
 // Board: "DOIT ESP32 DEVKIT V1" (atau "ESP32 Dev Module"), Arduino-ESP32 core 3.x, Serial Monitor 115200 baud.
-// Library: "LiquidCrystal I2C" (Frank de Brabander), sama dengan Modul 3 GE3.
+// Library: "LiquidCrystal I2C" (header LiquidCrystal_I2C.h), sama dengan Modul 3 GE3.
 //
 // SEBELUM MENYAMBUNG (U5, Bagian 6 desain PCB):
 //   1. Backpack dicatu 3V3, BUKAN 5 V/VIN, sampai SDA dan SCL diukur.

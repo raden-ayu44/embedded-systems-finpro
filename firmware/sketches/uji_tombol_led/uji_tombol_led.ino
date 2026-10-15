@@ -3,7 +3,7 @@
 // Mengikuti rancangan alur program: interrupt FALLING dengan debounce 50 ms di dalam ISR (§4.1, §5.3,
 // pola Modul 2 GE3), lalu klasifikasi tap vs tahan dari level pin tiap loop (§4.5).
 //
-// Sambungan: tombol antara GPIO25 dan GND (kaki diagonal), pull-up internal. LED: GPIO27 -> R1 100 ohm -> anoda,
+// Sambungan: tombol antara GPIO25 dan GND (kaki diagonal), pull-up internal. LED: GPIO27 -> R1 220 ohm -> anoda,
 // katoda ke GND.
 //
 // Cara uji (U8, X8, dan temuan A12):
