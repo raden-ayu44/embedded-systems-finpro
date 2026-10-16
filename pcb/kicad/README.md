@@ -13,7 +13,7 @@ Folder dibuat saat berkasnya ada; yang belum ada ditandai "belum".
 | `simbol/hgd.kicad_sym` | Pustaka simbol kustom proyek | Belum |
 | `footprint/hgd.pretty/` | Pustaka footprint kustom proyek (satu berkas `.kicad_mod` per footprint) | Belum |
 | `3d/` | Model 3D (`.step`) yang dipakai footprint kustom | Belum |
-| `proyek/` | Berkas proyek KiCad (`.kicad_pro`, `.kicad_sch`, `.kicad_pcb`) | Belum |
+| `proyek/` | Berkas proyek KiCad (`.kicad_pro`, `.kicad_sch`, `.kicad_pcb`) | `hgd-v1.kicad_pcb` ada (16 Okt. 2026): penempatan final v1, belum ada jalur; `.kicad_pro` dan `.kicad_sch` belum diunggah |
 | `pdf/` | Keluaran PDF: skema, penempatan, lembar uji pas skala 1:1 | Belum |
 | `gerber/` | Keluaran produksi (Gerber, bor) | Belum |
 
