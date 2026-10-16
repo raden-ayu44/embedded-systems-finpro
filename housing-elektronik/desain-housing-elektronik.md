@@ -33,19 +33,24 @@ Kabel load cell pendek (≈ 28 cm), jadi housing elektronik diletakkan dalam jan
 
 Rinci di Bagian 8.4 [desain-pcb-hgd.md](../pcb/desain-pcb-hgd.md) dan gambar [penempatan-pcb-hgd.svg](../pcb/gambar/penempatan-pcb-hgd.svg).
 
-### 1.2 Usulan dinding, bibir, tiang, dan takik (belum diputuskan)
-Gambar: [gambar/housing-elektronik-hgd.svg](gambar/housing-elektronik-hgd.svg), proyeksi STEP `electronics_housing_v1` (16 Okt. 2026). Desain lid, body, serta posisi PCB dan LCD adalah desain pemilik; bagian di bawah ini usulan Claude dan belum dimodelkan.
+### 1.2 Model Fusion 16 Okt. 2026 dan usulan bibir
+Gambar: [gambar/housing-elektronik-hgd.svg](gambar/housing-elektronik-hgd.svg), proyeksi STEP `electronics_housing_v1` (ekspor 16 Okt. 2026 22:30) dengan PCB `hgd-v1-verbatim` (soket 1x15 DevKit ikut digambar).
+
+Desain pemilik (dari STEP):
+- Lid berdinding: pelat z 9-11, dinding 2,0 sampai z −22; luar 105 x 105.
+- Body: baki 105 x 105 x 12 (z −34 sampai −22), dinding dan lantai 2,0.
+- Jendela USB di dinding kiri lid: 15,0 x 9,0, y −66,5 sampai −51,5, z −18,2 sampai −9,2 (pusat cocok dengan USB DevKit di PCB v1, y −59,0).
+- Jendela kabel load cell di dinding kanan lid: 15,0 x 9,0, y 3,5 sampai 18,5.
+
+Usulan bibir (Claude, belum dimodelkan):
 
 | Bagian | Usulan | Alasan |
 |---|---|---|
-| Dinding | Pada lid, tebal 2,0, dari bawah lid (z 9,0) sampai atas lantai body (z −18,14) | Semua elektronik dibaut ke lid; lid diangkat bersama PCB, LCD, dan kabel |
-| Bibir (lip) | Pada body, di dalam dinding lid: tebal 1,6, tinggi 3,0, celah 0,25 per sisi | Menahan lid supaya tidak bergeser; sliding fit 0,2-0,3 per sisi (Bagian 5) |
-| Tiang sudut | Empat tiang Ø6 di sudut dalam lid; baut M2,5 dari bawah body | Lid dan body terkunci; bibir terputus di tiap tiang |
-| Takik USB | Dinding kiri, terbuka di tepi bawah; asumsi badan plug 12 x 8 + `comp_xy`/`comp_z` = 12,6 x 9,0 | Badan plug turun sampai ±0,4 mm di atas lantai; bibir terputus di sini |
-| Takik kabel load cell | Dinding kanan, lebar 4,6 (Ø4 + `comp_xy`), terbuka di bawah sampai z −9,7, di y ≈ −6,5 | Dekat ujung terminal HX711; bibir tetap utuh di bawah kabel |
-| Penahan kabel | Ikatan kabel di dalam dekat takik kanan | HX711 hanya ditahan soket J1; tarikan kabel bisa mencabut modul atau merusak pad |
+| Bibir | Cincin di body, di dalam dinding lid: tebal 1,6, tinggi 3,0 (z −22 sampai −19), celah 0,25 per sisi ke muka dalam dinding lid | Menahan lid supaya tidak bergeser; sliding fit 0,2-0,3 per sisi (Bagian 5); 4 perimeter 0,4 |
+| Tumpuan | Bibir ditopang tumpuan 45° di muka dalam dinding body (bibir 1,85 lebih ke dalam dari dinding body) | Tercetak tanpa support dengan body berdiri di lantainya (overhang ≤ 45°) |
+| Tampilan luar | Dinding lid dan body tetap 2,0, rata di luar, sambungan di z −22 | Tidak mengubah desain luar |
 
-Belum pasti: ukuran badan plug USB (ukur F4), posisi terminal HX711 (ukur H5). Model memakai tautan `hgd-v1` lama; pada PCB v1 final U2 bergeser 1 mm sehingga pusat USB menjadi y −59,0.
+Tidak bertabrakan: kedua jendela mulai di z −18,2 (di atas bibir); bagian DevKit terendah z −15,6. Belum diputuskan: pengikat lid ke body (sekarang lid hanya bertumpu) dan penahan kabel load cell di dalam dekat jendela kanan (HX711 hanya ditahan gesekan soket J1).
 
 ---
 
@@ -114,6 +119,6 @@ Celah lid terhadap bingkai LCD memakai parameter tersendiri (mis. `lid_gap` 0,5 
 ## 8. Perubahan
 | Versi | Tanggal | Perubahan |
 |---|---|---|
-| v3 | 16 Okt. 2026 | Bagian 1.2: usulan dinding pada lid, bibir pada body, tiang sudut M2,5, takik USB dan kabel load cell; gambar `gambar/housing-elektronik-hgd.svg` dari STEP Fusion |
+| v3 | 16 Okt. 2026 | Bagian 1.2: model Fusion 16 Okt. 2026 (lid berdinding, body baki, jendela USB dan kabel) dan usulan bibir; gambar `gambar/housing-elektronik-hgd.svg` dari STEP Fusion |
 | v2 | 16 Okt. 2026 | Ukuran LCD terukur; berkas parameter Fusion; jendela lid = area layar; kompensasi susut; aturan cetak 3D; batasan dari penempatan PCB v2 |
 | v1 | 13 Okt. 2026 | Rencana awal |
