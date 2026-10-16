@@ -92,7 +92,7 @@ Rujukan desain housing grip (dokumentasi alat komersial KG1, GA1, VN1, BP1, PP1,
 
 ### 1.10 Daftar pustaka (gaya IEEE)
 
-Daftar ini melengkapi sitasi lokal di atas: kode lokal (M, W, V, R, G, B, C, RU) tetap dipakai di badan teks, dan tabel di bawah memetakan tiap kelompok kode ke entri IEEE. Datasheet komponen (DS-*) memakai daftar IEEE sendiri di `datasheets/datasheet-library.md` ([1] sampai [16]); sumber desain housing (KG1 dan seterusnya) ada di `desain-housing-load-cell.md`, HL18.
+Daftar ini melengkapi sitasi lokal di atas: kode lokal (M, W, V, R, G, B, C, RU) tetap dipakai di badan teks, dan tabel di bawah memetakan tiap kelompok kode ke entri IEEE. Datasheet komponen (DS-*) memakai daftar IEEE sendiri di `datasheet/datasheet-library.md` ([1] sampai [16]); sumber desain housing (KG1 dan seterusnya) ada di `desain-housing-load-cell.md`, HL18.
 
 | Kode lokal | Entri IEEE |
 |---|---|

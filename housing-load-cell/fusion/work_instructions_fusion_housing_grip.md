@@ -1,6 +1,6 @@
 # Work instructions: grip housing in Fusion (v5 layout, CZL 601 load cell)
 
-> **Outdated (12 Oct 2026):** this file still follows the v5 layout (total thickness 52 mm, no cable clamp, cable hole on the end face). The current values are in `fusion_parameters_housing_grip.csv` and `../asumsi.md`; drawings in `drawings/`. Update before modelling.
+> **Outdated (12 Oct 2026):** this file still follows the v5 layout (total thickness 52 mm, no cable clamp, cable hole on the end face). The current values are in `fusion_parameters_housing_grip.csv` and `../asumsi.md`; drawings in `../gambar/`. Update before modelling.
 
 Scope: the load cell grip housing only (two bars, load cell, ridges, calibration platform, cable clamp). The electronics housing is separate. All values marked "working" or "TBD" are provisional; the model is built so they can be changed in one place.
 

@@ -37,6 +37,7 @@ Status: **Terisi** = entri sudah ada di file ini; **Punya** = dokumennya sudah a
 | 10 | DS-RES1 | Datasheet resistor pembatas LED | Toleransi dan daya; hanya jika ingin disitasi. | Opsional |
 | 11 | DS-CAP1 | Kapasitor decoupling untuk catu HX711 | Tipe dan tegangan kerja; hanya jika ditambahkan. | Opsional |
 | 12 | DS-CON1 | Pin header/konektor untuk PCB | Hanya jika dimensi housing bergantung padanya. | Opsional |
+| 12a | DS-LLS1 | Modul level shifter dua arah 4 kanal (BSS138) | Ditambahkan 15 Okt. 2026 untuk SDA/SCL LCD 5 V. Datasheet MOSFET BSS138 dan gambar dimensi modul yang dibeli. | Terisi sebagian; datasheet BSS138: Ambil |
 
 ### Prioritas 3: bahan dan mekanik
 
@@ -159,14 +160,14 @@ Ini hitungan dari noise Avia, **bukan** pengukuran; E+ yang sebenarnya pada catu
 | No | Pemeriksaan | Hasil |
 |---|---|---|
 | 1 | Foto papan: penanda XFW-HX711 dan pad 10Hz/80Hz | |
-| 2 | Ukur PCB dengan jangka sorong (24 x 16 mm?) | |
+| 2 | Ukur PCB dengan jangka sorong (24 x 16 mm?) | 24 x 15,6 mm; header 4 pin di tengah sisi pendek (15 Okt. 2026) |
 | 3 | Catu modul pada tegangan pilihan; ukur E- terhadap GND (seharusnya sekitar 0 V; cacat bila sekitar 0,6 V) | |
 | 4 | Ukur E+ terhadap GND dengan load cell tersambung (sekitar 4,3 V pada catu 5 V bila baik) | |
 | 5 | Ukur AVDD dan tegangan pada pin VCC | |
-| 6 | Status pad rate (10 SPS bawaan?) | |
+| 6 | Status pad rate (10 SPS bawaan?) | Sekitar 11,8 sampel/s terukur (706 sampel dalam 60 s): mode 10 SPS (15 Okt. 2026) |
 | 7 | Tegangan logika pada DT saat bekerja | |
 | 8 | Polaritas pembacaan dengan kabel sesuai datasheet CZL 601 | |
-| 9 | Uji noise 1000 sampel, 10 dan 80 SPS | |
+| 9 | Uji noise 1000 sampel, 10 dan 80 SPS | 10 SPS saja, 706 sampel (E1, 15 Okt. 2026): σ 38,2 counts = 0,0007 kg, peak-to-peak 206 counts. 80 SPS belum |
 
 ### Daftar pustaka DS-HX1 (IEEE)
 
@@ -549,7 +550,7 @@ Nomor melanjutkan DS-LC1 ([4]-[6]).
 |---|---|---|
 | 1 | Penandaan pada PCB: HS1602A? | |
 | 2 | Lampu latar ada atau tidak (pin 15/16 terhubung ke LED) | |
-| 3 | Dimensi PCB dan area tampil dengan jangka sorong; tebal modul | |
+| 3 | Dimensi PCB dan area tampil dengan jangka sorong; tebal modul | PCB 80 x 36; bingkai hitam 71,5 x 24; layar 64,5 x 14,0; tinggi total dengan backpack 16,9 mm (15 Okt. 2026; tab LCD I2C di tabel pengukuran) |
 | 4 | Arus dengan dan tanpa lampu latar (multimeter seri) | |
 
 ---
@@ -583,7 +584,7 @@ Nomor melanjutkan DS-LC1 ([4]-[6]).
 
 ### Peringatan untuk desain kita
 
-1. **Level logika I2C (masalah utama).** LCD butuh 5 V (DS-LCD1), jadi backpack dicatu 5 V. Maka: (a) bila pull-up SDA/SCL pada backpack ke 5 V, garis berada di 5 V dan melebihi batas masukan ESP32 (sekitar 3,6 V, DS-ESP1); (b) bila pull-up ke 3,3 V, VIH PCF8574 pada 5 V adalah 3,5 V, sedikit di atas level 3,3 V, jadi tidak dijamin. **Ukur tegangan SDA/SCL saat diam** pada backpack yang tiba. Pilihan: pergeseran level (mis. modul 2-saluran), atau catu chip PCF8574 3,3 V terpisah dari catu LCD 5 V (keluaran 3,3 V tetap melewati VIH LCD 2,2 V), atau terima risiko setelah uji. S3 (Adafruit) mengatasinya dengan pergeseran level di papannya; backpack murah biasanya tidak.
+1. **Level logika I2C (masalah utama; diselesaikan 15 Okt. 2026 dengan level shifter BSS138 4 kanal, DS-LLS1, setelah SDA/SCL terukur 4,93 V).** LCD butuh 5 V (DS-LCD1), jadi backpack dicatu 5 V. Maka: (a) bila pull-up SDA/SCL pada backpack ke 5 V, garis berada di 5 V dan melebihi batas masukan ESP32 (sekitar 3,6 V, DS-ESP1); (b) bila pull-up ke 3,3 V, VIH PCF8574 pada 5 V adalah 3,5 V, sedikit di atas level 3,3 V, jadi tidak dijamin. **Ukur tegangan SDA/SCL saat diam** pada backpack yang tiba. Pilihan: pergeseran level (mis. modul 2-saluran), atau catu chip PCF8574 3,3 V terpisah dari catu LCD 5 V (keluaran 3,3 V tetap melewati VIH LCD 2,2 V), atau terima risiko setelah uji. S3 (Adafruit) mengatasinya dengan pergeseran level di papannya; backpack murah biasanya tidak.
 2. **Alamat:** pindai bus I2C saat pertama (0x27 atau 0x3F); tulis eksplisit di kode.
 3. **Kecepatan:** 100 kHz.
 4. **S3 bukan backpack kita.** Jangan memakai alamat 0x20, MCP23008, atau pustaka Adafruit.
@@ -593,10 +594,10 @@ Nomor melanjutkan DS-LC1 ([4]-[6]).
 | No | Pemeriksaan | Hasil |
 |---|---|---|
 | 1 | Penandaan chip (PCF8574T? PCF8574AT? atau lainnya) | |
-| 2 | Jumper A0-A2 dan alamat hasil pindai I2C | |
+| 2 | Jumper A0-A2 dan alamat hasil pindai I2C | 0x27 (U4, 15 Okt. 2026) |
 | 3 | Nilai dan tujuan resistor pull-up SDA/SCL (ke VCC?) | |
-| 4 | Tegangan SDA dan SCL saat diam, dengan backpack dicatu 5 V | |
-| 5 | Jumper lampu latar dan trimpot kontras | |
+| 4 | Tegangan SDA dan SCL saat diam, dengan backpack dicatu 5 V | **4,93 V** (U5): pull-up ke VCC. Melebihi batas GPIO ESP32 → level shifter (DS-LLS1) |
+| 5 | Jumper lampu latar dan trimpot kontras | Trimpot diputar sekitar 135° searah jarum jam. Pada catu 3,3 V tulisan tetap tidak kontras walau trimpot mentok; pada 5 V terbaca |
 | 6 | Arus total LCD + backpack | |
 
 ### Daftar pustaka DS-LCD1 dan DS-I2C1 (IEEE)
@@ -617,6 +618,47 @@ Nomor melanjutkan DS-ESP ([10]).
 - [13]: "PCF8574_PCF8574A" Rev. 5, 27 Mei 2013, dari berkas yang tersedia.
 - [14]: penulis tertulis "lady ada"; panduan ini untuk MCP23008, bukan PCF8574. Disitasi sebagai contoh, bukan sumber spesifikasi backpack kita.
 - Angka yang ditandai "hitungan kita" adalah perhitungan dari dokumen, bukan angka sumber.
+
+---
+
+## DS-LLS1: Modul level shifter dua arah 4 kanal (BSS138)
+
+### Identitas dan bukti
+
+| Item | Isi |
+|---|---|
+| Komponen | Modul penggeser level dua arah 4 kanal dengan MOSFET BSS138, dibeli dari penjual daring (listing tidak dicatat di sini). Belum tiba pada 16 Okt. 2026. |
+| S1 | Listing penjual (tidak disimpan). |
+| S3 | SparkFun, "Logic Level Converter - Bi-Directional" [17]: papan 16,05 x 13,33 mm. ProtoSupplies, "4-Channel Logic Level Converter Module" [18]: 15 x 13 mm, dua header 6 pin. Bukan pabrikan modul kita; dipakai untuk ukuran dan pinout umum. |
+
+### Pinout dan pemakaian
+
+| Sisi | Pin (urutan modul) | Dipakai |
+|---|---|---|
+| HV | HV1, HV2, HV, GND, HV3, HV4 | HV = +5V; HV1 = SDA LCD; HV2 = SCL LCD (J4) |
+| LV | LV1, LV2, LV, GND, LV3, LV4 | LV = +3V3; LV1 = GPIO21; LV2 = GPIO22 (J3) |
+
+### Peringatan untuk desain kita
+
+1. **Jarak antar baris header tidak dinyatakan** di sumber mana pun. Lebar papan 13,3 mm hanya cocok dengan 10,16 mm (0,4 in); ukur pada barang yang tiba sebelum jalur PCB dibuat.
+2. **Modul terbalik 180° di soket** memberi 5 V ke sisi LV dan ke GPIO ESP32. Tandai pin 1 dan sisi HV/LV di silkscreen.
+3. Kanal BSS138 dua arah dan bekerja dengan pull-up di kedua sisi, jadi cocok untuk I2C 100 kHz.
+4. Alternatif yang tidak dipakai: 2N7000 THT (datasheet Microchip; V_GS(th) 0,8-3 V, R_DS(on) hanya dijamin pada V_GS 4,5 V).
+
+### Daftar cek saat modul tiba
+
+| No | Pemeriksaan | Hasil |
+|---|---|---|
+| 1 | Ukur papan (panjang x lebar) | |
+| 2 | Jarak antar baris header (pusat ke pusat) | |
+| 3 | Urutan pin tiap sisi dan penanda HV/LV di silkscreen | |
+| 4 | Dengan HV = 5 V dan LV = 3,3 V: tegangan LV1/LV2 saat diam (harus sekitar 3,3 V) | |
+
+### Daftar pustaka DS-LLS1 (IEEE)
+
+[17] SparkFun Electronics, "SparkFun Logic Level Converter - Bi-Directional," product page. [Online]. Available: https://www.sparkfun.com/sparkfun-logic-level-converter-bi-directional.html (diakses 15 Okt. 2026).
+
+[18] ProtoSupplies, "4-Channel Logic Level Converter Module," product page. [Online]. Available: https://protosupplies.com/?p=5169 (diakses 15 Okt. 2026).
 
 ---
 
