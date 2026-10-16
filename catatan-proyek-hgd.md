@@ -3,7 +3,7 @@ title: Catatan Proyek - Hand Grip Dynamometer
 
 ---
 
-# Catatan Proyek - Hand Grip Dynamometer (v46)
+# Catatan Proyek - Hand Grip Dynamometer (v47)
 **Proyek akhir - embedded system**
 
 > Catatan kerja proyek akhir mata kuliah embedded system, sekaligus **dokumen induk**: ringkasan, kebutuhan, rumusan masalah, spesifikasi, BOM, risiko, jadwal, anggaran, keselamatan, riwayat keputusan, dan log audit ada di sini; bahan teknis dipecah ke dokumen di peta di bawah. Ditulis supaya bisa dibaca sendiri (offline). Dipakai untuk G2-G4, makalah akhir, dan demo.
@@ -18,7 +18,7 @@ title: Catatan Proyek - Hand Grip Dynamometer
 | [pcb/kicad/README.md](pcb/kicad/README.md) | Hub berkas KiCad: simbol dan footprint (DevKit dari SnapEDA), struktur folder untuk proyek, pustaka, PDF, dan Gerber | Berkas proyek KiCad belum diunggah |
 | [housing-load-cell/desain-housing-load-cell.md](housing-load-cell/desain-housing-load-cell.md) | Housing grip load cell: layout dua batang, kekakuan batang, kalibrasi, pengadaan pelat, rujukan | Ada (v10) |
 | [housing-load-cell/asumsi.md](housing-load-cell/asumsi.md) | Asumsi dan keputusan di balik gambar housing; gambar SVG di `gambar/`, parameter Fusion di `fusion/` | Gabungan |
-| [housing-elektronik/desain-housing-elektronik.md](housing-elektronik/desain-housing-elektronik.md) | Housing PCB, ESP32, LCD, HX711, level shifter, tombol, LED; ukuran LCD, parameter Fusion di `fusion/`, kompensasi susut, aturan cetak 3D | Sedang dimodelkan (v3) |
+| [housing-elektronik/desain-housing-elektronik.md](housing-elektronik/desain-housing-elektronik.md) | Housing PCB, ESP32, LCD, HX711, level shifter, tombol, LED; ukuran LCD, parameter Fusion di `fusion/`, kompensasi susut, aturan cetak 3D | Sedang dimodelkan (v4) |
 | [firmware/protokol-uji-bench-hgd.md](firmware/protokol-uji-bench-hgd.md) | Langkah uji bench dengan sketsa `uji_bench_hgd` (U4, U7, U8, pemanasan, E1, arah tekan, tare ulang), cara membaca log, dan tabel hasil | v1; E1 resmi 16 Okt. 2026 |
 | [kalibrasi/protokol-kalibrasi-hgd.md](kalibrasi/protokol-kalibrasi-hgd.md) | Protokol kalibrasi dumbbell (tahap 1 sampai 20 kg, tahap 2 sampai 42 kg) | Belum diuji |
 | [kalibrasi/hgd_perhitungan.xlsx](kalibrasi/hgd_perhitungan.xlsx) | Perhitungan dengan rumus: tab Mekanik (kekakuan, tegangan, celah, spacer, baut, massa) dan tab Elektrik (sinyal, ADC, noise, galat, regresi kalibrasi) | Berjalan |
@@ -260,7 +260,7 @@ Desain housing dipisah ke dokumen sendiri supaya catatan ini tidak melebar:
 | Dokumen | Isi | Status |
 |---|---|---|
 | [desain-housing-load-cell.md](housing-load-cell/desain-housing-load-cell.md) | Housing grip: layout dua batang dengan load cell, kekakuan batang, kalibrasi (protokol dumbbell), pengadaan pelat, rujukan, pointer ke `asumsi.md` di `drawings/` | Ada (v10) |
-| [desain-housing-elektronik.md](housing-elektronik/desain-housing-elektronik.md) | Housing PCB, ESP32, LCD, HX711, level shifter, tombol, LED; parameter Fusion di `fusion/` | Sedang dimodelkan (v3) |
+| [desain-housing-elektronik.md](housing-elektronik/desain-housing-elektronik.md) | Housing PCB, ESP32, LCD, HX711, level shifter, tombol, LED; parameter Fusion di `fusion/` | Sedang dimodelkan (v4) |
 
 Ringkasan status (rinci di dokumen housing grip):
 - Dua housing terpisah: grip hanya berisi load cell, elektronik di housing sendiri ([HL1](housing-load-cell/desain-housing-load-cell.md#hl1-keputusan-dua-housing-terpisah)).
@@ -438,7 +438,7 @@ Lihat Bagian 4 di [desain-pcb-hgd.md](pcb/desain-pcb-hgd.md). Jangan dibawa lewa
 | Housing elektronik | ◐ | LCD diukur dan dimodelkan; parameter Fusion dan kompensasi susut ada; lid dan body sedang dimodelkan |
 | Kalibrasi | ▣ | Protokol ada; belum dijalankan |
 | Pengujian | ◐ | U1-U5, U7, E1 ✔; U8 sebagian; U6, U9, U10 belum |
-| Dokumen | ◐ | Catatan proyek v46, alur program v4, protokol uji bench v1, desain PCB v3, housing elektronik v3, tabel pengukuran, sitasi v1, datasheet library |
+| Dokumen | ◐ | Catatan proyek v47, alur program v4, protokol uji bench v1, desain PCB v3, housing elektronik v4, tabel pengukuran, sitasi v1, datasheet library |
 
 ### 15.2 Yang akan dikerjakan berikutnya
 1. Saat level shifter tiba: ukur jarak baris header dan cek tegangan LV (DS-LLS1).
@@ -467,6 +467,7 @@ Lihat Bagian 4 di [desain-pcb-hgd.md](pcb/desain-pcb-hgd.md). Jangan dibawa lewa
 - Tenggat gerber: konflik panduan (Minggu 7) dan panduan tugas (Minggu 8) belum terkonfirmasi (Bagian 4.1).
 - Media logging: SD card hanya fasilitas opsional lab (satu unit); cloud opsional menurut Panduan; keputusan: CSV lewat USB-Serial sebagai inti (Bagian 5 dan Bagian 15.1 di [alur-program-hgd.md](firmware/alur-program-hgd.md)).
 - Persyaratan format resmi: status per item di Bagian 4.3.
+- v47 (16 Okt. 2026): Housing elektronik v4: usulan snap-fit lid ke body (4 lidah horizontal di bibir, Covestro desain 2, ε 0,44 % vs batas 0,57 % untuk PLA Basic) di Bagian 1.3; gambar `housing-elektronik-hgd.svg` v2 digambar ulang bergaya gambar housing load cell (potongan, detail, legenda, arsiran). Belum dimodelkan, belum disetujui.
 - v46 (16 Okt. 2026): PCB `hgd-v1` v1 berjalur dan lolos DRC; gambar `pcb/gambar/penempatan-pcb-hgd.svg` diganti dengan papan final; skema `pcb/kicad/proyek/hgd-v1.kicad_sch` ditambahkan; desain PCB v3; belum disetujui. Housing elektronik v3: gambar model Fusion `housing-elektronik/gambar/housing-elektronik-hgd.svg` (lid berdinding, body baki, jendela USB dan kabel) dengan usulan bibir (belum diputuskan).
 - v45 (16 Okt. 2026): data E1 lengkap di `pengukuran/e1-noise-hgd.xlsx`; protokol uji bench `firmware/protokol-uji-bench-hgd.md` (v1) ditambahkan; E1 resmi setelah pemanasan 11 menit (σ 35,0 counts; ambang onset tetap 1,0 kg); arah tekan positif; U8 kumulatif 5 TAP dan 3 TAHAN; alur program v4.
 - v44 (16 Okt. 2026): hasil uji bench 15 Okt. 2026 dicatat (U4 0x27, U5 SDA/SCL 4,93 V, U7, U8 sebagian, E1 σ 38,2 counts); catu LCD diputuskan (5 V + level shifter BSS138 4 kanal, BOM baris 7); tanpa baterai; R1 220 ohm; PCB `hgd-v1`: DevKit dan soket di sisi bawah, HX711 dicolok ke J1, netlist KiCad, usulan penempatan v2 dengan zona antena; desain PCB v2, alur program v3, housing elektronik v2 dengan parameter Fusion dan kompensasi susut; tabel pengukuran LCD dan HX711; DS-LLS1 ditambahkan; risiko R11, R12 diperbarui dan R15 ditambahkan; sketsa `uji_bench_hgd` ditambahkan.

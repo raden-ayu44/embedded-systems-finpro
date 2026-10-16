@@ -3,7 +3,7 @@ title: Desain Housing Elektronik - Hand Grip Dynamometer
 
 ---
 
-# Desain Housing Elektronik - Hand Grip Dynamometer (v3)
+# Desain Housing Elektronik - Hand Grip Dynamometer (v4)
 **Proyek akhir - embedded system**
 
 > Housing elektronik: wadah PCB, ESP32, modul HX711, level shifter, LCD, tombol, dan LED. Housing grip (load cell) ada di [desain-housing-load-cell.md](../housing-load-cell/desain-housing-load-cell.md); ukuran komponen di [tabel-pengukuran-hgd.xlsx](../pengukuran/tabel-pengukuran-hgd.xlsx); PCB di [desain-pcb-hgd.md](../pcb/desain-pcb-hgd.md); parameter Fusion di [fusion/](fusion/); induk: [catatan-proyek-hgd.md](../catatan-proyek-hgd.md).
@@ -50,7 +50,33 @@ Usulan bibir (Claude, belum dimodelkan):
 | Tumpuan | Bibir ditopang tumpuan 45° di muka dalam dinding body (bibir 1,85 lebih ke dalam dari dinding body) | Tercetak tanpa support dengan body berdiri di lantainya (overhang ≤ 45°) |
 | Tampilan luar | Dinding lid dan body tetap 2,0, rata di luar, sambungan di z −22 | Tidak mengubah desain luar |
 
-Tidak bertabrakan: kedua jendela mulai di z −18,2 (di atas bibir); bagian DevKit terendah z −15,6. Belum diputuskan: pengikat lid ke body (sekarang lid hanya bertumpu) dan penahan kabel load cell di dalam dekat jendela kanan (HX711 hanya ditahan gesekan soket J1).
+Tidak bertabrakan: kedua jendela mulai di z −18,2 (di atas bibir); bagian DevKit terendah z −15,6. Belum diputuskan: penahan kabel load cell di dalam dekat jendela kanan (HX711 hanya ditahan gesekan soket J1).
+
+Gambar (v2) bergaya sama dengan gambar housing load cell: potongan A-A (x = −30, dari STEP), detail B (snap), detail C (lidah), tampak atas, tampak depan, legenda, dan arsiran.
+
+### 1.3 Usulan snap-fit lid ke body (Claude, belum dimodelkan)
+Lid harus bisa dibuka berulang (kabel di sisi bawah PCB dikencangkan dengan membuka lid), jadi dipakai lidah horizontal yang melentur di bidang XY, bukan kait tegak.
+
+| Bagian | Usulan |
+|---|---|
+| Letak | 4 lidah di bibir dinding depan dan belakang, \|x\| 15 (akar) sampai 35 (ujung); dinding kiri/kanan bebas untuk jendela |
+| Lidah | l = 20, b = 5 (z −21 sampai −16), h 1,6 di akar meruncing linear ke 0,8 di ujung (Covestro desain 2); fillet akar R1,0 (R/h ≈ 0,6) |
+| Tonjolan | Di muka luar ujung lidah, panjang 6 (\|x\| 29-35), menonjol 1,45, sisi 45°/45° (lead-in di atas, retensi di bawah), puncak datar 0,4 |
+| Slot | Tembus di dinding lid 7 x 3,3 (z −20,15 sampai −16,85); kait y = 1,45 − 0,25 = 1,2; tonjolan berhenti 0,8 sebelum muka luar |
+| Bibir di lidah | Ring naik ke z −16 hanya di blok akar 3, lidah, dan blok ujung 3 (\|x\| 12 sampai 38,5); di tempat lain tetap z −19 |
+| Cetak | Celah 1,0 di bawah lidah dijembatani (20,5 ≤ 30) karena ujung lidah diikat tie 0,4 ke blok ujung; tie dipotong setelah cetak |
+| Melepas | Tarik lid lurus ke atas (retensi 45° tidak mengunci) atau tekan tonjolan dengan pin lewat slot |
+
+Perhitungan (Covestro "Snap-Fit Joints for Plastics", Table 1 desain 2; data Bambu Lab PLA Basic TDS V3.0, arah XY):
+
+| Besaran | Nilai |
+|---|---|
+| Regangan | ε = y·h / (1,09·l²) = 1,2 × 1,6 / (1,09 × 400) = 0,44 % |
+| Batas | ε_y ≈ σ/E = 35 / 2580 = 1,36 % (konservatif, TDS tanpa titik luluh); × 0,7 (amorf, Fig. 13) × 0,6 (buka-pasang berulang, Table 2) = 0,57 % → lolos |
+| Gaya lentur | P = (b·h²/6)·Eₛ·ε / l ≈ 1,3 N (Eₛ = 2750 MPa, modulus lentur XY) |
+| Gaya pasang/lepas | W = P·(µ + tan 45°)/(1 − µ tan 45°) ≈ 5,2 N per lidah, ≈ 21 N untuk 4 (µ ≈ 0,6 diasumsikan); terkunci sendiri bila µ·tan α′ ≥ 1 (α′ ≳ 59°) |
+
+Aturan FDM: Hubs (celah 0,5, lebar ≥ 5, lentur di XY, tidak ada tegangan saat terpasang), Formlabs (kait 1,2, lidah panjang dan meruncing), panduan PLA Bambu Lab (gaya di bidang XY; elongasi Z 7,5 % vs XY 12,2 %). Lidah 15 mm menghasilkan 0,78 %, melebihi batas, jadi panjang tetap 20. Asumsi terbuka: ε_y dan µ; cetak uji satu lidah dan slot (pasang-lepas 20-30 kali) sebelum mencetak lid dan body.
 
 ---
 
