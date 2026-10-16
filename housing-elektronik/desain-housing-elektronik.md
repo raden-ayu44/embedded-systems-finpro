@@ -62,9 +62,9 @@ Lid harus bisa dibuka berulang (kabel di sisi bawah PCB dikencangkan dengan memb
 | Letak | 4 lidah di bibir dinding depan dan belakang, \|x\| 15 (akar) sampai 35 (ujung); dinding kiri/kanan bebas untuk jendela |
 | Lidah | l = 20, b = 5 (z −21 sampai −16), h 1,6 di akar meruncing linear ke 0,8 di ujung (Covestro desain 2); fillet akar R1,0 (R/h ≈ 0,6) |
 | Tonjolan | Di muka luar ujung lidah, panjang 6 (\|x\| 29-35), menonjol 1,45, sisi 45°/45° (lead-in di atas, retensi di bawah), puncak datar 0,4 |
-| Slot | Tembus di dinding lid 7 x 3,3 (z −20,15 sampai −16,85); kait y = 1,45 − 0,25 = 1,2; tonjolan berhenti 0,8 sebelum muka luar |
-| Bibir di lidah | Ring naik ke z −16 hanya di blok akar 3, lidah, dan blok ujung 3 (\|x\| 12 sampai 38,5); di tempat lain tetap z −19 |
-| Cetak | Celah 1,0 di bawah lidah dijembatani (20,5 ≤ 30) karena ujung lidah diikat tie 0,4 ke blok ujung; tie dipotong setelah cetak |
+| Slot | Tembus di dinding lid 7,6 x 4,3 (z −20,65 sampai −16,35) = 7 x 3,3 + `comp_xy` / `comp_z`; kait y = 1,45 − 0,25 = 1,2; tonjolan berhenti 0,8 sebelum muka luar |
+| Bibir di lidah | Ring naik ke z −16 hanya di blok akar 3 dan lidah (\|x\| 12 sampai 35); ring terputus 0,5 di ujung lidah; di tempat lain tetap z −19 |
+| Cetak | Celah di bawah lidah 2,0 (1,0 + `comp_z`): tumpuan diturunkan ke z −23 di zona lidah. Dua tiang korban 0,8 x 0,8 (\|x\| 24,6 dan 34,2) memecah jembatan menjadi 9,6 dan 8,8 (aturan modul ≤ 10); tiang dipotong setelah cetak |
 | Melepas | Tarik lid lurus ke atas (retensi 45° tidak mengunci) atau tekan tonjolan dengan pin lewat slot |
 
 Perhitungan (Covestro "Snap-Fit Joints for Plastics", Table 1 desain 2; data Bambu Lab PLA Basic TDS V3.0, arah XY):
@@ -100,7 +100,8 @@ Model LCD disederhanakan dari ukuran ini; nilainya ada di berkas parameter.
 | Berkas | Isi |
 |---|---|
 | [fusion/fusion_parameters_lcd.csv](fusion/fusion_parameters_lcd.csv) | Parameter LCD saja (PCB, bingkai, trapesium, tinggi, backpack, kabel) |
-| [fusion/fusion_parameters_housing_elektronik.csv](fusion/fusion_parameters_housing_elektronik.csv) | Parameter global housing elektronik: semua parameter LCD, kompensasi susut, dan jendela layar |
+| [fusion/fusion_parameters_housing_elektronik.csv](fusion/fusion_parameters_housing_elektronik.csv) | Parameter global housing elektronik: semua parameter LCD, kompensasi susut, jendela layar, bibir dan snap-fit (`lip_cl` sampai `pillar2_x`) |
+| [fusion/work_instructions_fusion_housing_elektronik.md](fusion/work_instructions_fusion_housing_elektronik.md) | Langkah Fusion untuk bibir, lidah snap, tiang korban, dan slot; cek; cetak uji satu lidah |
 
 Format: `Name,Unit,Expression,Value,Comments,Favorite` (sama dengan berkas housing grip). Parameter baru ditambahkan di baris paling bawah.
 
@@ -145,6 +146,7 @@ Celah lid terhadap bingkai LCD memakai parameter tersendiri (mis. `lid_gap` 0,5 
 ## 8. Perubahan
 | Versi | Tanggal | Perubahan |
 |---|---|---|
+| v4 | 17 Okt. 2026 | Bagian 1.3: usulan snap-fit (4 lidah, perhitungan Covestro, data PLA Basic); celah bawah lidah 2,0 dan tiang korban (jembatan ≤ 10); slot dengan kompensasi susut; parameter snap di CSV; instruksi kerja Fusion; gambar v2 bergaya gambar housing load cell |
 | v3 | 16 Okt. 2026 | Bagian 1.2: model Fusion 16 Okt. 2026 (lid berdinding, body baki, jendela USB dan kabel) dan usulan bibir; gambar `gambar/housing-elektronik-hgd.svg` dari STEP Fusion |
 | v2 | 16 Okt. 2026 | Ukuran LCD terukur; berkas parameter Fusion; jendela lid = area layar; kompensasi susut; aturan cetak 3D; batasan dari penempatan PCB v2 |
 | v1 | 13 Okt. 2026 | Rencana awal |
