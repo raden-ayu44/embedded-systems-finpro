@@ -67,6 +67,8 @@ Urutan ini sengaja: E1 setelah pemanasan (syarat E1 di Bagian 3.3 di [alur-progr
 
 Kumulatif U8: 5 TAP dan 3 HOLD benar; uji 10/10 (langkah 7) belum.
 
+Data lengkap (semua baris E1 15 dan 16 Okt. 2026, pemanasan, uji tekan, log mentah) ada di [e1-noise-hgd.xlsx](../pengukuran/e1-noise-hgd.xlsx), dengan lembar kosong "E1 rakitan akhir" untuk dibandingkan setelah housing dirakit.
+
 ---
 
 ## 5. Perubahan
