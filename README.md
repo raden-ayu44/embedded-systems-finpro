@@ -17,7 +17,7 @@ Design and documentation for a hand grip strength meter, made for an embedded sy
 
 | Folder | Contents |
 |---|---|
-| [`firmware/`](firmware/) | `alur-program-hgd.md`: program flow for the ESP32 firmware and the laptop-side logger (data, constants, functions, state machine, logging); `sketches/` holds the test sketches (pin loopback, LCD, HX711, button and LED, and the combined bench test) |
+| [`firmware/`](firmware/) | `alur-program-hgd.md`: program flow for the ESP32 firmware and the laptop-side logger (data, constants, functions, state machine, logging); `protokol-uji-bench-hgd.md`: bench test procedure and results; `sketches/` holds the test sketches (pin loopback, LCD, HX711, button and LED, and the combined bench test) |
 | [`pcb/`](pcb/) | `desain-pcb-hgd.md` (schematic and PCB design), `pcb_netlist.xlsx` (components with official part names, KiCad symbols and footprints, netlist), `gambar/` (placement drawing, SVG), and [`kicad/`](pcb/kicad/README.md), the hub for KiCad files |
 | [`housing-load-cell/`](housing-load-cell/) | Grip housing design, assumptions (`asumsi.md`), drawings in `gambar/` (SVG), Fusion 360 parameters and instructions in `fusion/` |
 | [`housing-elektronik/`](housing-elektronik/) | Electronics housing design (LCD on the lid, shrink compensation, print rules) and Fusion 360 parameters in `fusion/` |
