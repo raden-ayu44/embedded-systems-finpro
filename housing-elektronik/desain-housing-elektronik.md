@@ -3,7 +3,7 @@ title: Desain Housing Elektronik - Hand Grip Dynamometer
 
 ---
 
-# Desain Housing Elektronik - Hand Grip Dynamometer (v2)
+# Desain Housing Elektronik - Hand Grip Dynamometer (v3)
 **Proyek akhir - embedded system**
 
 > Housing elektronik: wadah PCB, ESP32, modul HX711, level shifter, LCD, tombol, dan LED. Housing grip (load cell) ada di [desain-housing-load-cell.md](../housing-load-cell/desain-housing-load-cell.md); ukuran komponen di [tabel-pengukuran-hgd.xlsx](../pengukuran/tabel-pengukuran-hgd.xlsx); PCB di [desain-pcb-hgd.md](../pcb/desain-pcb-hgd.md); parameter Fusion di [fusion/](fusion/); induk: [catatan-proyek-hgd.md](../catatan-proyek-hgd.md).
@@ -32,6 +32,20 @@ Kabel load cell pendek (≈ 28 cm), jadi housing elektronik diletakkan dalam jan
 - Satu tiang M3 dekat tombol supaya PCB tidak melentur saat ditekan.
 
 Rinci di Bagian 8.4 [desain-pcb-hgd.md](../pcb/desain-pcb-hgd.md) dan gambar [penempatan-pcb-hgd.svg](../pcb/gambar/penempatan-pcb-hgd.svg).
+
+### 1.2 Usulan dinding, bibir, tiang, dan takik (belum diputuskan)
+Gambar: [gambar/housing-elektronik-hgd.svg](gambar/housing-elektronik-hgd.svg), proyeksi STEP `electronics_housing_v1` (16 Okt. 2026). Desain lid, body, serta posisi PCB dan LCD adalah desain pemilik; bagian di bawah ini usulan Claude dan belum dimodelkan.
+
+| Bagian | Usulan | Alasan |
+|---|---|---|
+| Dinding | Pada lid, tebal 2,0, dari bawah lid (z 9,0) sampai atas lantai body (z −18,14) | Semua elektronik dibaut ke lid; lid diangkat bersama PCB, LCD, dan kabel |
+| Bibir (lip) | Pada body, di dalam dinding lid: tebal 1,6, tinggi 3,0, celah 0,25 per sisi | Menahan lid supaya tidak bergeser; sliding fit 0,2-0,3 per sisi (Bagian 5) |
+| Tiang sudut | Empat tiang Ø6 di sudut dalam lid; baut M2,5 dari bawah body | Lid dan body terkunci; bibir terputus di tiap tiang |
+| Takik USB | Dinding kiri, terbuka di tepi bawah; asumsi badan plug 12 x 8 + `comp_xy`/`comp_z` = 12,6 x 9,0 | Badan plug turun sampai ±0,4 mm di atas lantai; bibir terputus di sini |
+| Takik kabel load cell | Dinding kanan, lebar 4,6 (Ø4 + `comp_xy`), terbuka di bawah sampai z −9,7, di y ≈ −6,5 | Dekat ujung terminal HX711; bibir tetap utuh di bawah kabel |
+| Penahan kabel | Ikatan kabel di dalam dekat takik kanan | HX711 hanya ditahan soket J1; tarikan kabel bisa mencabut modul atau merusak pad |
+
+Belum pasti: ukuran badan plug USB (ukur F4), posisi terminal HX711 (ukur H5). Model memakai tautan `hgd-v1` lama; pada PCB v1 final U2 bergeser 1 mm sehingga pusat USB menjadi y −59,0.
 
 ---
 
@@ -100,5 +114,6 @@ Celah lid terhadap bingkai LCD memakai parameter tersendiri (mis. `lid_gap` 0,5 
 ## 8. Perubahan
 | Versi | Tanggal | Perubahan |
 |---|---|---|
+| v3 | 16 Okt. 2026 | Bagian 1.2: usulan dinding pada lid, bibir pada body, tiang sudut M2,5, takik USB dan kabel load cell; gambar `gambar/housing-elektronik-hgd.svg` dari STEP Fusion |
 | v2 | 16 Okt. 2026 | Ukuran LCD terukur; berkas parameter Fusion; jendela lid = area layar; kompensasi susut; aturan cetak 3D; batasan dari penempatan PCB v2 |
 | v1 | 13 Okt. 2026 | Rencana awal |
