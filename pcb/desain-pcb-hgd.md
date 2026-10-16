@@ -3,7 +3,7 @@ title: Desain PCB dan Skema - Hand Grip Dynamometer
 
 ---
 
-# Desain PCB dan Skema - Hand Grip Dynamometer (v2)
+# Desain PCB dan Skema - Hand Grip Dynamometer (v3)
 **Proyek akhir - embedded system**
 
 > Skema dan PCB (skema termasuk): komponen, alokasi pin, rantai sinyal, load cell, catu daya, keputusan catu LCD, wiring antarmodul, PCB `hgd-v1` (KiCad), netlist, usulan penempatan, pemeriksaan load cell, dan sisa pekerjaan. Berkas netlist dan daftar komponen: `pcb_netlist.xlsx`; berkas KiCad: [kicad/](kicad/README.md); gambar penempatan: [gambar/penempatan-pcb-hgd.svg](gambar/penempatan-pcb-hgd.svg). Firmware ada di [alur-program-hgd.md](../firmware/alur-program-hgd.md); induk: [catatan-proyek-hgd.md](../catatan-proyek-hgd.md).
@@ -164,7 +164,7 @@ Kredit footprint U2: SnapEDA, "ESP32-DEVKIT-V1" oleh "Do it" (diunduh dari snape
 - Edge.Cuts sekarang (116,5; 83) sampai (163; 136) adalah sementara; tepi papan dan lubang M3 ditentukan setelah sisi atas selesai.
 
 ### 8.4 Usulan penempatan v2
-Gambar: [gambar/penempatan-pcb-hgd.svg](gambar/penempatan-pcb-hgd.svg) (tembus pandang dari atas dan tampak bawah). Koordinat KiCad (mm, Y ke bawah), relatif terhadap U2 di (131,73; 109,475; rotasi 180; B.Cu). Diturunkan dari tata letak di Fusion (±1 mm). Arah: +Y menuju antena; +X menuju tepi PCB LCD di tutup.
+Gambar [gambar/penempatan-pcb-hgd.svg](gambar/penempatan-pcb-hgd.svg) sekarang menunjukkan PCB `hgd-v1` v1 dengan jalur final dari berkas KiCad (16 Okt. 2026): 80 x 55 mm, lubang H1-H4 Ø3,0 pola 75 x 50 mm, lolos DRC KiCad, belum disetujui dan belum dipesan. Skema ada di [kicad/proyek/hgd-v1.kicad_sch](kicad/proyek/hgd-v1.kicad_sch). Tabel dan batasan di bawah adalah usulan penempatan v2 yang lama; posisi final ada di gambar. Koordinat usulan v2: KiCad (mm, Y ke bawah), relatif terhadap U2 di (131,73; 109,475; rotasi 180; B.Cu). Diturunkan dari tata letak di Fusion (±1 mm). Arah: +Y menuju antena; +X menuju tepi PCB LCD di tutup.
 
 | Ref | Sisi | Posisi | Catatan |
 |---|---|---|---|
@@ -245,6 +245,7 @@ Penyimpanan: kotak kedap udara dengan gelembung plastik (sisi gelembung menghada
 
 | Versi | Tanggal | Perubahan |
 |---|---|---|
+| v3 | 16 Okt. 2026 | Gambar `penempatan-pcb-hgd.svg` diganti dengan PCB v1 berjalur final dari berkas KiCad (lolos DRC, belum disetujui); skema `hgd-v1.kicad_sch` ditambahkan di `kicad/proyek/` |
 | v2 | 16 Okt. 2026 | R1 100 → 220 ohm; catu LCD diputuskan (5 V + level shifter BSS138 4 kanal); rail +5V; tanpa baterai; DevKit dan semua soket di sisi bawah, modul dicolok ke soket (HX711 langsung); netlist KiCad `hgd-v1`; usulan penempatan v2 dan gambar; hasil uji bench 15 Okt. 2026 |
 | v1 | 10-14 Okt. 2026 | Draf PCB v1 take-home: soket DevKit J1/J2, header jantan J3/J4 dengan kabel jumper, rail 3,3 V saja |
 

@@ -3,7 +3,7 @@ title: Catatan Proyek - Hand Grip Dynamometer
 
 ---
 
-# Catatan Proyek - Hand Grip Dynamometer (v45)
+# Catatan Proyek - Hand Grip Dynamometer (v46)
 **Proyek akhir - embedded system**
 
 > Catatan kerja proyek akhir mata kuliah embedded system, sekaligus **dokumen induk**: ringkasan, kebutuhan, rumusan masalah, spesifikasi, BOM, risiko, jadwal, anggaran, keselamatan, riwayat keputusan, dan log audit ada di sini; bahan teknis dipecah ke dokumen di peta di bawah. Ditulis supaya bisa dibaca sendiri (offline). Dipakai untuk G2-G4, makalah akhir, dan demo.
@@ -13,7 +13,7 @@ title: Catatan Proyek - Hand Grip Dynamometer
 | Dokumen | Isi | Status |
 |---|---|---|
 | [firmware/alur-program-hgd.md](firmware/alur-program-hgd.md) | Seluruh firmware dan perangkat lunak laptop: struktur berkas, struktur data, konstanta, fungsi, state machine, HX711 dan sinyal, kalibrasi (pengolahan data), logging, antarmuka, uji modul, build, constraint, hal terbuka (Bagian 18) | Rencana (v4); firmware utama belum dikode; sketsa uji U4, U7, U8 dan sketsa bench `uji_bench_hgd` ada di `firmware/sketches/`; hasil uji bench 15 Okt. 2026 tercatat |
-| [pcb/desain-pcb-hgd.md](pcb/desain-pcb-hgd.md) | Skema dan PCB: komponen, alokasi pin, rantai sinyal, load cell, catu, keputusan catu LCD, wiring, netlist KiCad `hgd-v1`, usulan penempatan, pemeriksaan komponen, sisa pekerjaan; gambar di `pcb/gambar/` | v2: skema dan netlist benar; penempatan usulan v2; jalur belum |
+| [pcb/desain-pcb-hgd.md](pcb/desain-pcb-hgd.md) | Skema dan PCB: komponen, alokasi pin, rantai sinyal, load cell, catu, keputusan catu LCD, wiring, netlist KiCad `hgd-v1`, usulan penempatan, pemeriksaan komponen, sisa pekerjaan; gambar di `pcb/gambar/` | v3: skema dan netlist benar; PCB v1 berjalur, lolos DRC (gambar di `pcb/gambar/`); skema di `pcb/kicad/proyek/`; belum disetujui |
 | [pcb/pcb_netlist.xlsx](pcb/pcb_netlist.xlsx) | Netlist; komponen dengan nama umum, nama part resmi, simbol dan footprint KiCad; modul di luar PCB; asumsi dan sisa | Sesuai skema `hgd-v1` (15 Okt. 2026) |
 | [pcb/kicad/README.md](pcb/kicad/README.md) | Hub berkas KiCad: simbol dan footprint (DevKit dari SnapEDA), struktur folder untuk proyek, pustaka, PDF, dan Gerber | Berkas proyek KiCad belum diunggah |
 | [housing-load-cell/desain-housing-load-cell.md](housing-load-cell/desain-housing-load-cell.md) | Housing grip load cell: layout dua batang, kekakuan batang, kalibrasi, pengadaan pelat, rujukan | Ada (v10) |
@@ -222,7 +222,7 @@ tinggi badan, berat badan, tangan dominan, dan frekuensi olahraga. Opsional, han
 | Catu LCD (3,3 V atau 5 V) | **Selesai (15 Okt. 2026)** | Diukur: dengan backpack di VIN, SDA/SCL diam di 4,93 V (melebihi batas GPIO ESP32 ≈ 3,6 V); di 3V3 kontras LCD gagal walau trimpot diputar ±135°. Keputusan: LCD dan backpack dari VIN (5 V), SDA/SCL lewat **modul level shifter dua arah 4 kanal BSS138** (dibeli, belum tiba). Netlist `hgd-v1` sudah memuat rail +5V dan J3/J4 untuk shifter (Bagian 6 di [desain-pcb-hgd.md](pcb/desain-pcb-hgd.md)) |
 | Modul HX711, LCD, level shifter | Sebagian | HX711 dan LCD ada dan lolos uji bench (15 Okt. 2026); ukuran HX711 24 x 15,6 mm dan LCD diukur. Daftar cek kedatangan DS-HX1, DS-LCD1, DS-I2C1 sebagian terisi. Belum: E+/E− HX711 (U6), skema papan HX711 yang dibeli. Level shifter belum tiba: ukur jarak baris header (DS-LLS1) |
 | Uji load cell | Sebagian | Resistansi lulus dua kali; uji bertegangan lewat HX711 berjalan (15 Okt. 2026); E1 resmi setelah pemanasan (16 Okt. 2026): σ 35,0 counts (0,0007 kg), peak-to-peak 0,004 kg; arah tekan positif. Percobaan E1 pertama tidak valid (jumper DT/SCK longgar). Langkah di [protokol-uji-bench-hgd.md](firmware/protokol-uji-bench-hgd.md). Belum: kalibrasi, linearitas, E1 ulang setelah housing dirakit |
-| PCB `hgd-v1` | Berjalan | Skema dan netlist benar (15 Okt. 2026); R1 220 ohm; DevKit dan semua soket di sisi bawah; usulan penempatan v2 (Bagian 8 di [desain-pcb-hgd.md](pcb/desain-pcb-hgd.md)). Sisa: bersihkan berkas (REF** dan NPTH U2), terapkan penempatan, jarak baris shifter, Edge.Cuts dan M3, jalur dan DRC, silkscreen pin 1 dan HV/LV, persyaratan tugas PCB dari kelas |
+| PCB `hgd-v1` | Berjalan | Skema dan netlist benar (15 Okt. 2026); R1 220 ohm; DevKit dan semua soket di sisi bawah; PCB v1 selesai digambar 16 Okt. 2026: 80 x 55 mm, lubang H1-H4 Ø3,0 (pola 75 x 50, segaris PCB LCD, baut M2,5), jalur dua lapis, silkscreen nama pin J1-J4, lolos DRC KiCad (Bagian 8 di [desain-pcb-hgd.md](pcb/desain-pcb-hgd.md)). Sisa: persetujuan, gerber, persyaratan tugas PCB dari kelas |
 | Jadwal | Lihat Bagian 4.1 | Terkait konflik tenggat gerber (Bagian 4.1) |
 | Risiko | Belum didokumentasikan secara formal | Kandidat dari desain housing: batang melentur menyentuh load cell atau patah ([HL9](housing-load-cell/desain-housing-load-cell.md#hl9-temuan-kekakuan-batang-dan-usulan-bahan)); lubang baut mengurangi penampang pelat di pangkal; kabel load cell tertarik terbaca sebagai gaya; dua bagian bersentuhan (jalur gaya paralel); arah beban kalibrasi, kalibrasi hanya sampai 42 kg dengan ekstrapolasi ke 70 kgf, dan A yang bertumpu pada kepala baut saat kalibrasi ([HL10](housing-load-cell/desain-housing-load-cell.md#hl10-kalibrasi-dan-arah-beban)); kabel load cell pendek (sekitar 28-42 cm) dan diameternya belum diukur ([HL4](housing-load-cell/desain-housing-load-cell.md#hl4-tata-letak-terpilih-dua-batang-dengan-load-cell-di-antaranya)); pelat logam butuh akses bengkel dan anggaran ([HL11](housing-load-cell/desain-housing-load-cell.md#hl11-pengadaan-pelat-logam)); ketersediaan beban acuan (dumbbell berpasangan sampai 42 kg milik anggota) |
 | Consent partisipan | Tidak relevan | v5 hanya menguji anggota tim sendiri (Bagian 5) |
@@ -430,7 +430,7 @@ Lihat Bagian 4 di [desain-pcb-hgd.md](pcb/desain-pcb-hgd.md). Jangan dibawa lewa
 |--------|--------|------------|
 | Pengadaan | ◐ | Load cell, LCD, HX711 ada; level shifter dalam pengiriman; pelat dan baut belum dibeli |
 | Pemeriksaan load cell | ◐ | Dimensi dan resistansi ✔; uji bertegangan dan E1 ✔ (15 Okt. 2026); kalibrasi belum |
-| PCB `hgd-v1` | ◐ | Netlist benar; penempatan usulan v2; jalur/DRC/gerber belum |
+| PCB `hgd-v1` | ◐ | Netlist benar; v1 berjalur dan lolos DRC (16 Okt. 2026); belum disetujui; gerber belum |
 | Skema KiCad | ✔ | Diperiksa 15 Okt. 2026 (rail +3V3 dan +5V, level shifter, kedua GND) |
 | Firmware | ▣ | Rancangan lengkap; belum dikode |
 | `logger.py` dan `kalibrasi.py` | ▣ | Rancangan; belum dikode |
@@ -438,7 +438,7 @@ Lihat Bagian 4 di [desain-pcb-hgd.md](pcb/desain-pcb-hgd.md). Jangan dibawa lewa
 | Housing elektronik | ◐ | LCD diukur dan dimodelkan; parameter Fusion dan kompensasi susut ada; lid dan body sedang dimodelkan |
 | Kalibrasi | ▣ | Protokol ada; belum dijalankan |
 | Pengujian | ◐ | U1-U5, U7, E1 ✔; U8 sebagian; U6, U9, U10 belum |
-| Dokumen | ◐ | Catatan proyek v45, alur program v4, protokol uji bench v1, desain PCB v2, housing elektronik v2, tabel pengukuran, sitasi v1, datasheet library |
+| Dokumen | ◐ | Catatan proyek v46, alur program v4, protokol uji bench v1, desain PCB v3, housing elektronik v2, tabel pengukuran, sitasi v1, datasheet library |
 
 ### 15.2 Yang akan dikerjakan berikutnya
 1. Saat level shifter tiba: ukur jarak baris header dan cek tegangan LV (DS-LLS1).
@@ -467,6 +467,7 @@ Lihat Bagian 4 di [desain-pcb-hgd.md](pcb/desain-pcb-hgd.md). Jangan dibawa lewa
 - Tenggat gerber: konflik panduan (Minggu 7) dan panduan tugas (Minggu 8) belum terkonfirmasi (Bagian 4.1).
 - Media logging: SD card hanya fasilitas opsional lab (satu unit); cloud opsional menurut Panduan; keputusan: CSV lewat USB-Serial sebagai inti (Bagian 5 dan Bagian 15.1 di [alur-program-hgd.md](firmware/alur-program-hgd.md)).
 - Persyaratan format resmi: status per item di Bagian 4.3.
+- v46 (16 Okt. 2026): PCB `hgd-v1` v1 berjalur dan lolos DRC; gambar `pcb/gambar/penempatan-pcb-hgd.svg` diganti dengan papan final; skema `pcb/kicad/proyek/hgd-v1.kicad_sch` ditambahkan; desain PCB v3; belum disetujui.
 - v45 (16 Okt. 2026): data E1 lengkap di `pengukuran/e1-noise-hgd.xlsx`; protokol uji bench `firmware/protokol-uji-bench-hgd.md` (v1) ditambahkan; E1 resmi setelah pemanasan 11 menit (σ 35,0 counts; ambang onset tetap 1,0 kg); arah tekan positif; U8 kumulatif 5 TAP dan 3 TAHAN; alur program v4.
 - v44 (16 Okt. 2026): hasil uji bench 15 Okt. 2026 dicatat (U4 0x27, U5 SDA/SCL 4,93 V, U7, U8 sebagian, E1 σ 38,2 counts); catu LCD diputuskan (5 V + level shifter BSS138 4 kanal, BOM baris 7); tanpa baterai; R1 220 ohm; PCB `hgd-v1`: DevKit dan soket di sisi bawah, HX711 dicolok ke J1, netlist KiCad, usulan penempatan v2 dengan zona antena; desain PCB v2, alur program v3, housing elektronik v2 dengan parameter Fusion dan kompensasi susut; tabel pengukuran LCD dan HX711; DS-LLS1 ditambahkan; risiko R11, R12 diperbarui dan R15 ditambahkan; sketsa `uji_bench_hgd` ditambahkan.
 - v43 (15 Okt. 2026): alur program menjadi v2 (sitasi dan rujukan silang dikoreksi terhadap modul praktikum dan buku, istilah "interrupt transition" menjadi "transisi pengecualian", hal terbuka A5-A13 di Bagian 18); sketsa uji `uji_lcd_i2c`, `uji_hx711`, `uji_tombol_led` ditambahkan.

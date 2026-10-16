@@ -1,4 +1,4 @@
-# KiCad: simbol dan footprint kustom (v2)
+# KiCad: simbol dan footprint kustom (v3)
 **Proyek akhir - embedded system**
 
 Folder ini adalah pusat semua berkas yang berkaitan dengan KiCad untuk PCB hand grip dynamometer. Daftar komponen, nama part resmi, dan nama simbol/footprint tiap komponen ada di [../pcb_netlist.xlsx](../pcb_netlist.xlsx) (sheet Komponen dan Modul luar PCB); desain dan keputusannya di [../desain-pcb-hgd.md](../desain-pcb-hgd.md).
@@ -13,7 +13,7 @@ Folder dibuat saat berkasnya ada; yang belum ada ditandai "belum".
 | `simbol/hgd.kicad_sym` | Pustaka simbol kustom proyek | Belum |
 | `footprint/hgd.pretty/` | Pustaka footprint kustom proyek (satu berkas `.kicad_mod` per footprint) | Belum |
 | `3d/` | Model 3D (`.step`) yang dipakai footprint kustom | Belum |
-| `proyek/` | Berkas proyek KiCad (`.kicad_pro`, `.kicad_sch`, `.kicad_pcb`) | Belum |
+| `proyek/` | Berkas proyek KiCad (`.kicad_pro`, `.kicad_sch`, `.kicad_pcb`) | Sebagian: `hgd-v1.kicad_sch` (16 Okt. 2026); `.kicad_pro` dan `.kicad_pcb` belum |
 | `pdf/` | Keluaran PDF: skema, penempatan, lembar uji pas skala 1:1 | Belum |
 | `gerber/` | Keluaran produksi (Gerber, bor) | Belum |
 
@@ -40,4 +40,4 @@ Proyek KiCad `hgd-v1` memakai simbol dan footprint DevKit dari SnapEDA ("ESP32-D
 
 - Nama pustaka standar di `pcb_netlist.xlsx` ditulis dari pustaka KiCad yang umum; cocokkan dengan yang benar-benar ada di instalasi Anda (nama bisa berbeda antar versi KiCad).
 - Skema KiCad `hgd-v1` sudah diperiksa (15 Okt. 2026): netlist benar, termasuk kedua GND DevKit. Pembersihan berkas PCB sebelum gerber ada di Bagian 8.3 [../desain-pcb-hgd.md](../desain-pcb-hgd.md).
-- Berkas proyek KiCad belum diunggah ke `proyek/`.
+- Di `proyek/` baru ada skema `hgd-v1.kicad_sch` (16 Okt. 2026; paritas skema-PCB di DRC: 0 beda). Gambar papan dengan jalur final ada di [../gambar/penempatan-pcb-hgd.svg](../gambar/penempatan-pcb-hgd.svg).
