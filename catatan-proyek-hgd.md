@@ -420,6 +420,7 @@ Lihat Bagian 4 di [desain-pcb-hgd.md](pcb/desain-pcb-hgd.md). Jangan dibawa lewa
 | LCD dan HX711 (revisi) | Kabel jumper F-M ke header PCB | **Soket betina di PCB; HX711 dicolok langsung, LCD lewat kabel** | Jumper DT/SCK longgar merusak E1 pertama; LCD di tutup tetap perlu kabel |
 | Sisi DevKit | Sisi atas | **Sisi bawah PCB** (semua soket dan kapasitor juga di bawah) | Di atas, tombol tidak cukup menonjol keluar tutup |
 | R1 | 100 ohm | **220 ohm** | Nilai yang dipakai tim; LED ≈ 6 mA |
+| Perangkat lunak PCB | EasyEDA (arahan modul) | **KiCad** (diizinkan tim pengajar, 17 Okt. 2026) | Skema dan PCB sudah dikerjakan di KiCad |
 | LED daya | Tidak ada (hanya D1 di GPIO27) | **D2 LED merah 3 mm + R2 220 ohm dari +3V3** (17 Okt. 2026) | D1 hanya menyala bila firmware jalan; indikator daya menunjukkan papan berdaya walau firmware mati |
 
 ---
