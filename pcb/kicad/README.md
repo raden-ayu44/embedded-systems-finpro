@@ -1,4 +1,4 @@
-# KiCad: simbol dan footprint kustom (v3)
+# KiCad: simbol dan footprint kustom (v4)
 **Proyek akhir - embedded system**
 
 Folder ini adalah pusat semua berkas yang berkaitan dengan KiCad untuk PCB hand grip dynamometer. Daftar komponen, nama part resmi, dan nama simbol/footprint tiap komponen ada di [../pcb_netlist.xlsx](../pcb_netlist.xlsx) (sheet Komponen dan Modul luar PCB); desain dan keputusannya di [../desain-pcb-hgd.md](../desain-pcb-hgd.md).
@@ -13,7 +13,7 @@ Folder dibuat saat berkasnya ada; yang belum ada ditandai "belum".
 | `simbol/hgd.kicad_sym` | Pustaka simbol kustom proyek | Belum |
 | `footprint/hgd.pretty/` | Pustaka footprint kustom proyek (satu berkas `.kicad_mod` per footprint) | Belum |
 | `3d/` | Model 3D (`.step`) yang dipakai footprint kustom | Belum |
-| `proyek/` | Berkas proyek KiCad (`.kicad_pro`, `.kicad_sch`, `.kicad_pcb`) | Sebagian: `hgd-v1.kicad_sch` (16 Okt. 2026); `.kicad_pro` dan `.kicad_pcb` belum |
+| `proyek/` | Berkas proyek KiCad (`.kicad_pro`, `.kicad_sch`, `.kicad_pcb`) | Sebagian: `hgd-v1.kicad_pcb` (17 Okt. 2026: D2/R2, pour GND dua lapis, 57 via jahit, silkscreen tim; model 3D DevKit tertanam di berkas, `kicad-embed://`, tanpa jalur lokal); `hgd-v1.kicad_sch` (16 Okt. 2026, belum memuat D2/R2, no-connect, dan `PWR_FLAG`); `.kicad_pro` belum |
 | `pdf/` | Keluaran PDF: skema, penempatan, lembar uji pas skala 1:1 | Belum |
 | `gerber/` | Keluaran produksi (Gerber, bor) | Belum |
 
