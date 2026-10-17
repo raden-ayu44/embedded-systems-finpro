@@ -7,6 +7,12 @@
 		(legacy_teardrops no)
 	)
 	(paper "A4")
+	(title_block
+		(title "Hand Grip Dynamometer")
+		(date "2026-10-17")
+		(rev "1")
+		(company "Kelompok 01")
+	)
 	(layers
 		(0 "F.Cu" signal)
 		(2 "B.Cu" signal)

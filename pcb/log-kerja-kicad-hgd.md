@@ -18,6 +18,7 @@ title: Log Kerja KiCad - PCB hgd-v1
 | 4 | 17 Okt. 2026 | Simpan skema ke repo | Berkas `hgd-v1.kicad_sch` hasil langkah 1-3 disimpan dan diserahkan untuk repo | [kicad/proyek/hgd-v1.kicad_sch](kicad/proyek/hgd-v1.kicad_sch) di PR #5 (commit oleh Claude) | Berkas sama dengan yang diserahkan; tanpa jalur lokal |
 | 5 | 17 Okt. 2026 | Plot Gerber dan bor (File > Fabrication Outputs) | **Plot:** format Gerber, folder `gerber\`; lapis F.Cu, B.Cu, F.Silkscreen, B.Silkscreen, F.Mask, B.Mask, Edge.Cuts; opsi umum: Subtract soldermask from silkscreen, Indicate DNP (cross-out), Check zone fills before plotting, tanpa drawing sheet, skala 1:1; opsi Gerber: Use Protel filename extensions, Generate Gerber job file, format koordinat 4.6 (mm), Use extended X2 format, Include netlist attributes. **Bor:** Excellon, metrik (mm), desimal, absolut; PTH dan NPTH di berkas terpisah; peta bor PDF | 12 berkas (19:44-19:45): 7 Gerber, job file (Revision 1), `PTH.drl`, `NPTH.drl`, 2 peta bor PDF; DRC 0 pelanggaran, 4 pengecualian | Outline 80 x 55 mm; 129 PTH (70 kaki komponen, 59 via), 4 NPTH Ø3,0; pour GND di kedua lapis, area antena kosong; silkscreen tim ada; tanpa jalur lokal. Belum dicek di viewer fabrikator |
 | 6 | 17 Okt. 2026 | Cek di viewer fabrikator (JLCPCB, juga ekspor SVG viewer PCBWay) | ZIP Gerber diunggah ke penawaran daring JLCPCB (tanpa memesan); pratinjau atas dan bawah diperiksa; SVG lapis dari viewer PCBWay diunduh | JLCPCB: "Detected 2 layer board of 55x80mm", dimensi 80 x 55, 2 lapis, FR-4. Pratinjau sama dengan papan: outline persegi, H1-H4, baris DevKit dan J1-J4, pour GND kedua sisi dengan jalur antena kosong, silkscreen tim dan D2 PWR terbaca | Pratinjau cocok dengan berkas papan; viewBox SVG PCBWay 80 x 55 mm pada koordinat papan yang sama |
+| 7 | 17 Okt. 2026 | Title block papan, salinan 3D, dan ekspor STEP | Page Settings papan diisi (Title, Company, Revision 1, tanggal); salinan `hgd-v1-verbatim.kicad_pcb` dengan dua soket 1x15 di pad U2; STEP diekspor dari salinan itu (File > Export > STEP) | `hgd-v1.kicad_pcb`, `hgd-v1-verbatim.kicad_pcb`, `hgd-v1.step` di [kicad/proyek/](kicad/proyek/) | Berkas papan utama hanya berbeda di title block dari versi sebelumnya; tanpa jalur lokal di ketiga berkas. Salinan verbatim punya lubang ganda di pad U2, jadi Gerber tetap dari `hgd-v1.kicad_pcb` |
 
 ---
 
@@ -25,4 +26,4 @@ title: Log Kerja KiCad - PCB hgd-v1
 
 | Versi | Tanggal | Perubahan |
 |---|---|---|
-| v1 | 17 Okt. 2026 | Log pertama: langkah 1-6 |
+| v1 | 17 Okt. 2026 | Log pertama: langkah 1-7 |
