@@ -369,7 +369,7 @@ Housing: ukur LC → prototipe kardus → pesan pelat → cetak → rakit ──
 | 6 | Tactile push button (MOQ 5) | 5 | Rp2.500 | Komponen tim |
 | 7 | Resistor, breadboard, kabel jumper | - | Disediakan lab | - |
 | 8 | Soket betina 1x15, 1x4, 1x6; kabel jumper F-M | - | Dari lab/tim | Tambahan PCB `hgd-v1` |
-| 8a | Modul level shifter 4 kanal BSS138 | 1 | Dicatat dari bukti beli | Dibeli, belum tiba |
+| 8a | Modul level shifter 4 kanal BSS138 | 1 | Dicatat dari bukti beli | Sudah tiba |
 | 9 | Kapasitor 100 nF dan 10 µF | 2 + 2 | Komponen lab | Decoupling 3V3 dan 5V |
 | 10 | Pelat aluminium 170 x 30 x 10 mm (+ jasa potong/bor) | 2 + 1 | Belum dicatat | Belum dibeli |
 | 11 | Baut M6 x 25 + washer | 4 + cadangan | Belum dicatat | Belum dibeli |
