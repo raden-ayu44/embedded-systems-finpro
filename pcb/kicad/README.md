@@ -1,4 +1,4 @@
-# KiCad: simbol dan footprint kustom (v2)
+# KiCad: simbol dan footprint kustom (v5)
 **Proyek akhir - embedded system**
 
 Folder ini adalah pusat semua berkas yang berkaitan dengan KiCad untuk PCB hand grip dynamometer. Daftar komponen, nama part resmi, dan nama simbol/footprint tiap komponen ada di [../pcb_netlist.xlsx](../pcb_netlist.xlsx) (sheet Komponen dan Modul luar PCB); desain dan keputusannya di [../desain-pcb-hgd.md](../desain-pcb-hgd.md).
@@ -13,7 +13,7 @@ Folder dibuat saat berkasnya ada; yang belum ada ditandai "belum".
 | `simbol/hgd.kicad_sym` | Pustaka simbol kustom proyek | Belum |
 | `footprint/hgd.pretty/` | Pustaka footprint kustom proyek (satu berkas `.kicad_mod` per footprint) | Belum |
 | `3d/` | Model 3D (`.step`) yang dipakai footprint kustom | Belum |
-| `proyek/` | Berkas proyek KiCad (`.kicad_pro`, `.kicad_sch`, `.kicad_pcb`) | Belum |
+| `proyek/` | Berkas proyek KiCad (`.kicad_pro`, `.kicad_sch`, `.kicad_pcb`) | Sebagian: `hgd-v1.kicad_pcb` (17 Okt. 2026: D2/R2, pour GND dua lapis, 57 via jahit, silkscreen tim; model 3D DevKit tertanam di berkas, `kicad-embed://`, tanpa jalur lokal); `hgd-v1.kicad_sch` (17 Okt. 2026: D2/R2, 24 no-connect, `PWR_FLAG`, title block; ERC 0 error); `hgd-v1-verbatim.kicad_pcb` (salinan khusus 3D: papan yang sama + dua soket 1x15 `REF**` di pad U2 supaya soket DevKit tampak di model 3D; **jangan dipakai untuk Gerber**, karena lubangnya ganda); `hgd-v1.step` (model 3D rakitan dari salinan verbatim, untuk Fusion); `.kicad_pro` belum |
 | `pdf/` | Keluaran PDF: skema, penempatan, lembar uji pas skala 1:1 | Belum |
 | `gerber/` | Keluaran produksi (Gerber, bor) | Belum |
 
@@ -40,4 +40,4 @@ Proyek KiCad `hgd-v1` memakai simbol dan footprint DevKit dari SnapEDA ("ESP32-D
 
 - Nama pustaka standar di `pcb_netlist.xlsx` ditulis dari pustaka KiCad yang umum; cocokkan dengan yang benar-benar ada di instalasi Anda (nama bisa berbeda antar versi KiCad).
 - Skema KiCad `hgd-v1` sudah diperiksa (15 Okt. 2026): netlist benar, termasuk kedua GND DevKit. Pembersihan berkas PCB sebelum gerber ada di Bagian 8.3 [../desain-pcb-hgd.md](../desain-pcb-hgd.md).
-- Berkas proyek KiCad belum diunggah ke `proyek/`.
+- **Skema dan PCB v1 selesai (17 Okt. 2026), belum disetujui.** Di `proyek/`: `hgd-v1.kicad_sch` (ERC 0 error), `hgd-v1.kicad_pcb` (DRC 0 error; paritas skema-PCB 0 beda), `hgd-v1-verbatim.kicad_pcb` (hanya untuk model 3D), `hgd-v1.step`. Gerber v1 diekspor dan dicek, disimpan di luar repo sampai disetujui. Langkah kerja: [../log-kerja-kicad-hgd.md](../log-kerja-kicad-hgd.md).

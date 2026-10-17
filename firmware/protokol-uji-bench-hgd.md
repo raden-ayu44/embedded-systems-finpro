@@ -3,7 +3,7 @@ title: Protokol Uji Bench - Hand Grip Dynamometer
 
 ---
 
-# Protokol Uji Bench - Hand Grip Dynamometer (v1)
+# Protokol Uji Bench - Hand Grip Dynamometer (v3)
 **Proyek akhir - embedded system**
 
 > Langkah uji modul di breadboard dengan sketsa [`uji_bench_hgd`](sketches/uji_bench_hgd/uji_bench_hgd.ino): U4 (I2C dan LCD), U7 (HX711), U8 (tombol dan LED), E1 (noise diam), uji arah tekan, dan pengulangan tare. Tabel uji dan konstanta ada di Bagian 3 dan 11 di [alur-program-hgd.md](alur-program-hgd.md); perangkat keras di [desain-pcb-hgd.md](../pcb/desain-pcb-hgd.md); induk: [catatan-proyek-hgd.md](../catatan-proyek-hgd.md).
@@ -21,7 +21,22 @@ title: Protokol Uji Bench - Hand Grip Dynamometer
 | Tombol | GPIO25 ke GND (kaki diagonal) | Pull-up internal |
 | LED | GPIO27 → R1 220 ohm → anoda; katoda ke GND | - |
 
-> **Risiko kerusakan: SDA/SCL backpack di VIN terukur 4,93 V**, di atas batas mutlak GPIO ESP32 (≈ 3,6 V). Selama level shifter belum terpasang, cabut kabel SDA dan SCL LCD untuk uji yang lama (pemanasan, E1). LCD tidak diperlukan untuk langkah 3-7; semua hasil terbaca di Serial Monitor.
+> **Risiko kerusakan: SDA/SCL backpack di VIN terukur 4,93 V**, di atas batas mutlak GPIO ESP32 (≈ 3,6 V). SDA/SCL LCD hanya ke sisi HV level shifter; GPIO21/22 hanya ke sisi LV.
+
+Wiring level shifter (sesuai skema `hgd-v1`, J3/J4):
+
+| Pin shifter | Ke |
+|---|---|
+| HV | VIN (5 V) |
+| HV1 / HV2 | SDA / SCL backpack LCD |
+| LV | 3V3 |
+| LV1 / LV2 | GPIO21 / GPIO22 |
+| GND (sisi HV dan LV) | GND |
+| HV3, HV4, LV3, LV4 | Kosong |
+
+Cek modul sebelum dicatu (modul lepas, tanpa catu): kontinuitas (mode bunyi) antara setiap pasangan pin bertetangga di kedua baris tidak boleh berbunyi. Jembatan HV-GND atau LV-GND menyambung rail ke ground. Pull-up LV1/LV2 ke LV dan HV1/HV2 ke HV ≈ 10 kΩ.
+
+Cek sebelum uji: hanya HV, LV, dan GND yang disambung (LCD dan GPIO21/22 belum), ukur ke GND dengan rentang 20 V DC: LV1/LV2 ≈ 3,3 V dan HV1/HV2 ≈ 4,9 V. Bila LV1/LV2 terbaca ≈ 4,9 V, cabut USB: sisi HV/LV tertukar. Hasil 17 Okt. 2026: LV1 = LV2 = 3,26 V; HV1 = HV2 = 4,98 V; setelah backpack disambung, LCD bekerja lewat shifter.
 
 Perintah serial: `t` tare, `k` rata-rata 10 raw, `p` status, `e` E1 60 s, `n` balik tanda, `l` LED, `s` pindai I2C, `h` bantuan. Tombol: TAP = LED nyala/mati, TAHAN 1,5 s = tare ulang.
 
@@ -75,6 +90,8 @@ Data lengkap (semua baris E1 15 dan 16 Okt. 2026, pemanasan, uji tekan, log ment
 
 | Versi | Tanggal | Perubahan |
 |---|---|---|
+| v3 | 17 Okt. 2026 | Cek kontinuitas modul shifter sebelum dicatu; cek tegangan hanya dengan pin catu tersambung; hasil ukur 3,26 V dan 4,98 V |
+| v2 | 17 Okt. 2026 | Level shifter terpasang: tabel wiring shifter dan cek tegangan sisi LV; aturan cabut SDA/SCL dihapus |
 | v1 | 16 Okt. 2026 | Protokol pertama, dari uji bench 15 dan 16 Okt. 2026 |
 
 ---

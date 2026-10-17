@@ -29,3 +29,29 @@ view_L,mm,64.5 mm,64.5 mm,"panjang area tampilan (layar) LCD; terukur",false
 view_W,mm,14 mm,14 mm,"lebar area tampilan (layar) LCD; terukur",false
 view_x_pos,mm,3 mm,3 mm,"jarak layar ke tepi kiri dan kanan bingkai hitam (terukur 3 mm per sisi); CEK: 64.5 + 2 x 3 = 70.5, bukan frame_L 71.5",false
 view_y_pos,mm,( frame_W - view_W ) / 2,5 mm,"jarak layar ke tepi atas dan bawah bingkai hitam (terukur 5 mm per sisi; cocok dengan frame_W)",false
+lip_cl,mm,0.25 mm,0.25 mm,"celah bibir ke muka dalam dinding lid, per sisi (sliding fit 0.2-0.3)",false
+lip_t,mm,1.6 mm,1.6 mm,"tebal bibir (4 perimeter 0.4)",false
+lip_h,mm,3 mm,3 mm,"tinggi bibir di atas sambungan lid-body (z -22 sampai -19)",false
+ledge_w,mm,lip_cl + lip_t,1.85 mm,"lebar tumpuan dari muka dalam dinding body ke muka dalam bibir; chamfer 45 derajat sejarak ini",false
+snap_l,mm,20 mm,20 mm,"panjang lidah snap (Covestro l); 15 mm gagal cek regangan",true
+snap_b,mm,5 mm,5 mm,"tinggi lidah (Covestro b, arah z); Hubs minimum 5",false
+snap_h0,mm,1.6 mm,1.6 mm,"tebal lidah di akar (Covestro h)",false
+snap_h1,mm,snap_h0 / 2,0.8 mm,"tebal lidah di ujung (Covestro desain 2: h/2)",false
+snap_x_root,mm,15 mm,15 mm,"jarak akar lidah dari bidang tengah x = 0",false
+snap_root_L,mm,3 mm,3 mm,"panjang blok akar (arah x)",false
+snap_root_ext,mm,1 mm,1 mm,"blok akar lebih tebal ke dalam dari muka dalam bibir",false
+snap_fillet,mm,1 mm,1 mm,"fillet akar, R/h kira-kira 0.6 (Covestro)",false
+snap_end_gap,mm,0.5 mm,0.5 mm,"celah ujung lidah ke bibir",false
+snap_z0,mm,1 mm,1 mm,"dasar lidah di atas sambungan (z -21)",false
+snap_gap_under,mm,1 mm + comp_z,2 mm,"celah di bawah lidah; tumpuan diturunkan ke snap_z0 - snap_gap_under (z -23)",false
+snap_y,mm,1.2 mm,1.2 mm,"kait (undercut, Covestro y); regangan 0.44 persen",true
+bump_d,mm,lip_cl + snap_y,1.45 mm,"tonjolan dari muka luar lidah",false
+bump_flat,mm,0.4 mm,0.4 mm,"puncak datar tonjolan; sisi 45 derajat",false
+bump_L,mm,6 mm,6 mm,"panjang tonjolan (arah x), di ujung lidah",false
+bump_zc,mm,snap_z0 + snap_b / 2,3.5 mm,"tengah tonjolan di atas sambungan (z -18.5)",false
+bump_xc,mm,snap_x_root + snap_l - bump_L / 2,32 mm,"tengah tonjolan dari bidang tengah x = 0",false
+slot_L,mm,bump_L + 1 mm + comp_xy,7.6 mm,"panjang slot tembus dinding lid (0.5 per sisi + kompensasi susut)",false
+slot_H,mm,bump_flat + 2 * bump_d + comp_z,4.3 mm,"tinggi slot (alas tonjolan + kompensasi susut z)",false
+pillar_w,mm,0.8 mm,0.8 mm,"lebar tiang korban (detail minimum 0.8); dipotong setelah cetak",false
+pillar1_x,mm,snap_x_root + 9.6 mm,24.6 mm,"tepi tiang korban 1 dari x = 0 (jembatan 9.6)",false
+pillar2_x,mm,snap_x_root + snap_l - pillar_w,34.2 mm,"tepi tiang korban 2 dari x = 0 (di bawah ujung lidah; jembatan 8.8)",false

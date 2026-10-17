@@ -3,10 +3,10 @@ title: Desain PCB dan Skema - Hand Grip Dynamometer
 
 ---
 
-# Desain PCB dan Skema - Hand Grip Dynamometer (v2)
+# Desain PCB dan Skema - Hand Grip Dynamometer (v4)
 **Proyek akhir - embedded system**
 
-> Skema dan PCB (skema termasuk): komponen, alokasi pin, rantai sinyal, load cell, catu daya, keputusan catu LCD, wiring antarmodul, PCB `hgd-v1` (KiCad), netlist, usulan penempatan, pemeriksaan load cell, dan sisa pekerjaan. Berkas netlist dan daftar komponen: `pcb_netlist.xlsx`; berkas KiCad: [kicad/](kicad/README.md); gambar penempatan: [gambar/penempatan-pcb-hgd.svg](gambar/penempatan-pcb-hgd.svg). Firmware ada di [alur-program-hgd.md](../firmware/alur-program-hgd.md); induk: [catatan-proyek-hgd.md](../catatan-proyek-hgd.md).
+> Skema dan PCB (skema termasuk): komponen, alokasi pin, rantai sinyal, load cell, catu daya, keputusan catu LCD, wiring antarmodul, PCB `hgd-v1` (KiCad), netlist, usulan penempatan, pemeriksaan load cell, dan sisa pekerjaan. Berkas netlist dan daftar komponen: `pcb_netlist.xlsx`; berkas KiCad: [kicad/](kicad/README.md); gambar penempatan: [gambar/penempatan-pcb-hgd.svg](gambar/penempatan-pcb-hgd.svg); log langkah KiCad: [log-kerja-kicad-hgd.md](log-kerja-kicad-hgd.md). Firmware ada di [alur-program-hgd.md](../firmware/alur-program-hgd.md); induk: [catatan-proyek-hgd.md](../catatan-proyek-hgd.md).
 
 ---
 
@@ -17,10 +17,11 @@ title: Desain PCB dan Skema - Hand Grip Dynamometer
 | Load cell | CZL 601 80 kg, straight-bar, jembatan penuh, 2,0 ±0,2 mV/V | Sensor gaya | ✔ diterima; 130 x 28 x 21,5 mm; resistansi lolos (10 Okt. 2026) |
 | Penguat + ADC | Modul HX711 (papan XFW-HX711), kanal A, gain 128, 10 SPS | Digitalisasi | ✔ ada; merespons dan lolos uji noise E1 (15 Okt. 2026); 24 x 15,6 mm terukur |
 | Tampilan | LCD 16x2 HS1602A + backpack I2C (PCF8574T, alamat 0x27) | Teks per state | ✔ ada; alamat 0x27 terbaca (U4) |
-| Penggeser level | Modul level shifter dua arah 4 kanal berbasis MOSFET BSS138 | SDA/SCL 5 V (LCD) ↔ 3,3 V (ESP32) | ▣ dibeli, belum tiba; jarak baris header diukur saat tiba |
+| Penggeser level | Modul level shifter dua arah 4 kanal berbasis MOSFET BSS138 | SDA/SCL 5 V (LCD) ↔ 3,3 V (ESP32) | ✔ sudah tiba; jarak baris header 10,16 mm (jangka sorong) |
 | Indikator | LED 5 mm + R1 **220 ohm** | Sinyal "sedang direkam" | ▣ dari komponen tim |
+| Indikator daya | LED merah 3 mm (D2) + R2 **220 ohm** dari +3V3 | Menyala selama papan berdaya, tidak bergantung firmware | ✔ di skema dan PCB; diuji di breadboard (17 Okt. 2026) |
 | Input | Tactile push button 6 x 6 mm, batang 13 mm, 1 buah | START, NEXT, RESTART | ▣ dari komponen tim |
-| PCB | `hgd-v1` (KiCad), dua lapis | Dudukan DevKit, modul, tombol, LED | ◐ skema dan netlist benar; penempatan usulan v2 (Bagian 8.4) |
+| PCB | `hgd-v1` (KiCad), dua lapis, 80 x 55 mm | Dudukan DevKit, modul, tombol, LED | ✔ **v1 selesai (17 Okt. 2026), belum disetujui**: ERC 0 error, DRC 0 error, breadboard sama dengan skema, Gerber dicek di viewer JLCPCB (Bagian 8) |
 | Housing grip | 2 pelat Al 170 x 30 x 10 mm + spacer PLA + M6 x 25 | Mekanik | ◐ desain; sisa pengukuran load cell |
 
 Daya hanya dari USB; **tanpa baterai** (keputusan 15 Okt. 2026).
@@ -84,7 +85,7 @@ ESP32  ── (raw − offset) / skala = kg ── state machine
 | +5V | 5 V (✔ VIN terukur 4,98-5,08 V; 4,93 V di backpack) | VIN papan (USB) | LCD + backpack, sisi HV level shifter, C3, C4 |
 
 - Papan dicatu dari USB saja; tidak ada baterai dan tidak ada catu luar yang disambung ke `VIN` bersamaan dengan USB.
-- Estimasi arus: tipikal ≈ 117 mA, puncak ≈ 540 mA (didominasi lonjakan WiFi TX, yang tidak aktif pada jalur logging inti); margin terhadap regulator 1 A. LED kini ≈ 6 mA (R1 220 ohm), bukan 15 mA. Diverifikasi di uji S3.
+- Estimasi arus: tipikal ≈ 117 mA, puncak ≈ 540 mA (didominasi lonjakan WiFi TX, yang tidak aktif pada jalur logging inti); margin terhadap regulator 1 A. LED kini ≈ 6 mA (R1 220 ohm), bukan 15 mA; LED daya D2 menambah ≈ 6 mA tetap ((3,3 − 2,0) / 220). Diverifikasi di uji S3.
 - Eksitasi load cell diturunkan dari catu HX711 (E+ = AVDD). Pengukuran bersifat **rasiometrik**, jadi jumlah counts per kg praktis sama pada 5 V dan 3,3 V; yang berubah adalah noise relatif. Pada 3,3 V noise terukur σ ≈ 0,7 g (E1), jauh di bawah kebutuhan.
 - Decoupling: C1 100 nF keramik + C2 10 µF elektrolit di +3V3 dekat J1 (HX711); C3 10 µF elektrolit + C4 100 nF keramik di +5V dekat J2 (LCD). Elektrolit: + ke rail.
 
@@ -99,7 +100,16 @@ Aturan keputusan v1 (ukur dulu, baru putuskan) sudah dijalankan:
 | 2b | Backpack di 3V3: tulisan hampir tidak tampak walau trimpot kontras diputar ±135° searah jarum jam (mentok) | LCD HS1602A butuh 4,9-5,1 V (DS-LCD1); 3,3 V tidak cukup |
 | 2a (dipilih) | - | **LCD dan backpack dari VIN (5 V), SDA/SCL lewat level shifter dua arah 4 kanal (BSS138)**. Dua kanal dipakai (HV1/LV1 = SDA, HV2/LV2 = SCL); kanal 3-4 kosong |
 
-> **Risiko kerusakan:** 4,93 V langsung ke GPIO 21/22 melebihi batas mutlak ESP32 (sekitar 3,6 V). Selama level shifter belum tiba, sambungan VIN langsung hanya untuk uji singkat di bench. Pada PCB, SDA/SCL ESP32 hanya tersambung ke sisi LV.
+> **Risiko kerusakan:** 4,93 V langsung ke GPIO 21/22 melebihi batas mutlak ESP32 (sekitar 3,6 V). Pada PCB, SDA/SCL ESP32 hanya tersambung ke sisi LV.
+
+**Hitungan pull-up I2C ✔ (17 Okt. 2026, terukur dengan multimeter, catu mati).** Shifter membagi bus menjadi dua segmen:
+
+| Segmen | Pull-up | Gabungan | Batas 1-11,8 kΩ |
+|---|---|---|---|
+| LV: GPIO21/22 ↔ LV1/LV2 (3,3 V) | Shifter 9,86 kΩ (+ internal ESP32 ≈ 45 kΩ bila aktif) | 9,86 kΩ (≈ 8,1 kΩ) | ✔ |
+| HV: HV1/HV2 ↔ backpack (5 V) | Shifter 9,90 kΩ ‖ backpack 4,67 kΩ | 3,17 kΩ (≈ 1,6 mA pada 4,93 V) | ✔ |
+
+Semua pull-up milik modul; **PCB tanpa pull-up tambahan**. Rincian di DS-LLS1 dan DS-I2C1. Shifter yang sudah disolder: LV1/LV2 = 3,26 V, HV1/HV2 = 4,98 V saat dicatu tanpa LCD. **Uji breadboard 17 Okt. 2026 dengan wiring sesuai skema (termasuk D2/R2): LCD bekerja lewat level shifter dan menampilkan data HX711; D2 menyala dengan R2 220 ohm, terang cukup. Tidak ada perbedaan breadboard dan skema.**
 
 Alternatif yang dibahas dan tidak dipakai: penggeser level dari MOSFET 2N7000 THT (V_GS(th) 0,8-3 V, R_DS(on) hanya dijamin pada 4,5 V; datasheet Microchip disimpan di Project), atau melepas pull-up backpack. Modul BSS138 dipilih karena sudah jadi, murah, dan dua arah.
 
@@ -123,7 +133,18 @@ Semua modul dicolok ke **soket betina** di sisi bawah PCB (Bagian 8).
 
 ---
 
-## 8. PCB `hgd-v1` (KiCad) ◐
+## 8. PCB `hgd-v1` (KiCad) ✔ v1 selesai, belum disetujui
+
+**Status v1 (17 Okt. 2026).** Skema dan PCB versi 1 selesai dan diverifikasi; menunggu persetujuan sebelum Gerber diunggah dan dipesan.
+
+| Bukti | Hasil |
+|---|---|
+| ERC skema | 0 error, 0 warning; 7 `lib_symbol_mismatch` dikecualikan dengan alasan |
+| DRC papan | 0 error, 0 tak tersambung, 0 beda skema; 4 pengecualian beralasan |
+| Breadboard = skema | Wiring sesuai skema termasuk D2/R2, tanpa perbedaan; LCD bekerja lewat level shifter (17 Okt. 2026) |
+| Gerber + bor | Diekspor 17 Okt. 2026 19:44, Revision 1; 129 PTH, 4 NPTH; dicek di viewer JLCPCB: 2 lapis, 80 x 55 mm |
+| Berkas | [kicad/proyek/](kicad/proyek/): skema, papan, salinan 3D verbatim, STEP; langkah kerja di [log-kerja-kicad-hgd.md](log-kerja-kicad-hgd.md) |
+| Belum | Persetujuan; unggah Gerber; PDF skema dan BOM |
 
 ### 8.1 Keputusan desain
 | Hal | Keputusan | Alasan |
@@ -132,11 +153,12 @@ Semua modul dicolok ke **soket betina** di sisi bawah PCB (Bagian 8).
 | Lubang NPTH footprint U2 | Empat lubang 3 mm bawaan footprint **dihapus** | Tidak dipakai |
 | J1-J4 | Soket betina (1x4, 1x4, 1x6, 1x6), sisi bawah | Modul dicolok; bagian yang aus murah |
 | C1-C4 | Sisi bawah, dekat soket bebannya | Loop decoupling kecil |
-| Sisi atas | Hanya SW1, R1, D1 | Komponen yang harus menembus atau terlihat dari tutup |
+| Sisi atas | SW1, R1, D1, R2, D2 | Komponen yang harus menembus atau terlihat dari tutup |
+| D2, R2 | LED daya 3 mm `LED_THT:LED_D3.0mm` + R2 220 ohm (footprint sama dengan R1), dari +3V3 ke GND | Indikator daya yang menyala tanpa firmware (Modul 5 Task 2.5); 3V3 dipakai supaya arus sama dengan D1 |
 | SW1 | `Button_Switch_THT:SW_PUSH_6mm_H13mm` | Batang 13 mm mencapai tutup |
 | R1 | **220 ohm**, `R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal` | ≈ 6 mA pada Vf 2,0 V ((3,3 − 2,0) / 220) |
 | Kapasitor | C1, C4: `C_Disc_D7.0mm_W2.5mm_P5.00mm`; C2, C3: `CP_Radial_D5.0mm_P2.50mm` | Komponen lab |
-| Lapisan | Dua lapis; GND pour | - |
+| Lapisan | Dua lapis; **pour GND di F.Cu dan B.Cu** (clearance 0,5 mm, lebar minimum 0,25 mm, thermal relief 0,5/0,5 mm, pulau dibuang), dijahit **57 via GND** 0,6/0,3 mm (17 Okt. 2026) | Jalur balik GND lebar dan pendek (noise dan jatuh tegangan kecil, penting untuk sinyal mikrovolt HX711); perisai di bawah jalur sinyal; thermal relief supaya kaki THT tetap mudah disolder tangan. Area antena bebas pour di kedua lapis |
 | Antena | Area antena modul bebas tembaga di kedua lapisan; zona 15 mm di samping dan depan antena bebas tembaga, komponen, dan via | Lihat Bagian 8.4 |
 
 Kredit footprint U2: SnapEDA, "ESP32-DEVKIT-V1" oleh "Do it" (diunduh dari snapeda.com). Diperiksa terhadap papan: pitch, jarak baris, dan posisi pad 1/16 cocok.
@@ -144,9 +166,9 @@ Kredit footprint U2: SnapEDA, "ESP32-DEVKIT-V1" oleh "Do it" (diunduh dari snape
 ### 8.2 Netlist (dari skema KiCad, diperiksa 15 Okt. 2026)
 | Net (nama KiCad) | Fungsi | Pin |
 |---|---|---|
-| +3V3 (`Net-(J1-VCC)`) | Rail 3,3 V | U2.1, J1.4, J3.3 (LV), C1.1, C2.+ |
+| +3V3 (`Net-(J1-VCC)`) | Rail 3,3 V | U2.1, J1.4, J3.3 (LV), C1.1, C2.+, R2.1 |
 | +5V (`Net-(J2-VCC)`) | Rail 5 V dari VIN | U2.30, J2.2, J4.3 (HV), C3.+, C4.1 |
-| GND | Ground bersama | U2.2, U2.29, J1.1, J2.1, J3.4, J4.4, SW1.2, D1.K, C1.2, C2.−, C3.−, C4.2 |
+| GND | Ground bersama | U2.2, U2.29, J1.1, J2.1, J3.4, J4.4, SW1.2, D1.K, D2.K, C1.2, C2.−, C3.−, C4.2 |
 | HX_DT (`Net-(J1-DT)`) | GPIO18 | U2.9, J1.2 |
 | HX_SCK (`Net-(J1-SCK)`) | GPIO19 | U2.10, J1.3 |
 | SDA_3V3 (`Net-(J3-LV1)`) | GPIO21 | U2.11, J3.1 |
@@ -156,15 +178,26 @@ Kredit footprint U2: SnapEDA, "ESP32-DEVKIT-V1" oleh "Do it" (diunduh dari snape
 | BTN (`Net-(U2-D25)`) | Tombol | U2.23, SW1.1 |
 | LED_DRV (`Net-(U2-D27)`) | GPIO27 ke resistor | U2.25, R1.1 |
 | LED_A (`Net-(D1-A)`) | Resistor ke anoda | R1.2, D1.A |
-| (tidak dipakai) | Kanal 3-4 shifter; pin DevKit lain | J3.5, J3.6, J4.5, J4.6 |
+| PWR_LED_A (`Net-(D2-A)`) | Resistor ke anoda LED daya | R2.2, D2.A |
+| (tidak dipakai) | Kanal 3-4 shifter; pin DevKit lain | J3.5, J3.6, J4.5, J4.6; pin U2 lain diberi tanda no-connect |
 
-### 8.3 Pembersihan berkas `hgd-v1.kicad_pcb` sebelum gerber
-- Hapus dua footprint `REF**` PinSocket_1x15 yang menumpuk di pad U2 (lubang ganda).
-- Hapus empat lubang NPTH 3 mm milik footprint U2.
-- Edge.Cuts sekarang (116,5; 83) sampai (163; 136) adalah sementara; tepi papan dan lubang M3 ditentukan setelah sisi atas selesai.
+ERC 17 Okt. 2026: **0 error, 0 warning**. Pin tak terpakai diberi tanda no-connect, `PWR_FLAG` di GND (daya masuk lewat USB DevKit, yang tidak ada di skema). Tujuh peringatan `lib_symbol_mismatch` dikecualikan dengan sengaja: simbol J1-J4, C1, C4, SW1 sudah diubah (nama pin), dan memperbarui dari pustaka akan menghapus nama pin itu.
+
+### 8.3 Pembersihan berkas `hgd-v1.kicad_pcb` sebelum gerber ✔
+- ✔ Dua footprint `REF**` PinSocket_1x15 di pad U2 dihapus dari berkas papan (hanya ada di salinan 3D `hgd-v1-verbatim.kicad_pcb`).
+- ✔ Empat lubang NPTH 3 mm milik footprint U2 dihapus.
+- ✔ Edge.Cuts final 80 x 55 mm (109,75; 93) sampai (189,75; 148); lubang H1-H4 di sudut.
 
 ### 8.4 Usulan penempatan v2
-Gambar: [gambar/penempatan-pcb-hgd.svg](gambar/penempatan-pcb-hgd.svg) (tembus pandang dari atas dan tampak bawah). Koordinat KiCad (mm, Y ke bawah), relatif terhadap U2 di (131,73; 109,475; rotasi 180; B.Cu). Diturunkan dari tata letak di Fusion (±1 mm). Arah: +Y menuju antena; +X menuju tepi PCB LCD di tutup.
+Gambar [gambar/penempatan-pcb-hgd.svg](gambar/penempatan-pcb-hgd.svg) menunjukkan PCB `hgd-v1` v1 final dari berkas KiCad 17 Okt. 2026 (diperbarui: D2/R2, pour GND kedua lapis, 59 via, silkscreen tim): 80 x 55 mm, lubang H1-H4 Ø3,0 pola 75 x 50 mm, ERC dan DRC 0 error, belum disetujui dan belum dipesan. Teks di gambar diambil dari silkscreen berkas papan (isi, posisi, ukuran, perataan); silkscreen bawah digambar tidak dicerminkan. Gerber dan berkas bor diekspor dan dicek 17 Okt. 2026 (outline 80 x 55, 68 PTH termasuk 2 via, 4 NPTH Ø3,0); belum di repo sampai papan disetujui. **Setelah itu D2 dan R2 ditambahkan** (17 Okt. 2026): D2 K (135,5; 145), A (132,96; 145); R2 pad (119,61; 145) dan (129,77; 145); +3V3 lewat jalur 0,5 mm di x 118,34; teks silkscreen `PWR`. DRC 0 error. Berkas papan [kicad/proyek/hgd-v1.kicad_pcb](kicad/proyek/hgd-v1.kicad_pcb) sudah versi terbaru (17 Okt. 2026; model 3D DevKit tertanam, tanpa jalur lokal). Skema di repo juga terbaru (17 Okt. 2026). **Gerber dan bor diekspor ulang 17 Okt. 2026 19:44** (setelan sama; Revision 1 di job file) dan dicek: outline 80 x 55 mm; 129 PTH (70 kaki komponen termasuk D2/R2, 59 via: 57 GND + 2 sinyal), 4 NPTH Ø3,0; pour GND di kedua lapis, area antena kosong; silkscreen tim ada; tanpa jalur lokal. Dicek di viewer JLCPCB: terdeteksi 2 lapis, 80 x 55 mm, pratinjau sama dengan papan. Belum di repo sampai disetujui.
+
+**Perangkat lunak (17 Okt. 2026):** pemakaian KiCad sebagai pengganti EasyEDA sudah ditanyakan ke tim pengajar dan diizinkan.
+
+**Lubang mounting (keputusan 17 Okt. 2026):** H1-H4 tetap Ø3,0 dengan pusat 2,5 mm dari tepi, pola 75 x 50 mm, sampai ada arahan lain. Alasan: mengikuti pola lubang yang sama dengan PCB LCD dan DevKit, jadi ketiganya memakai ukuran dan jarak lubang yang seragam. Berbeda dari arahan modul (M3 3,2 mm, ≥ 5 mm dari tepi); sisa papan antara lubang dan tepi 1,0 mm, jadi baut jangan dikencangkan berlebihan. Ukuran baut PCB belum dipastikan: Ø3,0 cukup untuk M2,5, terlalu sempit untuk M3.
+
+**Silkscreen identitas (17 Okt. 2026):** teks F.Silkscreen "Kelompok 01 / Hand Grip Dynamometer" di bawah SW1, bebas pad; DRC bersih.
+
+**Pour GND (17 Okt. 2026):** F.Cu 2852 mm² (3 bagian), B.Cu 2610 mm² (5 bagian, terpotong jalur); setiap bagian di kedua lapis kena minimal satu via jahit; tidak ada tembaga di area antena. Satu error DRC dikecualikan: pad 2 U2 (GND) hanya mendapat 1 spoke thermal di B.Cu karena jalur 3V3 lewat 0,55 mm di atasnya serta pad 1 dan 3 di kiri-kanan; pad itu tetap tersambung lewat jalur GND F.Cu ke pad 29 dan pour F.Cu. Skema ada di [kicad/proyek/hgd-v1.kicad_sch](kicad/proyek/hgd-v1.kicad_sch). Tabel dan batasan di bawah adalah usulan penempatan v2 yang lama; posisi final ada di gambar. Koordinat usulan v2: KiCad (mm, Y ke bawah), relatif terhadap U2 di (131,73; 109,475; rotasi 180; B.Cu). Diturunkan dari tata letak di Fusion (±1 mm). Arah: +Y menuju antena; +X menuju tepi PCB LCD di tutup.
 
 | Ref | Sisi | Posisi | Catatan |
 |---|---|---|---|
@@ -175,7 +208,7 @@ Gambar: [gambar/penempatan-pcb-hgd.svg](gambar/penempatan-pcb-hgd.svg) (tembus p
 | C3 10 µF | B | pusat (164,0; 143,3) | +5V; di sisi LCD dari J2 (posisi di bawah J2 masuk zona antena) |
 | C4 100 nF | B | pusat (165,0; 148,6) | +5V |
 | J4 HV | B | pin 1 (114,0; 96,0), pin ke +Y | Sisi dalam, dekat pin 30 (5 V) |
-| J3 LV | B | pin 1 (103,84; 96,0), pin ke +Y | Jarak J3-J4 10,16 mm **diukur saat modul tiba** |
+| J3 LV | B | pin 1 (103,84; 96,0), pin ke +Y | Jarak J3-J4 10,16 mm, terukur pada modul (jangka sorong) |
 | SW1 | A | pusat (158,5; 105,8); pad (156,25/160,75; 102,55/109,05) | Urutan sisi atas searah U2: SW1 → R1 → D1 |
 | R1 | A | pad (158,5; 117,1) dan (158,5; 127,26), vertikal | Pad 1 ke GPIO27 |
 | D1 | A | K (157,23; 134,5), A (159,77; 134,5) | - |
@@ -231,13 +264,17 @@ Penyimpanan: kotak kedap udara dengan gelembung plastik (sisi gelembung menghada
 
 ## 10. Sisa pekerjaan
 
-1. Ukur jarak baris header level shifter saat tiba; tetapkan jarak J3-J4 dari hasil ukur.
+1. ✔ Jarak baris header level shifter terukur 10,16 mm; J3-J4 memakai jarak ini.
 2. Ukur jarak header HX711 ke tepi modul (asumsi 1,5 mm) dan cocokkan urutan pin J1 dengan silkscreen modul.
-3. Bersihkan berkas KiCad (Bagian 8.3); terapkan penempatan v2.
-4. Tentukan Edge.Cuts dan lubang M3 setelah sisi atas selesai (satu M3 dekat SW1).
-5. Pemberian jalur dan DRC: dua lapis, sinyal 0,3 mm, rail 0,5 mm, jarak minimum 0,25 mm (usulan; sesuaikan dengan aturan kelas dan pabrik). Jalur mengitari zona antena.
-6. Tandai pin 1 dan sisi HV/LV di B.Silkscreen.
+3. ✔ Berkas KiCad dibersihkan (Bagian 8.3).
+4. ✔ Edge.Cuts 80 x 55 mm; lubang H1-H4 di sudut, pola sama dengan LCD dan DevKit (keputusan 17 Okt. 2026; tidak ada M3 dekat SW1).
+5. ✔ Jalur dan DRC: dua lapis, sinyal 0,3 mm, rail 0,5 mm; pour GND kedua lapis dan 57 via jahit; jalur mengitari zona antena.
+6. ✔ Penanda HV/LV dan label soket di B.Silkscreen; nomor tim dan nama proyek di F.Silkscreen.
 7. Uji U8 penuh (10 tap, 10 tahan) dan U6 (E+, E− modul HX711).
+8. Persetujuan PCB v1, lalu unggah ZIP Gerber (batas 27 Okt. 2026, 23:59).
+9. PDF skema dan BOM (kolom sesuai modul; tambahkan 2 soket 1x15 DevKit dan modul yang dicolok).
+10. ✔ Gambar [gambar/penempatan-pcb-hgd.svg](gambar/penempatan-pcb-hgd.svg) diperbarui dari berkas papan final (D2/R2, pour, via; 17 Okt. 2026).
+11. Bahan laporan: tangkapan DRC dan 3D, perhitungan lebar jalur 5V, data papan; review papan tim lain.
 
 ---
 
@@ -245,6 +282,8 @@ Penyimpanan: kotak kedap udara dengan gelembung plastik (sisi gelembung menghada
 
 | Versi | Tanggal | Perubahan |
 |---|---|---|
+| v4 | 17 Okt. 2026 | **Skema dan PCB v1 selesai (belum disetujui)**; gambar penempatan diperbarui dari papan final (D2/R2, pour GND, via); Gerber diekspor ulang dan dicek di viewer JLCPCB; berkas KiCad, salinan 3D, dan STEP di repo; log kerja KiCad; pembersihan berkas dan sisa pekerjaan diperbarui; pour GND F.Cu dan B.Cu + 57 via jahit; nomor tim dan nama proyek di silkscreen; lubang mounting dipertahankan; KiCad diizinkan sebagai pengganti EasyEDA; LED daya D2 (3 mm) + R2 220 ohm dari +3V3; netlist dan keputusan desain diperbarui; ERC 0 error (no-connect, `PWR_FLAG`); hitungan pull-up I2C terukur (LV 9,86 kΩ, HV 3,17 kΩ gabungan): tanpa pull-up tambahan; tegangan shifter tersolder 3,26 V / 4,98 V |
+| v3 | 16-17 Okt. 2026 | 17 Okt.: teks gambar dari silkscreen berkas papan; Gerber diekspor dan dicek (belum di repo). 16 Okt.: gambar `penempatan-pcb-hgd.svg` diganti dengan PCB v1 berjalur final dari berkas KiCad (lolos DRC, belum disetujui); skema `hgd-v1.kicad_sch` ditambahkan di `kicad/proyek/` |
 | v2 | 16 Okt. 2026 | R1 100 → 220 ohm; catu LCD diputuskan (5 V + level shifter BSS138 4 kanal); rail +5V; tanpa baterai; DevKit dan semua soket di sisi bawah, modul dicolok ke soket (HX711 langsung); netlist KiCad `hgd-v1`; usulan penempatan v2 dan gambar; hasil uji bench 15 Okt. 2026 |
 | v1 | 10-14 Okt. 2026 | Draf PCB v1 take-home: soket DevKit J1/J2, header jantan J3/J4 dengan kabel jumper, rail 3,3 V saja |
 
