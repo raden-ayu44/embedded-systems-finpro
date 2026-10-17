@@ -12,6 +12,7 @@
 .pad{fill:#d9b23a;stroke:#fff3b0;stroke-width:.06}.padnc{fill:#8a7a45}.drill{fill:#1b1b1b}.via{fill:#c8c8c8;stroke:#fff;stroke-width:.05}
 .rf{font-size:1.4px;font-weight:bold;fill:#9ff0bd}.rb{font-size:1.4px;font-weight:bold;fill:#d6dde4}
 .silk{font-size:1.0px;fill:#f4f4f4;font-family:monospace}
+.sF{fill:#f2f2f2;font-family:'DejaVu Sans Mono',monospace}.sB{fill:#f2f2f2;font-family:'DejaVu Sans Mono',monospace}.sBd{fill:#c9d4de;fill-opacity:.75;font-family:'DejaVu Sans Mono',monospace}
 .lF{font-size:.8px;font-weight:bold;fill:#ffe3e5;paint-order:stroke;stroke:#7a1018;stroke-width:.3}
 .lB{font-size:.8px;font-weight:bold;fill:#e3eeff;paint-order:stroke;stroke:#0d2f6b;stroke-width:.3}
 .tz{font-size:1.2px;font-weight:bold;fill:#ffb0b0}.tz2{font-size:1.0px;fill:#ffb0b0}.tm{font-size:1.0px;fill:#9cc4ff}.th{font-size:.9px;fill:#ccc}
@@ -65,22 +66,15 @@
 <line x1="9.00" y1="70.00" x2="89.00" y2="70.00" class="grid"/>
 <rect x="54.450" y="29.700" width="15.100" height="43.300" class="zone"/>
 <rect x="54.450" y="29.700" width="15.100" height="43.300" class="zoneh"/>
-<text x="62.000" y="69.800" class="tz" text-anchor="middle">Rule Area antena</text>
-<text x="62.000" y="71.400" class="tz2" text-anchor="middle">tanpa jalur, via, pour</text>
 <rect x="54.485" y="44.590" width="6.490" height="17.690" class="ant"/>
-<text x="57.730" y="53.435" class="tz2" text-anchor="middle" transform="rotate(-90.0 57.730 53.435)">antena DevKit</text>
 <circle cx="11.500" cy="20.500" r="2.500" class="head"/>
 <circle cx="11.500" cy="20.500" r="1.500" class="hole"/>
-<text x="11.500" y="20.850" class="th" text-anchor="middle">H1</text>
 <circle cx="86.500" cy="20.500" r="2.500" class="head"/>
 <circle cx="86.500" cy="20.500" r="1.500" class="hole"/>
-<text x="86.500" y="20.850" class="th" text-anchor="middle">H2</text>
 <circle cx="11.500" cy="70.500" r="2.500" class="head"/>
 <circle cx="11.500" cy="70.500" r="1.500" class="hole"/>
-<text x="11.500" y="70.850" class="th" text-anchor="middle">H3</text>
 <circle cx="86.500" cy="70.500" r="2.500" class="head"/>
 <circle cx="86.500" cy="70.500" r="1.500" class="hole"/>
-<text x="86.500" y="70.850" class="th" text-anchor="middle">H4</text>
 <rect x="29.250" y="20.250" width="9.500" height="7.500" class="crtF"/>
 <rect x="42.870" y="22.500" width="12.260" height="3.000" class="crtF"/>
 <rect x="60.790" y="20.780" width="6.420" height="6.430" class="crtF"/>
@@ -424,18 +418,24 @@
 <circle cx="41.250" cy="24.005" r="0.150" class="drill"/>
 <circle cx="26.460" cy="24.290" r="0.300" class="via"/>
 <circle cx="26.460" cy="24.290" r="0.150" class="drill"/>
-<text x="34.000" y="19.600" class="rf" text-anchor="middle">SW1</text>
-<text x="49.000" y="21.900" class="rf" text-anchor="middle">R1 220 Ω</text>
-<text x="64.000" y="29.000" class="rf" text-anchor="middle">D1</text>
-<text x="35.250" y="60.500" class="rb" text-anchor="middle">U2 DevKit (sisi bawah, di soket)</text>
-<text x="77.550" y="25.100" class="rb" text-anchor="middle">J1</text>
-<text x="13.850" y="29.200" class="rb" text-anchor="middle">C3</text>
-<text x="84.500" y="56.300" class="rb" text-anchor="middle">J3</text>
-<text x="74.340" y="56.300" class="rb" text-anchor="middle">J4</text>
-<text x="27.450" y="29.300" class="rb" text-anchor="middle">C4</text>
-<text x="21.050" y="25.000" class="rb" text-anchor="middle">J2</text>
-<text x="71.250" y="34.000" class="rb" text-anchor="middle">C1</text>
-<text x="84.150" y="29.200" class="rb" text-anchor="middle">C2</text>
+<text x="34.000" y="19.755" class="sF" text-anchor="middle" dominant-baseline="central" style="font-size:1.50px">SW1</text>
+<text x="49.000" y="21.635" class="sF" text-anchor="middle" dominant-baseline="central" style="font-size:1.50px">R1</text>
+<text x="68.250" y="24.000" class="sF" text-anchor="middle" dominant-baseline="central" style="font-size:1.50px">D1</text>
+<text x="15.750" y="37.000" class="sBd" text-anchor="middle" dominant-baseline="central" style="font-size:1.50px">U2</text>
+<text x="70.750" y="24.000" class="sBd" text-anchor="middle" dominant-baseline="central" style="font-size:1.50px">J1</text>
+<text x="18.250" y="33.500" class="sBd" text-anchor="middle" dominant-baseline="central" style="font-size:1.50px">C3</text>
+<text x="84.750" y="56.500" class="sBd" text-anchor="middle" dominant-baseline="central" style="font-size:1.50px">J3</text>
+<text x="74.250" y="56.500" class="sBd" text-anchor="middle" dominant-baseline="central" style="font-size:1.50px">J4</text>
+<text x="24.750" y="34.500" class="sBd" text-anchor="middle" dominant-baseline="central" style="font-size:1.50px">C4</text>
+<text x="27.750" y="22.000" class="sBd" text-anchor="middle" dominant-baseline="central" style="font-size:1.50px">J2</text>
+<text x="73.750" y="34.500" class="sBd" text-anchor="middle" dominant-baseline="central" style="font-size:1.50px">C1</text>
+<text x="80.250" y="33.500" class="sBd" text-anchor="middle" dominant-baseline="central" style="font-size:1.50px">C2</text>
+<text x="21.250" y="19.500" class="sBd" text-anchor="middle" dominant-baseline="central" style="font-size:1.50px">GND 5V SDA SCL</text>
+<text x="70.250" y="47.500" class="sBd" text-anchor="middle" dominant-baseline="central" style="font-size:1.50px">GND</text>
+<text x="74.250" y="58.500" class="sBd" text-anchor="middle" dominant-baseline="central" style="font-size:1.50px">HV 5V (VIN)</text>
+<text x="77.250" y="19.500" class="sBd" text-anchor="middle" dominant-baseline="central" style="font-size:1.50px">GND DT SCK 3V3</text>
+<text x="84.750" y="58.500" class="sBd" text-anchor="middle" dominant-baseline="central" style="font-size:1.50px">LV 3V3</text>
+<text x="71.750" y="22.000" class="sBd" text-anchor="end" dominant-baseline="central" style="font-size:1.50px">HX711</text>
 <text x="101.00" y="18.50" class="nth">Data papan</text>
 <text x="101.00" y="20.70" class="nt">• 80 x 55 mm, dua lapis; 194 segmen jalur, 2 via (0,6 / 0,3 mm).</text>
 <text x="101.00" y="22.90" class="nt">• Lebar jalur: GND, 3V3, 5V 0,5 mm; sinyal 0,3 mm.</text>
@@ -453,11 +453,13 @@
 <text x="101.00" y="49.30" class="nth"></text>
 <text x="101.00" y="51.50" class="nth">Cara membaca</text>
 <text x="101.00" y="53.70" class="nt">• Dilihat dari atas; grid = koordinat KiCad (mm).</text>
-<text x="101.00" y="55.90" class="nt">• Teks putih di panel B.Cu = silkscreen bawah, digambar tidak</text>
-<text x="101.00" y="58.10" class="nt">   dicerminkan supaya terbaca.</text>
-<text x="101.00" y="60.30" class="nt">• Garis putus biru = modul level shifter (jarak header 10,16 terukur).</text>
-<text x="101.00" y="62.50" class="nt">   HX711 menjorok ke luar tepi atas dari J1 dan tidak digambar.</text>
-<text x="101.00" y="64.70" class="nt">• Hijau = courtyard sisi atas, abu-abu putus = sisi bawah.</text>
+<text x="101.00" y="55.90" class="nt">• Semua teks di papan = silkscreen dari berkas KiCad (isi, posisi,</text>
+<text x="101.00" y="58.10" class="nt">   ukuran, perataan sama); B.SilkS digambar tidak dicerminkan.</text>
+<text x="101.00" y="60.30" class="nt">• Arsir merah = Rule Area antena (tanpa jalur, via, pour);</text>
+<text x="101.00" y="62.50" class="nt">   kotak merah = antena DevKit. H1-H4 di sudut.</text>
+<text x="101.00" y="64.70" class="nt">• Garis putus biru = modul level shifter (jarak header 10,16 terukur).</text>
+<text x="101.00" y="66.90" class="nt">   HX711 menjorok ke luar tepi atas dari J1 dan tidak digambar.</text>
+<text x="101.00" y="69.10" class="nt">• Hijau = courtyard sisi atas, abu-abu putus = sisi bawah.</text>
 <text x="9.00" y="79.60" class="ph">F.Cu saja (sisi atas)</text>
 <rect x="9.000" y="83.000" width="80.000" height="55.000" class="board"/>
 <line x1="9.25" y1="83.00" x2="9.25" y2="138.00" class="grid"/>
@@ -503,22 +505,15 @@
 <line x1="9.00" y1="135.00" x2="89.00" y2="135.00" class="grid"/>
 <rect x="54.450" y="94.700" width="15.100" height="43.300" class="zone"/>
 <rect x="54.450" y="94.700" width="15.100" height="43.300" class="zoneh"/>
-<text x="62.000" y="134.800" class="tz" text-anchor="middle">Rule Area antena</text>
-<text x="62.000" y="136.400" class="tz2" text-anchor="middle">tanpa jalur, via, pour</text>
 <rect x="54.485" y="109.590" width="6.490" height="17.690" class="ant"/>
-<text x="57.730" y="118.435" class="tz2" text-anchor="middle" transform="rotate(-90.0 57.730 118.435)">antena DevKit</text>
 <circle cx="11.500" cy="85.500" r="2.500" class="head"/>
 <circle cx="11.500" cy="85.500" r="1.500" class="hole"/>
-<text x="11.500" y="85.850" class="th" text-anchor="middle">H1</text>
 <circle cx="86.500" cy="85.500" r="2.500" class="head"/>
 <circle cx="86.500" cy="85.500" r="1.500" class="hole"/>
-<text x="86.500" y="85.850" class="th" text-anchor="middle">H2</text>
 <circle cx="11.500" cy="135.500" r="2.500" class="head"/>
 <circle cx="11.500" cy="135.500" r="1.500" class="hole"/>
-<text x="11.500" y="135.850" class="th" text-anchor="middle">H3</text>
 <circle cx="86.500" cy="135.500" r="2.500" class="head"/>
 <circle cx="86.500" cy="135.500" r="1.500" class="hole"/>
-<text x="86.500" y="135.850" class="th" text-anchor="middle">H4</text>
 <rect x="29.250" y="85.250" width="9.500" height="7.500" class="crtF"/>
 <rect x="42.870" y="87.500" width="12.260" height="3.000" class="crtF"/>
 <rect x="60.790" y="85.780" width="6.420" height="6.430" class="crtF"/>
@@ -852,19 +847,9 @@
 <circle cx="41.250" cy="89.005" r="0.150" class="drill"/>
 <circle cx="26.460" cy="89.290" r="0.300" class="via"/>
 <circle cx="26.460" cy="89.290" r="0.150" class="drill"/>
-<text x="34.000" y="87.035" class="lF" text-anchor="middle">TOMBOL</text>
-<text x="55.375" y="85.280" class="lF" text-anchor="middle">GND</text>
-<text x="22.525" y="117.742" class="lF" text-anchor="middle" transform="rotate(90.0 22.525 117.462)">GND</text>
-<text x="42.585" y="89.285" class="lF" text-anchor="middle">LED</text>
-<text x="60.260" y="88.010" class="lF" text-anchor="middle">LED_A</text>
-<text x="87.250" y="101.685" class="lF" text-anchor="middle" transform="rotate(90.0 87.250 101.405)">3V3</text>
-<text x="40.076" y="103.780" class="lF" text-anchor="middle">5V</text>
-<text x="62.000" y="94.730" class="lF" text-anchor="middle">5V</text>
-<text x="40.097" y="102.680" class="lF" text-anchor="middle">SDA_5V</text>
-<text x="40.076" y="103.180" class="lF" text-anchor="middle">SCL_5V</text>
-<text x="34.000" y="84.600" class="rf" text-anchor="middle">SW1</text>
-<text x="49.000" y="86.900" class="rf" text-anchor="middle">R1</text>
-<text x="64.000" y="94.000" class="rf" text-anchor="middle">D1</text>
+<text x="34.000" y="84.755" class="sF" text-anchor="middle" dominant-baseline="central" style="font-size:1.50px">SW1</text>
+<text x="49.000" y="86.635" class="sF" text-anchor="middle" dominant-baseline="central" style="font-size:1.50px">R1</text>
+<text x="68.250" y="89.000" class="sF" text-anchor="middle" dominant-baseline="central" style="font-size:1.50px">D1</text>
 <text x="101.00" y="79.60" class="ph">B.Cu saja (sisi bawah) dan silkscreen bawah</text>
 <rect x="101.000" y="83.000" width="80.000" height="55.000" class="board"/>
 <line x1="101.25" y1="83.00" x2="101.25" y2="138.00" class="grid"/>
@@ -910,22 +895,15 @@
 <line x1="101.00" y1="135.00" x2="181.00" y2="135.00" class="grid"/>
 <rect x="146.450" y="94.700" width="15.100" height="43.300" class="zone"/>
 <rect x="146.450" y="94.700" width="15.100" height="43.300" class="zoneh"/>
-<text x="154.000" y="134.800" class="tz" text-anchor="middle">Rule Area antena</text>
-<text x="154.000" y="136.400" class="tz2" text-anchor="middle">tanpa jalur, via, pour</text>
 <rect x="146.485" y="109.590" width="6.490" height="17.690" class="ant"/>
-<text x="149.730" y="118.435" class="tz2" text-anchor="middle" transform="rotate(-90.0 149.730 118.435)">antena DevKit</text>
 <circle cx="103.500" cy="85.500" r="2.500" class="head"/>
 <circle cx="103.500" cy="85.500" r="1.500" class="hole"/>
-<text x="103.500" y="85.850" class="th" text-anchor="middle">H1</text>
 <circle cx="178.500" cy="85.500" r="2.500" class="head"/>
 <circle cx="178.500" cy="85.500" r="1.500" class="hole"/>
-<text x="178.500" y="85.850" class="th" text-anchor="middle">H2</text>
 <circle cx="103.500" cy="135.500" r="2.500" class="head"/>
 <circle cx="103.500" cy="135.500" r="1.500" class="hole"/>
-<text x="103.500" y="135.850" class="th" text-anchor="middle">H3</text>
 <circle cx="178.500" cy="135.500" r="2.500" class="head"/>
 <circle cx="178.500" cy="135.500" r="1.500" class="hole"/>
-<text x="178.500" y="135.850" class="th" text-anchor="middle">H4</text>
 <rect x="101.780" y="103.970" width="51.440" height="29.010" class="crtB"/>
 <rect x="163.980" y="85.230" width="11.160" height="3.540" class="crtB"/>
 <rect x="107.580" y="91.000" width="5.500" height="5.500" class="crtB"/>
@@ -1266,29 +1244,19 @@
 <circle cx="133.250" cy="89.005" r="0.150" class="drill"/>
 <circle cx="118.460" cy="89.290" r="0.300" class="via"/>
 <circle cx="118.460" cy="89.290" r="0.150" class="drill"/>
-<text x="129.765" y="120.387" class="lB" text-anchor="middle" transform="rotate(-90.0 129.765 120.107)">TOMBOL</text>
-<text x="103.650" y="112.030" class="lB" text-anchor="middle" transform="rotate(90.0 103.650 111.750)">LED</text>
-<text x="119.250" y="84.780" class="lB" text-anchor="middle">LED</text>
-<text x="162.136" y="84.780" class="lB" text-anchor="middle">3V3</text>
-<text x="160.020" y="85.380" class="lB" text-anchor="middle">DT</text>
-<text x="153.750" y="92.280" class="lB" text-anchor="middle">SCK</text>
-<text x="154.000" y="92.780" class="lB" text-anchor="middle">SDA_3V3</text>
-<text x="154.000" y="93.280" class="lB" text-anchor="middle">SCL_3V3</text>
-<text x="104.250" y="112.030" class="lB" text-anchor="middle" transform="rotate(90.0 104.250 111.750)">5V</text>
-<text x="115.475" y="88.425" class="lB" text-anchor="middle" transform="rotate(45.0 115.475 88.145)">SDA_5V</text>
-<text x="113.250" y="84.500" class="silk" text-anchor="middle">GND 5V SDA SCL</text>
-<text x="169.250" y="84.500" class="silk" text-anchor="middle">GND DT SCK 3V3</text>
-<text x="161.850" y="87.350" class="silk" text-anchor="middle">HX711</text>
-<text x="166.250" y="123.500" class="silk" text-anchor="middle">HV 5V (VIN)</text>
-<text x="176.750" y="123.500" class="silk" text-anchor="middle">LV 3V3</text>
-<text x="162.250" y="112.850" class="silk" text-anchor="middle">GND</text>
-<text x="127.250" y="125.500" class="rb" text-anchor="middle">U2</text>
-<text x="169.550" y="90.100" class="rb" text-anchor="middle">J1</text>
-<text x="105.850" y="94.200" class="rb" text-anchor="middle">C3</text>
-<text x="176.500" y="121.300" class="rb" text-anchor="middle">J3</text>
-<text x="166.340" y="121.300" class="rb" text-anchor="middle">J4</text>
-<text x="119.450" y="94.300" class="rb" text-anchor="middle">C4</text>
-<text x="113.050" y="90.000" class="rb" text-anchor="middle">J2</text>
-<text x="163.250" y="99.000" class="rb" text-anchor="middle">C1</text>
-<text x="176.150" y="94.200" class="rb" text-anchor="middle">C2</text>
+<text x="107.750" y="102.000" class="sB" text-anchor="middle" dominant-baseline="central" style="font-size:1.50px">U2</text>
+<text x="162.750" y="89.000" class="sB" text-anchor="middle" dominant-baseline="central" style="font-size:1.50px">J1</text>
+<text x="110.250" y="98.500" class="sB" text-anchor="middle" dominant-baseline="central" style="font-size:1.50px">C3</text>
+<text x="176.750" y="121.500" class="sB" text-anchor="middle" dominant-baseline="central" style="font-size:1.50px">J3</text>
+<text x="166.250" y="121.500" class="sB" text-anchor="middle" dominant-baseline="central" style="font-size:1.50px">J4</text>
+<text x="116.750" y="99.500" class="sB" text-anchor="middle" dominant-baseline="central" style="font-size:1.50px">C4</text>
+<text x="119.750" y="87.000" class="sB" text-anchor="middle" dominant-baseline="central" style="font-size:1.50px">J2</text>
+<text x="165.750" y="99.500" class="sB" text-anchor="middle" dominant-baseline="central" style="font-size:1.50px">C1</text>
+<text x="172.250" y="98.500" class="sB" text-anchor="middle" dominant-baseline="central" style="font-size:1.50px">C2</text>
+<text x="113.250" y="84.500" class="sB" text-anchor="middle" dominant-baseline="central" style="font-size:1.50px">GND 5V SDA SCL</text>
+<text x="162.250" y="112.500" class="sB" text-anchor="middle" dominant-baseline="central" style="font-size:1.50px">GND</text>
+<text x="166.250" y="123.500" class="sB" text-anchor="middle" dominant-baseline="central" style="font-size:1.50px">HV 5V (VIN)</text>
+<text x="169.250" y="84.500" class="sB" text-anchor="middle" dominant-baseline="central" style="font-size:1.50px">GND DT SCK 3V3</text>
+<text x="176.750" y="123.500" class="sB" text-anchor="middle" dominant-baseline="central" style="font-size:1.50px">LV 3V3</text>
+<text x="163.750" y="87.000" class="sB" text-anchor="end" dominant-baseline="central" style="font-size:1.50px">HX711</text>
 </svg>
