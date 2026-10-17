@@ -76,7 +76,7 @@ Perhitungan (Covestro "Snap-Fit Joints for Plastics", Table 1 desain 2; data Bam
 | Gaya lentur | P = (b·h²/6)·Eₛ·ε / l ≈ 1,3 N (Eₛ = 2750 MPa, modulus lentur XY) |
 | Gaya pasang/lepas | W = P·(µ + tan 45°)/(1 − µ tan 45°) ≈ 5,2 N per lidah, ≈ 21 N untuk 4 (µ ≈ 0,6 diasumsikan); terkunci sendiri bila µ·tan α′ ≥ 1 (α′ ≳ 59°) |
 
-Aturan FDM: Hubs (celah 0,5, lebar ≥ 5, lentur di XY, tidak ada tegangan saat terpasang), Formlabs (kait 1,2, lidah panjang dan meruncing), panduan PLA Bambu Lab (gaya di bidang XY; elongasi Z 7,5 % vs XY 12,2 %). Lidah 15 mm menghasilkan 0,78 %, melebihi batas, jadi panjang tetap 20. Asumsi terbuka: ε_y dan µ; cetak uji satu lidah dan slot (pasang-lepas 20-30 kali) sebelum mencetak lid dan body.
+Aturan FDM: Hubs (celah 0,5, lebar ≥ 5, lentur di XY, tidak ada tegangan saat terpasang), Formlabs (kait 1,2, lidah panjang dan meruncing), panduan PLA Bambu Lab (gaya di bidang XY; elongasi Z 7,5 % vs XY 12,2 %). Lidah 15 mm menghasilkan 0,78 %, melebihi batas, jadi panjang tetap 20. Lab memakai Bambu PLA Basic dan Generic PLA (arahan laboran); perhitungan memakai data PLA Basic, jadi cetak uji dan cetakan akhir memakai filamen yang sama, dan preset slicer disamakan dengan filamen yang dipasang. Asumsi terbuka: ε_y dan µ; cetak uji satu lidah dan slot (pasang-lepas 20-30 kali) sebelum mencetak lid dan body.
 
 ---
 
