@@ -6,7 +6,7 @@ title: Desain Housing Elektronik - Hand Grip Dynamometer
 # Desain Housing Elektronik - Hand Grip Dynamometer (v4)
 **Proyek akhir - embedded system**
 
-> Housing elektronik: wadah PCB, ESP32, modul HX711, level shifter, LCD, tombol, dan LED. Housing grip (load cell) ada di [desain-housing-load-cell.md](../housing-load-cell/desain-housing-load-cell.md); ukuran komponen di [tabel-pengukuran-hgd.xlsx](../pengukuran/tabel-pengukuran-hgd.xlsx); PCB di [desain-pcb-hgd.md](../pcb/desain-pcb-hgd.md); parameter Fusion di [fusion/](fusion/); induk: [catatan-proyek-hgd.md](../catatan-proyek-hgd.md).
+> Housing elektronik: wadah PCB, ESP32, modul HX711, level shifter, LCD, tombol, dan LED. Housing grip (load cell) ada di [desain-housing-load-cell.md](../housing-load-cell/desain-housing-load-cell.md); ukuran komponen di [tabel-pengukuran-hgd.xlsx](../pengukuran/tabel-pengukuran-hgd.xlsx); PCB di [desain-pcb-hgd.md](../pcb/desain-pcb-hgd.md); parameter Fusion di [fusion/](fusion/); model 3D terbaru (lid + body dengan bibir dan snap-fit, ekspor Fusion 17 Okt. 2026): [fusion/electronics_housing_lipped.step](fusion/electronics_housing_lipped.step); model PCB untuk cek pas: [../pcb/kicad/proyek/hgd-v1.step](../pcb/kicad/proyek/hgd-v1.step); induk: [catatan-proyek-hgd.md](../catatan-proyek-hgd.md).
 
 ---
 
@@ -149,7 +149,7 @@ Celah lid terhadap bingkai LCD memakai parameter tersendiri (mis. `lid_gap` 0,5 
 ## 8. Perubahan
 | Versi | Tanggal | Perubahan |
 |---|---|---|
-| v4 | 17 Okt. 2026 | Bagian 1.3: usulan snap-fit (4 lidah, perhitungan Covestro, data PLA Basic); celah bawah lidah 2,0 dan tiang korban (jembatan ≤ 10); slot dengan kompensasi susut; parameter snap di CSV; instruksi kerja Fusion; gambar v2 bergaya gambar housing load cell |
+| v4 | 17 Okt. 2026 | Bagian 1.3: usulan snap-fit (4 lidah, perhitungan Covestro, data PLA Basic); celah bawah lidah 2,0 dan tiang korban (jembatan ≤ 10); slot dengan kompensasi susut; parameter snap di CSV; instruksi kerja Fusion; gambar v2 bergaya gambar housing load cell; STEP model terbaru disimpan di `fusion/` |
 | v3 | 16 Okt. 2026 | Bagian 1.2: model Fusion 16 Okt. 2026 (lid berdinding, body baki, jendela USB dan kabel) dan usulan bibir; gambar `gambar/housing-elektronik-hgd.svg` dari STEP Fusion |
 | v2 | 16 Okt. 2026 | Ukuran LCD terukur; berkas parameter Fusion; jendela lid = area layar; kompensasi susut; aturan cetak 3D; batasan dari penempatan PCB v2 |
 | v1 | 13 Okt. 2026 | Rencana awal |
