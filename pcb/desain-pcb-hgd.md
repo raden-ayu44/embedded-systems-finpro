@@ -19,7 +19,7 @@ title: Desain PCB dan Skema - Hand Grip Dynamometer
 | Tampilan | LCD 16x2 HS1602A + backpack I2C (PCF8574T, alamat 0x27) | Teks per state | ✔ ada; alamat 0x27 terbaca (U4) |
 | Penggeser level | Modul level shifter dua arah 4 kanal berbasis MOSFET BSS138 | SDA/SCL 5 V (LCD) ↔ 3,3 V (ESP32) | ✔ sudah tiba; jarak baris header 10,16 mm (jangka sorong) |
 | Indikator | LED 5 mm + R1 **220 ohm** | Sinyal "sedang direkam" | ▣ dari komponen tim |
-| Indikator daya | LED merah 3 mm (D2) + R2 **220 ohm** dari +3V3 | Menyala selama papan berdaya, tidak bergantung firmware | ✔ di skema dan PCB (17 Okt. 2026); LED 3 mm dari komponen tim |
+| Indikator daya | LED merah 3 mm (D2) + R2 **220 ohm** dari +3V3 | Menyala selama papan berdaya, tidak bergantung firmware | ✔ di skema dan PCB; diuji di breadboard (17 Okt. 2026) |
 | Input | Tactile push button 6 x 6 mm, batang 13 mm, 1 buah | START, NEXT, RESTART | ▣ dari komponen tim |
 | PCB | `hgd-v1` (KiCad), dua lapis | Dudukan DevKit, modul, tombol, LED | ◐ skema dan netlist benar; penempatan usulan v2 (Bagian 8.4) |
 | Housing grip | 2 pelat Al 170 x 30 x 10 mm + spacer PLA + M6 x 25 | Mekanik | ◐ desain; sisa pengukuran load cell |
@@ -109,7 +109,7 @@ Aturan keputusan v1 (ukur dulu, baru putuskan) sudah dijalankan:
 | LV: GPIO21/22 ↔ LV1/LV2 (3,3 V) | Shifter 9,86 kΩ (+ internal ESP32 ≈ 45 kΩ bila aktif) | 9,86 kΩ (≈ 8,1 kΩ) | ✔ |
 | HV: HV1/HV2 ↔ backpack (5 V) | Shifter 9,90 kΩ ‖ backpack 4,67 kΩ | 3,17 kΩ (≈ 1,6 mA pada 4,93 V) | ✔ |
 
-Semua pull-up milik modul; **PCB tanpa pull-up tambahan**. Rincian di DS-LLS1 dan DS-I2C1. Shifter yang sudah disolder: LV1/LV2 = 3,26 V, HV1/HV2 = 4,98 V saat dicatu tanpa LCD. **Uji breadboard 17 Okt. 2026 dengan wiring sesuai skema (termasuk D2/R2): LCD bekerja lewat level shifter.**
+Semua pull-up milik modul; **PCB tanpa pull-up tambahan**. Rincian di DS-LLS1 dan DS-I2C1. Shifter yang sudah disolder: LV1/LV2 = 3,26 V, HV1/HV2 = 4,98 V saat dicatu tanpa LCD. **Uji breadboard 17 Okt. 2026 dengan wiring sesuai skema (termasuk D2/R2): LCD bekerja lewat level shifter dan menampilkan data HX711; D2 menyala dengan R2 220 ohm, terang cukup. Tidak ada perbedaan breadboard dan skema.**
 
 Alternatif yang dibahas dan tidak dipakai: penggeser level dari MOSFET 2N7000 THT (V_GS(th) 0,8-3 V, R_DS(on) hanya dijamin pada 4,5 V; datasheet Microchip disimpan di Project), atau melepas pull-up backpack. Modul BSS138 dipilih karena sudah jadi, murah, dan dua arah.
 
