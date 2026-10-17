@@ -109,7 +109,7 @@ Aturan keputusan v1 (ukur dulu, baru putuskan) sudah dijalankan:
 | LV: GPIO21/22 ↔ LV1/LV2 (3,3 V) | Shifter 9,86 kΩ (+ internal ESP32 ≈ 45 kΩ bila aktif) | 9,86 kΩ (≈ 8,1 kΩ) | ✔ |
 | HV: HV1/HV2 ↔ backpack (5 V) | Shifter 9,90 kΩ ‖ backpack 4,67 kΩ | 3,17 kΩ (≈ 1,6 mA pada 4,93 V) | ✔ |
 
-Semua pull-up milik modul; **PCB tanpa pull-up tambahan**. Rincian di DS-LLS1 dan DS-I2C1. Shifter yang sudah disolder: LV1/LV2 = 3,26 V, HV1/HV2 = 4,98 V saat dicatu tanpa LCD.
+Semua pull-up milik modul; **PCB tanpa pull-up tambahan**. Rincian di DS-LLS1 dan DS-I2C1. Shifter yang sudah disolder: LV1/LV2 = 3,26 V, HV1/HV2 = 4,98 V saat dicatu tanpa LCD. **Uji breadboard 17 Okt. 2026 dengan wiring sesuai skema (termasuk D2/R2): LCD bekerja lewat level shifter.**
 
 Alternatif yang dibahas dan tidak dipakai: penggeser level dari MOSFET 2N7000 THT (V_GS(th) 0,8-3 V, R_DS(on) hanya dijamin pada 4,5 V; datasheet Microchip disimpan di Project), atau melepas pull-up backpack. Modul BSS138 dipilih karena sudah jadi, murah, dan dua arah.
 
