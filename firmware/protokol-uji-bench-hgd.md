@@ -21,7 +21,20 @@ title: Protokol Uji Bench - Hand Grip Dynamometer
 | Tombol | GPIO25 ke GND (kaki diagonal) | Pull-up internal |
 | LED | GPIO27 → R1 220 ohm → anoda; katoda ke GND | - |
 
-> **Risiko kerusakan: SDA/SCL backpack di VIN terukur 4,93 V**, di atas batas mutlak GPIO ESP32 (≈ 3,6 V). Selama level shifter belum terpasang, cabut kabel SDA dan SCL LCD untuk uji yang lama (pemanasan, E1). LCD tidak diperlukan untuk langkah 3-7; semua hasil terbaca di Serial Monitor.
+> **Risiko kerusakan: SDA/SCL backpack di VIN terukur 4,93 V**, di atas batas mutlak GPIO ESP32 (≈ 3,6 V). SDA/SCL LCD hanya ke sisi HV level shifter; GPIO21/22 hanya ke sisi LV.
+
+Wiring level shifter (sesuai skema `hgd-v1`, J3/J4):
+
+| Pin shifter | Ke |
+|---|---|
+| HV | VIN (5 V) |
+| HV1 / HV2 | SDA / SCL backpack LCD |
+| LV | 3V3 |
+| LV1 / LV2 | GPIO21 / GPIO22 |
+| GND (sisi HV dan LV) | GND |
+| HV3, HV4, LV3, LV4 | Kosong |
+
+Cek sebelum uji: dengan catu USB dan LCD diam, LV1/LV2 ≈ 3,3 V dan HV1/HV2 ≈ 4,9 V. Bila LV1/LV2 terbaca ≈ 4,9 V, cabut USB: sisi HV/LV tertukar.
 
 Perintah serial: `t` tare, `k` rata-rata 10 raw, `p` status, `e` E1 60 s, `n` balik tanda, `l` LED, `s` pindai I2C, `h` bantuan. Tombol: TAP = LED nyala/mati, TAHAN 1,5 s = tare ulang.
 
