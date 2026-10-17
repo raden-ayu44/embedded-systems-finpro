@@ -180,6 +180,8 @@ ERC 17 Okt. 2026: **0 error, 0 warning**. Pin tak terpakai diberi tanda no-conne
 ### 8.4 Usulan penempatan v2
 Gambar [gambar/penempatan-pcb-hgd.svg](gambar/penempatan-pcb-hgd.svg) sekarang menunjukkan PCB `hgd-v1` v1 dengan jalur final dari berkas KiCad (16 Okt. 2026): 80 x 55 mm, lubang H1-H4 Ø3,0 pola 75 x 50 mm, lolos DRC KiCad, belum disetujui dan belum dipesan. Teks di gambar diambil dari silkscreen berkas papan (isi, posisi, ukuran, perataan); silkscreen bawah digambar tidak dicerminkan. Gerber dan berkas bor diekspor dan dicek 17 Okt. 2026 (outline 80 x 55, 68 PTH termasuk 2 via, 4 NPTH Ø3,0); belum di repo sampai papan disetujui. **Setelah itu D2 dan R2 ditambahkan** (17 Okt. 2026): D2 K (135,5; 145), A (132,96; 145); R2 pad (119,61; 145) dan (129,77; 145); +3V3 lewat jalur 0,5 mm di x 118,34; teks silkscreen `PWR`. DRC 0 error. Gambar SVG, Gerber, dan berkas KiCad di repo belum memuat D2/R2 dan harus diperbarui.
 
+**Silkscreen identitas (17 Okt. 2026):** teks F.Silkscreen "Kelompok 01 / Hand Grip Dynamometer" di bawah SW1, bebas pad; DRC bersih.
+
 **Pour GND (17 Okt. 2026):** F.Cu 2852 mm² (3 bagian), B.Cu 2610 mm² (5 bagian, terpotong jalur); setiap bagian di kedua lapis kena minimal satu via jahit; tidak ada tembaga di area antena. Satu error DRC dikecualikan: pad 2 U2 (GND) hanya mendapat 1 spoke thermal di B.Cu karena jalur 3V3 lewat 0,55 mm di atasnya serta pad 1 dan 3 di kiri-kanan; pad itu tetap tersambung lewat jalur GND F.Cu ke pad 29 dan pour F.Cu. Skema ada di [kicad/proyek/hgd-v1.kicad_sch](kicad/proyek/hgd-v1.kicad_sch). Tabel dan batasan di bawah adalah usulan penempatan v2 yang lama; posisi final ada di gambar. Koordinat usulan v2: KiCad (mm, Y ke bawah), relatif terhadap U2 di (131,73; 109,475; rotasi 180; B.Cu). Diturunkan dari tata letak di Fusion (±1 mm). Arah: +Y menuju antena; +X menuju tepi PCB LCD di tutup.
 
 | Ref | Sisi | Posisi | Catatan |
@@ -261,7 +263,7 @@ Penyimpanan: kotak kedap udara dengan gelembung plastik (sisi gelembung menghada
 
 | Versi | Tanggal | Perubahan |
 |---|---|---|
-| v4 | 17 Okt. 2026 | Pour GND F.Cu dan B.Cu + 57 via jahit; LED daya D2 (3 mm) + R2 220 ohm dari +3V3; netlist dan keputusan desain diperbarui; ERC 0 error (no-connect, `PWR_FLAG`); hitungan pull-up I2C terukur (LV 9,86 kΩ, HV 3,17 kΩ gabungan): tanpa pull-up tambahan; tegangan shifter tersolder 3,26 V / 4,98 V |
+| v4 | 17 Okt. 2026 | Pour GND F.Cu dan B.Cu + 57 via jahit; nomor tim dan nama proyek di silkscreen; LED daya D2 (3 mm) + R2 220 ohm dari +3V3; netlist dan keputusan desain diperbarui; ERC 0 error (no-connect, `PWR_FLAG`); hitungan pull-up I2C terukur (LV 9,86 kΩ, HV 3,17 kΩ gabungan): tanpa pull-up tambahan; tegangan shifter tersolder 3,26 V / 4,98 V |
 | v3 | 16-17 Okt. 2026 | 17 Okt.: teks gambar dari silkscreen berkas papan; Gerber diekspor dan dicek (belum di repo). 16 Okt.: gambar `penempatan-pcb-hgd.svg` diganti dengan PCB v1 berjalur final dari berkas KiCad (lolos DRC, belum disetujui); skema `hgd-v1.kicad_sch` ditambahkan di `kicad/proyek/` |
 | v2 | 16 Okt. 2026 | R1 100 → 220 ohm; catu LCD diputuskan (5 V + level shifter BSS138 4 kanal); rail +5V; tanpa baterai; DevKit dan semua soket di sisi bawah, modul dicolok ke soket (HX711 langsung); netlist KiCad `hgd-v1`; usulan penempatan v2 dan gambar; hasil uji bench 15 Okt. 2026 |
 | v1 | 10-14 Okt. 2026 | Draf PCB v1 take-home: soket DevKit J1/J2, header jantan J3/J4 dengan kabel jumper, rail 3,3 V saja |
