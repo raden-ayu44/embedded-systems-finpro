@@ -3,7 +3,7 @@ title: Protokol Uji Bench - Hand Grip Dynamometer
 
 ---
 
-# Protokol Uji Bench - Hand Grip Dynamometer (v1)
+# Protokol Uji Bench - Hand Grip Dynamometer (v2)
 **Proyek akhir - embedded system**
 
 > Langkah uji modul di breadboard dengan sketsa [`uji_bench_hgd`](sketches/uji_bench_hgd/uji_bench_hgd.ino): U4 (I2C dan LCD), U7 (HX711), U8 (tombol dan LED), E1 (noise diam), uji arah tekan, dan pengulangan tare. Tabel uji dan konstanta ada di Bagian 3 dan 11 di [alur-program-hgd.md](alur-program-hgd.md); perangkat keras di [desain-pcb-hgd.md](../pcb/desain-pcb-hgd.md); induk: [catatan-proyek-hgd.md](../catatan-proyek-hgd.md).
@@ -88,6 +88,7 @@ Data lengkap (semua baris E1 15 dan 16 Okt. 2026, pemanasan, uji tekan, log ment
 
 | Versi | Tanggal | Perubahan |
 |---|---|---|
+| v2 | 17 Okt. 2026 | Level shifter terpasang: tabel wiring shifter dan cek tegangan sisi LV; aturan cabut SDA/SCL dihapus |
 | v1 | 16 Okt. 2026 | Protokol pertama, dari uji bench 15 dan 16 Okt. 2026 |
 
 ---

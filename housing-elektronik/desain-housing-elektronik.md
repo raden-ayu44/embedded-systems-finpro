@@ -42,7 +42,7 @@ Desain pemilik (dari STEP):
 - Jendela USB di dinding kiri lid: 15,0 x 9,0, y −66,5 sampai −51,5, z −18,2 sampai −9,2 (pusat cocok dengan USB DevKit di PCB v1, y −59,0).
 - Jendela kabel load cell di dinding kanan lid: 15,0 x 9,0, y 3,5 sampai 18,5.
 
-Usulan bibir (Claude, belum dimodelkan):
+Usulan bibir (Claude; dimodelkan di Fusion 17 Okt. 2026):
 
 | Bagian | Usulan | Alasan |
 |---|---|---|
@@ -54,7 +54,7 @@ Tidak bertabrakan: kedua jendela mulai di z −18,2 (di atas bibir); bagian DevK
 
 Gambar (v2) bergaya sama dengan gambar housing load cell: potongan A-A (x = −30, dari STEP), detail B (snap), detail C (lidah), tampak atas, tampak depan, legenda, dan arsiran.
 
-### 1.3 Usulan snap-fit lid ke body (Claude, belum dimodelkan)
+### 1.3 Usulan snap-fit lid ke body (Claude; dimodelkan di Fusion 17 Okt. 2026)
 Lid harus bisa dibuka berulang (kabel di sisi bawah PCB dikencangkan dengan membuka lid), jadi dipakai lidah horizontal yang melentur di bidang XY, bukan kait tegak.
 
 | Bagian | Usulan |
@@ -129,9 +129,11 @@ Celah lid terhadap bingkai LCD memakai parameter tersendiri (mis. `lid_gap` 0,5 
 ---
 
 ## 6. Sisa pekerjaan
-1. Tetapkan posisi PCB `hgd-v1` di body setelah penempatan v2 diterapkan; tambah dinding di sisi level shifter.
+1. ✔ Posisi PCB `hgd-v1` v1 di model Fusion (tergantung di lid).
 2. Lubang tombol dan LED di lid dari posisi SW1 dan D1 (ukur tombol B3-B4 dan LED L1-L3 di tabel pengukuran).
-3. Cutout USB (E8-E9 di tab ESP32) dan kabel load cell.
+3. ✔ Jendela USB dan kabel load cell 15 x 9 di dinding lid (Bagian 1.2).
+6. Cetak uji satu lidah dan slot (Fase 7 instruksi kerja Fusion) sebelum mencetak lid dan body.
+7. Sketsa tonjolan, slot, dan lidah dibuat parametrik (uji `snap_y` 1,0 di Fusion gagal karena koordinat diketik tetap).
 4. Tiang M3 PCB, satu dekat tombol.
 5. Selisih margin layar 1 mm (Bagian 2).
 
