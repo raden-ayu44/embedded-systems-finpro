@@ -627,7 +627,7 @@ Nomor melanjutkan DS-ESP ([10]).
 
 | Item | Isi |
 |---|---|
-| Komponen | Modul penggeser level dua arah 4 kanal dengan MOSFET BSS138, dibeli dari penjual daring (listing tidak dicatat di sini). Belum tiba pada 16 Okt. 2026. |
+| Komponen | Modul penggeser level dua arah 4 kanal dengan MOSFET BSS138, dibeli dari penjual daring (listing tidak dicatat di sini). Sudah tiba; ukuran untuk PCB terukur dengan jangka sorong. |
 | S1 | Listing penjual (tidak disimpan). |
 | S3 | SparkFun, "Logic Level Converter - Bi-Directional" [17]: papan 16,05 x 13,33 mm. ProtoSupplies, "4-Channel Logic Level Converter Module" [18]: 15 x 13 mm, dua header 6 pin. Bukan pabrikan modul kita; dipakai untuk ukuran dan pinout umum. |
 
@@ -640,7 +640,7 @@ Nomor melanjutkan DS-ESP ([10]).
 
 ### Peringatan untuk desain kita
 
-1. **Jarak antar baris header tidak dinyatakan** di sumber mana pun. Lebar papan 13,3 mm hanya cocok dengan 10,16 mm (0,4 in); ukur pada barang yang tiba sebelum jalur PCB dibuat.
+1. **Jarak antar baris header** tidak dinyatakan di sumber mana pun; terukur pada modul yang tiba: 10,16 mm (0,4 in), dipakai untuk J3-J4.
 2. **Modul terbalik 180° di soket** memberi 5 V ke sisi LV dan ke GPIO ESP32. Tandai pin 1 dan sisi HV/LV di silkscreen.
 3. Kanal BSS138 dua arah dan bekerja dengan pull-up di kedua sisi, jadi cocok untuk I2C 100 kHz.
 4. Alternatif yang tidak dipakai: 2N7000 THT (datasheet Microchip; V_GS(th) 0,8-3 V, R_DS(on) hanya dijamin pada V_GS 4,5 V).
@@ -650,7 +650,7 @@ Nomor melanjutkan DS-ESP ([10]).
 | No | Pemeriksaan | Hasil |
 |---|---|---|
 | 1 | Ukur papan (panjang x lebar) | |
-| 2 | Jarak antar baris header (pusat ke pusat) | |
+| 2 | Jarak antar baris header (pusat ke pusat) | 10,16 mm (jangka sorong) |
 | 3 | Urutan pin tiap sisi dan penanda HV/LV di silkscreen | |
 | 4 | Dengan HV = 5 V dan LV = 3,3 V: tegangan LV1/LV2 saat diam (harus sekitar 3,3 V) | |
 

@@ -17,7 +17,7 @@ title: Desain PCB dan Skema - Hand Grip Dynamometer
 | Load cell | CZL 601 80 kg, straight-bar, jembatan penuh, 2,0 ±0,2 mV/V | Sensor gaya | ✔ diterima; 130 x 28 x 21,5 mm; resistansi lolos (10 Okt. 2026) |
 | Penguat + ADC | Modul HX711 (papan XFW-HX711), kanal A, gain 128, 10 SPS | Digitalisasi | ✔ ada; merespons dan lolos uji noise E1 (15 Okt. 2026); 24 x 15,6 mm terukur |
 | Tampilan | LCD 16x2 HS1602A + backpack I2C (PCF8574T, alamat 0x27) | Teks per state | ✔ ada; alamat 0x27 terbaca (U4) |
-| Penggeser level | Modul level shifter dua arah 4 kanal berbasis MOSFET BSS138 | SDA/SCL 5 V (LCD) ↔ 3,3 V (ESP32) | ▣ dibeli, belum tiba; jarak baris header diukur saat tiba |
+| Penggeser level | Modul level shifter dua arah 4 kanal berbasis MOSFET BSS138 | SDA/SCL 5 V (LCD) ↔ 3,3 V (ESP32) | ✔ sudah tiba; jarak baris header 10,16 mm (jangka sorong) |
 | Indikator | LED 5 mm + R1 **220 ohm** | Sinyal "sedang direkam" | ▣ dari komponen tim |
 | Input | Tactile push button 6 x 6 mm, batang 13 mm, 1 buah | START, NEXT, RESTART | ▣ dari komponen tim |
 | PCB | `hgd-v1` (KiCad), dua lapis | Dudukan DevKit, modul, tombol, LED | ◐ skema dan netlist benar; penempatan usulan v2 (Bagian 8.4) |
@@ -99,7 +99,7 @@ Aturan keputusan v1 (ukur dulu, baru putuskan) sudah dijalankan:
 | 2b | Backpack di 3V3: tulisan hampir tidak tampak walau trimpot kontras diputar ±135° searah jarum jam (mentok) | LCD HS1602A butuh 4,9-5,1 V (DS-LCD1); 3,3 V tidak cukup |
 | 2a (dipilih) | - | **LCD dan backpack dari VIN (5 V), SDA/SCL lewat level shifter dua arah 4 kanal (BSS138)**. Dua kanal dipakai (HV1/LV1 = SDA, HV2/LV2 = SCL); kanal 3-4 kosong |
 
-> **Risiko kerusakan:** 4,93 V langsung ke GPIO 21/22 melebihi batas mutlak ESP32 (sekitar 3,6 V). Selama level shifter belum tiba, sambungan VIN langsung hanya untuk uji singkat di bench. Pada PCB, SDA/SCL ESP32 hanya tersambung ke sisi LV.
+> **Risiko kerusakan:** 4,93 V langsung ke GPIO 21/22 melebihi batas mutlak ESP32 (sekitar 3,6 V). Pada PCB, SDA/SCL ESP32 hanya tersambung ke sisi LV.
 
 Alternatif yang dibahas dan tidak dipakai: penggeser level dari MOSFET 2N7000 THT (V_GS(th) 0,8-3 V, R_DS(on) hanya dijamin pada 4,5 V; datasheet Microchip disimpan di Project), atau melepas pull-up backpack. Modul BSS138 dipilih karena sudah jadi, murah, dan dua arah.
 
@@ -175,7 +175,7 @@ Gambar [gambar/penempatan-pcb-hgd.svg](gambar/penempatan-pcb-hgd.svg) sekarang m
 | C3 10 µF | B | pusat (164,0; 143,3) | +5V; di sisi LCD dari J2 (posisi di bawah J2 masuk zona antena) |
 | C4 100 nF | B | pusat (165,0; 148,6) | +5V |
 | J4 HV | B | pin 1 (114,0; 96,0), pin ke +Y | Sisi dalam, dekat pin 30 (5 V) |
-| J3 LV | B | pin 1 (103,84; 96,0), pin ke +Y | Jarak J3-J4 10,16 mm **diukur saat modul tiba** |
+| J3 LV | B | pin 1 (103,84; 96,0), pin ke +Y | Jarak J3-J4 10,16 mm, terukur pada modul (jangka sorong) |
 | SW1 | A | pusat (158,5; 105,8); pad (156,25/160,75; 102,55/109,05) | Urutan sisi atas searah U2: SW1 → R1 → D1 |
 | R1 | A | pad (158,5; 117,1) dan (158,5; 127,26), vertikal | Pad 1 ke GPIO27 |
 | D1 | A | K (157,23; 134,5), A (159,77; 134,5) | - |
@@ -231,7 +231,7 @@ Penyimpanan: kotak kedap udara dengan gelembung plastik (sisi gelembung menghada
 
 ## 10. Sisa pekerjaan
 
-1. Ukur jarak baris header level shifter saat tiba; tetapkan jarak J3-J4 dari hasil ukur.
+1. ✔ Jarak baris header level shifter terukur 10,16 mm; J3-J4 memakai jarak ini.
 2. Ukur jarak header HX711 ke tepi modul (asumsi 1,5 mm) dan cocokkan urutan pin J1 dengan silkscreen modul.
 3. Bersihkan berkas KiCad (Bagian 8.3); terapkan penempatan v2.
 4. Tentukan Edge.Cuts dan lubang M3 setelah sisi atas selesai (satu M3 dekat SW1).
