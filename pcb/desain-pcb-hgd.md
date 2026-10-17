@@ -144,7 +144,7 @@ Semua modul dicolok ke **soket betina** di sisi bawah PCB (Bagian 8).
 | Breadboard = skema | Wiring sesuai skema termasuk D2/R2, tanpa perbedaan; LCD bekerja lewat level shifter (17 Okt. 2026) |
 | Gerber + bor | Diekspor 17 Okt. 2026 19:44, Revision 1; 129 PTH, 4 NPTH; dicek di viewer JLCPCB: 2 lapis, 80 x 55 mm |
 | Berkas | [kicad/proyek/](kicad/proyek/): skema, papan, salinan 3D verbatim, STEP; langkah kerja di [log-kerja-kicad-hgd.md](log-kerja-kicad-hgd.md) |
-| Belum | Persetujuan; unggah Gerber; PDF skema dan BOM; gambar SVG penempatan diperbarui dengan D2/R2 dan pour |
+| Belum | Persetujuan; unggah Gerber; PDF skema dan BOM |
 
 ### 8.1 Keputusan desain
 | Hal | Keputusan | Alasan |
@@ -189,7 +189,7 @@ ERC 17 Okt. 2026: **0 error, 0 warning**. Pin tak terpakai diberi tanda no-conne
 - ✔ Edge.Cuts final 80 x 55 mm (109,75; 93) sampai (189,75; 148); lubang H1-H4 di sudut.
 
 ### 8.4 Usulan penempatan v2
-Gambar [gambar/penempatan-pcb-hgd.svg](gambar/penempatan-pcb-hgd.svg) sekarang menunjukkan PCB `hgd-v1` v1 dengan jalur final dari berkas KiCad (16 Okt. 2026): 80 x 55 mm, lubang H1-H4 Ø3,0 pola 75 x 50 mm, lolos DRC KiCad, belum disetujui dan belum dipesan. Teks di gambar diambil dari silkscreen berkas papan (isi, posisi, ukuran, perataan); silkscreen bawah digambar tidak dicerminkan. Gerber dan berkas bor diekspor dan dicek 17 Okt. 2026 (outline 80 x 55, 68 PTH termasuk 2 via, 4 NPTH Ø3,0); belum di repo sampai papan disetujui. **Setelah itu D2 dan R2 ditambahkan** (17 Okt. 2026): D2 K (135,5; 145), A (132,96; 145); R2 pad (119,61; 145) dan (129,77; 145); +3V3 lewat jalur 0,5 mm di x 118,34; teks silkscreen `PWR`. DRC 0 error. Berkas papan [kicad/proyek/hgd-v1.kicad_pcb](kicad/proyek/hgd-v1.kicad_pcb) sudah versi terbaru (17 Okt. 2026; model 3D DevKit tertanam, tanpa jalur lokal). Skema di repo juga terbaru (17 Okt. 2026). **Gerber dan bor diekspor ulang 17 Okt. 2026 19:44** (setelan sama; Revision 1 di job file) dan dicek: outline 80 x 55 mm; 129 PTH (70 kaki komponen termasuk D2/R2, 59 via: 57 GND + 2 sinyal), 4 NPTH Ø3,0; pour GND di kedua lapis, area antena kosong; silkscreen tim ada; tanpa jalur lokal. Dicek di viewer JLCPCB: terdeteksi 2 lapis, 80 x 55 mm, pratinjau sama dengan papan. Belum di repo sampai disetujui. Gambar SVG belum memuat D2/R2.
+Gambar [gambar/penempatan-pcb-hgd.svg](gambar/penempatan-pcb-hgd.svg) menunjukkan PCB `hgd-v1` v1 final dari berkas KiCad 17 Okt. 2026 (diperbarui: D2/R2, pour GND kedua lapis, 59 via, silkscreen tim): 80 x 55 mm, lubang H1-H4 Ø3,0 pola 75 x 50 mm, ERC dan DRC 0 error, belum disetujui dan belum dipesan. Teks di gambar diambil dari silkscreen berkas papan (isi, posisi, ukuran, perataan); silkscreen bawah digambar tidak dicerminkan. Gerber dan berkas bor diekspor dan dicek 17 Okt. 2026 (outline 80 x 55, 68 PTH termasuk 2 via, 4 NPTH Ø3,0); belum di repo sampai papan disetujui. **Setelah itu D2 dan R2 ditambahkan** (17 Okt. 2026): D2 K (135,5; 145), A (132,96; 145); R2 pad (119,61; 145) dan (129,77; 145); +3V3 lewat jalur 0,5 mm di x 118,34; teks silkscreen `PWR`. DRC 0 error. Berkas papan [kicad/proyek/hgd-v1.kicad_pcb](kicad/proyek/hgd-v1.kicad_pcb) sudah versi terbaru (17 Okt. 2026; model 3D DevKit tertanam, tanpa jalur lokal). Skema di repo juga terbaru (17 Okt. 2026). **Gerber dan bor diekspor ulang 17 Okt. 2026 19:44** (setelan sama; Revision 1 di job file) dan dicek: outline 80 x 55 mm; 129 PTH (70 kaki komponen termasuk D2/R2, 59 via: 57 GND + 2 sinyal), 4 NPTH Ø3,0; pour GND di kedua lapis, area antena kosong; silkscreen tim ada; tanpa jalur lokal. Dicek di viewer JLCPCB: terdeteksi 2 lapis, 80 x 55 mm, pratinjau sama dengan papan. Belum di repo sampai disetujui.
 
 **Perangkat lunak (17 Okt. 2026):** pemakaian KiCad sebagai pengganti EasyEDA sudah ditanyakan ke tim pengajar dan diizinkan.
 
@@ -273,7 +273,7 @@ Penyimpanan: kotak kedap udara dengan gelembung plastik (sisi gelembung menghada
 7. Uji U8 penuh (10 tap, 10 tahan) dan U6 (E+, E− modul HX711).
 8. Persetujuan PCB v1, lalu unggah ZIP Gerber (batas 27 Okt. 2026, 23:59).
 9. PDF skema dan BOM (kolom sesuai modul; tambahkan 2 soket 1x15 DevKit dan modul yang dicolok).
-10. Perbarui gambar [gambar/penempatan-pcb-hgd.svg](gambar/penempatan-pcb-hgd.svg) dengan D2/R2, pour, dan via.
+10. ✔ Gambar [gambar/penempatan-pcb-hgd.svg](gambar/penempatan-pcb-hgd.svg) diperbarui dari berkas papan final (D2/R2, pour, via; 17 Okt. 2026).
 11. Bahan laporan: tangkapan DRC dan 3D, perhitungan lebar jalur 5V, data papan; review papan tim lain.
 
 ---
@@ -282,7 +282,7 @@ Penyimpanan: kotak kedap udara dengan gelembung plastik (sisi gelembung menghada
 
 | Versi | Tanggal | Perubahan |
 |---|---|---|
-| v4 | 17 Okt. 2026 | **Skema dan PCB v1 selesai (belum disetujui)**; Gerber diekspor ulang dan dicek di viewer JLCPCB; berkas KiCad, salinan 3D, dan STEP di repo; log kerja KiCad; pembersihan berkas dan sisa pekerjaan diperbarui; pour GND F.Cu dan B.Cu + 57 via jahit; nomor tim dan nama proyek di silkscreen; lubang mounting dipertahankan; KiCad diizinkan sebagai pengganti EasyEDA; LED daya D2 (3 mm) + R2 220 ohm dari +3V3; netlist dan keputusan desain diperbarui; ERC 0 error (no-connect, `PWR_FLAG`); hitungan pull-up I2C terukur (LV 9,86 kΩ, HV 3,17 kΩ gabungan): tanpa pull-up tambahan; tegangan shifter tersolder 3,26 V / 4,98 V |
+| v4 | 17 Okt. 2026 | **Skema dan PCB v1 selesai (belum disetujui)**; gambar penempatan diperbarui dari papan final (D2/R2, pour GND, via); Gerber diekspor ulang dan dicek di viewer JLCPCB; berkas KiCad, salinan 3D, dan STEP di repo; log kerja KiCad; pembersihan berkas dan sisa pekerjaan diperbarui; pour GND F.Cu dan B.Cu + 57 via jahit; nomor tim dan nama proyek di silkscreen; lubang mounting dipertahankan; KiCad diizinkan sebagai pengganti EasyEDA; LED daya D2 (3 mm) + R2 220 ohm dari +3V3; netlist dan keputusan desain diperbarui; ERC 0 error (no-connect, `PWR_FLAG`); hitungan pull-up I2C terukur (LV 9,86 kΩ, HV 3,17 kΩ gabungan): tanpa pull-up tambahan; tegangan shifter tersolder 3,26 V / 4,98 V |
 | v3 | 16-17 Okt. 2026 | 17 Okt.: teks gambar dari silkscreen berkas papan; Gerber diekspor dan dicek (belum di repo). 16 Okt.: gambar `penempatan-pcb-hgd.svg` diganti dengan PCB v1 berjalur final dari berkas KiCad (lolos DRC, belum disetujui); skema `hgd-v1.kicad_sch` ditambahkan di `kicad/proyek/` |
 | v2 | 16 Okt. 2026 | R1 100 → 220 ohm; catu LCD diputuskan (5 V + level shifter BSS138 4 kanal); rail +5V; tanpa baterai; DevKit dan semua soket di sisi bawah, modul dicolok ke soket (HX711 langsung); netlist KiCad `hgd-v1`; usulan penempatan v2 dan gambar; hasil uji bench 15 Okt. 2026 |
 | v1 | 10-14 Okt. 2026 | Draf PCB v1 take-home: soket DevKit J1/J2, header jantan J3/J4 dengan kabel jumper, rail 3,3 V saja |
