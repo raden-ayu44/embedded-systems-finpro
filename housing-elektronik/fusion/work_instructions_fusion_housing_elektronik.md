@@ -1,4 +1,4 @@
-# Instruksi kerja: bibir dan snap-fit housing elektronik di Fusion (v1)
+# Instruksi kerja: bibir dan snap-fit housing elektronik di Fusion (v2)
 
 Lingkup: menambahkan bibir (lip), 4 lidah snap, tiang korban, dan slot ke model `electronics_housing_v1` yang sudah ada (lid berdinding dan body baki). Bentuk luar, jendela USB dan kabel, serta posisi PCB dan LCD tidak diubah. Desain dan perhitungan: [../desain-housing-elektronik.md](../desain-housing-elektronik.md), Bagian 1.3; gambar: [../gambar/housing-elektronik-hgd.svg](../gambar/housing-elektronik-hgd.svg) (potongan A-A, detail B, detail C).
 
@@ -43,8 +43,11 @@ Hasil akhir yang dituju (lidah depan-kiri; tiga lainnya dicerminkan):
 - [ ] **Sketch** pada bidang `J`. **Project** tepi dalam muka atas dinding body (loop persegi dalam, x ±50,5).
 - [ ] **Offset** loop itu ke dalam sebesar `lip_cl` (muka luar bibir), lalu sekali lagi ke dalam sebesar `ledge_w` dari loop asli (muka dalam bibir). Hasilnya tiga loop: tepi dinding, 0,25 ke dalam, 1,85 ke dalam.
 - [ ] **Extrude** profil dua pita (0,25 + 1,6 = 1,85) ke bawah sejauh `2 * ledge_w`, operasi **Join**. Ini blok tumpuan, z −22 sampai −25,7.
-- [ ] **Chamfer** tepi bawah-dalam blok tumpuan (seluruh loop), **Equal distance** `ledge_w`. Hasilnya muka datar 1,85 dari z −22 ke −23,85, lalu miring 45° ke dinding di z −25,7.
-- [ ] **Extrude** pita bibir saja (antara loop 0,25 dan 1,85) ke atas sejauh `lip_h`, **Join**. Bibir z −22 sampai −19.
+- [ ] **Chamfer** hanya 4 tepi **di bawah** rim, di dalam baki: tepi tempat muka bawah blok tumpuan (z −25,7) bertemu muka tegak dalamnya (x ±48,65; y −78,9 dan 18,4). Bukan tepi yang menempel ke dinding, dan **bukan tepi atas dinding** (z −22). **Equal distance** `ledge_w`. Lihat dari bawah (ViewCube BOTTOM, sembunyikan Lid) supaya tepi atas tidak terpilih.
+- [ ] Cek dengan **Section Analysis** di x = 0: muka atas dinding body datar dari muka luar sampai muka dalam bibir (3,85, z −22, tanpa chamfer luar); di bawahnya muka tegak sampai z −23,85, lalu miring 45° ke dinding di z −25,7; tidak ada muka datar menghadap ke bawah.
+- [ ] Bila Fusion menolak chamfer ("too large", karena chamfer memakan seluruh muka bawah): hapus chamfer, ubah extrude blok tumpuan menjadi `ledge_w` (z −22 sampai −23,85), lalu tambah baji: **Sketch** pada bidang YZ (x = 0) segitiga (y −80,75, z −23,85), (y −78,9, z −23,85), (y −80,75, z −25,7) dan pasangannya di dinding belakang; **Extrude** **Symmetric**, panjang total 101, **Join**. Ulangi pada midplane depan-belakang untuk dinding kiri dan kanan (x −50,5 / −48,65 dan 50,5 / 48,65).
+- [ ] **Extrude** pita bibir saja (antara loop 0,25 dan 1,85) ke atas sejauh `lip_h`, operasi **Join** dengan body baki (bukan **New Body**). Bibir z −22 sampai −19.
+- [ ] Cek di Browser: komponen Body berisi **satu** body. Bila dua, **Modify > Combine**, Target = baki, Tool = bibir, **Join**.
 - [ ] Cek: **Inspect > Measure** dari muka luar bibir ke muka dalam dinding lid = 0,25 di keempat sisi.
 
 ## Fase 3: kantong dan lidah depan-kiri (komponen Body)
