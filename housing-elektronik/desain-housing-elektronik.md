@@ -133,6 +133,7 @@ Celah lid terhadap bingkai LCD memakai parameter tersendiri (mis. `lid_gap` 0,5 
 2. Lubang tombol dan LED di lid dari posisi SW1 dan D1 (ukur tombol B3-B4 dan LED L1-L3 di tabel pengukuran).
 3. ✔ Jendela USB dan kabel load cell 15 x 9 di dinding lid (Bagian 1.2).
 6. Cetak uji satu lidah dan slot (Fase 7 instruksi kerja Fusion) sebelum mencetak lid dan body.
+8. Slice uji (X1 Carbon, Textured PEI, PLA Basic, 0,20 mm, 3 dinding, infill 15 %, lid dibalik): 90,2 g, 1 j 55 m, tanpa support; tepi atas jendela USB dan kabel tercetak sebagai overhang 15 mm (> aturan jembatan 10 mm). Support di jendela diputuskan laboran. Ukuran 105 mm, 90 g, dan 1 j 55 m melebihi batas modul: perlu izin lab/dosen.
 7. Sketsa tonjolan, slot, dan lidah dibuat parametrik (uji `snap_y` 1,0 di Fusion gagal karena koordinat diketik tetap).
 4. Tiang M3 PCB, satu dekat tombol.
 5. Selisih margin layar 1 mm (Bagian 2).
