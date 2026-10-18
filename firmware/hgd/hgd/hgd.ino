@@ -4,42 +4,64 @@
   Papan   : ESP32 DevKit V1 (DOIT ESP32 DEVKIT V1)
   Core    : Arduino-ESP32 3.3.11 (build akhir dan flash demo, Arduino IDE)
             Pengembangan juga dikompilasi dengan PlatformIO (core 2.0.17).
-  Library : belum ada pada langkah 0.
+  Library : belum ada pada langkah 1 (LiquidCrystal_I2C 1.1.4 ditambahkan di langkah 2).
 
-  Langkah 0 (kerangka): cetak banner dan versi core, LED berkedip 1 Hz.
-  Kedipan memakai millis(), bukan delay(), supaya loop() tidak pernah tertahan.
+  Langkah 1 (uji tombol): TAP membalik LED, TAHAN 1,5 s dilaporkan sekali,
+  tahan >= 3 s mencetak sisa detik menuju reset total (15 s). Belum ada state machine.
 
   Serial Monitor: 115200 baud.
 */
 
 #include <Arduino.h>
+#include "config.h"
+#include "types.h"
+#include "button.h"
 
-// Pin LED status (D1 lewat R1 220 ohm). Akan dipindah ke config.h pada langkah 1.
-const uint8_t PIN_LED = 27;
-
-// Setengah periode kedip: 500 ms nyala + 500 ms mati = 1 Hz.
-const uint32_t BLINK_HALF_MS = 500;
+static uint32_t tapCount = 0;
+static uint32_t holdCount = 0;
+static bool ledOn = false;
 
 void setup() {
-  Serial.begin(115200);
+  Serial.begin(BAUD);
   pinMode(PIN_LED, OUTPUT);
   digitalWrite(PIN_LED, LOW);
+  buttonInit();
 
   // Cetak versi core supaya jelas build mana yang sedang berjalan (PlatformIO atau Arduino IDE).
   Serial.println();
   Serial.printf("HGD firmware, core %d.%d.%d\n",
                 ESP_ARDUINO_VERSION_MAJOR, ESP_ARDUINO_VERSION_MINOR, ESP_ARDUINO_VERSION_PATCH);
+  Serial.println("Langkah 1: TAP = LED balik, TAHAN 1,5 s, tahan 15 s = reset total (uji).");
 }
 
 void loop() {
-  // Pola non-blocking: cek apakah sudah waktunya, kalau belum langsung keluar.
-  static uint32_t lastToggleMs = 0;
-  static bool ledOn = false;
-
-  uint32_t now = millis();
-  if (now - lastToggleMs >= BLINK_HALF_MS) {   // pengurangan tetap benar saat millis() melimpah (~49 hari)
-    lastToggleMs = now;
+  Press p = buttonUpdate();
+  if (p == PRESS_TAP) {
+    tapCount++;
     ledOn = !ledOn;
     digitalWrite(PIN_LED, ledOn ? HIGH : LOW);
+    Serial.printf("[BTN] TAP #%lu -> LED %s\n", (unsigned long)tapCount, ledOn ? "ON" : "OFF");
+  } else if (p == PRESS_HOLD) {
+    holdCount++;
+    Serial.printf("[BTN] HOLD #%lu\n", (unsigned long)holdCount);
+  }
+
+  // Waktu tahan untuk reset total: cetak sisa detik sekali per detik setelah 3 s.
+  static uint32_t lastShownS = 0;
+  static bool forceFired = false;
+  uint32_t held = buttonHeldMs();
+  if (held == 0) {
+    lastShownS = 0;
+    forceFired = false;
+  } else if (!forceFired && held >= FORCE_RESET_MS) {
+    forceFired = true;   // sekali per tekanan
+    buttonReset();       // pelepasan setelah ini tidak boleh menjadi TAP
+    Serial.println("[BTN] tahan 15 s -> RESET TOTAL (langkah 5+ menjalankannya)");
+  } else if (!forceFired && held >= FORCE_RESET_SHOW_MS) {
+    uint32_t leftS = (FORCE_RESET_MS - held + 999) / 1000;   // dibulatkan ke atas
+    if (leftS != lastShownS) {
+      lastShownS = leftS;
+      Serial.printf("[BTN] Reset total %lu (lepas = batal)\n", (unsigned long)leftS);
+    }
   }
 }
