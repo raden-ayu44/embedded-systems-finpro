@@ -103,7 +103,7 @@ Dokumen ini memakai nama Indonesia; kode memakai identifier bahasa Inggris (isti
 | Jalur keluar (`KeluarGenggam` → `GripExit`) | `TETAP`, `DILEPAS_AWAL`, `PLATEAU`, `BATAS_5S` | `EXIT_NONE`, `EXIT_EARLY_RELEASE`, `EXIT_PLATEAU`, `EXIT_TIMEOUT` |
 | Tekanan (`Tekan` → `Press`) | `TIDAK`, `TAP`, `TAHAN` | `PRESS_NONE`, `PRESS_TAP`, `PRESS_HOLD` |
 | Struct | `Percobaan`, `Sesi`, `Sensor`, `StatusTombol`, `StatusCatat` | `Trial`, `Session`, `SensorState`, `ButtonState`, `LogState` |
-| Fungsi | `isrTombol`, `tombolUpdate`, `tombolReset` | `isrButton`, `buttonUpdate`, `buttonReset` |
+| Fungsi | `tombolInit`, `isrTombol`, `tombolUpdate`, `tombolReset`, `tombolLamaTahan` | `buttonInit`, `isrButton`, `buttonUpdate`, `buttonReset`, `buttonHeldMs` |
 | Fungsi | `sensorInit`, `sensorBaca`, `hxRead`, `sensorCek` | `sensorInit`, `sensorPoll`, `hxRead`, `sensorCheck` |
 | Fungsi | `sensorTare`, `sensorTareSelesai`, `bufTambah`, `bufPlateau` | `sensorStartTare`, `sensorTareDone`, `bufAdd`, `sensorPlateau` |
 | Fungsi | `layaniGenggam`, `hitungRef`, `validasiRef`, `layaniRespon`, `ringkas` | `handleGrip`, `computeRef`, `validateRef`, `handleRest`, `summarize` |
@@ -112,7 +112,10 @@ Dokumen ini memakai nama Indonesia; kode memakai identifier bahasa Inggris (isti
 | Kode baris `E` (bukan `JenisGalat`) | `FORCE_RESET` | `EVENT_FORCE_RESET` |
 | Fungsi | `galatTahan` | `faultEnter` / `faultUpdate` |
 | Fungsi | `tampil*` | `displayShow` |
-| Fungsi | `mesinJalan`, `mesinSesiBaru`, `watchdogReset` | `fsmRun`, `fsmNewSession`, `feedLoopWDT` (fungsi core Arduino-ESP32) |
+| Fungsi | `mesinInit`, `mesinJalan`, `mesinSesiBaru` | `fsmInit`, `fsmRun`, `fsmNewSession` |
+| Fungsi core Arduino-ESP32 | `watchdogAktif`, `watchdogReset` | `enableLoopWDT`, `feedLoopWDT` |
+| Konstanta pin | `TOMBOL`, `LED`, HX711 `DT` / `SCK`, `SDA` / `SCL` | `PIN_BUTTON`, `PIN_LED`, `PIN_HX_DT` / `PIN_HX_SCK`, `PIN_SDA` / `PIN_SCL` |
+| Konstanta | alamat LCD 0x27 | `LCD_ADDR` |
 | Konstanta | `T_GENGGAM_MIN_MS`, `T_GENGGAM_MAX_MS`, `JUMLAH_PERCOBAAN`, `UKURAN_BUF`, `T_ISTIRAHAT_S` | `GRIP_MIN_MS`, `GRIP_MAX_MS`, `TRIALS_PER_SESSION`, `BUF_SIZE`, `REST_S` |
 | Konstanta | `T_DEBOUNCE_MS`, `T_TAHAN_MS`, `T_REFRESH_LCD_MS`, `T_TUNGGU_HX711_MS`, `T_ACK_MS` | `DEBOUNCE_MS`, `HOLD_MS`, `LCD_REFRESH_MS`, `HX711_TIMEOUT_MS`, `ACK_TIMEOUT_MS` |
 | Konstanta | `REF_MIN_KG` / `REF_MAX_KG`, `THRESHOLD_STABIL_KG`, `T_TARE_SAMPEL` | `MIN_FORCE_KG` / `MAX_FORCE_KG`, `THRESHOLD_STABLE_KG`, `TARE_SAMPLES` |
@@ -147,7 +150,7 @@ Dokumen ini memakai nama Indonesia; kode memakai identifier bahasa Inggris (isti
 | `KeluarGenggam` | `TETAP=0`, `DILEPAS_AWAL`, `PLATEAU`, `BATAS_5S` | Tiga jalur keluar `GENGGAM` |
 | `Tekan` | `TIDAK=0`, `TAP`, `TAHAN` | Hasil klasifikasi tekanan tombol |
 
-> **Kenapa `GALAT_NONE=0`?** Semua struct di-reset dengan `memset(..., 0, ...)`, jadi nilai nol harus berarti "tidak ada".
+> **Kenapa nilai 0 dipilih begini?** Semua struct di-reset dengan `memset(..., 0, ...)`, jadi arti nilai 0 tiap enum disengaja (sama dengan komentar di `types.h`): `JenisGalat`, `KeluarGenggam`, `Tekan` → 0 = "tidak ada" (`GALAT_NONE`, `TETAP`, `TIDAK`); `State` → 0 = `SIAP`, supaya `memset` meninggalkan mesin di `SIAP` (titik awal yang aman); `FaseGenggam` dan `FaseRespon` mulai dari 1, sehingga 0 berarti "belum dimulai".
 
 ### Struct `Percobaan`
 ```
@@ -177,12 +180,18 @@ buf[5]       → buffer melingkar 5 pembacaan kg terakhir
 bufIdx, bufN → indeks tulis dan jumlah terisi
 ```
 
-### Struct `StatusTombol`
+### Struct `StatusTombol` (v5, `ButtonState` di `button.cpp`)
 ```
-volatile bool   flag        → diset ISR
-volatile uint32 tsInt       → waktu interrupt terakhir (hanya dibaca/ditulis di ISR)
-bool            sedangTekan → dibaca loop dari level pin
-uint32          tsMulaiTekan
+volatile bool   isrFlag     → diset ISR saat tepi turun lolos debounce; dibaca dan dikosongkan loop
+volatile uint32 isrLastMs   → waktu interrupt terakhir yang diterima (hanya dipakai di ISR)
+bool            down        → loop sedang mencatat satu tekanan
+bool            sawLow      → pin pernah terbaca LOW selama tekanan ini (syarat TAP)
+bool            holdFired   → TAHAN sudah dilaporkan untuk tekanan ini
+bool            ignore      → tekanan diabaikan sampai dilepas (tombolReset)
+bool            highSeen    → pin sedang terbaca HIGH sejak highStartMs (calon lepas)
+uint32          highStartMs → millis() saat pin mulai terbaca HIGH (debounce saat lepas)
+uint32          downMs      → millis() saat tekanan mulai (TAHAN dan reset total)
+uint32          releaseMs   → millis() saat lepas terakhir dikonfirmasi
 ```
 
 ### Struct `StatusCatat`
@@ -196,7 +205,7 @@ tsKirim      → waktu kirim (untuk timeout)
 Semua struct dialokasikan **statis** (variabel global/`static`), tanpa `malloc`. Tidak ada struktur yang ukurannya tidak diketahui sebelumnya: 3 percobaan, 5 sampel, 1 sesi aktif.
 
 ### Variabel bersama ISR dan loop
-Hanya dua: `StatusTombol.flag` dan `StatusTombol.tsInt`, keduanya `volatile`. Variabel multi-byte yang dibaca ISR dan loop sekaligus tidak ada; `tsInt` hanya diakses di dalam ISR. Bila nanti ada yang dibagi, akses dari loop dibungkus `noInterrupts()/interrupts()` `[sitasi]`.
+Hanya dua: `StatusTombol.isrFlag` dan `StatusTombol.isrLastMs`, keduanya `volatile`. `isrFlag` (1 byte) dibaca dan dikosongkan loop; baca/tulis 1 byte bersifat atomik, jadi tidak perlu `noInterrupts()`. Variabel multi-byte yang dibaca ISR dan loop sekaligus tidak ada; `isrLastMs` hanya diakses di dalam ISR. Bila nanti ada yang dibagi, akses dari loop dibungkus `noInterrupts()/interrupts()` `[sitasi]`.
 
 ---
 
@@ -213,18 +222,18 @@ Hanya dua: `StatusTombol.flag` dan `StatusTombol.tsInt`, keduanya `volatile`. Va
 | ~~`T_UPDATE_HITUNG_MS`~~ | - | Dihapus di v5: layar hitung mundur ikut `T_REFRESH_LCD_MS` (500 ms); mengubah S2 |
 | `T_DEBOUNCE_MS` | 50 | Abaikan re-trigger ISR |
 | `REF_MIN_KG` / `REF_MAX_KG` | 0 / 80 | Validasi rentang (0 < ref ≤ 80 kg); batas atas juga dicek live di `GENGGAM`. 80 kg = kapasitas nominal CZL 601 (v4: 100 kg dari literatur, di atas kapasitas load cell) |
-| `RENTANG_TARGET_KG` | 20-70 | Spesifikasi S1 |
+| `RENTANG_TARGET_KG` | 20-70 | Spesifikasi S1 (hanya spesifikasi, tidak ada di `config.h`) |
 | `ADC_MAX` | 8.388.607 | Skala penuh ADC 24 bit bertanda |
 | `SATURASI_FRAKSI` | 0,95 | Saturasi bila \|raw\| ≥ 0,95 × `ADC_MAX` ≈ 7.969.177 |
 | `I2C_HZ` | 100000 | Kecepatan I2C LCD |
 | `BAUD` | 115200 | Serial ke laptop |
-| `OVERLOAD_KGF` | 96 (120% F.S.) | Batas aman desain load cell |
+| `OVERLOAD_KGF` | 96 (120% F.S.) | Batas aman desain load cell (hanya spesifikasi, tidak ada di `config.h`; firmware memakai `REF_MAX_KG` 80) |
 | `LED_BLINK_MS` | 250 | Selang ganti nyala/mati LED saat kedip restart (2 Hz) |
 | `LED_BLINK_TOTAL_MS` | 5000 | Lama kedip restart di `SIAP` |
 | `FORCE_RESET_MS` | 15000 | Tahan tombol selama ini di state apa pun = reset total |
 | `FORCE_RESET_SHOW_MS` | 3000 | Setelah ditahan selama ini, LCD menampilkan hitung mundur reset total |
 | `SAVE_FAILED_PAGE_MS` | 3000 | Selang ganti halaman layar `GAGALSIMPAN` |
-| `LAJU_HX711` | 10 SPS | Bawaan papan modul |
+| `LAJU_HX711` | 10 SPS | Bawaan papan modul (hanya spesifikasi, tidak ada di `config.h`; diatur pin RATE di modul, bukan firmware) |
 
 ### 3.2 Nilai awal yang disetel lewat eksperimen
 | Konstanta | Nilai awal | Cara menyetel |
@@ -265,22 +274,26 @@ Pin tombol memakai `INPUT_PULLUP`. Pin masukan yang tidak disambung ke apa pun m
 Variabel yang diubah ISR (`flag`, `tsInt`) dideklarasikan `volatile`. Tanpa itu compiler dapat meng-cache nilainya dan mesin state macet di `SIAP` walau tombol sudah ditekan (White bab 4; modul praktikum pewaktuan). Russell §9.1.2 (RU1) membahas salinan atomik variabel bersama, bukan `volatile`.
 
 ### 4.4 Reset flag tombol
-`flag` dan `tsMulaiTekan` di-reset tiap **masuk** state yang menunggu tombol: `SIAP`, `ERROR`, `GAGALSIMPAN`, sub-fase 2 `RESPON_ISTIRAHAT`, dan `RINGKASAN`. Tekanan nyasar dari state lain tidak tersimpan diam-diam lalu terkonsumsi di state yang sedang menunggu. Ini generalisasi dari aturan `volatile`.
+`tombolReset()` dipanggil tiap **masuk** state yang menunggu tombol (v5: mengosongkan `isrFlag` dan menandai tekanan yang sedang berlangsung "abaikan sampai dilepas"; waktu tahan reset total tidak di-reset): `SIAP`, `ERROR`, `GAGALSIMPAN`, sub-fase 2 `RESPON_ISTIRAHAT`, dan `RINGKASAN`. Tekanan nyasar dari state lain tidak tersimpan diam-diam lalu terkonsumsi di state yang sedang menunggu. Ini generalisasi dari aturan `volatile`.
 
-### 4.5 Klasifikasi tap vs tahan
-Perpanjangan debounce: sampling level pin tiap loop + counter durasi.
-- Level turun (tekan) → `tsMulaiTekan = millis()`, `sedangTekan = true`.
-- Level naik (lepas) sebelum `T_TAHAN_MS` → `TAP`.
-- Tekan terus ≥ `T_TAHAN_MS` → `TAHAN` (dilaporkan sekali saat ambang tercapai, tanpa menunggu lepas).
+### 4.5 Klasifikasi tap vs tahan (v5, `tombolUpdate()`)
+Perpanjangan debounce: ISR menandai awal tekanan, `loop()` membaca level pin tiap putaran dan menghitung durasi dengan `millis()`.
+- **Awal tekanan:** flag ISR (tepi turun) dan sudah lewat `T_DEBOUNCE_MS` sejak lepas terakhir → tekanan dimulai (`downMs = millis()`), apa pun level pin saat itu. Putaran pertama setelah ISR sering jatuh di tengah pantulan, jadi level saat itu tidak dipakai untuk memutuskan.
+- **Selama ditekan:** tiap bacaan LOW mencatat `sawLow` ("pernah terbaca LOW") dan membatalkan calon lepas.
+- **TAHAN:** tekan terus ≥ `T_TAHAN_MS` → `TAHAN`, dilaporkan **sekali** saat ambang tercapai, tanpa menunggu lepas.
+- **Lepas (debounce saat lepas):** tombol dianggap lepas hanya bila pin terbaca HIGH **terus-menerus selama `T_DEBOUNCE_MS`**; bila sempat LOW lagi, hitungan HIGH dimulai ulang. Tanpa ini, pantulan sesaat setelah ditekan terbaca sebagai lepas: TAP palsu keluar, dan tekanan panjang tidak pernah menjadi TAHAN atau reset total (A12).
+- **TAP:** saat lepas terkonfirmasi, hanya bila `sawLow` benar, TAHAN belum terpicu, dan tekanan tidak sedang diabaikan. Pulsa yang tidak pernah terbaca LOW dianggap derau.
+- **Abaikan sampai dilepas:** `tombolReset()` saat masuk state menandai tekanan yang sedang berlangsung sebagai diabaikan; pelepasannya tidak menjadi TAP dan tidak memicu TAHAN, tetapi waktu tahan untuk reset total (`tombolLamaTahan()`) tetap berjalan.
 - Cara menahan **tidak ditampilkan** di LCD (pengetahuan pengawas).
+- **A12:** ditangani di kode (`button.cpp`, langkah 1); menunggu uji papan U8 (10 tap = 10 TAP, 10 tahan = 10 TAHAN tanpa TAP tambahan).
 
-### 4.6 Modul penanganan galat bersama (`galat.cpp`)
-`Error` dan `GagalSimpan` memakai satu fungsi `galatTahan(jenis, data)`: menggambar layar, memperbarui nilai live, menunggu `TAHAN`, lalu mengembalikan kendali. Satu tempat untuk mengubah kebijakan galat `[sitasi]`. Keduanya tetap dua state FSM karena tujuan keluarnya berbeda.
+### 4.6 Modul penanganan galat bersama (`fault.cpp`)
+`ERROR` dan `GAGALSIMPAN` memakai satu modul `galatTahan` (`faultEnter()` / `faultUpdate()`), **non-blocking (v5)**: `faultEnter(jenis)` dipanggil sekali saat masuk state (LED mati, layar galat, pesan Serial, baris `E`); `faultUpdate()` dipanggil tiap putaran `loop()`, memperbarui `raw` live (atau halaman `GAGALSIMPAN`) dengan `millis()`, lalu langsung kembali; state berikut dipilih `mesinJalan()` saat `tombolUpdate()` melaporkan TAHAN. Tidak ada penungguan di dalam modul, jadi reset total dan watchdog tetap bekerja. Satu tempat untuk mengubah kebijakan galat `[sitasi]`. Keduanya tetap dua state FSM karena tujuan keluarnya berbeda.
 
 ### 4.7 Pembagian filosofi galat
 | Jenis | Contoh | Perlakuan |
 |-------|--------|-----------|
-| **Kegagalan sensor/hardware** | HX711 tidak siap, ADC mendekati saturasi, `ref` di luar rentang fisik | Masuk `ERROR`; dicatat otomatis ke CSV (jenis + `T+mm:ss`); tidak dihitung sebagai satu dari 3 percobaan |
+| **Kegagalan sensor/hardware** | HX711 tidak siap (`HX711_TIMEOUT`), pembacaan tidak valid (`READING_INVALID`, v5), ADC mendekati saturasi, gaya di luar rentang (> 80 kg live di `GENGGAM`, v5; atau `ref` ≤ 0 / > 80 kg di `HITUNG`) | Masuk `ERROR`; dicatat otomatis ke CSV (jenis + `T+mm:ss`); tidak dihitung sebagai satu dari 3 percobaan |
 | **Human error** | Dilepas sebelum 3 detik | Auto-reset ringan ke fase 1 `GENGGAM`; tanpa pesan galat; tidak dicatat |
 
 > Pencatatan galat dipindah dari logbook manual ke CSV otomatis, karena logbook manual di tengah sesi sering terlewat.
@@ -295,7 +308,7 @@ ESP32 tidak dapat mengetahui sendiri apakah baris benar-benar tertulis di laptop
 > Deteksi koneksi USB saja tidak cukup: tidak mendeteksi skrip host yang mati atau lupa dijalankan. ACK per baris mendeteksi semuanya, termasuk baris terpotong (lewat checksum).
 
 ### 4.9 Watchdog
-Timer pengawas ESP32 (task watchdog) diaktifkan dengan **satu titik** `esp_task_wdt_reset()` di ujung `loop()`. Titik ganda atau di dalam `delay` melemahkan pengawasan `[sitasi]`. Watchdog menangani macet total yang tidak bisa dipulihkan perangkat lunak; bukan pengganti penanganan galat normal. Diaktifkan setelah state machine stabil (jadwal Bagian 11 di [catatan-proyek-hgd.md](../catatan-proyek-hgd.md)).
+Timer pengawas ESP32 (task watchdog untuk task `loop()`) diaktifkan dengan `enableLoopWDT()` di `setup()` dan diberi makan di **satu titik**, `feedLoopWDT()` di ujung `loop()` (v5). Kedua fungsi disediakan core Arduino-ESP32 dengan API yang sama di core 2 dan 3, sedangkan `esp_task_wdt_init()` dari IDF berubah tanda tangan di core 3, jadi tidak dipakai. Titik ganda atau di dalam `delay` melemahkan pengawasan `[sitasi]`. Watchdog menangani macet total yang tidak bisa dipulihkan perangkat lunak; bukan pengganti penanganan galat normal. Diaktifkan setelah state machine stabil (jadwal Bagian 11 di [catatan-proyek-hgd.md](../catatan-proyek-hgd.md)).
 
 ---
 
@@ -304,18 +317,18 @@ Timer pengawas ESP32 (task watchdog) diaktifkan dengan **satu titik** `esp_task_
 > Daftar fungsi yang akan dikode. Format: tujuan, masukan/keluaran, langkah, pemakai.
 
 ### 5.1 `setup()` ▣
-Inisialisasi sekali: `Serial.begin(BAUD)`; `Wire.begin(21, 22)`; `Wire.setClock(I2C_HZ)`; LCD `lcd.init()` dan `lcd.backlight()` (seperti modul praktikum ADC dan serial); `pinMode(LED, OUTPUT)`; `pinMode(TOMBOL, INPUT_PULLUP)` + `attachInterrupt(FALLING)`; `sensorInit()`; `mesinInit()` (sesi 1, percobaan 1, state `SIAP`); watchdog (setelah stabil).
+Inisialisasi sekali: `Serial.begin(BAUD)`; `Wire.begin(21, 22)`; `Wire.setClock(I2C_HZ)`; LCD `lcd.init()` dan `lcd.backlight()` (seperti modul praktikum ADC dan serial); `pinMode(LED, OUTPUT)`; `tombolInit()` (`INPUT_PULLUP` + `attachInterrupt(FALLING)`); `sensorInit()`; `mesinInit()` (sesi 1, percobaan 1, state `SIAP` dengan kedip restart); `enableLoopWDT()` (Bagian 4.9).
 **Pemakai:** dijalankan Arduino core satu kali.
 
 ### 5.2 `loop()` ▣
-Satu pola: `tombolUpdate(); sensorBaca(); mesinJalan(); catatTungguAck(); watchdogReset();`. Tidak ada `delay()`; semua pewaktuan memakai `millis()`. Sejak v5 tidak ada pemanggilan blocking di `loop()` (Bagian 6.4).
+Satu pola: `tombolUpdate(); sensorBaca(); perintahSerial(); mesinJalan(); catatTungguAck(); feedLoopWDT();`. Tidak ada `delay()`; semua pewaktuan memakai `millis()`. Sejak v5 tidak ada pemanggilan blocking di `loop()` (Bagian 6.4).
 
 ### 5.3 `isrTombol()` ▣
 ISR `IRAM_ATTR` pada tepi turun (FALLING). Menerapkan debounce 4.1. Hanya menulis `flag` dan `tsInt`. Tidak memanggil `Serial`, `Wire`, atau `millis` selain yang diperlukan.
 **Tugas interrupt (v5):** menangkap **awal tepat** setiap tekanan (tepi turun) walau `loop()` sedang sibuk (mis. redraw LCD), sehingga tidak ada tekanan yang terlewat dan waktu TAHAN serta reset total dihitung sejak tepi itu. Keputusan TAP/TAHAN diambil di `tombolUpdate()`: tekanan harus terbaca LOW oleh `loop()` minimal sekali, lalu HIGH stabil 50 ms (debounce saat lepas, A12). Setiap tap nyata memenuhi ini: tekanan manusia ≥ 50 ms, sedangkan satu putaran `loop()` < 15 ms (terlama: redraw LCD). Pulsa yang tidak pernah terbaca LOW dianggap derau, bukan TAP.
 
 ### 5.4 `tombolUpdate()` ▣
-Membaca level pin dan `flag`, menjalankan klasifikasi 4.5, dan mengisi `Tekan tekanan` (TIDAK/TAP/TAHAN). Dipanggil sekali per `loop()`.
+Membaca level pin dan `isrFlag`, menjalankan klasifikasi 4.5, dan **mengembalikan** `Tekan` (`TIDAK`/`TAP`/`TAHAN`) untuk putaran ini. Dipanggil sekali per `loop()`. Pasangannya `tombolLamaTahan()` mengembalikan lama tekanan fisik yang sedang berlangsung (ms, 0 bila tidak ditekan), dipakai reset total dan hitung mundurnya; nilainya tidak terpengaruh `tombolReset()`.
 **Pemakai:** `mesinJalan()`.
 
 ### 5.5 `tombolReset()` ▣
@@ -356,7 +369,7 @@ Menyusun baris `HGD,<jenis>,...*<checksum>` dengan `seq` berikutnya, mengirim le
 Non-blocking: dipanggil tiap loop sampai `ACK,<seq>` diterima (→ sukses), `NAK` atau `T_ACK_MS` lewat (→ kirim ulang sekali; bila gagal lagi → gagal).
 
 ### 5.17 `galatTahan(jenis, data)` ▣
-Lihat 4.6. Menampilkan jenis galat dan `raw` live (atau data yang gagal tersimpan), menunggu `TAHAN`.
+Lihat 4.6. Menampilkan jenis galat dan `raw` live (atau halaman data yang gagal tersimpan). Non-blocking (v5): `faultEnter()` sekali saat masuk, `faultUpdate()` tiap putaran lalu langsung kembali; keluar lewat TAHAN diputuskan `mesinJalan()`.
 
 ### 5.18 `tampil*()` ▣
 Satu fungsi per state yang menggambar teks 16 karakter per baris (Bagian 10). Pembaruan LCD dibatasi `T_REFRESH_LCD_MS` agar tidak membanjiri bus I2C.
@@ -384,13 +397,16 @@ Dipanggil tiap `loop()`; membaca satu karakter dari Serial bila ada (non-blockin
 ```
 MULAI (ESP32 dicatu USB; logger.py sudah berjalan di laptop)
 │
-├─ setup(): Serial, I2C, LCD, pin, interrupt tombol, HX711, mesin → SIAP
+├─ setup(): Serial, I2C, LCD, pin, interrupt tombol, HX711, mesin → SIAP; enableLoopWDT()
 │
-└─ loop() berulang selamanya:
+└─ loop() berulang selamanya (tanpa delay):
    │
    ├─ tombolUpdate()        → TIDAK / TAP / TAHAN
-   ├─ mesinJalan()          → jalankan state aktif; cek transisi pengecualian
-   └─ watchdogReset()       → satu titik
+   ├─ sensorBaca()          → baca HX711 bila DT rendah (non-blocking)
+   ├─ perintahSerial()      → perintah t/k/p/x (bila DEBUG_CMD)
+   ├─ mesinJalan()          → reset total → cek galat → handler state aktif
+   ├─ catatTungguAck()      → ACK/NAK non-blocking
+   └─ feedLoopWDT()         → satu titik
 
 SESI (3 percobaan)
 │
@@ -426,7 +442,8 @@ SESI (3 percobaan)
 
 [Transisi pengecualian dari batas SiklusPercobaan]
    HX711_TIMEOUT / READING_INVALID / ADC_SATURASI / DI_LUAR_RENTANG ──► [ERROR]
-   [ERROR]: LED mati; catat galat ke CSV; galatTahan(); TAHAN → SIAP dengan kedip (percobaanKe tidak berubah)
+   [ERROR]: faultEnter() (LED mati, layar galat, catat galat ke CSV); faultUpdate() tiap putaran;
+            TAHAN → SIAP dengan kedip (percobaanKe tidak berubah)
 
 [Reset total, dicek di mesinJalan() sebelum cek galat dan sebelum state aktif]
    Tombol ditahan ≥ FORCE_RESET_MS (15 s) di state apa pun (termasuk ERROR dan GAGALSIMPAN)
@@ -436,7 +453,7 @@ SESI (3 percobaan)
 [RINGKASAN]  satu kali, setelah percobaan ke-3
    ├─ ringkas(): peak, avg → kirim baris percobaan dan sesi
    ├─ ACK semua diterima → LCD Puncak/Rerata; TAP → mesinSesiBaru()
-   └─ ACK gagal          → [GAGALSIMPAN]; galatTahan(); TAHAN → mesinSesiBaru()
+   └─ ACK gagal          → [GAGALSIMPAN]; faultEnter() / faultUpdate(); TAHAN → mesinSesiBaru()
 ```
 
 > **Kenapa hierarki dua lapisan?** Satu panah pengecualian di batas `SiklusPercobaan` menggantikan satu panah `ERROR` dari tiap state anak; seperti aturan "alarm kebakaran: semua keluar gedung" tanpa aturan per ruangan `[sitasi]`.
@@ -554,7 +571,7 @@ stateDiagram-v2
         RESPON_ISTIRAHAT --> [*]: TAP (NEXT)
     }
 
-    SiklusPercobaan --> ERROR: galat sensor (HX711 / saturasi / di luar rentang)
+    SiklusPercobaan --> ERROR: galat sensor (HX711 / READING_INVALID / saturasi / di luar rentang)
     ERROR --> SiklusPercobaan: TAHAN (RESTART)
 
     SiklusPercobaan --> SiklusPercobaan: percobaan < 3
@@ -563,6 +580,16 @@ stateDiagram-v2
     RINGKASAN --> [*]: ACK diterima, TAP (RESTART)
     RINGKASAN --> GAGALSIMPAN: ACK gagal
     GAGALSIMPAN --> [*]: TAHAN (RESTART)
+
+    ERROR --> SiklusPercobaan: tahan 15 s (reset total, sesi baru)
+    RINGKASAN --> SiklusPercobaan: tahan 15 s (reset total, sesi baru)
+    GAGALSIMPAN --> SiklusPercobaan: tahan 15 s (reset total, sesi baru)
+
+    note right of SiklusPercobaan
+        Reset total: tahan tombol 15 s di state apa pun,
+        termasuk di dalam SiklusPercobaan, kembali ke SIAP
+        dengan sesi baru dan kedip restart
+    end note
 ```
 
 ---
@@ -827,7 +854,7 @@ timestamp,sesi,jenis,percobaan,gaya_kg,rerata_kg,catatan
 | U5 | Tegangan SDA/SCL backpack saat diam | Sesuai keputusan Bagian 6 di [desain-pcb-hgd.md](../pcb/desain-pcb-hgd.md) | ✔ 15 Okt. 2026: 4,93 V dengan backpack di VIN → level shifter BSS138; di 3V3 kontras LCD gagal |
 | U6 | E+ dan E− modul HX711; DVDD dari VCC? | E− ke GND, E+ stabil | ▣ modul sudah ada; belum diukur |
 | U7 | Baca HX711 (sketsa `uji_hx711`): respons, noise, tare, tanda, lama tunggu DT | Tidak "NO RESPONSE", nilai berubah saat ditekan; lama tunggu DT dicatat (Bagian 18) | ✔ 15 Okt. 2026: DT turun, nilai berubah saat ditekan; ≈ 11,8 sampel/s |
-| U8 | Tombol dan LED (sketsa `uji_tombol_led`): debounce, tap vs tahan | 10 tap = 10 TAP; 10 tahan = 10 TAHAN tanpa TAP tambahan saat dilepas | ◐ 15-16 Okt. 2026 kumulatif: 5 tap = 5 TAP, 3 tahan = 3 TAHAN, tanpa TAP tambahan; uji 10/10 belum |
+| U8 | Tombol dan LED: debounce, tap vs tahan. Sketsa `uji_tombol_led` (logika v4) dan **firmware utama langkah 1** (`hgd.ino` + `button.cpp`, logika v5: debounce saat lepas, `sawLow`, abaikan sampai dilepas, hitung mundur reset total). Uji 10/10 dijalankan dengan firmware utama | 10 tap = 10 TAP; 10 tahan = 10 TAHAN tanpa TAP tambahan saat dilepas | ◐ 15-16 Okt. 2026 kumulatif: 5 tap = 5 TAP, 3 tahan = 3 TAHAN, tanpa TAP tambahan; uji 10/10 belum |
 | U9 | ACK: 100 baris, tiap baris berbalas | 100/100 ACK | ▣ |
 | U10 | Format baris dan checksum | Baris rusak dibalas NAK | ▣ |
 
@@ -858,7 +885,7 @@ timestamp,sesi,jenis,percobaan,gaya_kg,rerata_kg,catatan
 | [`uji_tombol_led`](sketches/uji_tombol_led/uji_tombol_led.ino) | U8, X8 | ISR FALLING dengan debounce 50 ms, tap vs tahan 1500 ms, LED menyala selama ditekan; mencetak jumlah ISR diterima dan tepi mentah |
 | [`uji_bench_hgd`](sketches/uji_bench_hgd/uji_bench_hgd.ino) | U4, U7, U8, E1 | Satu sketsa breadboard (komentar berbahasa Inggris): pindai I2C dan LCD, baca HX711 dengan tare/rata-rata/saturasi/nilai macet, tap (LED) vs tahan 1,5 s (tare ulang), uji noise 60 s dengan σ dan saran `THRESHOLD_ONSET_KG`. Dipakai pada uji 15 dan 16 Okt. 2026; langkahnya di [protokol-uji-bench-hgd.md](protokol-uji-bench-hgd.md) |
 
-Ketiga sketsa baru dikompilasi bersih untuk Arduino-ESP32 core 3.0.7 (papan DOIT ESP32 DEVKIT V1) dan belum dijalankan di perangkat keras. Semua memakai API yang sama di core 2.x dan 3.x.
+Kelima sketsa memakai API yang sama di core 2.x dan 3.x (papan DOIT ESP32 DEVKIT V1). Sketsa sudah dijalankan di perangkat keras pada 8 dan 15-16 Okt. 2026; uji yang dihasilkan dan tanggalnya tercatat di Bagian 11.1 (U1, U4, U7, U8 sebagian) dan 3.3 (E1). Uji tombol berikutnya memakai firmware utama langkah 1 (U8).
 
 ---
 
@@ -868,7 +895,7 @@ Ketiga sketsa baru dikompilasi bersih untuk Arduino-ESP32 core 3.0.7 (papan DOIT
 1. **Build akhir dan flash demo: Arduino IDE dengan core Arduino-ESP32 3.3.11**, papan **DOIT ESP32 DEVKIT V1**. ZIP yang dikumpulkan adalah folder `firmware/hgd/hgd/` persis seperti yang di-flash dari IDE; versi core dan library tertulis di kepala `hgd.ino`.
 2. Library: hanya **LiquidCrystal_I2C 1.1.4** (Frank de Brabander, dipelihara Marco Schwartz; Library Manager). Library HX711 **tidak** dipakai (v5).
 3. Buka `firmware/hgd/hgd/hgd.ino` (tab-tab di 1.4), pilih port, kompilasi, unggah.
-4. **Pengembangan: PlatformIO**, env `esp32doit-devkit-v1`, folder proyek `firmware/hgd/` (`src_dir = hgd`, library dipatok ke versi yang sama di `platformio.ini`). Platform espressif32 bawaan memakai core 2.0.17, jadi kode hanya memakai API yang sama di core 2 dan 3 (`attachInterrupt`, `Wire`, `millis`, `noInterrupts`, `enableLoopWDT`); tanpa timer perangkat keras, LEDC, atau inisialisasi watchdog IDF. Uji akhir (galat, waktu) dijalankan pada build IDE.
+4. **Pengembangan: PlatformIO**, env `esp32doit-devkit-v1`, folder proyek `firmware/hgd/` (`src_dir = hgd`, library dipatok ke versi yang sama di `platformio.ini`). Platform dipatok `platformio/espressif32 @ 7.1.2` di `platformio.ini`, yang memakai core 2.0.17 (`framework-arduinoespressif32` 4.20017), jadi kode hanya memakai API yang sama di core 2 dan 3 (`attachInterrupt`, `Wire`, `millis`, `noInterrupts`, `enableLoopWDT`); tanpa timer perangkat keras, LEDC, atau inisialisasi watchdog IDF. Uji akhir (galat, waktu) dijalankan pada build IDE.
 5. Buka Serial Monitor pada **115200** baud untuk pemeriksaan. Tutup Serial Monitor sebelum menjalankan `logger.py`: hanya satu program yang dapat memegang port, dan membuka port me-reset ESP32 (A8).
 
 ### 12.2 Sisi laptop
