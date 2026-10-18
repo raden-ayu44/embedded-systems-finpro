@@ -38,15 +38,15 @@ Dokumen ini memuat semua yang berkaitan dengan firmware ESP32 dan program sisi l
 ### 1.1 Lapisan sistem
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│ LAPISAN FISIK     Pelat A/B + load cell (housing grip)        │
+│ LAPISAN FISIK     Pelat A/B + load cell (housing grip)      │
 ├─────────────────────────────────────────────────────────────┤
-│ AKUISISI          HX711 (penguat + ADC 24 bit)                │
+│ AKUISISI          HX711 (penguat + ADC 24 bit)              │
 ├─────────────────────────────────────────────────────────────┤
-│ PEMROSES          ESP32 DevKit V1 (firmware, state machine)   │
+│ PEMROSES          ESP32 DevKit V1 (firmware, state machine) │
 ├─────────────────────────────────────────────────────────────┤
-│ ANTARMUKA         LCD 16x2 I2C, LED, 1 tombol                  │
+│ ANTARMUKA         LCD 16x2 I2C, LED, 1 tombol               │
 ├─────────────────────────────────────────────────────────────┤
-│ PENCATATAN        USB-Serial → logger.py → CSV (+ ACK)         │
+│ PENCATATAN        USB-Serial → logger.py → CSV (+ ACK)      │
 └─────────────────────────────────────────────────────────────┘
 ```
 
