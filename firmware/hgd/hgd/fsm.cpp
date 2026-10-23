@@ -76,7 +76,7 @@ static void enterReady() {
 }
 
 static void enterGrip() {
-  buttonReset();             // tekanan selama GRIP tidak berarti apa-apa
+  buttonReset();             // buang tekanan lama; di GRIP hanya TAHAN di fase 1 yang berarti (tare ulang)
   gripPhase = WAIT_ONSET;
   gripExit = EXIT_NONE;
   ledSet(false);             // fase 1: LED mati
@@ -167,11 +167,17 @@ static State handleReady(Press press) {
   return READY;
 }
 
-static State handleGrip() {
+static State handleGrip(Press press) {
   float kg = sensorKg();
 
   if (gripPhase == WAIT_ONSET) {
     // Fase 1: timer belum jalan; tunggu gaya melewati onset.
+    // TAHAN 1,5 s (langkah 6c): kembali ke READY = tare ulang, untuk menolkan ulang sebelum mulai.
+    // Hanya di fase 1; di fase 2 tombol tidak berarti apa-apa (pengukuran sedang berjalan).
+    if (press == PRESS_HOLD) {
+      Serial.println("[GRIP] TAHAN di fase 1: kembali ke READY (tare ulang)");
+      return READY;
+    }
     // Penjaga nol (langkah 5c): kg < -1 = tare diambil saat digenggam dan genggaman itu baru
     // dilepas sekarang (orang menggenggam terus sampai START). Kembali ke READY = tare ulang.
     if (kg < -THRESHOLD_ONSET_KG) {
@@ -436,7 +442,7 @@ void fsmRun(Press press) {
   State next = state;
   switch (state) {
     case READY:       next = handleReady(press);      break;
-    case GRIP:        next = handleGrip();            break;
+    case GRIP:        next = handleGrip(press);       break;
     case COMPUTE:     next = handleCompute();         break;
     case REST:        next = handleRest(press);       break;
     case SUMMARY:     next = handleSummary(press);    break;
