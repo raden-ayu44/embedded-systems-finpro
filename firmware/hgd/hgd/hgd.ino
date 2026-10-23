@@ -28,7 +28,8 @@
   - Langkah 8: kg > 80 kg live di GRIP, atau ref <= 0 / > 80 kg di COMPUTE -> FAULT OUT_OF_RANGE
     ("ERR:DI LUAR RNTG"). Keadaan aman, layar galat dan baris [E] di fault.cpp.
   - Serial: [FSM] A -> B, [GRIP], [COMPUTE], [REST], [SUMMARY], [FAULT], [E]; 't' tare, 'p' nilai,
-    'x' skala dibagi 40 sampai tare berikutnya (demo di luar rentang).
+    'x' skala demo /40 bolak-balik (bertahan sampai sesi baru), 's' simulasi saturasi bolak-balik.
+  - Langkah 8c: offset tare di luar -39000 +- 20000 counts -> READING_INVALID (load cell terputus).
 
   Serial Monitor: 115200 baud.
 */
@@ -57,14 +58,21 @@ static void serialCmd() {
     sensorStartTare();
     Serial.println("[CMD] t: tare ulang");
   } else if (c == 'x') {
-    // Demo galat X3 / uji batas 5 s: skala dibagi DEMO_SCALE_DIV sampai tare berikutnya.
-    // Ketik saat layar "Tekan tmbl START" (bukan saat "Menyesuaikan nol": tare membatalkannya).
-    sensorDemoScale();
-    Serial.printf("[CMD] x: skala dibagi %.0f sampai tare berikutnya (%.1f counts/kg)\n",
-                  DEMO_SCALE_DIV, sensorScale());
+    // Demo galat X3 / uji batas 5 s: skala dibagi DEMO_SCALE_DIV. Tombol bolak-balik; bertahan
+    // melewati tare, dimatikan juga oleh sesi baru atau reset total. READY tampil "SIAP x40 n/3".
+    sensorDemoSet(!sensorDemoActive());
+    Serial.printf("[CMD] x: skala demo %s (%.1f counts/kg)\n",
+                  sensorDemoActive() ? "AKTIF, percobaan ditandai DEMO" : "mati", sensorScale());
+  } else if (c == 's') {
+    // Simulasi X2 (kabel sinyal tercabut): raw dipaksa skala penuh -> ADC_SATURATED -> FAULT.
+    // Tombol bolak-balik: s lagi = "kabel dipasang kembali", lalu TAHAN 1,5 s untuk keluar FAULT.
+    sensorSimSaturateSet(!sensorSimSaturateActive());
+    Serial.printf("[CMD] s: simulasi saturasi %s\n", sensorSimSaturateActive() ? "AKTIF" : "mati");
   } else if (c == 'p') {
-    Serial.printf("[CMD] p: raw=%ld offset=%ld kg=%+.3f state=%s\n",
-                  (long)sensorRaw(), (long)sensorOffset(), sensorKg(), stateName(fsmState()));
+    Serial.printf("[CMD] p: raw=%ld offset=%ld kg=%+.3f state=%s skala=%.1f%s%s\n",
+                  (long)sensorRaw(), (long)sensorOffset(), sensorKg(), stateName(fsmState()),
+                  sensorScale(), sensorDemoActive() ? " DEMO" : "",
+                  sensorSimSaturateActive() ? " SIM-SAT" : "");
   }
   // Karakter lain (mis. '\n' dari Serial Monitor) diabaikan.
 #endif

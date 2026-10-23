@@ -20,9 +20,15 @@ void sensorStartTare();
 // true bila tidak ada tare yang sedang berjalan (offset siap dipakai).
 bool sensorTareDone();
 
-// Perintah x (langkah 8): skala dibagi DEMO_SCALE_DIV sampai tare berikutnya (demo X3, uji batas 5 s).
-void  sensorDemoScale();
+// Perintah x (langkah 8c): skala dibagi DEMO_SCALE_DIV selama aktif (demo X3, uji batas 5 s).
+// Bertahan melewati tare; dimatikan oleh sesi baru (termasuk reset total) atau x lagi.
+void  sensorDemoSet(bool on);
+bool  sensorDemoActive();
 float sensorScale();     // counts per kg yang sedang dipakai
+
+// Perintah s (langkah 8c): simulasi X2, raw dipaksa skala penuh -> ADC_SATURATED lewat jalur normal.
+void sensorSimSaturateSet(bool on);
+bool sensorSimSaturateActive();
 
 // Nilai terakhir.
 int32_t  sensorRaw();            // counts mentah (24 bit bertanda)

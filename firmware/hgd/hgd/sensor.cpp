@@ -17,6 +17,9 @@ struct SensorState {
   uint8_t  shortGapRun;   // jumlah sampel berturut-turut yang datang < SAMPLE_MIN_GAP_MS setelah sebelumnya
   uint32_t lastGapMs;     // jarak sampel terakhir ke sampel sebelumnya (ms), untuk pesan galat
   uint8_t  bootSkip;      // sisa sampel awal yang dibuang setelah boot
+  bool     demo;          // perintah x aktif: skala dibagi DEMO_SCALE_DIV (langkah 8c)
+  bool     simSat;        // perintah s aktif: raw dipaksa skala penuh (simulasi X2, langkah 8c)
+  bool     offsetBad;     // offset tare terakhir di luar jendela OFFSET_EXPECTED +- OFFSET_WINDOW
 
   float    buf[BUF_SIZE]; // buffer melingkar kg
   uint8_t  bufIdx;        // posisi tulis berikutnya
@@ -91,6 +94,11 @@ bool sensorPoll() {
     return false;
   }
 
+  // Simulasi X2 (perintah s): kabel load cell disolder langsung ke HX711, jadi "cabut kabel sinyal"
+  // tidak bisa diuji fisik. raw dipaksa ke skala penuh; sisanya (cek galat, FAULT, layar) berjalan
+  // lewat jalur normal. Waktu sampel tetap asli (DT tetap dibaca), jadi hanya ADC_SATURATED yang terpicu.
+  if (sen.simSat) raw = ADC_MAX;
+
   // Hitung raw identik berturut-turut (untuk READING_INVALID). Dengan noise nyata (sigma ~38 counts)
   // dua sampel berurutan hampir tidak pernah sama persis, apalagi 10.
   if (raw == sen.raw && sen.sameRun > 0) {
@@ -131,11 +139,27 @@ bool sensorPoll() {
       } else {
         sen.offset = (int32_t)lround((double)sen.tareSum / sen.tareN);
         sen.taring = false;
-        sen.scale = SCALE_COUNTS_PER_KG;   // tare membatalkan skala demo dari perintah x
+        // Skala demo (x) TIDAK dibatalkan oleh tare (langkah 8c): x bertahan sampai sesi baru,
+        // reset total, atau x lagi.
         sen.kg = (float)(raw - sen.offset) / sen.scale;   // kg terakhir dihitung ulang dengan offset baru
         sensorBufReset();   // isi buffer lama memakai offset lama: buang
         Serial.printf("[TARE] offset=%ld counts (%u sampel, sebaran %ld counts)\n",
                       (long)sen.offset, sen.tareN, (long)spread);
+
+        // Jendela offset (langkah 8c): jembatan load cell unit ini punya ketidakseimbangan tetap
+        // ~-39000 counts. Offset jauh dari itu = load cell tidak terhubung dengan benar (mis. E-
+        // terputus 23 Okt.: offset ~+500 dan tidak ada galat lain yang terpicu). Dua arah, bukan
+        // satu sisi: pasangan sinyal yang tertukar memberi ~+39000 dan juga harus terdeteksi.
+        // Batas: hanya dicek saat tare, jadi kabel yang putus di tengah percobaan baru tertangkap
+        // pada tare berikutnya (masuk READY berikutnya).
+        int32_t dev = sen.offset - OFFSET_EXPECTED;
+        if (dev < 0) dev = -dev;
+        if (dev > OFFSET_WINDOW) {
+          sen.offsetBad = true;
+          Serial.printf("[TARE] PERINGATAN: offset di luar jendela (%ld, harus %ld +- %ld): "
+                        "load cell terputus?\n",
+                        (long)sen.offset, (long)OFFSET_EXPECTED, (long)OFFSET_WINDOW);
+        }
       }
     }
   }
@@ -144,6 +168,7 @@ bool sensorPoll() {
 
 void sensorStartTare() {
   sen.taring = true;
+  sen.offsetBad = false;   // dinilai ulang saat tare ini selesai
   sen.tareN = 0;
   sen.tareSum = 0;
   sen.tareMin = INT32_MAX;
@@ -152,15 +177,20 @@ void sensorStartTare() {
 
 bool sensorTareDone() { return !sen.taring; }
 
-void sensorDemoScale() {
-  // Demo galat X3 dan uji batas 5 s (langkah 8): skala dibagi DEMO_SCALE_DIV sampai tare berikutnya,
-  // jadi tekanan kecil terbaca besar (mis. 2 kg x 40 = 80 kg). Load cell tidak perlu dibebani
-  // melewati kapasitasnya. kg terakhir dihitung ulang supaya layar langsung memakai skala baru.
-  sen.scale = SCALE_COUNTS_PER_KG / DEMO_SCALE_DIV;
+void sensorDemoSet(bool on) {
+  // Demo galat X3 dan uji batas 5 s (langkah 8, 8c): skala dibagi DEMO_SCALE_DIV, jadi tekanan
+  // kecil terbaca besar (mis. 2 kg x 40 = 80 kg). Load cell tidak perlu dibebani melewati
+  // kapasitasnya. kg terakhir dihitung ulang supaya layar langsung memakai skala baru.
+  sen.demo = on;
+  sen.scale = on ? SCALE_COUNTS_PER_KG / DEMO_SCALE_DIV : SCALE_COUNTS_PER_KG;
   sen.kg = (float)(sen.raw - sen.offset) / sen.scale;
 }
 
-float sensorScale() { return sen.scale; }
+bool  sensorDemoActive() { return sen.demo; }
+float sensorScale()      { return sen.scale; }
+
+void sensorSimSaturateSet(bool on) { sen.simSat = on; }
+bool sensorSimSaturateActive()     { return sen.simSat; }
 
 int32_t  sensorRaw()          { return sen.raw; }
 int32_t  sensorOffset()       { return sen.offset; }
@@ -188,7 +218,11 @@ FaultType sensorCheck() {
   //    Dicek sebelum nilai berulang: ADC yang jenuh mengeluarkan kode maksimum yang sama terus.
   if (abs(sen.raw) >= (int32_t)(SATURATION_FRACTION * ADC_MAX)) return ADC_SATURATED;
 
-  // 4) Cadangan: SAME_RAW_N raw identik berturut-turut pada laju normal (data tidak bergeser
+  // 4) Offset tare terakhir di luar jendela (langkah 8c): load cell tidak terhubung dengan benar.
+  //    Tetap aktif sampai tare berikutnya berhasil di dalam jendela.
+  if (sen.offsetBad) return READING_INVALID;
+
+  // 5) Cadangan: SAME_RAW_N raw identik berturut-turut pada laju normal (data tidak bergeser
   //    walau jarak sampel wajar, mis. DT terhubung ke GND).
   if (sen.sameRun >= SAME_RAW_N) return READING_INVALID;
 

@@ -43,6 +43,12 @@ const int32_t  TARE_MAX_SPREAD     = 400;
 // Sampel pertama setelah HX711 menyala belum stabil: tare pertama gagal di tiga boot berturut-turut
 // (sebaran 941-2019 counts, ulangannya 62-97). Sebanyak ini sampel awal dibuang (~0,5 s).
 const uint8_t  BOOT_SKIP_SAMPLES   = 5;
+// Jendela offset tare (langkah 8c): |offset - OFFSET_EXPECTED| > OFFSET_WINDOW = READING_INVALID
+// (load cell tidak terhubung dengan benar). KEDUANYA KHUSUS UNIT INI (ketidakseimbangan jembatan
+// CZL 601 yang terpasang, terukur -38700 s.d. -40800 counts) dan harus diukur ulang saat kalibrasi
+// atau bila load cell, kabel, atau HX711 diganti. Dengan E- terputus offset terukur ~+500.
+const int32_t  OFFSET_EXPECTED     = -39000;
+const int32_t  OFFSET_WINDOW       = 20000;
 const float    SCALE_COUNTS_PER_KG = 53687.0f; // nilai awal; diganti hasil kalibrasi (Bagian 8)
 const int32_t  ADC_MAX             = 8388607;  // skala penuh ADC 24 bit bertanda
 const float    SATURATION_FRACTION = 0.95f;    // |raw| >= 0,95 x ADC_MAX = saturasi

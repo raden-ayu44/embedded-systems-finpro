@@ -72,6 +72,7 @@ struct Trial {
   bool     valid;    // lolos validasi rentang
   uint32_t durMs;    // lama genggam sampai keluar
   GripExit exitBy;   // EXIT_PLATEAU atau EXIT_TIMEOUT
+  bool     demo;     // diukur saat skala demo (x) aktif: BUKAN data nyata; langkah 9 menandainya
 };
 
 // Satu sesi = 3 percobaan + ringkasan.

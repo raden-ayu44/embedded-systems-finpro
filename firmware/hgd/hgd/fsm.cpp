@@ -74,6 +74,11 @@ static void fsmNewSession() {
   session.trialNo = 1;
   session.t0Ms = millis();
   Serial.printf("[FSM] sesi %u\n", session.number);
+  // Skala demo (x) berakhir di sesi baru (SUMMARY->TAP, SAVE_FAILED->TAHAN, reset total).
+  if (sensorDemoActive()) {
+    sensorDemoSet(false);
+    Serial.println("[FSM] skala demo x dimatikan (sesi baru)");
+  }
 }
 
 // ---------------- Aksi masuk tiap state ----------------
@@ -120,7 +125,10 @@ static void enterSummary() {
   }
   session.peak = peak;
   session.avg = sum / TRIALS_PER_SESSION;
-  Serial.printf("[SUMMARY] puncak=%.2f rerata=%.2f kg\n", session.peak, session.avg);
+  bool anyDemo = false;
+  for (uint8_t i = 0; i < TRIALS_PER_SESSION; i++) anyDemo = anyDemo || session.trials[i].demo;
+  Serial.printf("[SUMMARY] puncak=%.2f rerata=%.2f kg%s\n", session.peak, session.avg,
+                anyDemo ? " (berisi percobaan DEMO x40)" : "");
 }
 
 static void enterFault() {
@@ -285,8 +293,9 @@ static State handleCompute() {
   else                                        tr.ref = sensorBufAvg();
   tr.durMs = gripDurMs;
   tr.exitBy = gripExit;
-  Serial.printf("[COMPUTE] percobaan %u ref=%.2f kg (%s)\n", session.trialNo, tr.ref,
-                gripExit == EXIT_TIMEOUT ? "TIMEOUT" : "PLATEAU");
+  tr.demo = sensorDemoActive();             // percobaan dengan skala demo bukan data nyata
+  Serial.printf("[COMPUTE] percobaan %u ref=%.2f kg (%s)%s\n", session.trialNo, tr.ref,
+                gripExit == EXIT_TIMEOUT ? "TIMEOUT" : "PLATEAU", tr.demo ? " DEMO x40" : "");
 
   // Validasi rentang (langkah 8, cek kedua; cek pertama berjalan live di GRIP):
   // ref harus > MIN_FORCE_KG (0) dan <= MAX_FORCE_KG (80, kapasitas load cell).
@@ -386,7 +395,11 @@ static void drawScreen() {
   const Trial& tr = session.trials[session.trialNo - 1];
   switch (state) {
     case READY:   // "SIAP - UKUR 1/3" / "Menyesuaikan nol", "Lepas genggaman" atau "Tekan tmbl START"
-      snprintf(l0, sizeof(l0), "SIAP - UKUR %u/%u", session.trialNo, TRIALS_PER_SESSION);
+      // Skala demo aktif: "SIAP x40 1/3", supaya tidak ada yang mengukur sungguhan tanpa sadar.
+      if (sensorDemoActive())
+        snprintf(l0, sizeof(l0), "SIAP x%.0f %u/%u", DEMO_SCALE_DIV, session.trialNo, TRIALS_PER_SESSION);
+      else
+        snprintf(l0, sizeof(l0), "SIAP - UKUR %u/%u", session.trialNo, TRIALS_PER_SESSION);
       if (!sensorTareDone())                     snprintf(l1, sizeof(l1), "Menyesuaikan nol");
       else if (sensorKgReal() > THRESHOLD_ONSET_KG) snprintf(l1, sizeof(l1), "Lepas genggaman");
       else                                       snprintf(l1, sizeof(l1), "Tekan tmbl START");
