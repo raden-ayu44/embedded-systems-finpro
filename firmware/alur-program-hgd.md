@@ -246,7 +246,7 @@ Hanya dua: `StatusTombol.isrFlag` dan `StatusTombol.isrLastMs`, keduanya `volati
 | `T_SAMA_N` | 10 | **Cadangan (v5, langkah 4b):** 10 nilai `raw` identik berturut-turut → `READING_INVALID` (mis. DT terhubung ke GND pada laju normal). Noise terukur σ ≈ 35 counts, jadi 10 nilai identik pada pembacaan sehat praktis tidak terjadi. Uji 23 Okt. 2026: dengan SCK tercabut aturan ini saja membuat galat berkedip ±130 kali dalam 20 s, karena nilai sampah di antara nol memutus deretan identik; karena itu aturan jarak di bawah menjadi aturan utama |
 | `SAMPLE_MIN_GAP_MS` / `SHORT_GAP_N` | 40 ms / 3 | **Aturan utama `READING_INVALID` (v5, langkah 4b):** 3 sampel berturut-turut masing-masing datang < 40 ms setelah sampel sebelumnya → DT tertahan rendah (mis. SCK tercabut) dan yang terbaca bukan hasil konversi. Hanya berlaku pada 10 SPS: sampel sehat datang tiap ≈ 85 ms (terukur 11,6 sampel/s); laju modul tetap 10 SPS (Bagian 7.3). Tiga, bukan satu: satu baca yang terlambat (putaran sibuk menulis LCD, maks. ≈ 28 ms) memperpendek jarak berikutnya, dan galat palsu terkunci di `ERROR` |
 | `T_TAHAN_MS` | 1500 | **E4**: uji tekan-tahan dengan beberapa orang; ambang di antara 1000 dan 2000 yang tidak terpicu tak sengaja |
-| `T_ACK_MS` | 2000 | **E5**: ukur waktu balasan `logger.py` pada 100 baris; ambang = 10× balasan terlama, tidak kurang dari 500 ms |
+| `T_ACK_MS` | 750 (langkah 9b; semula 2000) | **E5**: ukur waktu balasan `logger.py` pada 100 baris; ambang = 10× balasan terlama, tidak kurang dari 500 ms. Balasan terukur langkah 9 ≈ 30 ms (skrip uji); 750 ms dipilih supaya `logger.py` yang mati terdeteksi dalam ≈ 1,5 s (2 kiriman). Dikonfirmasi dengan uji 100 baris di langkah 10 |
 | `SKALA_COUNTS_PER_KG` | 53.687 | **Bagian 8**: diganti hasil regresi kalibrasi. Nilai awal dari hitungan: 2,0 mV/V × 128 × 2²⁴ / 80 kg, rasiometrik |
 
 > **Kenapa satu threshold untuk tiga fungsi?** Cukup satu eksperimen (E1) dan satu angka yang bisa dipertanggungjawabkan, bukan tiga.
@@ -305,7 +305,7 @@ Perpanjangan debounce: ISR menandai awal tekanan, `loop()` membaca level pin tia
 ESP32 tidak dapat mengetahui sendiri apakah baris benar-benar tertulis di laptop. Mekanisme:
 1. Tiap baris diberi nomor urut `seq` dan checksum.
 2. `logger.py` memvalidasi checksum, menulis, `flush()`, lalu membalas `ACK,<seq>`; bila checksum salah membalas `NAK,<seq>`.
-3. ESP32 menunggu `ACK,<seq>` maksimal `T_ACK_MS`. `NAK` atau tanpa balasan → kirim ulang sekali; bila tetap gagal → `GAGALSIMPAN`.
+3. ESP32 menunggu `ACK,<seq>` maksimal `T_ACK_MS`. `NAK` atau tanpa balasan → kirim ulang sekali; bila tetap gagal → `GAGALSIMPAN`. **Langkah 9b:** di `RINGKASAN`, baris pertama yang gagal dua kali menghentikan kelompok (sisa baris tidak dicoba, karena `logger.py` jelas tidak menjawab), sehingga `GAGALSIMPAN` muncul dalam ≈ 1,5 s.
 4. Nilai selalu juga dicetak ke Serial dan tampil di konsol `logger.py` (atau Serial Monitor bila `logger.py` tidak dipakai), sehingga pengawas dapat menyalinnya manual tanpa membuka port lagi (A8). **Bila `logger.py` sendiri sudah berhenti**, sumber salinan adalah layar LCD `GAGALSIMPAN`, yang bergantian menampilkan semua nilai sesi (Bagian 10.2). Jangan membuka Serial Monitor lebih dulu: membuka port me-reset ESP32 dan menghapus sesi di RAM (A8).
 
 > Deteksi koneksi USB saja tidak cukup: tidak mendeteksi skrip host yang mati atau lupa dijalankan. ACK per baris mendeteksi semuanya, termasuk baris terpotong (lewat checksum).
@@ -361,7 +361,9 @@ State `GENGGAM`, dua fase (rincian di Bagian 6.2). Mengembalikan `KeluarGenggam`
 ### 5.11 `hitungRef()` ▣
 One-shot: `ref = rata-rata buffer` (atau nilai buffer terbaik pada `BATAS_5S`); menyimpan ke `hasil[percobaanKe]`. Tanpa tampilan LCD.
 
-**Nilai buffer terbaik (keputusan tim, langkah 6):** = **jendela terkuat**, yaitu rata-rata tertinggi dari jendela 5 sampel berurutan selama fase 2, hanya dari jendela yang semua sampelnya > `THRESHOLD_ONSET_KG`; dinilai sekali per sampel baru. Alasan: kekuatan genggaman adalah nilai maksimum, jadi bila genggaman tidak pernah stabil, yang dicatat adalah bagian terkuatnya (bukan bagian paling stabil, yang bisa jatuh pada gaya rendah). Rata-rata 5 sampel (bukan satu sampel puncak) tetap meredam lonjakan sesaat. Jalur `PLATEAU` tetap memakai rata-rata buffer saat plateau terjadi.
+**`ref` (keputusan tim, langkah 6d):** = **jendela stabil terkuat**, yaitu rata-rata tertinggi dari jendela 5 sampel yang memenuhi plateau genggaman selama fase 2. Bila genggaman tidak pernah stabil, dipakai nilai buffer terbaik di bawah. Pengguna yang memutuskan kapan melepas (Bagian 6.2), jadi `ref` tidak lagi diambil dari plateau yang "baru terjadi" saat keluar.
+
+**Nilai buffer terbaik (keputusan tim, langkah 6):** = **jendela terkuat**, yaitu rata-rata tertinggi dari jendela 5 sampel berurutan selama fase 2, hanya dari jendela yang semua sampelnya > `THRESHOLD_ONSET_KG`; dinilai sekali per sampel baru. Alasan: kekuatan genggaman adalah nilai maksimum, jadi bila genggaman tidak pernah stabil, yang dicatat adalah bagian terkuatnya (bukan bagian paling stabil, yang bisa jatuh pada gaya rendah). Rata-rata 5 sampel (bukan satu sampel puncak) tetap meredam lonjakan sesaat. Sejak langkah 6d dipakai hanya bila genggaman tidak pernah stabil; selain itu `ref` = jendela stabil terkuat.
 
 ### 5.12 `validasiRef(float ref)` ▣
 Dipanggil di titik masuk `RESPON_ISTIRAHAT`. `ref ≤ REF_MIN_KG` atau `ref > REF_MAX_KG` (80 kg) → `DI_LUAR_RENTANG`. Batas atas yang sama juga dicek live pada tiap sampel di `GENGGAM` (Bagian 6.2).
@@ -373,7 +375,7 @@ Dua sub-fase (Bagian 6.2). Memakai `THRESHOLD_ONSET_KG` untuk mendeteksi pelepas
 Sekali setelah percobaan ke-3: `peak = maks(hasil[].ref)`, `avg = rata-rata(hasil[].ref)`; memanggil `catatKirimSesi()`.
 
 ### 5.15 `catatKirimBaris(jenis, ...)` ▣
-Menyusun baris `HGD,<jenis>,...*<checksum>` dengan `seq` berikutnya, mengirim lewat `Serial.print`, dan mencatat `menungguSeq` dan `tsKirim`.
+Menyusun baris `HGD,<jenis>,...*<checksum>` dengan `seq` berikutnya, mengirim lewat `Serial.print`, dan mencatat `menungguSeq` dan `tsKirim`. **Kode (langkah 9):** `logTrial()`, `logSummary()`, `logEvent()` di `serial_log.cpp`; baris masuk antrean dan dikirim satu per satu (Bagian 9.2).
 
 ### 5.16 `catatTungguAck()` ▣
 Non-blocking: dipanggil tiap loop sampai `ACK,<seq>` diterima (→ sukses), `NAK` atau `T_ACK_MS` lewat (→ kirim ulang sekali; bila gagal lagi → gagal).
@@ -435,8 +437,9 @@ SESI (3 percobaan)
    │    │          baca kg → bufTambah → bufPlateau → LED = bufPlateau()
    │    ├─ Tiap sampel (fase 1 dan 2): kg > 80 kg → pengecualian → ERROR (DI_LUAR_RENTANG), LED mati
    │    ├─ Keluar 1: kg < onset sebelum 3000 ms → kembali ke Fase 1 (tanpa pesan, tanpa catatan)
-   │    ├─ Keluar 2: plateau dan ≥ 3000 ms      → HITUNG
-   │    └─ Keluar 3: 5000 ms tanpa plateau      → HITUNG (nilai buffer terbaik)
+   │    ├─ Keluar 2: kg < onset pada 3000-5000 ms → HITUNG (pengguna memilih lepas; langkah 6d)
+   │    └─ Keluar 3: masih digenggam pada 5000 ms → HITUNG (batas paksa)
+   │         ref = jendela stabil terkuat, atau jendela terkuat bila tidak pernah stabil
    │
    ├─ [HITUNG]  one-shot, tanpa LCD
    │    ├─ ref = rata-rata buffer → hasil[percobaanKe]
@@ -444,7 +447,7 @@ SESI (3 percobaan)
    │         ├─ valid   → RESPON_ISTIRAHAT
    │         └─ invalid → pengecualian → ERROR (DI_LUAR_RENTANG)
    │
-   └─ [RESPON_ISTIRAHAT]  LED tetap menyala (bila keluar lewat plateau) sampai genggaman dilepas
+   └─ [RESPON_ISTIRAHAT]  LED tetap menyala (bila masih stabil pada batas 5 s) sampai genggaman dilepas
         ├─ Sub-fase 1 LEPAS_ISTIRAHAT: LCD hasil + "Lepas, rest 60s";
         │             kg < onset → LED mati; hitung mundur 60→0 (layar tiap T_REFRESH_LCD_MS = 500 ms, tanpa ganti layar)
         └─ Sub-fase 2 TUNGGU_LANJUT: LCD hasil + "NEXT > lanjut"; tunggu TAP
@@ -482,11 +485,12 @@ SESI (3 percobaan)
 
 **[GENGGAM]** (dua fase dalam satu state)
 - *Fase 1 - Menunggu mulai:* timer 3-5 detik **belum jalan**. LED mati. Sistem hanya menunggu gaya pertama melewati `THRESHOLD_ONSET_KG`. **Penjaga nol (langkah 5c):** kg < −1 di fase 1 → kembali ke `SIAP` (tare ulang, tanpa kedip, nomor percobaan tetap); kasus: alat digenggam saat tare dan terus digenggam sampai START, lalu dilepas. **TAHAN 1,5 s di fase 1 (langkah 6c)** → tare ulang di tempat: tetap di fase 1, baris 2 "Menyesuaikan nol" sampai tare selesai (≈ 1 s), lalu kg live lagi; onset dan penjaga nol tidak dinilai selama tare. Di fase 2 tombol diabaikan.
-- *Fase 2 - Menghitung:* timer mulai; buffer dikosongkan di awal fase 2. Tiap baca: `bufTambah`; lalu uji plateau. **LED menyala tetap selama `bufPlateau()` benar dan mati saat plateau hilang** (kedip di sekitar ambang stabilitas diterima). Plateau bisa sudah tercapai sebelum 3 detik (buffer penuh setelah ≈ 0,5 detik); LED menyala, tetapi keluar lewat plateau baru terjadi pada plateau di t ≥ 3 detik.
-- *LED saat keluar:* lewat plateau → LED tetap menyala dan ikut ke `RESPON_ISTIRAHAT` sampai genggaman dilepas. Lewat batas 5 detik → LED mati saat keluar (bila plateau sempat muncul lalu hilang sebelum 5 detik, LED sempat menyala sebentar; pada akhir percobaan LED mati). Dilepas sebelum 3 detik → LED mati, kembali ke fase 1.
-- *Threshold onset dan dilepas-terlalu-awal adalah nilai yang sama*, dicek dua arah: naik melewati threshold di Fase 1 = mulai; turun di bawahnya sebelum 3 detik = dilepas terlalu awal.
-- *Tiga jalur keluar:* (1) dilepas sebelum 3 detik → kembali Fase 1; (2) plateau dan durasi ≥ 3 detik → `HITUNG`; (3) 5 detik tanpa plateau → `HITUNG` memakai nilai buffer terbaik (batas 5 detik adalah force-stop, bukan pembatalan).
-- *Definisi (langkah 6):* **plateau genggaman** = buffer penuh, (maks − min) ≤ `THRESHOLD_STABIL_KG`, **dan semua 5 sampel > `THRESHOLD_ONSET_KG`**. Syarat terakhir ditambahkan karena tangan yang sudah lepas (kg ≈ 0, sangat stabil) terbaca sebagai plateau dan `ref` menjadi ≈ 0 kg (terjadi di uji langkah 5: ref −0,05 kg). **Nilai buffer terbaik** = jendela terkuat (rata-rata tertinggi jendela 5 sampel di atas onset), definisi di Bagian 5.11. Dilepas setelah 3 detik tanpa plateau: tidak ada plateau baru, jadi percobaan berakhir pada batas 5 detik dengan nilai buffer terbaik dari saat masih digenggam.
+- *Fase 2 - Menghitung:* timer mulai; buffer dikosongkan di awal fase 2. Tiap baca: `bufTambah`; lalu uji plateau. **LED menyala tetap selama `bufPlateau()` benar dan mati saat plateau hilang** (kedip di sekitar ambang stabilitas diterima). Plateau bisa sudah tercapai sebelum 3 detik (buffer penuh setelah ≈ 0,5 detik); LED menyala. **Langkah 6d: plateau tidak lagi mengakhiri percobaan.** LED yang menyala adalah tanda "genggaman stabil"; setelah 3 detik pengguna boleh melepas kapan saja sampai 5 detik.
+- *LED saat keluar (langkah 6d):* dilepas antara 3 dan 5 detik → LED mati (genggaman sudah lepas). Batas 5 detik saat genggaman masih stabil → LED tetap menyala dan ikut ke `RESPON_ISTIRAHAT` sampai genggaman dilepas; batas 5 detik tanpa plateau saat itu → LED mati. Dilepas sebelum 3 detik → LED mati, kembali ke fase 1.
+- *Threshold onset dan dilepas adalah nilai yang sama*, dicek dua arah: naik melewati threshold di Fase 1 = mulai; turun di bawahnya sebelum 3 detik = dilepas terlalu awal; turun di bawahnya antara 3 dan 5 detik = selesai (langkah 6d). **Ketiganya memakai satu `THRESHOLD_ONSET_KG` (kg < 1,0 kg = dilepas).** Ini mengikuti instruksi proposal "Tahan 3-5 detik": pengguna yang memilih kapan melepas di dalam jendela 3-5 detik.
+- *Layar fase 2 (langkah 6d):* sejak t ≥ 3 detik dan selama genggaman stabil (LED menyala), baris 2 LCD menampilkan kg live dan petunjuk `25.3kg Lepas ok` (`%5.1fkg Lepas ok`, 16 karakter); selain itu kg live dan detik sejak onset.
+- *Tiga jalur keluar (langkah 6d, keputusan tim: pengguna yang memutuskan kapan melepas):* (1) dilepas sebelum 3 detik → kembali Fase 1; (2) dilepas antara 3 dan 5 detik → `HITUNG`, stabil atau tidak; (3) masih digenggam pada 5 detik → `HITUNG` (batas paksa, bukan pembatalan). `ref` untuk (2) dan (3) = jendela stabil terkuat, atau jendela terkuat bila tidak pernah stabil (Bagian 5.11). Sebelum langkah 6d, plateau pada t ≥ 3 detik langsung mengakhiri percobaan, sehingga genggaman yang stabil selalu berhenti tepat 3 detik walau pengguna ingin menahan sampai 5 detik.
+- *Definisi (langkah 6):* **plateau genggaman** = buffer penuh, (maks − min) ≤ `THRESHOLD_STABIL_KG`, **dan semua 5 sampel > `THRESHOLD_ONSET_KG`**. Syarat terakhir ditambahkan karena tangan yang sudah lepas (kg ≈ 0, sangat stabil) terbaca sebagai plateau dan `ref` menjadi ≈ 0 kg (terjadi di uji langkah 5: ref −0,05 kg). **Nilai buffer terbaik** = jendela terkuat (rata-rata tertinggi jendela 5 sampel di atas onset), definisi di Bagian 5.11. Dilepas setelah 3 detik tanpa plateau: percobaan berakhir saat itu juga (langkah 6d) dengan nilai buffer terbaik dari saat masih digenggam.
 - *Serial (langkah 6):* `[GRIP] exit=EARLY_RELEASE t=…`, `[GRIP] exit=PLATEAU t=… sebaran=…`, `[GRIP] exit=TIMEOUT t=… jendela terkuat rata=…`.
 - Tidak ada kondisi "gaya turun ke ambang" generik untuk mengakhiri genggaman: akhir ditentukan plateau atau batas 5 detik. Threshold hanya menentukan kapan timer mulai dan kapan percobaan di-reset.
 - *Cek rentang live (v5):* pada tiap sampel di kedua fase, kg > `REF_MAX_KG` (80 kg) → langsung `ERROR` (`DI_LUAR_RENTANG`), LED mati, tanpa menunggu percobaan selesai. Batas 80 kg = kapasitas nominal load cell CZL 601.
@@ -536,8 +540,8 @@ SESI (3 percobaan)
 | GENGGAM f1 | TAHAN 1,5 s (langkah 6c) | tare ulang, layar "Menyesuaikan nol" ≈ 1 s | GENGGAM f1 |
 | GENGGAM f2 | tiap sampel | LED = plateau | GENGGAM f2 |
 | GENGGAM f2 | kg < onset dan t < 3000 | reset buffer, LED off | GENGGAM f1 |
-| GENGGAM f2 | plateau genggaman (semua sampel > onset) dan t ≥ 3000 | LED tetap on | HITUNG |
-| GENGGAM f2 | t ≥ 5000 | LED off; `ref` = rata-rata jendela terkuat (langkah 6, Bagian 5.11) | HITUNG |
+| GENGGAM f2 | kg < onset (`THRESHOLD_ONSET_KG`, sama dengan onset dan dilepas-awal) dan 3000 ≤ t < 5000 (langkah 6d; proposal "Tahan 3-5 detik": pengguna memilih kapan lepas) | LED off; `ref` = jendela stabil terkuat, atau terkuat bila tidak pernah stabil (Bagian 5.11) | HITUNG |
+| GENGGAM f2 | t ≥ 5000 | LED tetap on bila sedang plateau, selain itu off; `ref` sama seperti di atas | HITUNG |
 | GENGGAM f1/f2 | kg > 80 kg (cek live) | catat galat, LED off | ERROR |
 | HITUNG | ref valid | simpan | RESPON_ISTIRAHAT |
 | HITUNG | ref tidak valid (≤ 0 atau > 80 kg) | catat galat, LED off | ERROR |
@@ -766,6 +770,10 @@ HGD,<jenis>,<seq>,<sesi>,<percobaan>,<nilai1>,<nilai2>*<checksum>
 
 `checksum` = XOR semua byte dari `H` (awal `HGD`) sampai karakter tepat sebelum `*`, ditulis dua digit heksadesimal huruf besar. Baris terpotong atau rusak gagal checksum dan dibalas `NAK`.
 
+**Tanda demo (langkah 9):** percobaan yang diukur dengan skala demo `x` (Bagian 5.21) bukan data nyata. Baris `T`: `nilai2` = 1 untuk percobaan demo, 0 untuk percobaan nyata. Baris `S`: `percobaan` = jumlah percobaan demo dalam sesi (0 = semua nyata). `logger.py` menulis `DEMO` di kolom `catatan` untuk keduanya. Format kolom tidak berubah. `seq` dimulai dari 1 sejak boot; balasan dengan `seq` lain (mis. ACK terlambat) diabaikan.
+
+**Kode (langkah 9):** `serial_log.cpp`: antrean 8 baris statis, dikirim satu per satu; `logPoll()` tiap `loop()` membaca `ACK,<n>`/`NAK,<n>` dan huruf perintah debug (huruf kecil di awal baris; ACK/NAK selalu huruf besar), lalu mengirim baris terdepan atau mengirim ulang setelah `T_ACK_MS` (2 s di uji ini; 750 ms sejak langkah 9b). Uji 23 Okt. 2026 lewat skrip (baris `E` dari perintah `s`): tanpa balasan → kirim ulang 2 s → gagal 2 s kemudian; `ACK` → selesai; `NAK` → kirim ulang seketika → `ACK`; `ACK` dengan `seq` salah → diabaikan (sama dengan tanpa balasan). Checksum cocok dengan perhitungan terpisah.
+
 ### 9.3 Format berkas CSV (dari `logger.py`)
 ```
 timestamp,sesi,jenis,percobaan,gaya_kg,rerata_kg,catatan
@@ -787,7 +795,7 @@ timestamp,sesi,jenis,percobaan,gaya_kg,rerata_kg,catatan
 
 ### 9.5 Urutan di `RINGKASAN`
 1. Kirim 3 baris `T` (satu per percobaan), lalu 1 baris `S`; tiap baris menunggu `ACK` sendiri.
-2. Semua `ACK` diterima → layar menampilkan puncak dan rerata; menunggu TAP.
+2. Selama menunggu, baris 2 LCD `Menyimpan...` dan TAP diabaikan (langkah 9). Semua `ACK` diterima → `Tekan: RESTART`; menunggu TAP. Bila `logger.py` tidak menjawab: ≈ 1,5 s (langkah 9b: baris pertama 2 × 750 ms, lalu sisa kelompok dibuang); sebelumnya ≈ 16 s (4 baris × 2 kiriman × 2 s), uji 23 Okt. 2026.
 3. Ada baris yang gagal setelah satu kali kirim ulang → `GAGALSIMPAN`. Nilai tampil di konsol `logger.py` bila masih hidup; bila `logger.py` sudah berhenti, salin dari layar LCD `GAGALSIMPAN` (bergantian tiap 3 detik, Bagian 10.2). Jangan membuka Serial Monitor lebih dulu (me-reset ESP32, A8).
 4. Baris galat `E` dikirim saat masuk `ERROR`. Bila ACK-nya gagal, galat tetap tampil di LCD dan di konsol `logger.py` / Serial.
 5. Baris `E` `FORCE_RESET` dikirim saat reset total; kiriman lain yang masih menunggu ACK dibatalkan lebih dulu. Bila ACK-nya gagal, reset tetap berjalan (tidak masuk `GAGALSIMPAN`).
@@ -821,11 +829,13 @@ timestamp,sesi,jenis,percobaan,gaya_kg,rerata_kg,catatan
 | SIAP saat skala demo `x` aktif (langkah 8c) | `SIAP x40 1/3` | sama seperti di atas |
 | GENGGAM fase 1 | `Menunggu genggam` | ` 0.42 kg  >1.0` (kg live dua desimal + target onset, `%5.2f kg  >%.1f`; langkah 5c: dengan satu desimal tekanan kecil tetap tampil 0.0) |
 | GENGGAM fase 1 (tare ulang, TAHAN, langkah 6c) | `Menunggu genggam` | `Menyesuaikan nol` |
+| GENGGAM fase 2, t ≥ 3 s dan stabil (langkah 6d) | `Tahan 3-5 detik` | ` 25.3kg Lepas ok` (kg live + petunjuk boleh lepas) |
 | GENGGAM fase 2 | `Tahan 3-5 detik` | ` 25.3 kg  3.4s` (kg live + detik sejak onset) |
 | RESPON sub-fase 1 (sebelum lepas) | `Hasil 47.23 kg` (`ref`, `%5.2f`) | `Lepas>Rest 60s` |
 | RESPON sub-fase 1 (hitung mundur) | `Hasil 47.23 kg` | `Lepas>Rest 58s` (detik bulat, `%2lus`) |
 | RESPON sub-fase 2 | `Hasil 47.23 kg` | `NEXT > lanjut` |
 | RESPON sub-fase 2 (percobaan 3) | `Hasil 46.90 kg` | `NEXT > ringkasan` |
+| RINGKASAN (mengirim, menunggu ACK; langkah 9) | `Mx47.2 Av44.8 kg` | `Menyimpan...` |
 | RINGKASAN | `Mx47.2 Av44.8 kg` | `Tekan: RESTART` |
 | ERROR | `ERR:HX711 TMOUT` | `RAW -1234567` |
 | ERROR (`READING_INVALID`, v5) | `ERR:BACA TDK VLD` | `RAW 0` (nilai yang berulang) |
@@ -845,7 +855,7 @@ timestamp,sesi,jenis,percobaan,gaya_kg,rerata_kg,catatan
 | `SIAP` setelah restart (power-up, `RINGKASAN` → TAP, `GAGALSIMPAN` → TAHAN, `ERROR` → TAHAN, reset total) | Berkedip 5 s (`LED_BLINK_MS` / `LED_BLINK_TOTAL_MS`, `millis()`); TAP menghentikannya seketika, LED mati |
 | `SIAP` lain (percobaan berikutnya), `GENGGAM` fase 1 | Mati |
 | `GENGGAM` fase 2 | **Menyala tetap selama `bufPlateau()` benar**, mati saat plateau hilang (kedip di sekitar ambang stabilitas diterima) |
-| Keluar `GENGGAM` lewat plateau | Tetap menyala sampai genggaman dilepas (kg < `THRESHOLD_ONSET_KG`) di `RESPON_ISTIRAHAT` sub-fase 1, lalu mati |
+| Keluar `GENGGAM` pada batas 5 s saat genggaman masih stabil (langkah 6d; sebelumnya "keluar lewat plateau") | Tetap menyala sampai genggaman dilepas (kg < `THRESHOLD_ONSET_KG`) di `RESPON_ISTIRAHAT` sub-fase 1, lalu mati. Keluar karena dilepas (3-5 s): mati |
 | Keluar lewat batas 5 detik atau dilepas sebelum 3 detik | Mati |
 | `HITUNG` (one-shot), `RESPON_ISTIRAHAT` setelah lepas, `RINGKASAN` | Mengikuti baris di atas / mati |
 | `ERROR`, `GAGALSIMPAN`, reset total | **Dipaksa mati** (tidak terus mengaktuasi saat galat) |
@@ -856,7 +866,7 @@ timestamp,sesi,jenis,percobaan,gaya_kg,rerata_kg,catatan
 1. Persiapan: ESP32 tersambung USB ke laptop, `logger.py` berjalan; pengguna duduk, siku 90°, bahu netral `[sitasi]`.
 2. Alat menyala → LED berkedip 5 detik (tanda restart) sementara "Menyesuaikan nol" ≈ 1 detik → "Tekan tmbl START".
 3. Pengguna menekan START (kedip berhenti) dan mengambil genggaman; layar menampilkan kg langsung. LED menyala begitu genggaman stabil (plateau).
-4. Setelah ≥ 3 detik dengan genggaman stabil, layar menampilkan hasil dan perintah melepas; LED tetap menyala sampai genggaman dilepas. (Bila 5 detik tanpa plateau, percobaan tetap dihitung dengan nilai buffer terbaik dan LED tetap mati.)
+4. LED menyala saat genggaman stabil; setelah 3 detik pengguna boleh melepas kapan saja, paling lama 5 detik (langkah 6d). Setelah dilepas (atau pada 5 detik), layar menampilkan hasil; bila masih digenggam pada 5 detik, layar menampilkan perintah melepas dan LED tetap menyala (bila stabil) sampai dilepas. Hasil = bagian stabil terkuat dari genggaman, atau bagian terkuat bila tidak pernah stabil.
 5. Setelah genggaman dilepas, LED mati dan hitung mundur istirahat 60 detik berjalan; lalu "NEXT".
 6. Diulang sampai tiga percobaan; "NEXT > ringkasan".
 7. Ringkasan: puncak dan rerata; data otomatis tersimpan ke CSV; RESTART (TAP) untuk sesi baru, LED berkedip 5 detik.
@@ -902,6 +912,8 @@ timestamp,sesi,jenis,percobaan,gaya_kg,rerata_kg,catatan
 | X11a | Reset total (v5) di `GENGGAM`: tahan tombol 15 s; ulangi dengan melepas pada detik ke-10 | 15 s: hitung mundur tampil mulai detik ke-3; sesi dibuang, `nomorSesi` +1, baris `E` kode 5 `FORCE_RESET`, LED mati, tare ulang, `SIAP` dengan kedip 5 s. Lepas di detik ke-10: batal, kembali ke `GENGGAM` (layar semula), tanpa TAP palsu |
 | X11b | Reset total di `ERROR`: tahan tombol 15 s; ulangi dengan melepas pada detik ke-10 | 1,5 s: TAHAN → `SIAP` (sesi sama, `percobaanKe` tetap, kedip). 15 s: reset total → `nomorSesi` +1, `E` `FORCE_RESET`, `SIAP` dengan kedip. Lepas di detik ke-10: tetap di `SIAP` sesi yang sama, tanpa TAP palsu |
 | X11c | Reset total di `GAGALSIMPAN`: tahan tombol 15 s; ulangi dengan melepas pada detik ke-10 | 1,5 s: TAHAN → sesi baru (`nomorSesi` +1), `SIAP` dengan kedip. 15 s: reset total → `nomorSesi` +1 lagi (total +2), `E` `FORCE_RESET`. Lepas di detik ke-10: tetap di `SIAP` sesi baru (+1), tanpa TAP palsu |
+| X12 | Genggaman stabil (LED menyala) ditahan sampai 5 detik (langkah 6d) | Sejak 3 s baris 2 `Lepas ok`; percobaan berakhir tepat pada 5 s (`[GRIP] exit=TIMEOUT t=5000 ms`), `ref` = jendela stabil terkuat, LED tetap menyala sampai dilepas di `RESPON_ISTIRAHAT` |
+| X13 | Genggaman stabil dilepas pada ≈ 4 detik (langkah 6d) | Percobaan berakhir saat kg < 1,0 kg (`[GRIP] exit=RELEASE t≈4000 ms`), tidak menunggu 5 s; `ref` = jendela stabil terkuat; LED mati |
 
 ### 11.3 Sketsa uji modul
 | Sketsa | Uji | Isi |
@@ -1038,7 +1050,7 @@ Ada satu **transisi pengecualian** (dulu: interrupt transition) yang berlaku unt
 
 **Tiga jalur keluar dari GENGGAM:**
 1. **Dilepas sebelum 3 detik** → **auto-reset ringan, TIDAK masuk `Error`**: tampilkan pesan singkat, sistem otomatis kembali ke Fase 1 ("Menunggu genggaman...") - bukan pindah state, bukan hold, tidak dicatat sama sekali, tidak butuh pengawas. Percobaan ini otomatis diulang tanpa intervensi manual.
-2. **Plateau tercapai, durasi ≥3 detik** → HITUNG (jalur normal).
+2. **Plateau tercapai, durasi ≥3 detik** → HITUNG (jalur normal). *Diganti langkah 6d: pengguna yang memutuskan lepas antara 3 dan 5 detik (Bagian 6.2).*
 3. **Durasi mencapai 5 detik tanpa plateau** → sistem otomatis berhenti menerima gaya, langsung ke HITUNG memakai nilai buffer terbaik yang ada saat itu (batas 5 detik = force-stop, bukan pembatalan percobaan).
 
 Tidak ada kondisi "gaya turun ke ambang" generik lagi seperti draf sangat awal - sudah digantikan mekanisme onset/plateau/5-detik di atas (dicek juga ke R2 & G2: tidak ada satupun referensi yang pakai threshold gaya untuk deteksi akhir - tetapi onset dan early-release di sini beda kategori: threshold hanya menentukan kapan timer mulai dan kapan percobaan di-reset, sedangkan akhir genggaman tetap ditentukan oleh plateau atau batas 5 detik).

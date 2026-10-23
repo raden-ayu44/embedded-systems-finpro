@@ -2,20 +2,23 @@
 //
 // Langkah 5 (kerangka): semua state, aksi masuk, layar (Bagian 10.2), aturan LED (Bagian 10.3),
 // transisi pengecualian galat sensor, dan reset total. Transisi masih sederhana:
-// - GRIP (langkah 6): onset -> fase 2; dilepas sebelum 3 s -> fase 1; plateau genggaman pada
-//   t >= 3 s -> COMPUTE; batas 5 s -> COMPUTE dengan jendela buffer terkuat.
+// - GRIP (langkah 6, 6d): onset -> fase 2; dilepas sebelum 3 s -> fase 1; dilepas antara 3 dan 5 s
+//   -> COMPUTE (pengguna yang memutuskan); masih digenggam pada 5 s -> COMPUTE. ref = jendela stabil
+//   terkuat, atau jendela terkuat bila tidak pernah stabil.
 // - REST (langkah 7): tunggu dilepas -> hitung mundur REST_S (tombol diabaikan, digenggam lagi = jeda)
 //   -> tunggu TAP (NEXT).
 // - Langkah 5c: penjaga nol di READY (kg > +1 = START diabaikan, kg < -1 = tare ulang), di GRIP
 //   fase 1 (kg < -1 = kembali ke READY), dan TAHAN di READY = tare ulang manual.
 // - Langkah 8: cek rentang OUT_OF_RANGE live di GRIP dan pada ref di COMPUTE; keadaan aman, layar
-//   galat dan baris E di modul fault.cpp. Langkah 9: baris log HGD + ACK.
+//   galat dan baris E di modul fault.cpp.
+// - Langkah 9: SUMMARY mengirim 3 baris T + 1 baris S (serial_log), menunggu ACK; gagal -> SAVE_FAILED.
 #include "fsm.h"
 #include "button.h"
 #include "display.h"
 #include "sensor.h"
 #include "led.h"
 #include "fault.h"
+#include "serial_log.h"
 
 // ---------------- Data state machine (semua statis, tanpa malloc) ----------------
 static State     state = READY;
@@ -37,8 +40,12 @@ static uint32_t  gripStartMs = 0;          // millis() saat onset (fase 2 mulai,
 static uint32_t  gripDurMs = 0;            // lama fase 2 saat keluar GRIP
 static GripExit  gripExit = EXIT_NONE;     // jalur keluar GRIP terakhir
 static uint32_t  gripLastSampleMs = 0;     // waktu sampel terakhir yang sudah dinilai di fase 2
-static float     bestAvg = 0.0f;           // rata-rata tertinggi jendela 5 sampel di atas onset (batas 5 s)
+static float     bestAvg = 0.0f;           // rata-rata tertinggi jendela 5 sampel di atas onset
 static bool      bestFound = false;        // sudah ada jendela genggaman yang dinilai
+static float     bestSteadyAvg = 0.0f;     // rata-rata tertinggi jendela STABIL (plateau), langkah 6d
+static bool      steadyFound = false;      // sudah ada plateau selama fase 2
+static bool      gripSteadyNow = false;    // plateau pada putaran ini (layar "Lepas ok", langkah 6d)
+static bool      summaryChecked = false;   // hasil kiriman ringkasan sudah dinilai (langkah 9)
 static bool      restartPending = false;   // true = masuk READY berikutnya adalah restart (kedip)
 static FaultType pendingFault = FAULT_NONE; // galat yang dicatat saat masuk FAULT (diisi sebelum transisi)
 static bool      countdownShown = false;   // layar hitung mundur reset total sedang tampil
@@ -129,6 +136,18 @@ static void enterSummary() {
   for (uint8_t i = 0; i < TRIALS_PER_SESSION; i++) anyDemo = anyDemo || session.trials[i].demo;
   Serial.printf("[SUMMARY] puncak=%.2f rerata=%.2f kg%s\n", session.peak, session.avg,
                 anyDemo ? " (berisi percobaan DEMO x40)" : "");
+
+  // Langkah 9 (Bagian 9.5): 3 baris T lalu 1 baris S, masing-masing menunggu ACK sendiri.
+  // Percobaan dengan skala demo (x) ditandai: T nilai2 = 1, S percobaan = jumlah percobaan demo.
+  uint8_t demoCount = 0;
+  logBatchStart();
+  for (uint8_t i = 0; i < TRIALS_PER_SESSION; i++) {
+    const Trial& t = session.trials[i];
+    if (t.demo) demoCount++;
+    logTrial(session.number, i + 1, t.ref, t.demo);
+  }
+  logSummary(session.number, demoCount, session.peak, session.avg);
+  summaryChecked = false;
 }
 
 static void enterFault() {
@@ -140,6 +159,10 @@ static void enterSaveFailed() {
   buttonReset();
   ledSet(false);
   pageStartMs = millis();
+  // Nilai juga dicetak sebagai teks biasa supaya bisa disalin dari konsol logger.py (Bagian 4.8).
+  Serial.printf("[GAGAL SIMPAN] sesi %u: P1=%.2f P2=%.2f P3=%.2f puncak=%.2f rerata=%.2f kg\n",
+                session.number, session.trials[0].ref, session.trials[1].ref, session.trials[2].ref,
+                session.peak, session.avg);
 }
 
 // Pindah state: cetak transisi, jalankan aksi masuk, minta layar baru.
@@ -220,6 +243,8 @@ static State handleGrip(Press press) {
       gripStartMs = millis();
       sensorBufReset();                     // buffer plateau mulai kosong di awal fase 2
       bestFound = false;
+      steadyFound = false;
+      gripSteadyNow = false;
       gripLastSampleMs = sensorLastSampleMs();
       displayRequest();
       Serial.printf("[GRIP] onset kg=%.2f\n", kg);
@@ -230,8 +255,11 @@ static State handleGrip(Press press) {
   // Fase 2. Waktu sejak onset.
   uint32_t t = millis() - gripStartMs;
 
+  // Langkah 6d: pengguna yang memutuskan kapan lepas. Plateau tidak lagi mengakhiri percobaan;
+  // LED (plateau) memberi tahu bahwa genggaman sudah stabil dan boleh dilepas kapan saja setelah 3 s.
+
   // Jalur 1: dilepas sebelum 3 s (kg turun di bawah onset) -> kembali ke fase 1, percobaan
-  // tidak dihitung. Setelah 3 s ambang ini tidak dipakai lagi: akhir ditentukan plateau atau 5 s.
+  // tidak dihitung.
   if (kg < THRESHOLD_ONSET_KG && t < GRIP_MIN_MS) {
     gripPhase = WAIT_ONSET;
     sensorBufReset();
@@ -246,8 +274,11 @@ static State handleGrip(Press press) {
   bool gripWindow = sensorBufFull() && sensorBufMin() > THRESHOLD_ONSET_KG;
   bool plateau = gripWindow && sensorPlateau();
 
-  // Catat jendela TERKUAT (rata-rata tertinggi), sekali per sampel baru (bukan per putaran loop).
-  // Kekuatan genggaman adalah nilai maksimum, jadi bila tidak ada plateau dipakai jendela terkuat.
+  // Catat, sekali per sampel baru (bukan per putaran loop), dua kandidat ref:
+  // - jendela STABIL terkuat (plateau dengan rata-rata tertinggi) -> ref utama;
+  // - jendela terkuat apa pun (di atas onset) -> ref bila genggaman tidak pernah stabil.
+  // Kekuatan genggaman adalah nilai maksimum, jadi dipilih yang tertinggi. Jendela saat tangan
+  // melepas tidak stabil dan lebih rendah, jadi tidak terpilih.
   if (sensorLastSampleMs() != gripLastSampleMs) {
     gripLastSampleMs = sensorLastSampleMs();
     if (gripWindow) {
@@ -256,46 +287,56 @@ static State handleGrip(Press press) {
         bestFound = true;
         bestAvg = avg;
       }
+      if (plateau && (!steadyFound || avg > bestSteadyAvg)) {
+        steadyFound = true;
+        bestSteadyAvg = avg;
+      }
     }
   }
 
   // LED = plateau (R4: LED dikendalikan kestabilan gaya yang terukur).
   ledSet(plateau);
+  gripSteadyNow = plateau;                  // dipakai drawScreen() untuk petunjuk "Lepas ok"
 
-  // Jalur 2: plateau pada t >= 3 s. LED tetap menyala sampai genggaman dilepas di REST.
-  if (plateau && t >= GRIP_MIN_MS) {
-    gripExit = EXIT_PLATEAU;
+  // Jalur 2: dilepas antara 3 dan 5 s -> percobaan selesai (pilihan pengguna).
+  if (kg < THRESHOLD_ONSET_KG) {
+    gripExit = EXIT_RELEASE;
     gripDurMs = t;
-    Serial.printf("[GRIP] exit=PLATEAU t=%lu ms sebaran=%.2f kg\n",
-                  (unsigned long)t, sensorBufSpread());
+    ledSet(false);
+    Serial.printf("[GRIP] exit=RELEASE t=%lu ms%s\n", (unsigned long)t,
+                  steadyFound ? "" : " (tidak pernah stabil)");
     return COMPUTE;
   }
 
-  // Jalur 3: batas 5 s tanpa plateau (force-stop, bukan pembatalan). LED mati.
+  // Jalur 3: masih digenggam pada 5 s -> batas paksa. Bila genggaman sedang stabil, LED tetap
+  // menyala sampai dilepas di REST (Bagian 10.3); bila tidak, LED mati.
   if (t >= GRIP_MAX_MS) {
     gripExit = EXIT_TIMEOUT;
     gripDurMs = t;
-    ledSet(false);
-    Serial.printf("[GRIP] exit=TIMEOUT t=%lu ms jendela terkuat rata=%.2f kg\n",
-                  (unsigned long)t, bestAvg);
+    if (!plateau) ledSet(false);
+    Serial.printf("[GRIP] exit=TIMEOUT t=%lu ms%s\n", (unsigned long)t,
+                  steadyFound ? "" : " (tidak pernah stabil)");
     return COMPUTE;
   }
   return GRIP;
 }
 
 static State handleCompute() {
-  // ref = rata-rata buffer plateau, presisi penuh (pembulatan hanya di LCD).
+  // ref (langkah 6d, Bagian 5.11), presisi penuh (pembulatan hanya di LCD):
+  // 1) jendela stabil terkuat bila ada plateau selama fase 2;
+  // 2) jendela terkuat (di atas onset) bila tidak pernah stabil;
+  // 3) cadangan: rata-rata buffer sekarang (praktis tidak terjadi setelah >= 3 s di atas onset).
   Trial& tr = session.trials[session.trialNo - 1];
-  // PLATEAU: rata-rata buffer sekarang (plateau yang baru terjadi).
-  // TIMEOUT: rata-rata jendela terkuat selama fase 2 ("nilai buffer terbaik", Bagian 5.11).
-  //          Selalu ada setelah >= 3 s di atas onset; bila tidak ada, pakai buffer sekarang.
-  if (gripExit == EXIT_TIMEOUT && bestFound) tr.ref = bestAvg;
-  else                                        tr.ref = sensorBufAvg();
+  tr.steady = steadyFound;
+  if (steadyFound)    tr.ref = bestSteadyAvg;
+  else if (bestFound) tr.ref = bestAvg;
+  else                tr.ref = sensorBufAvg();
   tr.durMs = gripDurMs;
   tr.exitBy = gripExit;
   tr.demo = sensorDemoActive();             // percobaan dengan skala demo bukan data nyata
-  Serial.printf("[COMPUTE] percobaan %u ref=%.2f kg (%s)%s\n", session.trialNo, tr.ref,
-                gripExit == EXIT_TIMEOUT ? "TIMEOUT" : "PLATEAU", tr.demo ? " DEMO x40" : "");
+  Serial.printf("[COMPUTE] percobaan %u ref=%.2f kg (%s, %s)%s\n", session.trialNo, tr.ref,
+                gripExit == EXIT_TIMEOUT ? "5 s" : "dilepas",
+                tr.steady ? "stabil terkuat" : "terkuat", tr.demo ? " DEMO x40" : "");
 
   // Validasi rentang (langkah 8, cek kedua; cek pertama berjalan live di GRIP):
   // ref harus > MIN_FORCE_KG (0) dan <= MAX_FORCE_KG (80, kapasitas load cell).
@@ -353,6 +394,15 @@ static State handleRest(Press press) {
 }
 
 static State handleSummary(Press press) {
+  // Langkah 9: tunggu semua baris ringkasan selesai (ACK, atau gagal setelah kirim ulang).
+  // Selama itu TAP diabaikan; layar "Menyimpan...".
+  if (logBusy()) return SUMMARY;
+  if (!summaryChecked) {
+    summaryChecked = true;
+    if (logBatchFailed()) return SAVE_FAILED;   // ada baris yang tidak ber-ACK: data belum aman
+    Serial.println("[SUMMARY] semua baris tersimpan (ACK)");
+    displayRequest();
+  }
   if (press != PRESS_TAP) return SUMMARY;
   fsmNewSession();
   restartPending = true;                    // RESTART: READY dengan kedip
@@ -415,7 +465,13 @@ static void drawScreen() {
         else snprintf(l1, sizeof(l1), "%5.2f kg  >%.1f", sensorKg(), THRESHOLD_ONSET_KG);
       } else {   // "Tahan 3-5 detik" / " 25.3 kg  3.4s" (kg live + detik sejak onset)
         snprintf(l0, sizeof(l0), "Tahan 3-5 detik");
-        snprintf(l1, sizeof(l1), "%5.1f kg  %.1fs", sensorKg(), (millis() - gripStartMs) / 1000.0f);
+        uint32_t t = millis() - gripStartMs;
+        if (t >= GRIP_MIN_MS && gripSteadyNow)
+          // Langkah 6d: sudah >= 3 s dan genggaman stabil (LED menyala) -> boleh dilepas kapan saja.
+          // " 25.3kg Lepas ok" = 16 karakter (tanpa spasi sebelum "kg" supaya muat).
+          snprintf(l1, sizeof(l1), "%5.1fkg Lepas ok", sensorKg());
+        else
+          snprintf(l1, sizeof(l1), "%5.1f kg  %.1fs", sensorKg(), t / 1000.0f);
       }
       break;
     case COMPUTE:
@@ -437,7 +493,7 @@ static void drawScreen() {
       break;
     case SUMMARY: // "Mx47.2 Av44.8 kg" / "Tekan: RESTART"
       snprintf(l0, sizeof(l0), "Mx%4.1f Av%4.1f kg", session.peak, session.avg);
-      snprintf(l1, sizeof(l1), "Tekan: RESTART");
+      snprintf(l1, sizeof(l1), "%s", logBusy() ? "Menyimpan..." : "Tekan: RESTART");
       break;
     case FAULT:   // "ERR:..." / "RAW <raw live>" (fault.cpp)
       faultDraw(l0, l1, sizeof(l0));
@@ -485,7 +541,10 @@ void fsmRun(Press press) {
     forceDone = true;
     countdownShown = false;
     Serial.println("[FSM] RESET TOTAL");
-    // Baris E FORCE_RESET memakai sesi dan percobaan SEBELUM reset (Bagian 9.2).
+    // Kiriman yang masih menunggu ACK dibatalkan lebih dulu (Bagian 9.5 butir 5). Baris E
+    // FORCE_RESET memakai sesi dan percobaan SEBELUM reset (Bagian 9.2); bila ACK-nya gagal,
+    // reset tetap berjalan.
+    logCancel();
     faultLogEvent(EVENT_FORCE_RESET, session.number, session.trialNo, session.t0Ms);
     faultClear();                           // reset dari FAULT juga menghapus galat aktif
     fsmNewSession();                        // sesi berjalan dibuang, nomor sesi naik
