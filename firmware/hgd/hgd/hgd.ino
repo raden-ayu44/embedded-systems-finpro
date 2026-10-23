@@ -14,10 +14,11 @@
     "Lepas genggaman" (START diabaikan); kg < -1 -> tare ulang otomatis (nol diambil saat dibebani).
     5 sampel HX711 pertama setelah boot dibuang.
   - GRIP: "Menunggu genggam" + kg live; tekan > 1 kg = onset, "Tahan 3-5 detik" + kg + detik;
-    langkah 6: dilepas sebelum 3 s -> kembali "Menunggu genggam"; 5 s tanpa plateau -> COMPUTE dengan
-    jendela buffer terkuat (LED mati); plateau hanya dihitung bila semua sampel > 1 kg;
+    langkah 6/6d: dilepas sebelum 3 s -> kembali "Menunggu genggam"; antara 3 dan 5 s pengguna
+    memutuskan kapan lepas (dilepas -> COMPUTE), pada 5 s -> COMPUTE; ref = jendela stabil terkuat
+    (atau terkuat bila tidak pernah stabil); plateau hanya dihitung bila semua sampel > 1 kg;
     TAHAN 1,5 s di "Menunggu genggam" = tare ulang di tempat ("Menyesuaikan nol" ~1 s, langkah 6c);
-    LED menyala selama genggaman stabil; stabil pada >= 3 s -> COMPUTE -> REST
+    LED menyala selama genggaman stabil (tanda boleh lepas setelah 3 s) -> COMPUTE -> REST
     ("Hasil xx.xx kg" / "Lepas>Rest 60s", LED tetap menyala sampai dilepas).
   - REST: setelah dilepas hitung mundur "Lepas>Rest 60s" ... " 1s" (langkah 7, TAP diabaikan;
     digenggam lagi = hitung mundur dijeda sampai dilepas), lalu

@@ -52,11 +52,12 @@ inline const char* faultName(FaultType f) {
 }
 
 // Jalur keluar GRIP.
+// Langkah 6d: genggaman TIDAK lagi berakhir otomatis saat plateau; pengguna yang memutuskan lepas.
 enum GripExit {
   EXIT_NONE = 0,
-  EXIT_EARLY_RELEASE,
-  EXIT_PLATEAU,
-  EXIT_TIMEOUT
+  EXIT_EARLY_RELEASE,   // dilepas sebelum 3 s: kembali ke fase 1, tidak dihitung
+  EXIT_RELEASE,         // dilepas antara 3 dan 5 s: percobaan selesai dan dihitung
+  EXIT_TIMEOUT          // masih digenggam pada 5 s: batas paksa
 };
 
 // Hasil klasifikasi tombol, satu per putaran loop().
@@ -71,7 +72,8 @@ struct Trial {
   float    ref;      // nilai akhir (kg, presisi penuh, sebelum dibulatkan untuk LCD)
   bool     valid;    // lolos validasi rentang
   uint32_t durMs;    // lama genggam sampai keluar
-  GripExit exitBy;   // EXIT_PLATEAU atau EXIT_TIMEOUT
+  GripExit exitBy;   // EXIT_RELEASE atau EXIT_TIMEOUT
+  bool     steady;   // ref dari jendela stabil (plateau); false = jendela terkuat tanpa plateau
   bool     demo;     // diukur saat skala demo (x) aktif: BUKAN data nyata; langkah 9 menandainya
 };
 
