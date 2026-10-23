@@ -348,7 +348,7 @@ Dipanggil tiap `loop()`. **Non-blocking (v5):** bila DT masih tinggi (data belum
 **Pemakai:** `loop()`; hasilnya dibaca `layaniGenggam()`, `layaniRespon()`, `galatTahan()`.
 
 ### 5.8 `sensorTare()` ▣
-Memulai tare: `T_TARE_SAMPEL` (10) sampel berikutnya dijumlahkan oleh `sensorBaca()`, satu per sampel baru, lalu rata-ratanya menjadi `offset`. **Non-blocking (v5):** ≈ 1 detik pada 10 SPS, tersebar di banyak putaran `loop()`; `sensorTareSelesai()` memberi tahu `SIAP` kapan layar berganti ke "Tekan START". Dipanggil sekali tiap masuk `SIAP`. **Cek sebaran (langkah 4c):** bila (maks − min) 10 sampel > `TARE_MAX_SPREAD` (1000 counts ≈ 19 g; sebaran normal terukur 67-127 counts), alat dianggap tersentuh: peringatan dicetak, `offset` lama dipertahankan, dan tare diulang otomatis (layar tetap "Nol-kan..."). Alasan: sentuhan saat tare menggeser `offset` dan seluruh hasil percobaan.
+Memulai tare: `T_TARE_SAMPEL` (10) sampel berikutnya dijumlahkan oleh `sensorBaca()`, satu per sampel baru, lalu rata-ratanya menjadi `offset`. **Non-blocking (v5):** ≈ 1 detik pada 10 SPS, tersebar di banyak putaran `loop()`; `sensorTareSelesai()` memberi tahu `SIAP` kapan layar berganti ke "Tekan tmbl START". Dipanggil sekali tiap masuk `SIAP`. **Cek sebaran (langkah 4c):** bila (maks − min) 10 sampel > `TARE_MAX_SPREAD` (1000 counts ≈ 19 g; sebaran normal terukur 67-127 counts), alat dianggap tersentuh: peringatan dicetak, `offset` lama dipertahankan, dan tare diulang otomatis (layar tetap "Menyesuaikan nol"). Alasan: sentuhan saat tare menggeser `offset` dan seluruh hasil percobaan.
 
 ### 5.9 `bufTambah(float kg)` / `bufPlateau()` ▣
 `bufTambah` menulis ke buffer melingkar 5 sampel. `bufPlateau` mengembalikan `true` bila buffer penuh dan (maks − min) ≤ `THRESHOLD_STABIL_KG`. Rata-rata buffer menjadi `ref`.
@@ -420,14 +420,14 @@ SESI (3 percobaan)
 └─ SiklusPercobaan (superstate)
    │
    ├─ [SIAP]
-   │    ├─ Masuk: tombolReset(); LCD "Nol-kan..."; sensorTare() (10 sampel lintas loop, non-blocking ≈ 1 s)
+   │    ├─ Masuk: tombolReset(); LCD "Menyesuaikan nol"; sensorTare() (10 sampel lintas loop, non-blocking ≈ 1 s)
    │    ├─ Masuk setelah restart: LED berkedip 5 s (non-blocking); TAP menghentikannya
-   │    ├─ LCD "Tekan START"; tunggu TAP
+   │    ├─ LCD "Tekan tmbl START"; tunggu TAP
    │    └─ TAP → GENGGAM
    │
    ├─ [GENGGAM]  LED mati di fase 1; di fase 2 LED menyala selama plateau
-   │    ├─ Fase 1  MENUNGGU_MULAI: LCD "Genggam..."; baca kg; kg > THRESHOLD_ONSET → Fase 2
-   │    ├─ Fase 2  MENGHITUNG: timer mulai; LCD "Tahan 3-5 dtk";
+   │    ├─ Fase 1  MENUNGGU_MULAI: LCD "Menunggu genggam"; baca kg; kg > THRESHOLD_ONSET → Fase 2
+   │    ├─ Fase 2  MENGHITUNG: timer mulai; LCD "Tahan 3-5 detik";
    │    │          baca kg → bufTambah → bufPlateau → LED = bufPlateau()
    │    ├─ Tiap sampel (fase 1 dan 2): kg > 80 kg → pengecualian → ERROR (DI_LUAR_RENTANG), LED mati
    │    ├─ Keluar 1: kg < onset sebelum 3000 ms → kembali ke Fase 1 (tanpa pesan, tanpa catatan)
@@ -443,7 +443,7 @@ SESI (3 percobaan)
    └─ [RESPON_ISTIRAHAT]  LED tetap menyala (bila keluar lewat plateau) sampai genggaman dilepas
         ├─ Sub-fase 1 LEPAS_ISTIRAHAT: LCD hasil + "Lepas, rest 60s";
         │             kg < onset → LED mati; hitung mundur 60→0 (layar tiap T_REFRESH_LCD_MS = 500 ms, tanpa ganti layar)
-        └─ Sub-fase 2 TUNGGU_LANJUT: LCD hasil + "NEXT: lanjut"; tunggu TAP
+        └─ Sub-fase 2 TUNGGU_LANJUT: LCD hasil + "NEXT > lanjut"; tunggu TAP
              ├─ percobaanKe < 3 → percobaanKe++ → SIAP
              └─ percobaanKe = 3 → RINGKASAN
 
@@ -471,7 +471,7 @@ SESI (3 percobaan)
 - Masuk: `tombolReset()`, LED mati.
 - **Kedip restart:** setelah tiap restart, LED berkedip selama `LED_BLINK_TOTAL_MS` (5 detik) dengan selang `LED_BLINK_MS`, memakai `millis()` (non-blocking). Restart = nyala pertama (power-up), `RINGKASAN` → TAP, `GAGALSIMPAN` → TAHAN, `ERROR` → TAHAN, dan reset total. Masuk `SIAP` dari `RESPON_ISTIRAHAT` (percobaan berikutnya) bukan restart, jadi tanpa kedip. TAP selama kedip langsung menghentikan kedip dan mematikan LED; TAP itu sekaligus START bila tare sudah selesai, dan diabaikan sebagai START bila tare belum selesai (≈ 1 detik pertama).
 - Auto-tare tiap masuk, termasuk setelah kembali dari siklus sebelumnya. **Keputusan tim sendiri:** tiga percobaan dibandingkan dan dirata-ratakan, jadi konsistensi titik nol antar percobaan penting.
-- Dua langkah: (1) layar "Nol-kan...", `sensorTare()` mulai mengumpulkan 10 sampel, satu sampel per putaran `loop()` saat sampel siap (non-blocking); (2) 10 sampel terkumpul (≈ 1 detik pada 10 SPS) → layar "Tekan START".
+- Dua langkah: (1) layar "Menyesuaikan nol", `sensorTare()` mulai mengumpulkan 10 sampel, satu sampel per putaran `loop()` saat sampel siap (non-blocking); (2) 10 sampel terkumpul (≈ 1 detik pada 10 SPS) → layar "Tekan tmbl START".
 - Tidak ada jalur ke `ERROR` dari state ini, kecuali galat sensor saat tare (`HX711_TIMEOUT`, `READING_INVALID`, `ADC_SATURASI`).
 
 **[GENGGAM]** (dua fase dalam satu state)
@@ -490,7 +490,7 @@ SESI (3 percobaan)
 
 **[RESPON_ISTIRAHAT]** (dua sub-fase)
 - *Sub-fase 1:* tampil hasil dan perintah lepas. LED masih menyala bila percobaan keluar lewat plateau. Begitu gaya turun di bawah `THRESHOLD_ONSET_KG` (nilai sama, simetris), LED mati dan hitung mundur 60 → 0 berjalan di tempat. Sisa waktu dihitung dari `millis()` tiap putaran `loop()`; layar digambar ulang tiap `T_REFRESH_LCD_MS` (500 ms) seperti layar lain. **Mengubah spesifikasi proposal S2** (update 100 ms ±10-20 ms): layar menampilkan detik bulat, jadi redraw 100 ms tidak tampak, dan modul praktikum melarang redraw lebih cepat dari dua kali per detik (A6, A7).
-- *Sub-fase 2:* tampil hasil lagi dan "NEXT"; tunggu tombol. Pada percobaan ke-3 teksnya "NEXT: ringkasan".
+- *Sub-fase 2:* tampil hasil lagi dan "NEXT"; tunggu tombol. Pada percobaan ke-3 teksnya "NEXT > ringkasan".
 
 **[RINGKASAN]**
 - Terjadi satu kali. Menghitung puncak dan rerata, mengirim baris CSV, menunggu ACK (Bagian 9).
@@ -795,18 +795,19 @@ timestamp,sesi,jenis,percobaan,gaya_kg,rerata_kg,catatan
 - Kegagalan pembacaan tidak boleh senyap.
 
 ### 10.2 Teks per state (≤ 16 karakter per baris)
+*v5 (langkah 5, 23 Okt. 2026): teks disesuaikan supaya lebih dekat dengan Tabel 4 proposal dan sama dengan firmware tim lainnya; perilaku v5 tidak berubah. Angka ditulis dengan lebar tetap (`%5.1f`, `%5.2f`, `%4.1f`) supaya posisi tidak bergeser.*
+
 | State | Baris 1 | Baris 2 |
 |-------|---------|---------|
-| SIAP (tare) | `UKUR 1/3` | `Nol-kan...` |
-| SIAP (siap) | `UKUR 1/3` | `Tekan START` |
-| GENGGAM fase 1 | `UKUR 1/3` | `Genggam...` |
-| GENGGAM fase 2 | `UKUR 1/3  25.3kg` | `Tahan 3-5 dtk` |
-| RESPON sub-fase 1 (sebelum lepas) | `UKUR 1  P=47.2kg` | `Lepas tangan` |
-| RESPON sub-fase 1 (hitung mundur) | `UKUR 1  P=47.2kg` | `Rest 58 dtk` |
-| RESPON sub-fase 2 | `UKUR 1  P=47.2kg` | `NEXT: lanjut` |
-| RESPON sub-fase 2 (percobaan 3) | `UKUR 3  P=46.9kg` | `NEXT: ringkasan` |
-| RINGKASAN | `Puncak 47.2 kg` | `Rerata 44.8 kg` |
-| RINGKASAN (setelah ACK) | `Pk47.2 Av44.8` | `RESTART: ulang` |
+| SIAP (tare) | `SIAP - UKUR 1/3` | `Menyesuaikan nol` |
+| SIAP (siap) | `SIAP - UKUR 1/3` | `Tekan tmbl START` |
+| GENGGAM fase 1 | `Menunggu genggam` | ` 0.4 kg` (kg live, `%5.1f kg`) |
+| GENGGAM fase 2 | `Tahan 3-5 detik` | ` 25.3 kg  3.4s` (kg live + detik sejak onset) |
+| RESPON sub-fase 1 (sebelum lepas) | `Hasil 47.23 kg` (`ref`, `%5.2f`) | `Lepas>Rest 60s` |
+| RESPON sub-fase 1 (hitung mundur) | `Hasil 47.23 kg` | `Lepas>Rest 58s` (detik bulat, `%2lus`) |
+| RESPON sub-fase 2 | `Hasil 47.23 kg` | `NEXT > lanjut` |
+| RESPON sub-fase 2 (percobaan 3) | `Hasil 46.90 kg` | `NEXT > ringkasan` |
+| RINGKASAN | `Mx47.2 Av44.8 kg` | `Tekan: RESTART` |
 | ERROR | `ERR:HX711 TMOUT` | `RAW -1234567` |
 | ERROR (`READING_INVALID`, v5) | `ERR:BACA TDK VLD` | `RAW 0` (nilai yang berulang) |
 | GAGALSIMPAN halaman 1 (v5) | `P1 47.2 P2 43.1` | `P3 44.1   GAGAL` |
@@ -834,11 +835,11 @@ timestamp,sesi,jenis,percobaan,gaya_kg,rerata_kg,catatan
 
 ### 10.4 Narasi satu sesi
 1. Persiapan: ESP32 tersambung USB ke laptop, `logger.py` berjalan; pengguna duduk, siku 90°, bahu netral `[sitasi]`.
-2. Alat menyala → LED berkedip 5 detik (tanda restart) sementara "Nol-kan..." ≈ 1 detik → "Tekan START".
+2. Alat menyala → LED berkedip 5 detik (tanda restart) sementara "Menyesuaikan nol" ≈ 1 detik → "Tekan tmbl START".
 3. Pengguna menekan START (kedip berhenti) dan mengambil genggaman; layar menampilkan kg langsung. LED menyala begitu genggaman stabil (plateau).
 4. Setelah ≥ 3 detik dengan genggaman stabil, layar menampilkan hasil dan perintah melepas; LED tetap menyala sampai genggaman dilepas. (Bila 5 detik tanpa plateau, percobaan tetap dihitung dengan nilai buffer terbaik dan LED tetap mati.)
 5. Setelah genggaman dilepas, LED mati dan hitung mundur istirahat 60 detik berjalan; lalu "NEXT".
-6. Diulang sampai tiga percobaan; "NEXT: ringkasan".
+6. Diulang sampai tiga percobaan; "NEXT > ringkasan".
 7. Ringkasan: puncak dan rerata; data otomatis tersimpan ke CSV; RESTART (TAP) untuk sesi baru, LED berkedip 5 detik.
 8. Bila alat perlu dimulai ulang dari state mana pun: pengawas menahan tombol 15 detik (reset total); sesi berjalan dibuang, nomor sesi naik, LED berkedip 5 detik.
 
@@ -871,7 +872,7 @@ timestamp,sesi,jenis,percobaan,gaya_kg,rerata_kg,catatan
 | X1a | Cabut kabel DT HX711 | `ERROR: HX711 TMOUT` dalam ≤ 1 s (DT ditarik pull-up = tidak siap), dicatat, layar tahan, LED mati |
 | X1b | Cabut kabel SCK HX711 (v5) | `ERROR: BACA TDK VLD` (`READING_INVALID`) hampir seketika (≤ 0,1 s): DT tetap rendah, jadi tiap putaran `loop()` membaca sampel sampah dan 3 jarak pendek berturut-turut terkumpul dalam beberapa milidetik (langkah 4b; uji 23 Okt. 2026 dengan aturan 10 nilai identik saja: terdeteksi, tetapi berkedip). Dicatat, layar tahan, LED mati. **Catatan:** bila pin PD_SCK HX711 yang mengambang terbaca tinggi > 60 µs, HX711 masuk mode daya rendah, DT naik, dan hasilnya `HX711_TIMEOUT` (≤ 1 s); keduanya aman. Catat mana yang terjadi di uji bench |
 | X2 | Cabut satu kabel sinyal load cell (merah atau hijau) di modul HX711 saat alat menyala (v5). **Jangan** memberi eksitasi di luar rating (risiko merusak load cell/HX711) | Masukan mengambang → pembacaan menuju skala penuh → `ERROR: ADC SATURASI`, LED mati. **Bila uji bench menunjukkan \|raw\| tidak mencapai 0,95 × `ADC_MAX`**, tambahkan perintah `DEBUG_CMD` yang menyimulasikan saturasi, dan catat di sini metode mana yang dipakai (cabut kabel / simulasi). Metode terpakai: *belum diuji* |
-| X3 | Melewati 80 kg disimulasikan: ketik `x` (skala dibagi 20) di konsol `logger.py` **saat layar menampilkan "Tekan START"** (tare berikutnya membatalkan `x`, jadi jangan diketik saat "Nol-kan..."), yang meneruskannya ke ESP32 tanpa membuka Serial Monitor (A8); lalu START dan tekan ≈ 4 kg di `GENGGAM`. Beban nyata > 80 kg tidak diuji (melewati kapasitas load cell) | `ERROR: DI LUAR RNTG` **saat genggaman masih berlangsung** (cek live), LED mati seketika, baris `E` kode 3 |
+| X3 | Melewati 80 kg disimulasikan: ketik `x` (skala dibagi 20) di konsol `logger.py` **saat layar menampilkan "Tekan tmbl START"** (tare berikutnya membatalkan `x`, jadi jangan diketik saat "Menyesuaikan nol"), yang meneruskannya ke ESP32 tanpa membuka Serial Monitor (A8); lalu START dan tekan ≈ 4 kg di `GENGGAM`. Beban nyata > 80 kg tidak diuji (melewati kapasitas load cell) | `ERROR: DI LUAR RNTG` **saat genggaman masih berlangsung** (cek live), LED mati seketika, baris `E` kode 3 |
 | X4 | Matikan `logger.py` sebelum `RINGKASAN` (atau saat `RINGKASAN` menunggu ACK) | `GAGALSIMPAN`; LCD bergantian tiap 3 s menampilkan P1/P2/P3 dan Pk/Av (v5), sehingga semua nilai dapat disalin dari LCD tanpa membuka Serial Monitor (A8); TAHAN → sesi baru |
 | X5 | Putus kabel USB di tengah sesi atau saat kirim (juga skenario "power cycle" penguji). USB adalah satu-satunya catu, jadi alat ikut mati | Catu hilang: sesi di RAM hilang (baris yang belum ber-ACK tidak tersimpan; yang sudah ber-ACK aman di CSV). Saat USB disambung lagi: boot bersih ke `SIAP` dengan tare dan kedip restart, sesi 1. `logger.py` perlu dijalankan ulang karena port hilang. Bukan `GAGALSIMPAN` (v4 salah mengharapkan `GAGALSIMPAN`) |
 | X6 | Kirim baris rusak ke `logger.py` | NAK, baris tidak ditulis |

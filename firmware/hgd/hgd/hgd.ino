@@ -9,11 +9,13 @@
             HX711 tidak memakai library (bit-bang sendiri, sensor.cpp).
 
   Langkah 5 (kerangka state machine + LED):
-  - Boot: READY, LED kedip 5 s, "Nol-kan..." lalu "Tekan START". TAP = START (dan hentikan kedip).
-  - GRIP: "Genggam..."; tekan > 1 kg = onset, layar kg live; LED menyala selama genggaman stabil;
-    stabil pada >= 3 s -> COMPUTE -> REST ("Lepas tangan", LED tetap menyala sampai dilepas).
-  - REST: setelah dilepas "NEXT: lanjut"; TAP -> percobaan berikutnya. Setelah 3 -> SUMMARY;
-    TAP -> sesi baru (kedip).
+  - Boot: READY, LED kedip 5 s, "Menyesuaikan nol" lalu "Tekan tmbl START". TAP = START
+    (dan hentikan kedip).
+  - GRIP: "Menunggu genggam" + kg live; tekan > 1 kg = onset, "Tahan 3-5 detik" + kg + detik;
+    LED menyala selama genggaman stabil; stabil pada >= 3 s -> COMPUTE -> REST
+    ("Hasil xx.xx kg" / "Lepas>Rest 60s", LED tetap menyala sampai dilepas).
+  - REST: setelah dilepas "NEXT > lanjut"; TAP -> percobaan berikutnya. Setelah 3 -> SUMMARY
+    ("Mx.. Av.. kg" / "Tekan: RESTART"); TAP -> sesi baru (kedip).
   - Galat sensor di READY/GRIP/COMPUTE/REST -> FAULT (LED mati, ERR + raw); TAHAN 1,5 s -> READY.
   - Tahan 15 s di state apa pun = reset total (hitung mundur di LCD mulai detik ke-3).
   - Serial: [FSM] A -> B, [GRIP], [COMPUTE], [REST], [SUMMARY], [FAULT]; 't' tare, 'p' nilai.

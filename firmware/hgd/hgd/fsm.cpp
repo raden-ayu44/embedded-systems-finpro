@@ -136,7 +136,7 @@ static State handleReady(Press press) {
   if (press != PRESS_TAP) return READY;
   if (ledBlinking()) ledSet(false);         // TAP menghentikan kedip restart seketika
   if (sensorTareDone()) return GRIP;        // START hanya bila tare sudah selesai
-  return READY;                             // TAP saat "Nol-kan..." hanya menghentikan kedip
+  return READY;                             // TAP saat "Menyesuaikan nol" hanya menghentikan kedip
 }
 
 static State handleGrip() {
@@ -239,35 +239,38 @@ static void drawScreen() {
     return;
   }
 
+  // Teks mengikuti Tabel 4 proposal (sama dengan firmware tim lainnya); semua <= 16 karakter.
+  // Angka ditulis dengan lebar tetap (%5.1f dst.) supaya posisi tidak bergeser saat nilai berubah.
   const Trial& tr = session.trials[session.trialNo - 1];
   switch (state) {
-    case READY:
-      snprintf(l0, sizeof(l0), "UKUR %u/%u", session.trialNo, TRIALS_PER_SESSION);
-      snprintf(l1, sizeof(l1), "%s", sensorTareDone() ? "Tekan START" : "Nol-kan...");
+    case READY:   // "SIAP - UKUR 1/3" / "Menyesuaikan nol" lalu "Tekan tmbl START"
+      snprintf(l0, sizeof(l0), "SIAP - UKUR %u/%u", session.trialNo, TRIALS_PER_SESSION);
+      snprintf(l1, sizeof(l1), "%s", sensorTareDone() ? "Tekan tmbl START" : "Menyesuaikan nol");
       break;
     case GRIP:
-      if (gripPhase == WAIT_ONSET) {
-        snprintf(l0, sizeof(l0), "UKUR %u/%u", session.trialNo, TRIALS_PER_SESSION);
-        snprintf(l1, sizeof(l1), "Genggam...");
-      } else {   // "UKUR 1/3  25.3kg": kg rata kanan, lebar tetap 6
-        snprintf(l0, sizeof(l0), "UKUR %u/%u%6.1fkg", session.trialNo, TRIALS_PER_SESSION, sensorKg());
-        snprintf(l1, sizeof(l1), "Tahan 3-5 dtk");
+      if (gripPhase == WAIT_ONSET) {   // "Menunggu genggam" / " 0.4 kg" (kg live)
+        snprintf(l0, sizeof(l0), "Menunggu genggam");
+        snprintf(l1, sizeof(l1), "%5.1f kg", sensorKg());
+      } else {   // "Tahan 3-5 detik" / " 25.3 kg  3.4s" (kg live + detik sejak onset)
+        snprintf(l0, sizeof(l0), "Tahan 3-5 detik");
+        snprintf(l1, sizeof(l1), "%5.1f kg  %.1fs", sensorKg(), (millis() - gripStartMs) / 1000.0f);
       }
       break;
     case COMPUTE:
       return;   // one-shot tanpa layar
-    case REST:
-      snprintf(l0, sizeof(l0), "UKUR %u  P=%4.1fkg", session.trialNo, tr.ref);
+    case REST:    // "Hasil 47.23 kg" / "Lepas>Rest 60s" lalu "NEXT > lanjut"
+      snprintf(l0, sizeof(l0), "Hasil %5.2f kg", tr.ref);
       if (restPhase == RELEASE_REST) {
-        snprintf(l1, sizeof(l1), "Lepas tangan");
+        // Langkah 7: setelah dilepas, hitung mundur detik bulat "Lepas>Rest %2lus".
+        snprintf(l1, sizeof(l1), "Lepas>Rest %lus", (unsigned long)REST_S);
       } else {
         snprintf(l1, sizeof(l1), "%s",
-                 session.trialNo < TRIALS_PER_SESSION ? "NEXT: lanjut" : "NEXT: ringkasan");
+                 session.trialNo < TRIALS_PER_SESSION ? "NEXT > lanjut" : "NEXT > ringkasan");
       }
       break;
-    case SUMMARY:
-      snprintf(l0, sizeof(l0), "Puncak %.1f kg", session.peak);
-      snprintf(l1, sizeof(l1), "Rerata %.1f kg", session.avg);
+    case SUMMARY: // "Mx47.2 Av44.8 kg" / "Tekan: RESTART"
+      snprintf(l0, sizeof(l0), "Mx%4.1f Av%4.1f kg", session.peak, session.avg);
+      snprintf(l1, sizeof(l1), "Tekan: RESTART");
       break;
     case FAULT:
       switch (activeFault) {

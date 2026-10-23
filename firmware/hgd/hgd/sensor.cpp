@@ -114,7 +114,7 @@ bool sensorPoll() {
       if (spread > TARE_MAX_SPREAD) {
         // Alat tersentuh atau bergerak saat tare. Offset dari sampel ini akan menggeser semua
         // hasil percobaan, jadi offset lama TIDAK diganti dan tare diulang dari awal.
-        // sensorTareDone() tetap false, jadi layar READY tetap "Nol-kan...".
+        // sensorTareDone() tetap false, jadi layar READY tetap "Menyesuaikan nol".
         Serial.printf("[TARE] PERINGATAN: sebaran %ld counts > %ld, jangan sentuh alat; tare diulang\n",
                       (long)spread, (long)TARE_MAX_SPREAD);
         sensorStartTare();
