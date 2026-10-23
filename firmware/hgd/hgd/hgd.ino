@@ -19,7 +19,8 @@
     TAHAN 1,5 s di "Menunggu genggam" = tare ulang di tempat ("Menyesuaikan nol" ~1 s, langkah 6c);
     LED menyala selama genggaman stabil; stabil pada >= 3 s -> COMPUTE -> REST
     ("Hasil xx.xx kg" / "Lepas>Rest 60s", LED tetap menyala sampai dilepas).
-  - REST: setelah dilepas hitung mundur "Lepas>Rest 60s" ... " 1s" (langkah 7, TAP diabaikan), lalu
+  - REST: setelah dilepas hitung mundur "Lepas>Rest 60s" ... " 1s" (langkah 7, TAP diabaikan;
+    digenggam lagi = hitung mundur dijeda sampai dilepas), lalu
     "NEXT > lanjut"; TAP -> percobaan berikutnya. Setelah 3 -> SUMMARY
     ("Mx.. Av.. kg" / "Tekan: RESTART"); TAP -> sesi baru (kedip).
   - Galat sensor di READY/GRIP/COMPUTE/REST -> FAULT (LED mati, ERR + raw); TAHAN 1,5 s -> READY.
