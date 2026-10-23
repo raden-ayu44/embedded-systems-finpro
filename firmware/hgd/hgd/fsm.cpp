@@ -172,13 +172,15 @@ static State handleReady(Press press) {
   // Penjaga nol (langkah 5c). Tanpa beban kg seharusnya ~0 (terukur: alat diangkat/diputar
   // menggeser < 0,01 kg). Jauh di bawah nol = tare diambil saat alat sedang digenggam:
   // genggaman itu sudah dilepas, jadi nol salah dan semua hasil akan terlalu kecil -> tare ulang.
-  float kg = sensorKg();
-  if (kg < -THRESHOLD_ONSET_KG) {
+  // Memakai kg dengan skala NORMAL (sensorKgReal): setelah perintah x kg terskala 40x lebih besar,
+  // sehingga penjaga ini akan terpicu oleh goyangan kecil dan tare ulangnya membatalkan x.
+  float kgReal = sensorKgReal();
+  if (kgReal < -THRESHOLD_ONSET_KG) {
     readyRetare("kg di bawah -1, nol diambil saat dibebani");
     return READY;
   }
   // Masih digenggam (kg > +1): START diabaikan, layar "Lepas genggaman".
-  if (press == PRESS_TAP && kg <= THRESHOLD_ONSET_KG) return GRIP;
+  if (press == PRESS_TAP && kgReal <= THRESHOLD_ONSET_KG) return GRIP;
   return READY;
 }
 
@@ -200,8 +202,9 @@ static State handleGrip(Press press) {
     if (!sensorTareDone()) return GRIP;
     // Penjaga nol (langkah 5c): kg < -1 = tare diambil saat digenggam dan genggaman itu baru
     // dilepas sekarang (orang menggenggam terus sampai START). Kembali ke READY = tare ulang.
-    if (kg < -THRESHOLD_ONSET_KG) {
-      Serial.printf("[GRIP] kg=%.2f di bawah -1, nol salah: kembali ke READY\n", kg);
+    // Skala normal (sensorKgReal), sama alasannya dengan penjaga di READY. Onset tetap memakai kg.
+    if (sensorKgReal() < -THRESHOLD_ONSET_KG) {
+      Serial.printf("[GRIP] kg=%.2f di bawah -1, nol salah: kembali ke READY\n", sensorKgReal());
       return READY;
     }
     if (kg > THRESHOLD_ONSET_KG) {
@@ -385,7 +388,7 @@ static void drawScreen() {
     case READY:   // "SIAP - UKUR 1/3" / "Menyesuaikan nol", "Lepas genggaman" atau "Tekan tmbl START"
       snprintf(l0, sizeof(l0), "SIAP - UKUR %u/%u", session.trialNo, TRIALS_PER_SESSION);
       if (!sensorTareDone())                     snprintf(l1, sizeof(l1), "Menyesuaikan nol");
-      else if (sensorKg() > THRESHOLD_ONSET_KG)  snprintf(l1, sizeof(l1), "Lepas genggaman");
+      else if (sensorKgReal() > THRESHOLD_ONSET_KG) snprintf(l1, sizeof(l1), "Lepas genggaman");
       else                                       snprintf(l1, sizeof(l1), "Tekan tmbl START");
       break;
     case GRIP:

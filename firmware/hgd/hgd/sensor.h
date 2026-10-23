@@ -27,7 +27,9 @@ float sensorScale();     // counts per kg yang sedang dipakai
 // Nilai terakhir.
 int32_t  sensorRaw();            // counts mentah (24 bit bertanda)
 int32_t  sensorOffset();         // counts hasil tare terakhir
-float    sensorKg();             // (raw - offset) / skala
+float    sensorKg();             // (raw - offset) / skala (skala demo bila perintah x aktif)
+float    sensorKgReal();         // (raw - offset) / SCALE_COUNTS_PER_KG, selalu skala normal;
+                                 // hanya untuk penjaga nol (READY, GRIP fase 1)
 uint32_t sensorLastSampleMs();   // millis() saat sampel terakhir diterima
 uint32_t sensorReadUs();         // lama hxRead() terakhir (us), untuk uji waktu
 

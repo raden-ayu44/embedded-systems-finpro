@@ -165,6 +165,8 @@ float sensorScale() { return sen.scale; }
 int32_t  sensorRaw()          { return sen.raw; }
 int32_t  sensorOffset()       { return sen.offset; }
 float    sensorKg()           { return sen.kg; }
+// Penjaga nol menilai gaya fisik (1 kg nyata), jadi selalu memakai skala normal, juga setelah x.
+float    sensorKgReal()       { return (float)(sen.raw - sen.offset) / SCALE_COUNTS_PER_KG; }
 uint32_t sensorLastSampleMs() { return sen.lastSampleMs; }
 uint32_t sensorReadUs()       { return sen.readUs; }
 
