@@ -8,10 +8,13 @@
             Wire (bawaan core Arduino-ESP32)
             HX711 tidak memakai library (bit-bang sendiri, sensor.cpp).
 
-  Langkah 3 (uji baca sensor dan tare):
-  - Tare otomatis saat boot (~1 s, tanpa memblokir). Jangan sentuh alat saat "Nol-kan...".
-  - Serial: satu baris per sampel (~10-12 baris/s): raw, kg, lama hxRead (us), STBL bila plateau.
-  - LCD baris 1: kg, baris 2: raw (digambar ulang tiap 500 ms).
+  Langkah 4 (uji cek galat sensor; uji langkah 3 tetap jalan):
+  - Cabut DT -> HX711_TIMEOUT dalam ~1 s. Cabut SCK -> READING_INVALID (atau HX711_TIMEOUT bila
+    HX711 mati karena SCK mengambang HIGH). Colok kembali -> "normal lagi".
+  - Tiap perubahan galat dicetak sekali: [SENSOR] t=<ms> GALAT <nama> / normal lagi.
+  - LCD saat galat: baris 1 teks galat (Bagian 10.2), baris 2 raw. Saat normal: kg dan raw.
+  - Baris per sampel hanya dicetak saat tidak ada galat (supaya serial tidak banjir bila DT
+    tertahan LOW dan sampel terbaca di tiap putaran loop()).
   - TAP atau ketik 't' = tare ulang. Ketik 'p' = cetak raw, offset, kg.
   - Tiap 5 s: jumlah sampel per detik dan putaran loop() terlama.
 
@@ -66,7 +69,7 @@ void setup() {
   Serial.println();
   Serial.printf("HGD firmware, core %d.%d.%d\n",
                 ESP_ARDUINO_VERSION_MAJOR, ESP_ARDUINO_VERSION_MINOR, ESP_ARDUINO_VERSION_PATCH);
-  Serial.println("Langkah 3: sensor. TAP atau 't' = tare ulang, 'p' = cetak nilai.");
+  Serial.println("Langkah 4: cek galat sensor. TAP atau 't' = tare ulang, 'p' = cetak nilai.");
 }
 
 void loop() {
@@ -79,20 +82,45 @@ void loop() {
     Serial.println("[BTN] TAP: tare ulang");
   }
 
-  if (sensorPoll()) {
+  bool newSample = sensorPoll();
+
+  // Cek galat sensor tiap putaran; cetak hanya saat jenis galat berubah.
+  static FaultType lastFault = FAULT_NONE;
+  FaultType fault = sensorCheck();
+  if (fault != lastFault) {
+    if (fault == FAULT_NONE) {
+      Serial.printf("[SENSOR] t=%lu normal lagi (raw=%ld)\n", (unsigned long)millis(), (long)sensorRaw());
+    } else {
+      Serial.printf("[SENSOR] t=%lu GALAT %s (raw=%ld, raw sama %u kali, sampel terakhir %lu ms lalu)\n",
+                    (unsigned long)millis(), faultName(fault), (long)sensorRaw(), sensorSameRun(),
+                    (unsigned long)(millis() - sensorLastSampleMs()));
+    }
+    lastFault = fault;
+    displayRequest();   // ganti layar segera
+  }
+
+  if (newSample) {
     sampleCount++;
-    Serial.printf("raw=%ld kg=%+.3f baca=%lu us%s%s\n",
-                  (long)sensorRaw(), sensorKg(), (unsigned long)sensorReadUs(),
-                  sensorPlateau() ? " STBL" : "",
-                  sensorTareDone() ? "" : " (tare)");
+    if (fault == FAULT_NONE) {
+      Serial.printf("raw=%ld kg=%+.3f baca=%lu us%s%s\n",
+                    (long)sensorRaw(), sensorKg(), (unsigned long)sensorReadUs(),
+                    sensorPlateau() ? " STBL" : "",
+                    sensorTareDone() ? "" : " (tare)");
+    }
   }
 
   serialCmd();
 
-  // LCD: kg dan raw, paling cepat tiap LCD_REFRESH_MS.
+  // LCD: teks galat + raw saat galat, selain itu kg dan raw; paling cepat tiap LCD_REFRESH_MS.
   if (displayDue()) {
     char line[24];
-    if (!sensorTareDone()) {
+    if (fault == HX711_TIMEOUT) {
+      lcdLine(0, "ERR:HX711 TMOUT");
+    } else if (fault == ADC_SATURATED) {
+      lcdLine(0, "ERR:ADC SATURASI");
+    } else if (fault == READING_INVALID) {
+      lcdLine(0, "ERR:BACA TDK VLD");
+    } else if (!sensorTareDone()) {
       lcdLine(0, "Nol-kan...");
     } else {
       snprintf(line, sizeof(line), "%+8.2f kg", sensorKg());

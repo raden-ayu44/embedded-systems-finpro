@@ -39,6 +39,18 @@ enum FaultType {
   READING_INVALID = 4
 };
 
+// Nama galat untuk pesan serial. "inline" = fungsi kecil di header yang boleh di-include
+// banyak berkas tanpa galat "didefinisikan dua kali" saat linking.
+inline const char* faultName(FaultType f) {
+  switch (f) {
+    case HX711_TIMEOUT:   return "HX711_TIMEOUT";
+    case ADC_SATURATED:   return "ADC_SATURATED";
+    case OUT_OF_RANGE:    return "OUT_OF_RANGE";
+    case READING_INVALID: return "READING_INVALID";
+    default:              return "NONE";
+  }
+}
+
 // Jalur keluar GRIP.
 enum GripExit {
   EXIT_NONE = 0,

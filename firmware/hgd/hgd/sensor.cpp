@@ -13,6 +13,7 @@ struct SensorState {
   float    kg;            // (raw - offset) / scale
   uint32_t lastSampleMs;  // millis() saat sampel terakhir
   uint32_t readUs;        // lama hxRead() terakhir
+  uint8_t  sameRun;       // jumlah sampel berturut-turut dengan raw yang sama (termasuk yang terakhir)
 
   float    buf[BUF_SIZE]; // buffer melingkar kg
   uint8_t  bufIdx;        // posisi tulis berikutnya
@@ -77,6 +78,13 @@ bool sensorPoll() {
   int32_t raw = hxRead();
   sen.readUs = micros() - t0;
 
+  // Hitung raw identik berturut-turut (untuk READING_INVALID). Dengan noise nyata (sigma ~38 counts)
+  // dua sampel berurutan hampir tidak pernah sama persis, apalagi 10.
+  if (raw == sen.raw && sen.sameRun > 0) {
+    if (sen.sameRun < 255) sen.sameRun++;   // berhenti di 255 supaya tidak meluap
+  } else {
+    sen.sameRun = 1;
+  }
   sen.raw = raw;
   sen.lastSampleMs = millis();
   sen.kg = (float)(raw - sen.offset) / sen.scale;
@@ -115,6 +123,27 @@ int32_t  sensorOffset()       { return sen.offset; }
 float    sensorKg()           { return sen.kg; }
 uint32_t sensorLastSampleMs() { return sen.lastSampleMs; }
 uint32_t sensorReadUs()       { return sen.readUs; }
+
+FaultType sensorCheck() {
+  // 1) Tidak ada sampel baru selama HX711_TIMEOUT_MS: HX711 tidak menjawab
+  //    (mis. DT tercabut: pull-up membuat DT selalu HIGH = "tidak siap").
+  if (millis() - sen.lastSampleMs > HX711_TIMEOUT_MS) return HX711_TIMEOUT;
+
+  // Belum ada sampel sejak boot: nilai raw belum berarti, tunggu (timeout di atas tetap berlaku).
+  if (sen.sameRun == 0) return FAULT_NONE;
+
+  // 2) Mendekati batas skala penuh ADC (mis. kabel sinyal tercabut, masukan mengambang).
+  //    Dicek sebelum nilai berulang: ADC yang jenuh mengeluarkan kode maksimum yang sama terus.
+  if (abs(sen.raw) >= (int32_t)(SATURATION_FRACTION * ADC_MAX)) return ADC_SATURATED;
+
+  // 3) SAME_RAW_N raw identik berturut-turut: data tidak bergeser (mis. SCK tercabut, DT tetap LOW
+  //    sehingga semua bit terbaca 0 dan raw = 0 di tiap putaran loop()).
+  if (sen.sameRun >= SAME_RAW_N) return READING_INVALID;
+
+  return FAULT_NONE;
+}
+
+uint8_t sensorSameRun() { return sen.sameRun; }
 
 bool sensorPlateau() {
   if (sen.bufN < BUF_SIZE) return false;   // buffer belum penuh: belum bisa dinilai
