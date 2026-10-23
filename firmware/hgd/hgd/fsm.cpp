@@ -3,7 +3,7 @@
 // Langkah 5 (kerangka): semua state, aksi masuk, layar (Bagian 10.2), aturan LED (Bagian 10.3),
 // transisi pengecualian galat sensor, dan reset total. Transisi masih sederhana:
 // - GRIP (langkah 6): onset -> fase 2; dilepas sebelum 3 s -> fase 1; plateau genggaman pada
-//   t >= 3 s -> COMPUTE; batas 5 s -> COMPUTE dengan jendela buffer paling stabil.
+//   t >= 3 s -> COMPUTE; batas 5 s -> COMPUTE dengan jendela buffer terkuat.
 // - REST: setelah genggaman dilepas langsung menunggu TAP (NEXT).
 //   Langkah 7 menambah hitung mundur istirahat REST_S.
 // - Langkah 5c: penjaga nol di READY (kg > +1 = START diabaikan, kg < -1 = tare ulang), di GRIP
@@ -24,8 +24,7 @@ static uint32_t  gripStartMs = 0;          // millis() saat onset (fase 2 mulai,
 static uint32_t  gripDurMs = 0;            // lama fase 2 saat keluar GRIP
 static GripExit  gripExit = EXIT_NONE;     // jalur keluar GRIP terakhir
 static uint32_t  gripLastSampleMs = 0;     // waktu sampel terakhir yang sudah dinilai di fase 2
-static float     bestSpread = 0.0f;        // jendela buffer paling stabil sejauh ini (maks - min)
-static float     bestAvg = 0.0f;           // rata-rata jendela itu (dipakai bila keluar lewat batas 5 s)
+static float     bestAvg = 0.0f;           // rata-rata tertinggi jendela 5 sampel di atas onset (batas 5 s)
 static bool      bestFound = false;        // sudah ada jendela genggaman yang dinilai
 static bool      restartPending = false;   // true = masuk READY berikutnya adalah restart (kedip)
 static FaultType activeFault = FAULT_NONE; // galat yang membuat masuk FAULT
@@ -210,15 +209,15 @@ static State handleGrip() {
   bool gripWindow = sensorBufFull() && sensorBufMin() > THRESHOLD_ONSET_KG;
   bool plateau = gripWindow && sensorPlateau();
 
-  // Catat jendela paling stabil, sekali per sampel baru (bukan per putaran loop).
+  // Catat jendela TERKUAT (rata-rata tertinggi), sekali per sampel baru (bukan per putaran loop).
+  // Kekuatan genggaman adalah nilai maksimum, jadi bila tidak ada plateau dipakai jendela terkuat.
   if (sensorLastSampleMs() != gripLastSampleMs) {
     gripLastSampleMs = sensorLastSampleMs();
     if (gripWindow) {
-      float spread = sensorBufSpread();
-      if (!bestFound || spread < bestSpread) {
+      float avg = sensorBufAvg();
+      if (!bestFound || avg > bestAvg) {
         bestFound = true;
-        bestSpread = spread;
-        bestAvg = sensorBufAvg();
+        bestAvg = avg;
       }
     }
   }
@@ -240,8 +239,8 @@ static State handleGrip() {
     gripExit = EXIT_TIMEOUT;
     gripDurMs = t;
     ledSet(false);
-    Serial.printf("[GRIP] exit=TIMEOUT t=%lu ms jendela terbaik sebaran=%.2f kg rata=%.2f kg\n",
-                  (unsigned long)t, bestSpread, bestAvg);
+    Serial.printf("[GRIP] exit=TIMEOUT t=%lu ms jendela terkuat rata=%.2f kg\n",
+                  (unsigned long)t, bestAvg);
     return COMPUTE;
   }
   return GRIP;
@@ -251,7 +250,7 @@ static State handleCompute() {
   // ref = rata-rata buffer plateau, presisi penuh (pembulatan hanya di LCD).
   Trial& tr = session.trials[session.trialNo - 1];
   // PLATEAU: rata-rata buffer sekarang (plateau yang baru terjadi).
-  // TIMEOUT: rata-rata jendela paling stabil selama fase 2 ("nilai buffer terbaik", Bagian 6.2).
+  // TIMEOUT: rata-rata jendela terkuat selama fase 2 ("nilai buffer terbaik", Bagian 5.11).
   //          Selalu ada setelah >= 3 s di atas onset; bila tidak ada, pakai buffer sekarang.
   if (gripExit == EXIT_TIMEOUT && bestFound) tr.ref = bestAvg;
   else                                        tr.ref = sensorBufAvg();
