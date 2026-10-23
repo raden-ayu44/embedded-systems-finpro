@@ -1,4 +1,4 @@
-"""
+r"""
 logger.py - pencatat sesi HGD di laptop (embedded system, Kelompok 01)
 ---------------------------------------------------------------------
 Peran (alur-program-hgd.md Bagian 4.8, 5.22, 9):
@@ -11,9 +11,12 @@ Peran (alur-program-hgd.md Bagian 4.8, 5.22, 9):
 
 Kebutuhan: Python 3 dan pyserial (diuji dengan Python 3.11 dan pyserial 3.5):
     pip install pyserial
-Cara pakai:
-    python logger.py COM3            (Windows; di Linux mis. /dev/ttyUSB0)
-    python logger.py COM3 --dir data (CSV ditulis ke folder "data")
+Cara pakai (dari folder repo):
+    python laptop/logger.py COM3 --dir ..\data   (Windows; CSV di folder "data" di samping repo)
+    python laptop/logger.py /dev/ttyUSB0 --dir ../data   (Linux)
+Tanpa --dir, CSV ditulis ke folder kerja. Jangan tulis CSV ke dalam repo (data pengukuran).
+Jangan membuka CSV hari ini di Excel selama logger.py berjalan: Excel mengunci berkas, baris tidak
+bisa ditulis, logger.py membalas NAK, dan sesi berakhir di GAGAL SIMPAN.
 Berhenti: Ctrl+C.
 Alat uji: --kirim u (uji ACK 100 baris, U9/E5), --kirim r (baris rusak -> NAK, U10).
 
@@ -103,31 +106,27 @@ def csv_row(fields):
 
 
 class CsvLog:
-    """Satu berkas per hari, header sekali, flush() tiap baris."""
+    """Satu berkas per hari, header sekali. Tiap baris: buka, tulis, flush, tutup.
+    Berkas tidak dibiarkan terbuka, supaya berkas yang dikunci program lain (mis. dibuka di Excel
+    di Windows) selalu terdeteksi sebagai galat tulis -> NAK, bukan ACK palsu."""
 
     def __init__(self, folder):
         self.folder = folder
-        self.path = None
-        self.file = None
-        self.writer = None
+
+    def path(self):
+        return os.path.join(self.folder, "hgd_%s.csv" % datetime.date.today().strftime("%Y%m%d"))
 
     def write(self, row):
-        path = os.path.join(self.folder, "hgd_%s.csv" % datetime.date.today().strftime("%Y%m%d"))
-        if path != self.path:  # hari baru (atau pertama kali): buka berkas yang sesuai
-            if self.file:
-                self.file.close()
-            is_new = not os.path.exists(path) or os.path.getsize(path) == 0
-            self.file = open(path, "a", newline="", encoding="utf-8")
-            self.writer = csv.writer(self.file)
+        """Tulis satu baris; melempar OSError (mis. PermissionError) bila gagal."""
+        path = self.path()
+        is_new = not os.path.exists(path) or os.path.getsize(path) == 0
+        with open(path, "a", newline="", encoding="utf-8") as f:
+            writer = csv.writer(f)
             if is_new:
-                self.writer.writerow(CSV_HEADER)
-            self.path = path
-        self.writer.writerow(row)
-        self.file.flush()  # data aman walau laptop mati mendadak
-
-    def close(self):
-        if self.file:
-            self.file.close()
+                writer.writerow(CSV_HEADER)
+            writer.writerow(row)
+            f.flush()
+            os.fsync(f.fileno())  # data benar-benar di disk walau laptop mati mendadak
 
 
 def handle_hgd(line, port, log, recent, stats):
@@ -140,19 +139,31 @@ def handle_hgd(line, port, log, recent, stats):
         else:
             print("[logger] baris rusak tanpa seq, diabaikan (%s): %s" % (error, line))
         return
-    port.write(("ACK,%s\n" % seq).encode("ascii"))  # balas dulu: ESP32 menunggu
+    # ACK berarti "sudah tertulis" (Bagian 4.8): tulis + flush DULU, baru ACK.
     key = ",".join(fields)
-    if key in recent:  # kiriman ulang karena ACK sebelumnya hilang: jangan tulis dua kali
+    if key in recent:  # kiriman ulang karena ACK sebelumnya hilang: sudah tertulis, ACK lagi saja
+        port.write(("ACK,%s\n" % seq).encode("ascii"))
         print("[logger] ACK,%s (duplikat, tidak ditulis ulang)" % seq)
         return
-    recent.append(key)
-    del recent[:-RECENT_MAX]
     row = csv_row(fields)
-    if row is None:
+    if row is None:  # baris uji U: tidak ditulis ke CSV
+        port.write(("ACK,%s\n" % seq).encode("ascii"))
         stats["test"] += 1
         print("[logger] ACK,%s (baris uji U, tidak ditulis ke CSV)" % seq)
         return
-    log.write(row)
+    try:
+        log.write(row)
+    except OSError as err:
+        # Mis. PermissionError: berkas CSV sedang dibuka di Excel. Tidak tertulis -> NAK, jadi ESP32
+        # mengirim ulang dan, bila tetap gagal, masuk GAGAL SIMPAN. logger.py tetap berjalan.
+        stats["nak"] += 1
+        port.write(("NAK,%s\n" % seq).encode("ascii"))
+        print("[logger] NAK,%s: GAGAL MENULIS %s (%s). Tutup berkas itu (mis. di Excel)." %
+              (seq, log.path(), err))
+        return
+    recent.append(key)
+    del recent[:-RECENT_MAX]
+    port.write(("ACK,%s\n" % seq).encode("ascii"))
     stats["written"] += 1
     print("[logger] ACK,%s  %s" % (seq, ",".join(row[1:])))
 
@@ -223,7 +234,6 @@ def main():
     except KeyboardInterrupt:
         pass
     finally:
-        log.close()
         port.close()
         print("[logger] berhenti: %d baris ditulis, %d NAK, %d baris uji" %
               (stats["written"], stats["nak"], stats["test"]))

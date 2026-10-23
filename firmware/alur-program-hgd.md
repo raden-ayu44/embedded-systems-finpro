@@ -794,8 +794,8 @@ timestamp,sesi,jenis,percobaan,gaya_kg,rerata_kg,catatan
 4. Tidak valid → balas `NAK,<seq>` (bila `seq` terbaca), tanpa menulis.
 5. Cetak ke layar tiap baris yang diterima, supaya pengawas melihat bahwa pencatat hidup.
 6. Tidak menutup berkas sampai dihentikan; `flush()` tiap baris menjamin data tidak hilang bila laptop mati mendadak.
-7. **Kode (langkah 10):** [`laptop/logger.py`](../laptop/logger.py). Tambahan dari rancangan: (a) port dibuka dengan RTS dan DTR mati, jadi membuka atau menjalankan ulang `logger.py` **tidak me-reset ESP32** (RTS terhubung ke EN pada DevKit) dan sesi di RAM tidak hilang; (b) baris yang dikirim ulang karena ACK hilang dibalas ACK lagi tetapi tidak ditulis dua kali (32 baris terakhir diingat); (c) byte sampah di depan `HGD,` (kadang muncul di jalur USB) dilewati, sedangkan isi baris tetap dijaga checksum; (d) tombol `t p x s u r` yang diketik di konsol diteruskan ke ESP32 (`msvcrt`, Windows); (e) opsi uji `--kirim <huruf>`. Berkas CSV `hgd_*.csv` diabaikan git (`.gitignore`) supaya data pengukuran tidak masuk repo publik.
-8. **Uji 23 Okt. 2026:** U9 4 × 100/100 ACK (terlama 33,3 ms); U10 `NAK,302 (checksum salah)` → kiriman ulang → `ACK,302`; baris `E` dari perintah `s` tertulis `…,1,E,1,2,130,ADC_SATURASI`.
+7. **Kode (langkah 10):** [`laptop/logger.py`](../laptop/logger.py). Tambahan dari rancangan: (a) port dibuka dengan RTS dan DTR mati, jadi membuka atau menjalankan ulang `logger.py` **tidak me-reset ESP32** (RTS terhubung ke EN pada DevKit) dan sesi di RAM tidak hilang; (b) baris yang dikirim ulang karena ACK hilang dibalas ACK lagi tetapi tidak ditulis dua kali (32 baris terakhir diingat); (c) byte sampah di depan `HGD,` (kadang muncul di jalur USB) dilewati, sedangkan isi baris tetap dijaga checksum; (d) tombol `t p x s u r` yang diketik di konsol diteruskan ke ESP32 (`msvcrt`, Windows); (e) opsi uji `--kirim <huruf>`; (f) **baris ditulis dan di-`flush()` (plus `fsync`) SEBELUM ACK dikirim**, karena ACK berarti "sudah tertulis" (Bagian 4.8); berkas dibuka-tulis-tutup per baris, dan bila penulisan gagal (mis. `PermissionError` karena CSV sedang dibuka di Excel) `logger.py` mencetak galatnya dan membalas **NAK**, sehingga ESP32 mengirim ulang lalu masuk `GAGALSIMPAN`; `logger.py` tetap berjalan. Berkas CSV `hgd_*.csv` diabaikan git (`.gitignore`) supaya data pengukuran tidak masuk repo publik.
+8. **Uji 23 Okt. 2026:** U9 4 × 100/100 ACK (terlama 33,3 ms); U10 `NAK,302 (checksum salah)` → kiriman ulang → `ACK,302`; CSV dibuat read-only (sama dengan kunci Excel): `NAK,101 GAGAL MENULIS … Permission denied` dua kali → ESP32 `GAGAL setelah kirim ulang`, `logger.py` tetap berjalan, CSV tidak berubah; baris `E` dari perintah `s` tertulis `…,1,E,1,2,130,ADC_SATURASI`.
 
 ### 9.5 Urutan di `RINGKASAN`
 1. Kirim 3 baris `T` (satu per percobaan), lalu 1 baris `S`; tiap baris menunggu `ACK` sendiri.
@@ -920,6 +920,7 @@ timestamp,sesi,jenis,percobaan,gaya_kg,rerata_kg,catatan
 | X11c | Reset total di `GAGALSIMPAN`: tahan tombol 15 s; ulangi dengan melepas pada detik ke-10 | 1,5 s: TAHAN → sesi baru (`nomorSesi` +1), `SIAP` dengan kedip. 15 s: reset total → `nomorSesi` +1 lagi (total +2), `E` `FORCE_RESET`. Lepas di detik ke-10: tetap di `SIAP` sesi baru (+1), tanpa TAP palsu |
 | X12 | Genggaman stabil (LED menyala) ditahan sampai 5 detik (langkah 6d) | Sejak 3 s baris 2 `Lepas ok`; percobaan berakhir tepat pada 5 s (`[GRIP] exit=TIMEOUT t=5000 ms`), `ref` = jendela stabil terkuat, LED tetap menyala sampai dilepas di `RESPON_ISTIRAHAT` |
 | X13 | Genggaman stabil dilepas pada ≈ 4 detik (langkah 6d) | Percobaan berakhir saat kg < 1,0 kg (`[GRIP] exit=RELEASE t≈4000 ms`), tidak menunggu 5 s; `ref` = jendela stabil terkuat; LED mati |
+| X14 | Buka CSV hari ini di Excel, lalu jalankan satu sesi dengan `logger.py` berjalan (langkah 10) | Baris tidak bisa ditulis → `logger.py` mencetak `GAGAL MENULIS … Tutup berkas itu` dan membalas NAK → ESP32 mengirim ulang sekali → `GAGALSIMPAN` (≈ 1 s); `logger.py` tetap berjalan; setelah Excel ditutup, sesi berikutnya tersimpan normal |
 
 ### 11.3 Sketsa uji modul
 | Sketsa | Uji | Isi |
@@ -945,8 +946,8 @@ Kelima sketsa memakai API yang sama di core 2.x dan 3.x (papan DOIT ESP32 DEVKIT
 
 ### 12.2 Sisi laptop
 1. Pasang Python 3 dan `pip install pyserial`.
-2. Jalankan `python laptop/logger.py <PORT>` (mis. `COM3`) sebelum memulai sesi; opsi `--dir <folder>` untuk lokasi CSV. Membuka `logger.py` tidak me-reset ESP32 (langkah 10).
-3. Berkas CSV muncul di folder kerja (`hgd_YYYYMMDD.csv`).
+2. Dari folder repo, jalankan `python laptop/logger.py COM3 --dir ..\data` sebelum memulai sesi (CSV di folder `data` di samping repo, bukan di dalam repo). Membuka `logger.py` tidak me-reset ESP32 (langkah 10). Jangan membuka CSV hari ini di Excel selama `logger.py` berjalan (X14).
+3. Berkas CSV muncul di folder `--dir` (`hgd_YYYYMMDD.csv`; tanpa `--dir`: folder kerja).
 4. Untuk kalibrasi: `python kalibrasi.py <berkas-hasil>`.
 
 ### 12.3 Uji cepat load cell

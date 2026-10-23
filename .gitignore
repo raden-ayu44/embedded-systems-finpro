@@ -1,2 +1,5 @@
 # Data pengukuran dari logger.py: jangan pernah masuk repo publik.
 hgd_*.csv
+
+# Cache Python
+__pycache__/
