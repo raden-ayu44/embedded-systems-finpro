@@ -8,12 +8,14 @@
 //   -> tunggu TAP (NEXT).
 // - Langkah 5c: penjaga nol di READY (kg > +1 = START diabaikan, kg < -1 = tare ulang), di GRIP
 //   fase 1 (kg < -1 = kembali ke READY), dan TAHAN di READY = tare ulang manual.
-// - Langkah 8 menambah cek rentang (OUT_OF_RANGE) dan modul galat; langkah 9 baris log + ACK.
+// - Langkah 8: cek rentang OUT_OF_RANGE live di GRIP dan pada ref di COMPUTE; keadaan aman, layar
+//   galat dan baris E di modul fault.cpp. Langkah 9: baris log HGD + ACK.
 #include "fsm.h"
 #include "button.h"
 #include "display.h"
 #include "sensor.h"
 #include "led.h"
+#include "fault.h"
 
 // ---------------- Data state machine (semua statis, tanpa malloc) ----------------
 static State     state = READY;
@@ -38,7 +40,7 @@ static uint32_t  gripLastSampleMs = 0;     // waktu sampel terakhir yang sudah d
 static float     bestAvg = 0.0f;           // rata-rata tertinggi jendela 5 sampel di atas onset (batas 5 s)
 static bool      bestFound = false;        // sudah ada jendela genggaman yang dinilai
 static bool      restartPending = false;   // true = masuk READY berikutnya adalah restart (kedip)
-static FaultType activeFault = FAULT_NONE; // galat yang membuat masuk FAULT
+static FaultType pendingFault = FAULT_NONE; // galat yang dicatat saat masuk FAULT (diisi sebelum transisi)
 static bool      countdownShown = false;   // layar hitung mundur reset total sedang tampil
 static uint32_t  pageStartMs = 0;          // millis() saat masuk SAVE_FAILED (ganti halaman)
 
@@ -122,9 +124,8 @@ static void enterSummary() {
 }
 
 static void enterFault() {
-  buttonReset();
-  ledSet(false);             // keadaan aman: LED dipaksa mati, pengukuran berhenti
-  Serial.printf("[FAULT] %s raw=%ld\n", faultName(activeFault), (long)sensorRaw());
+  // Keadaan aman (LED mati, pesan, baris E) dikerjakan modul galat (fault.cpp).
+  faultEnter(pendingFault, session.number, session.trialNo, session.t0Ms);
 }
 
 static void enterSaveFailed() {
@@ -279,11 +280,18 @@ static State handleCompute() {
   //          Selalu ada setelah >= 3 s di atas onset; bila tidak ada, pakai buffer sekarang.
   if (gripExit == EXIT_TIMEOUT && bestFound) tr.ref = bestAvg;
   else                                        tr.ref = sensorBufAvg();
-  tr.valid = true;                          // validasi rentang ditambahkan di langkah 8
   tr.durMs = gripDurMs;
   tr.exitBy = gripExit;
   Serial.printf("[COMPUTE] percobaan %u ref=%.2f kg (%s)\n", session.trialNo, tr.ref,
                 gripExit == EXIT_TIMEOUT ? "TIMEOUT" : "PLATEAU");
+
+  // Validasi rentang (langkah 8, cek kedua; cek pertama berjalan live di GRIP):
+  // ref harus > MIN_FORCE_KG (0) dan <= MAX_FORCE_KG (80, kapasitas load cell).
+  tr.valid = (tr.ref > MIN_FORCE_KG && tr.ref <= MAX_FORCE_KG);
+  if (!tr.valid) {
+    pendingFault = OUT_OF_RANGE;            // percobaan tidak dihitung; TAHAN mengulangnya
+    return FAULT;
+  }
   return REST;
 }
 
@@ -343,7 +351,7 @@ static State handleFault(Press press) {
   if (press != PRESS_HOLD) return FAULT;
   // TAHAN 1,5 s: kembali ke READY dengan kedip. Sesi dan nomor percobaan tetap,
   // percobaan yang gagal tidak dihitung (diulang).
-  activeFault = FAULT_NONE;
+  faultClear();
   restartPending = true;
   return READY;
 }
@@ -413,15 +421,8 @@ static void drawScreen() {
       snprintf(l0, sizeof(l0), "Mx%4.1f Av%4.1f kg", session.peak, session.avg);
       snprintf(l1, sizeof(l1), "Tekan: RESTART");
       break;
-    case FAULT:
-      switch (activeFault) {
-        case HX711_TIMEOUT:   snprintf(l0, sizeof(l0), "ERR:HX711 TMOUT");  break;
-        case ADC_SATURATED:   snprintf(l0, sizeof(l0), "ERR:ADC SATURASI"); break;
-        case OUT_OF_RANGE:    snprintf(l0, sizeof(l0), "ERR:DI LUAR RNTG"); break;
-        case READING_INVALID: snprintf(l0, sizeof(l0), "ERR:BACA TDK VLD"); break;
-        default:              snprintf(l0, sizeof(l0), "ERR");              break;
-      }
-      snprintf(l1, sizeof(l1), "RAW %ld", (long)sensorRaw());   // raw live untuk pengawas
+    case FAULT:   // "ERR:..." / "RAW <raw live>" (fault.cpp)
+      faultDraw(l0, l1, sizeof(l0));
       break;
     case SAVE_FAILED:
       // Dua halaman bergantian tiap SAVE_FAILED_PAGE_MS (3 s) supaya semua nilai bisa disalin.
@@ -466,6 +467,9 @@ void fsmRun(Press press) {
     forceDone = true;
     countdownShown = false;
     Serial.println("[FSM] RESET TOTAL");
+    // Baris E FORCE_RESET memakai sesi dan percobaan SEBELUM reset (Bagian 9.2).
+    faultLogEvent(EVENT_FORCE_RESET, session.number, session.trialNo, session.t0Ms);
+    faultClear();                           // reset dari FAULT juga menghapus galat aktif
     fsmNewSession();                        // sesi berjalan dibuang, nomor sesi naik
     restartPending = true;
     changeState(READY);                     // masuk ulang READY walau sudah di READY
@@ -476,10 +480,13 @@ void fsmRun(Press press) {
   }
 
   // (2) Transisi pengecualian: galat sensor di dalam siklus percobaan -> FAULT.
+  //     Langkah 8: di GRIP juga cek rentang LIVE, tanpa menunggu percobaan selesai
+  //     (kg > 80 kg pada sampel mana pun = melewati kapasitas load cell).
   if (inTrialCycle(state)) {
     FaultType f = sensorCheck();
+    if (f == FAULT_NONE && state == GRIP && sensorKg() > MAX_FORCE_KG) f = OUT_OF_RANGE;
     if (f != FAULT_NONE) {
-      activeFault = f;
+      pendingFault = f;
       changeState(FAULT);
       drawScreen();
       return;

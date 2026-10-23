@@ -20,6 +20,10 @@ void sensorStartTare();
 // true bila tidak ada tare yang sedang berjalan (offset siap dipakai).
 bool sensorTareDone();
 
+// Perintah x (langkah 8): skala dibagi DEMO_SCALE_DIV sampai tare berikutnya (demo X3, uji batas 5 s).
+void  sensorDemoScale();
+float sensorScale();     // counts per kg yang sedang dipakai
+
 // Nilai terakhir.
 int32_t  sensorRaw();            // counts mentah (24 bit bertanda)
 int32_t  sensorOffset();         // counts hasil tare terakhir

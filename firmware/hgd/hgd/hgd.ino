@@ -25,7 +25,10 @@
     ("Mx.. Av.. kg" / "Tekan: RESTART"); TAP -> sesi baru (kedip).
   - Galat sensor di READY/GRIP/COMPUTE/REST -> FAULT (LED mati, ERR + raw); TAHAN 1,5 s -> READY.
   - Tahan 15 s di state apa pun = reset total (hitung mundur di LCD mulai detik ke-3).
-  - Serial: [FSM] A -> B, [GRIP], [COMPUTE], [REST], [SUMMARY], [FAULT]; 't' tare, 'p' nilai.
+  - Langkah 8: kg > 80 kg live di GRIP, atau ref <= 0 / > 80 kg di COMPUTE -> FAULT OUT_OF_RANGE
+    ("ERR:DI LUAR RNTG"). Keadaan aman, layar galat dan baris [E] di fault.cpp.
+  - Serial: [FSM] A -> B, [GRIP], [COMPUTE], [REST], [SUMMARY], [FAULT], [E]; 't' tare, 'p' nilai,
+    'x' skala dibagi 40 sampai tare berikutnya (demo di luar rentang).
 
   Serial Monitor: 115200 baud.
 */
@@ -53,6 +56,12 @@ static void serialCmd() {
   if (c == 't') {
     sensorStartTare();
     Serial.println("[CMD] t: tare ulang");
+  } else if (c == 'x') {
+    // Demo galat X3 / uji batas 5 s: skala dibagi DEMO_SCALE_DIV sampai tare berikutnya.
+    // Ketik saat layar "Tekan tmbl START" (bukan saat "Menyesuaikan nol": tare membatalkannya).
+    sensorDemoScale();
+    Serial.printf("[CMD] x: skala dibagi %.0f sampai tare berikutnya (%.1f counts/kg)\n",
+                  DEMO_SCALE_DIV, sensorScale());
   } else if (c == 'p') {
     Serial.printf("[CMD] p: raw=%ld offset=%ld kg=%+.3f state=%s\n",
                   (long)sensorRaw(), (long)sensorOffset(), sensorKg(), stateName(fsmState()));
@@ -77,7 +86,7 @@ void setup() {
   Serial.println();
   Serial.printf("HGD firmware, core %d.%d.%d\n",
                 ESP_ARDUINO_VERSION_MAJOR, ESP_ARDUINO_VERSION_MINOR, ESP_ARDUINO_VERSION_PATCH);
-  Serial.println("Langkah 7: istirahat + ringkasan.");
+  Serial.println("Langkah 8: modul galat + cek rentang.");
 
   fsmInit();   // READY dengan kedip restart dan tare pertama
 }

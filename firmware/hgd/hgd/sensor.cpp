@@ -131,6 +131,7 @@ bool sensorPoll() {
       } else {
         sen.offset = (int32_t)lround((double)sen.tareSum / sen.tareN);
         sen.taring = false;
+        sen.scale = SCALE_COUNTS_PER_KG;   // tare membatalkan skala demo dari perintah x
         sen.kg = (float)(raw - sen.offset) / sen.scale;   // kg terakhir dihitung ulang dengan offset baru
         sensorBufReset();   // isi buffer lama memakai offset lama: buang
         Serial.printf("[TARE] offset=%ld counts (%u sampel, sebaran %ld counts)\n",
@@ -150,6 +151,16 @@ void sensorStartTare() {
 }
 
 bool sensorTareDone() { return !sen.taring; }
+
+void sensorDemoScale() {
+  // Demo galat X3 dan uji batas 5 s (langkah 8): skala dibagi DEMO_SCALE_DIV sampai tare berikutnya,
+  // jadi tekanan kecil terbaca besar (mis. 2 kg x 40 = 80 kg). Load cell tidak perlu dibebani
+  // melewati kapasitasnya. kg terakhir dihitung ulang supaya layar langsung memakai skala baru.
+  sen.scale = SCALE_COUNTS_PER_KG / DEMO_SCALE_DIV;
+  sen.kg = (float)(sen.raw - sen.offset) / sen.scale;
+}
+
+float sensorScale() { return sen.scale; }
 
 int32_t  sensorRaw()          { return sen.raw; }
 int32_t  sensorOffset()       { return sen.offset; }

@@ -36,8 +36,10 @@ const float    THRESHOLD_STABLE_KG = 0.5f;     // E2: selisih maks-min buffer un
 const uint8_t  BUF_SIZE            = 5;        // sampel buffer plateau
 const uint8_t  TARE_SAMPLES        = 10;       // tare = rata-rata 10 sampel (~1 s pada 10 SPS)
 // Sebaran (maks - min) 10 sampel tare lebih dari ini = alat tersentuh/bergerak saat tare:
-// tare diulang otomatis. 1000 counts ~ 19 g; sebaran normal terukur 67-127 counts (langkah 3-4).
-const int32_t  TARE_MAX_SPREAD     = 1000;
+// tare diulang otomatis. 400 counts ~ 7 g. Sebaran normal terukur 48-136 counts, sampai 192 tepat
+// setelah percobaan (langkah 3-7). Langkah 8: diturunkan dari 1000 karena tare bersebaran 585 counts
+// (tangan masih dekat alat) lolos dan menggeser nol ~0,05 kg.
+const int32_t  TARE_MAX_SPREAD     = 400;
 // Sampel pertama setelah HX711 menyala belum stabil: tare pertama gagal di tiga boot berturut-turut
 // (sebaran 941-2019 counts, ulangannya 62-97). Sebanyak ini sampel awal dibuang (~0,5 s).
 const uint8_t  BOOT_SKIP_SAMPLES   = 5;
@@ -56,6 +58,9 @@ const uint32_t SAMPLE_MIN_GAP_MS   = 40;       // jarak < ini dihitung "pendek" 
 const uint8_t  SHORT_GAP_N         = 3;        // 3 jarak pendek berturut-turut = READING_INVALID
 const float    MIN_FORCE_KG        = 0.0f;     // ref harus > nilai ini
 const float    MAX_FORCE_KG        = 80.0f;    // kapasitas nominal CZL 601; dicek live di GRIP
+// Perintah x: skala dibagi ini sampai tare berikutnya. 40 (dokumen semula 20) supaya ~2 kg sudah
+// terbaca > 80 kg di load cell tanpa housing (tekanan jari terkuat terukur ~2,8 kg).
+const float    DEMO_SCALE_DIV      = 40.0f;
 
 // ---------------- Tampilan dan LED ----------------
 const uint32_t LCD_REFRESH_MS      = 500;   // aturan modul praktikum: maks. 2 redraw per detik
