@@ -100,6 +100,22 @@ static uint8_t sendRowChanges(uint8_t row) {
 }
 
 uint8_t displayUpdate() {
+  // Pemulihan sendiri tanpa delay(): tiap LCD_HEAL_MS (2 s) satu baris buffer "tampil" ditandai
+  // "tidak diketahui" (diisi 0x00, tidak pernah sama dengan karakter ASCII cetak), bergantian
+  // baris 0 dan 1. Akibatnya baris itu dikirim ulang penuh pada putaran berikutnya (tetap satu
+  // baris per putaran, <= 28 ms). Alasan: bila gangguan I2C mengacaukan isi layar, karakter yang
+  // "tidak berubah" menurut buffer tidak akan pernah dikirim lagi dan tetap salah selamanya.
+  // Menulis ulang isi yang sama tidak membuat layar berkedip (tanpa Clear).
+  // Batas: ini memperbaiki isi DDRAM, bukan pengontrol LCD yang kehilangan sinkron 4-bit.
+  static uint32_t lastHealMs = 0;
+  static uint8_t  healRow = 0;
+  uint32_t now = millis();
+  if (now - lastHealMs >= LCD_HEAL_MS) {
+    lastHealMs = now;
+    memset(shown[healRow], 0x00, LCD_COLS);
+    healRow = (healRow + 1) % LCD_ROWS;
+  }
+
   // Periksa kedua baris mulai dari nextRow; kirim baris pertama yang berbeda, lalu berhenti.
   // Perubahan dua baris karena itu selesai dalam dua putaran loop().
   for (uint8_t k = 0; k < LCD_ROWS; k++) {

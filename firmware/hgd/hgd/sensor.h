@@ -6,13 +6,15 @@
 // Atur pin HX711. Panggil sekali di setup(). Tidak menunggu HX711.
 void sensorInit();
 
-// Panggil sekali per loop(). Bila DT sudah LOW (data siap), baca satu sampel (~50-60 us),
+// Panggil sekali per loop(). Bila DT sudah LOW (data siap), baca satu sampel (terukur ~93-114 us),
 // hitung kg, isi buffer, dan suapi tare bila sedang berjalan. Bila DT masih HIGH, langsung kembali.
 // Mengembalikan true bila ada sampel baru pada putaran ini.
 bool sensorPoll();
 
 // Mulai tare: TARE_SAMPLES sampel berikutnya dirata-rata menjadi offset baru (~1 s pada 10 SPS),
 // dikumpulkan oleh sensorPoll() lintas putaran loop(), jadi tidak memblokir.
+// Bila sebaran 10 sampel > TARE_MAX_SPREAD (alat tersentuh), offset lama dipertahankan dan
+// tare diulang otomatis; sensorTareDone() tetap false sampai tare berhasil.
 void sensorStartTare();
 
 // true bila tidak ada tare yang sedang berjalan (offset siap dipakai).

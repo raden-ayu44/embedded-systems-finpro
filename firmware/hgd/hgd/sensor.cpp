@@ -32,14 +32,15 @@ static SensorState sen;
 // Baca satu konversi. HANYA dipanggil bila DT sudah LOW (data siap).
 // noInterrupts(): ISR tombol tidak boleh menyela di tengah pulsa, karena SCK yang tertahan HIGH
 // > ~60 us mematikan HX711. Di ESP32 noInterrupts() = portDISABLE_INTERRUPTS() (core 2 dan 3),
-// berlaku di core tempat loop() berjalan, yang juga core ISR tombol. Interrupt tertunda
-// paling lama ~60 us; debounce 50 ms tidak terpengaruh.
+// berlaku di core tempat loop() berjalan, yang juga core ISR tombol. Interrupt tertunda selama
+// satu pembacaan penuh, terukur ~93-114 us (langkah 3); debounce 50 ms tidak terpengaruh.
+// Yang dibatasi 60 us adalah tiap pulsa SCK HIGH (~1-2 us di sini), bukan seluruh pembacaan.
 static int32_t hxRead() {
   uint32_t v = 0;
   noInterrupts();
   for (uint8_t i = 0; i < 24; i++) {
     digitalWrite(PIN_HX_SCK, HIGH);
-    delayMicroseconds(1);                              // SCK HIGH ~1 us, jauh di bawah 60 us
+    delayMicroseconds(1);                              // SCK HIGH ~1-2 us, jauh di bawah 60 us
     v = (v << 1) | (uint32_t)digitalRead(PIN_HX_DT);   // bit berikutnya, MSB dulu
     digitalWrite(PIN_HX_SCK, LOW);
     delayMicroseconds(1);
@@ -109,12 +110,21 @@ bool sensorPoll() {
     if (raw > sen.tareMax) sen.tareMax = raw;
     sen.tareN++;
     if (sen.tareN >= TARE_SAMPLES) {
-      sen.offset = (int32_t)lround((double)sen.tareSum / sen.tareN);
-      sen.taring = false;
-      sensorBufReset();   // isi buffer lama memakai offset lama: buang
-      // Sebaran besar (mis. ratusan ribu counts) = alat tersentuh saat tare: ulangi tare.
-      Serial.printf("[TARE] offset=%ld counts (%u sampel, sebaran %ld counts)\n",
-                    (long)sen.offset, sen.tareN, (long)(sen.tareMax - sen.tareMin));
+      int32_t spread = sen.tareMax - sen.tareMin;
+      if (spread > TARE_MAX_SPREAD) {
+        // Alat tersentuh atau bergerak saat tare. Offset dari sampel ini akan menggeser semua
+        // hasil percobaan, jadi offset lama TIDAK diganti dan tare diulang dari awal.
+        // sensorTareDone() tetap false, jadi layar READY tetap "Nol-kan...".
+        Serial.printf("[TARE] PERINGATAN: sebaran %ld counts > %ld, jangan sentuh alat; tare diulang\n",
+                      (long)spread, (long)TARE_MAX_SPREAD);
+        sensorStartTare();
+      } else {
+        sen.offset = (int32_t)lround((double)sen.tareSum / sen.tareN);
+        sen.taring = false;
+        sensorBufReset();   // isi buffer lama memakai offset lama: buang
+        Serial.printf("[TARE] offset=%ld counts (%u sampel, sebaran %ld counts)\n",
+                      (long)sen.offset, sen.tareN, (long)spread);
+      }
     }
   }
   return true;

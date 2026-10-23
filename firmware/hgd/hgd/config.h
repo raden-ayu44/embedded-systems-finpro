@@ -34,6 +34,9 @@ const float    THRESHOLD_ONSET_KG  = 1.0f;     // E1: onset, dilepas-awal, dan l
 const float    THRESHOLD_STABLE_KG = 0.5f;     // E2: selisih maks-min buffer untuk plateau
 const uint8_t  BUF_SIZE            = 5;        // sampel buffer plateau
 const uint8_t  TARE_SAMPLES        = 10;       // tare = rata-rata 10 sampel (~1 s pada 10 SPS)
+// Sebaran (maks - min) 10 sampel tare lebih dari ini = alat tersentuh/bergerak saat tare:
+// tare diulang otomatis. 1000 counts ~ 19 g; sebaran normal terukur 67-127 counts (langkah 3-4).
+const int32_t  TARE_MAX_SPREAD     = 1000;
 const float    SCALE_COUNTS_PER_KG = 53687.0f; // nilai awal; diganti hasil kalibrasi (Bagian 8)
 const int32_t  ADC_MAX             = 8388607;  // skala penuh ADC 24 bit bertanda
 const float    SATURATION_FRACTION = 0.95f;    // |raw| >= 0,95 x ADC_MAX = saturasi
@@ -52,6 +55,7 @@ const float    MAX_FORCE_KG        = 80.0f;    // kapasitas nominal CZL 601; dic
 
 // ---------------- Tampilan dan LED ----------------
 const uint32_t LCD_REFRESH_MS      = 500;   // aturan modul praktikum: maks. 2 redraw per detik
+const uint32_t LCD_HEAL_MS         = 2000;  // tiap 2 s satu baris dikirim ulang penuh (pulih dari gangguan I2C)
 const uint32_t SAVE_FAILED_PAGE_MS = 3000;  // ganti halaman layar SAVE_FAILED
 const uint32_t LED_BLINK_MS        = 250;   // selang ganti nyala/mati kedip restart (2 Hz)
 const uint32_t LED_BLINK_TOTAL_MS  = 5000;  // lama kedip restart di READY
