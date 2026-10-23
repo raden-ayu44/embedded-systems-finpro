@@ -450,7 +450,9 @@ static void drawScreen() {
         snprintf(l0, sizeof(l0), "SIAP x%.0f %u/%u", DEMO_SCALE_DIV, session.trialNo, TRIALS_PER_SESSION);
       else
         snprintf(l0, sizeof(l0), "SIAP - UKUR %u/%u", session.trialNo, TRIALS_PER_SESSION);
-      if (sensorTareWindowRetry())               snprintf(l1, sizeof(l1), "Lepas genggaman");   // 8d
+      // "Nol ulang: lepas" = tare diulang karena offset di luar jendela (8d, teks langkah 10);
+      // "Lepas genggaman" di bawah = alat masih ditekan setelah tare (5c).
+      if (sensorTareWindowRetry())               snprintf(l1, sizeof(l1), "Nol ulang: lepas");
       else if (!sensorTareDone())                snprintf(l1, sizeof(l1), "Menyesuaikan nol");
       else if (sensorKgReal() > THRESHOLD_ONSET_KG) snprintf(l1, sizeof(l1), "Lepas genggaman");
       else                                       snprintf(l1, sizeof(l1), "Tekan tmbl START");
@@ -460,7 +462,7 @@ static void drawScreen() {
         // Dua desimal dan target supaya penggenggam melihat tekanannya bergerak dan seberapa jauh
         // lagi sampai onset (dengan satu desimal tekanan kecil tetap tampil "0.0").
         snprintf(l0, sizeof(l0), "Menunggu genggam");
-        if (sensorTareWindowRetry()) snprintf(l1, sizeof(l1), "Lepas genggaman");      // 8d
+        if (sensorTareWindowRetry()) snprintf(l1, sizeof(l1), "Nol ulang: lepas");     // 8d
         else if (!sensorTareDone()) snprintf(l1, sizeof(l1), "Menyesuaikan nol");   // tare ulang (TAHAN)
         else snprintf(l1, sizeof(l1), "%5.2f kg  >%.1f", sensorKg(), THRESHOLD_ONSET_KG);
       } else {   // "Tahan 3-5 detik" / " 25.3 kg  3.4s" (kg live + detik sejak onset)

@@ -81,10 +81,12 @@ const uint32_t LED_BLINK_MS        = 250;   // selang ganti nyala/mati kedip res
 const uint32_t LED_BLINK_TOTAL_MS  = 5000;  // lama kedip restart di READY
 
 // ---------------- Logging serial ----------------
-// E5: batas tunggu ACK dari logger.py. Langkah 9b: 750 ms (semula 2000). ACK terukur ~30 ms, jadi
-// masih longgar; dengan kirim ulang sekali, logger.py yang mati terdeteksi dalam ~1,5 s (lihat
-// serial_log.cpp: kelompok berhenti setelah baris pertama yang gagal).
-const uint32_t ACK_TIMEOUT_MS = 750;
+// E5: batas tunggu ACK dari logger.py = 10x balasan terlama, tidak kurang dari 500 ms.
+// Langkah 10, logger.py asli di laptop ini, 4 x 100 baris (perintah u): 400/400 ACK, terlama 33,3 ms,
+// rata-rata ~5 ms -> 10x = 333 ms -> 500 ms. Dengan kirim ulang sekali, logger.py yang mati
+// terdeteksi dalam ~1 s (serial_log.cpp: kelompok ringkasan berhenti setelah baris pertama gagal).
+// Ukur ulang (perintah u) bila laptop atau kabel USB berganti.
+const uint32_t ACK_TIMEOUT_MS = 500;
 
 // ---------------- Saklar build ----------------
 // 1 = perintah serial t/k/p/x aktif (kalibrasi dan demo galat X3). Lihat Bagian 5.21.

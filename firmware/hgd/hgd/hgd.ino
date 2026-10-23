@@ -31,7 +31,8 @@
   - Langkah 9: baris HGD,T/S/E,seq,sesi,percobaan,nilai1,nilai2*CS (serial_log.cpp), tiap baris
     menunggu "ACK,<seq>" 2 s, NAK/tanpa balasan -> kirim ulang sekali; ringkasan gagal -> GAGAL SIMPAN.
   - Serial: [FSM] A -> B, [GRIP], [COMPUTE], [REST], [SUMMARY], [FAULT], [LOG]; 't' tare, 'p' nilai,
-    'x' skala demo /40 bolak-balik (bertahan sampai sesi baru), 's' simulasi saturasi bolak-balik.
+    'x' skala demo /40 bolak-balik (bertahan sampai sesi baru), 's' simulasi saturasi bolak-balik,
+    'u' uji ACK 100 baris (U9/E5), 'r' satu baris rusak (U10).
   - Langkah 8c/8d: offset tare di luar -39000 +- 20000 counts -> tare diulang ("Lepas genggaman");
     terus-menerus 10 s -> READING_INVALID (load cell terputus).
 
@@ -72,6 +73,12 @@ static void serialCmd(char c) {
     // Tombol bolak-balik: s lagi = "kabel dipasang kembali", lalu TAHAN 1,5 s untuk keluar FAULT.
     sensorSimSaturateSet(!sensorSimSaturateActive());
     Serial.printf("[CMD] s: simulasi saturasi %s\n", sensorSimSaturateActive() ? "AKTIF" : "mati");
+  } else if (c == 'u') {
+    // Uji U9 / E5: 100 baris uji ke logger.py, cetak waktu balasan ACK terlama dan rata-rata.
+    logStartAckTest();
+  } else if (c == 'r') {
+    // Uji U10: satu baris dengan checksum salah -> logger.py harus membalas NAK, lalu ACK.
+    logSendCorruptTest();
   } else if (c == 'p') {
     Serial.printf("[CMD] p: raw=%ld offset=%ld kg=%+.3f state=%s skala=%.1f%s%s\n",
                   (long)sensorRaw(), (long)sensorOffset(), sensorKg(), stateName(fsmState()),

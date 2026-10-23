@@ -435,7 +435,7 @@ Lihat Bagian 4 di [desain-pcb-hgd.md](pcb/desain-pcb-hgd.md). Jangan dibawa lewa
 | PCB `hgd-v1` | ✔ | **v1 selesai (17 Okt. 2026), belum disetujui**: DRC 0 error; pour GND dua lapis + 57 via; LED daya D2; silkscreen tim; Gerber diekspor dan dicek di viewer JLCPCB (2 lapis, 80 x 55 mm); belum diunggah |
 | Skema KiCad | ✔ | **v1 selesai (17 Okt. 2026), belum disetujui**: ERC 0 error; D2/R2; pull-up I2C dihitung dari ukuran (tanpa pull-up tambahan); breadboard sama dengan skema. PDF dan BOM belum |
 | Firmware | ▣ | Rancangan lengkap; belum dikode |
-| `logger.py` dan `kalibrasi.py` | ▣ | Rancangan; belum dikode |
+| `logger.py` dan `kalibrasi.py` | ▣ | `logger.py` dikode dan diuji (U9, U10) 23 Okt. 2026 ([laptop/logger.py](laptop/logger.py)); `kalibrasi.py` belum dikode |
 | Housing grip | ◐ | Desain dan hitungan ada; menunggu sisa pengukuran load cell dan prototipe kardus |
 | Housing elektronik | ✔ | **Desain v1 selesai (17 Okt. 2026), belum disetujui**: lid, body, bibir, 4 snap-fit, slice uji; STEP di repo. Belum: lubang tombol/LED (termasuk D2), tiang PCB, cetak uji lidah; cetak menunggu PCB |
 | Kalibrasi | ▣ | Protokol ada; belum dijalankan |
