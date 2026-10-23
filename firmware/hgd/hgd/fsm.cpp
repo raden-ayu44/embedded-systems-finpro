@@ -6,6 +6,8 @@
 //   Langkah 6 menambah: dilepas sebelum 3 s (kembali ke fase 1) dan batas 5 s.
 // - REST: setelah genggaman dilepas langsung menunggu TAP (NEXT).
 //   Langkah 7 menambah hitung mundur istirahat REST_S.
+// - Langkah 5c: penjaga nol di READY (kg > +1 = START diabaikan, kg < -1 = tare ulang), di GRIP
+//   fase 1 (kg < -1 = kembali ke READY), dan TAHAN di READY = tare ulang manual.
 // - Langkah 8 menambah cek rentang (OUT_OF_RANGE) dan modul galat; langkah 9 baris log + ACK.
 #include "fsm.h"
 #include "button.h"
@@ -132,11 +134,34 @@ static void changeState(State next) {
 }
 
 // ---------------- Handler tiap state: mengembalikan state berikut ----------------
+// Tare ulang dari READY: layar kembali "Menyesuaikan nol" sampai 10 sampel baru terkumpul.
+static void readyRetare(const char* why) {
+  Serial.printf("[READY] tare ulang: %s\n", why);
+  sensorStartTare();
+  displayRequest();
+}
+
 static State handleReady(Press press) {
-  if (press != PRESS_TAP) return READY;
-  if (ledBlinking()) ledSet(false);         // TAP menghentikan kedip restart seketika
-  if (sensorTareDone()) return GRIP;        // START hanya bila tare sudah selesai
-  return READY;                             // TAP saat "Menyesuaikan nol" hanya menghentikan kedip
+  if (press == PRESS_TAP && ledBlinking()) ledSet(false);   // TAP menghentikan kedip restart seketika
+
+  // TAHAN 1,5 s = tare ulang manual (reset total 15 s tetap berlaku di atasnya, lihat fsmRun).
+  if (press == PRESS_HOLD) {
+    readyRetare("manual (TAHAN)");
+    return READY;
+  }
+  if (!sensorTareDone()) return READY;      // TAP saat "Menyesuaikan nol" hanya menghentikan kedip
+
+  // Penjaga nol (langkah 5c). Tanpa beban kg seharusnya ~0 (terukur: alat diangkat/diputar
+  // menggeser < 0,01 kg). Jauh di bawah nol = tare diambil saat alat sedang digenggam:
+  // genggaman itu sudah dilepas, jadi nol salah dan semua hasil akan terlalu kecil -> tare ulang.
+  float kg = sensorKg();
+  if (kg < -THRESHOLD_ONSET_KG) {
+    readyRetare("kg di bawah -1, nol diambil saat dibebani");
+    return READY;
+  }
+  // Masih digenggam (kg > +1): START diabaikan, layar "Lepas genggaman".
+  if (press == PRESS_TAP && kg <= THRESHOLD_ONSET_KG) return GRIP;
+  return READY;
 }
 
 static State handleGrip() {
@@ -144,6 +169,12 @@ static State handleGrip() {
 
   if (gripPhase == WAIT_ONSET) {
     // Fase 1: timer belum jalan; tunggu gaya melewati onset.
+    // Penjaga nol (langkah 5c): kg < -1 = tare diambil saat digenggam dan genggaman itu baru
+    // dilepas sekarang (orang menggenggam terus sampai START). Kembali ke READY = tare ulang.
+    if (kg < -THRESHOLD_ONSET_KG) {
+      Serial.printf("[GRIP] kg=%.2f di bawah -1, nol salah: kembali ke READY\n", kg);
+      return READY;
+    }
     if (kg > THRESHOLD_ONSET_KG) {
       gripPhase = MEASURING;
       gripStartMs = millis();
@@ -243,9 +274,11 @@ static void drawScreen() {
   // Angka ditulis dengan lebar tetap (%5.1f dst.) supaya posisi tidak bergeser saat nilai berubah.
   const Trial& tr = session.trials[session.trialNo - 1];
   switch (state) {
-    case READY:   // "SIAP - UKUR 1/3" / "Menyesuaikan nol" lalu "Tekan tmbl START"
+    case READY:   // "SIAP - UKUR 1/3" / "Menyesuaikan nol", "Lepas genggaman" atau "Tekan tmbl START"
       snprintf(l0, sizeof(l0), "SIAP - UKUR %u/%u", session.trialNo, TRIALS_PER_SESSION);
-      snprintf(l1, sizeof(l1), "%s", sensorTareDone() ? "Tekan tmbl START" : "Menyesuaikan nol");
+      if (!sensorTareDone())                     snprintf(l1, sizeof(l1), "Menyesuaikan nol");
+      else if (sensorKg() > THRESHOLD_ONSET_KG)  snprintf(l1, sizeof(l1), "Lepas genggaman");
+      else                                       snprintf(l1, sizeof(l1), "Tekan tmbl START");
       break;
     case GRIP:
       if (gripPhase == WAIT_ONSET) {   // "Menunggu genggam" / " 0.4 kg" (kg live)

@@ -10,7 +10,9 @@
 
   Langkah 5 (kerangka state machine + LED):
   - Boot: READY, LED kedip 5 s, "Menyesuaikan nol" lalu "Tekan tmbl START". TAP = START
-    (dan hentikan kedip).
+    (dan hentikan kedip). TAHAN 1,5 s = tare ulang manual. Langkah 5c: setelah tare, kg > +1 ->
+    "Lepas genggaman" (START diabaikan); kg < -1 -> tare ulang otomatis (nol diambil saat dibebani).
+    5 sampel HX711 pertama setelah boot dibuang.
   - GRIP: "Menunggu genggam" + kg live; tekan > 1 kg = onset, "Tahan 3-5 detik" + kg + detik;
     LED menyala selama genggaman stabil; stabil pada >= 3 s -> COMPUTE -> REST
     ("Hasil xx.xx kg" / "Lepas>Rest 60s", LED tetap menyala sampai dilepas).

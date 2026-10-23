@@ -348,7 +348,7 @@ Dipanggil tiap `loop()`. **Non-blocking (v5):** bila DT masih tinggi (data belum
 **Pemakai:** `loop()`; hasilnya dibaca `layaniGenggam()`, `layaniRespon()`, `galatTahan()`.
 
 ### 5.8 `sensorTare()` ▣
-Memulai tare: `T_TARE_SAMPEL` (10) sampel berikutnya dijumlahkan oleh `sensorBaca()`, satu per sampel baru, lalu rata-ratanya menjadi `offset`. **Non-blocking (v5):** ≈ 1 detik pada 10 SPS, tersebar di banyak putaran `loop()`; `sensorTareSelesai()` memberi tahu `SIAP` kapan layar berganti ke "Tekan tmbl START". Dipanggil sekali tiap masuk `SIAP`. **Cek sebaran (langkah 4c):** bila (maks − min) 10 sampel > `TARE_MAX_SPREAD` (1000 counts ≈ 19 g; sebaran normal terukur 67-127 counts), alat dianggap tersentuh: peringatan dicetak, `offset` lama dipertahankan, dan tare diulang otomatis (layar tetap "Menyesuaikan nol"). Alasan: sentuhan saat tare menggeser `offset` dan seluruh hasil percobaan.
+Memulai tare: `T_TARE_SAMPEL` (10) sampel berikutnya dijumlahkan oleh `sensorBaca()`, satu per sampel baru, lalu rata-ratanya menjadi `offset`. **Non-blocking (v5):** ≈ 1 detik pada 10 SPS, tersebar di banyak putaran `loop()`; `sensorTareSelesai()` memberi tahu `SIAP` kapan layar berganti ke "Tekan tmbl START". Dipanggil sekali tiap masuk `SIAP`. **Cek sebaran (langkah 4c):** bila (maks − min) 10 sampel > `TARE_MAX_SPREAD` (1000 counts ≈ 19 g; sebaran normal terukur 67-127 counts), alat dianggap tersentuh: peringatan dicetak, `offset` lama dipertahankan, dan tare diulang otomatis (layar tetap "Menyesuaikan nol"). Alasan: sentuhan saat tare menggeser `offset` dan seluruh hasil percobaan. **Sampel awal (langkah 5c):** `BOOT_SKIP_SAMPLES` (5) sampel pertama setelah boot dibuang (≈ 0,5 s); tanpa ini tare pertama gagal di tiga boot berturut-turut (sebaran 941-2019 counts, ulangannya 62-97). **Penjaga nol (langkah 5c):** genggaman yang tenang saat tare lolos cek sebaran dan menjadi `offset` yang salah; karena itu `SIAP` dan `GENGGAM` fase 1 memeriksa kg setelah tare (Bagian 6.2). Alat diangkat atau diputar setelah tare menggeser kg < 0,01 kg (terukur), jadi `offset` tetap berlaku.
 
 ### 5.9 `bufTambah(float kg)` / `bufPlateau()` ▣
 `bufTambah` menulis ke buffer melingkar 5 sampel. `bufPlateau` mengembalikan `true` bila buffer penuh dan (maks − min) ≤ `THRESHOLD_STABIL_KG`. Rata-rata buffer menjadi `ref`.
@@ -472,10 +472,12 @@ SESI (3 percobaan)
 - **Kedip restart:** setelah tiap restart, LED berkedip selama `LED_BLINK_TOTAL_MS` (5 detik) dengan selang `LED_BLINK_MS`, memakai `millis()` (non-blocking). Restart = nyala pertama (power-up), `RINGKASAN` → TAP, `GAGALSIMPAN` → TAHAN, `ERROR` → TAHAN, dan reset total. Masuk `SIAP` dari `RESPON_ISTIRAHAT` (percobaan berikutnya) bukan restart, jadi tanpa kedip. TAP selama kedip langsung menghentikan kedip dan mematikan LED; TAP itu sekaligus START bila tare sudah selesai, dan diabaikan sebagai START bila tare belum selesai (≈ 1 detik pertama).
 - Auto-tare tiap masuk, termasuk setelah kembali dari siklus sebelumnya. **Keputusan tim sendiri:** tiga percobaan dibandingkan dan dirata-ratakan, jadi konsistensi titik nol antar percobaan penting.
 - Dua langkah: (1) layar "Menyesuaikan nol", `sensorTare()` mulai mengumpulkan 10 sampel, satu sampel per putaran `loop()` saat sampel siap (non-blocking); (2) 10 sampel terkumpul (≈ 1 detik pada 10 SPS) → layar "Tekan tmbl START".
+- **Penjaga nol (langkah 5c),** setelah tare selesai, memakai `THRESHOLD_ONSET_KG` (1 kg) dua arah: kg > +1 → alat masih digenggam, layar "Lepas genggaman", START diabaikan sampai kg ≤ +1; kg < −1 → `offset` diambil saat alat dibebani (genggaman itu kini dilepas), tare ulang otomatis ("Menyesuaikan nol" lagi, peringatan di serial). Dengan begitu layar selalu menunjukkan apakah titik nol sudah benar sebelum START.
+- **Tare ulang manual (langkah 5c):** TAHAN 1,5 s di `SIAP` = tare ulang ("Menyesuaikan nol" lagi), seperti firmware tim lainnya. Reset total 15 s tetap berlaku di atasnya.
 - Tidak ada jalur ke `ERROR` dari state ini, kecuali galat sensor saat tare (`HX711_TIMEOUT`, `READING_INVALID`, `ADC_SATURASI`).
 
 **[GENGGAM]** (dua fase dalam satu state)
-- *Fase 1 - Menunggu mulai:* timer 3-5 detik **belum jalan**. LED mati. Sistem hanya menunggu gaya pertama melewati `THRESHOLD_ONSET_KG`.
+- *Fase 1 - Menunggu mulai:* timer 3-5 detik **belum jalan**. LED mati. Sistem hanya menunggu gaya pertama melewati `THRESHOLD_ONSET_KG`. **Penjaga nol (langkah 5c):** kg < −1 di fase 1 → kembali ke `SIAP` (tare ulang, tanpa kedip, nomor percobaan tetap); kasus: alat digenggam saat tare dan terus digenggam sampai START, lalu dilepas.
 - *Fase 2 - Menghitung:* timer mulai; buffer dikosongkan di awal fase 2. Tiap baca: `bufTambah`; lalu uji plateau. **LED menyala tetap selama `bufPlateau()` benar dan mati saat plateau hilang** (kedip di sekitar ambang stabilitas diterima). Plateau bisa sudah tercapai sebelum 3 detik (buffer penuh setelah ≈ 0,5 detik); LED menyala, tetapi keluar lewat plateau baru terjadi pada plateau di t ≥ 3 detik.
 - *LED saat keluar:* lewat plateau → LED tetap menyala dan ikut ke `RESPON_ISTIRAHAT` sampai genggaman dilepas. Lewat batas 5 detik → LED mati saat keluar (bila plateau sempat muncul lalu hilang sebelum 5 detik, LED sempat menyala sebentar; pada akhir percobaan LED mati). Dilepas sebelum 3 detik → LED mati, kembali ke fase 1.
 - *Threshold onset dan dilepas-terlalu-awal adalah nilai yang sama*, dicek dua arah: naik melewati threshold di Fase 1 = mulai; turun di bawahnya sebelum 3 detik = dilepas terlalu awal.
@@ -519,7 +521,11 @@ SESI (3 percobaan)
 | SIAP | masuk setelah restart | LED kedip 5 s | SIAP |
 | SIAP | TAP selama kedip | hentikan kedip, LED off | GENGGAM (fase 1) bila tare selesai; selain itu tetap SIAP |
 | SIAP | TAP | LED off | GENGGAM (fase 1) |
+| SIAP | TAP saat kg > +1 setelah tare (langkah 5c) | abaikan, layar "Lepas genggaman" | SIAP |
+| SIAP | kg < −1 setelah tare (langkah 5c) | peringatan serial, tare ulang | SIAP ("Menyesuaikan nol") |
+| SIAP | TAHAN 1,5 s (langkah 5c) | tare ulang manual | SIAP ("Menyesuaikan nol") |
 | GENGGAM f1 | kg > onset | mulai timer, kosongkan buffer | GENGGAM f2 |
+| GENGGAM f1 | kg < −1 (langkah 5c) | peringatan serial, LED off | SIAP (tare ulang, tanpa kedip) |
 | GENGGAM f2 | tiap sampel | LED = plateau | GENGGAM f2 |
 | GENGGAM f2 | kg < onset dan t < 3000 | reset buffer, LED off | GENGGAM f1 |
 | GENGGAM f2 | plateau dan t ≥ 3000 | LED tetap on | HITUNG |
@@ -555,7 +561,8 @@ SESI (3 percobaan)
 ### 6.5 Satu tombol fisik untuk semua fungsi
 | Aksi | State | Cara |
 |------|-------|------|
-| START | `SIAP` | TAP |
+| START | `SIAP` | TAP (diabaikan selama tare dan selama kg > +1, langkah 5c) |
+| Tare ulang manual (langkah 5c) | `SIAP` | TAHAN 1,5 s |
 | NEXT | `RESPON_ISTIRAHAT` sub-fase 2 | TAP |
 | RESTART (data tertulis) | `RINGKASAN` | TAP |
 | RESTART (pengawas) | `ERROR`, `GAGALSIMPAN` | TAHAN 1,5 s (nilai awal) |
@@ -801,6 +808,7 @@ timestamp,sesi,jenis,percobaan,gaya_kg,rerata_kg,catatan
 |-------|---------|---------|
 | SIAP (tare) | `SIAP - UKUR 1/3` | `Menyesuaikan nol` |
 | SIAP (siap) | `SIAP - UKUR 1/3` | `Tekan tmbl START` |
+| SIAP (masih digenggam, kg > +1 setelah tare, langkah 5c) | `SIAP - UKUR 1/3` | `Lepas genggaman` |
 | GENGGAM fase 1 | `Menunggu genggam` | ` 0.4 kg` (kg live, `%5.1f kg`) |
 | GENGGAM fase 2 | `Tahan 3-5 detik` | ` 25.3 kg  3.4s` (kg live + detik sejak onset) |
 | RESPON sub-fase 1 (sebelum lepas) | `Hasil 47.23 kg` (`ref`, `%5.2f`) | `Lepas>Rest 60s` |

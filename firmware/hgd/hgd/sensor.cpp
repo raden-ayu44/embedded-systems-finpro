@@ -16,6 +16,7 @@ struct SensorState {
   uint8_t  sameRun;       // jumlah sampel berturut-turut dengan raw yang sama (termasuk yang terakhir)
   uint8_t  shortGapRun;   // jumlah sampel berturut-turut yang datang < SAMPLE_MIN_GAP_MS setelah sebelumnya
   uint32_t lastGapMs;     // jarak sampel terakhir ke sampel sebelumnya (ms), untuk pesan galat
+  uint8_t  bootSkip;      // sisa sampel awal yang dibuang setelah boot
 
   float    buf[BUF_SIZE]; // buffer melingkar kg
   uint8_t  bufIdx;        // posisi tulis berikutnya
@@ -66,6 +67,7 @@ static void bufAdd(float kg) {
 void sensorInit() {
   memset(&sen, 0, sizeof(sen));
   sen.scale = SCALE_COUNTS_PER_KG;
+  sen.bootSkip = BOOT_SKIP_SAMPLES;
   // DT pakai pull-up: bila modul tercabut, DT terbaca HIGH = "tidak siap", sehingga tidak ada
   // sampel dan HX711_TIMEOUT terdeteksi (langkah 4), bukan angka acak dari pin mengambang.
   pinMode(PIN_HX_DT, INPUT_PULLUP);
@@ -80,6 +82,14 @@ bool sensorPoll() {
   uint32_t t0 = micros();
   int32_t raw = hxRead();
   sen.readUs = micros() - t0;
+
+  // Sampel awal setelah boot dibuang (HX711 belum stabil, lihat BOOT_SKIP_SAMPLES). Waktu sampel
+  // tetap dicatat supaya HX711_TIMEOUT tidak salah terpicu; nilainya tidak dipakai sama sekali.
+  if (sen.bootSkip > 0) {
+    sen.bootSkip--;
+    sen.lastSampleMs = millis();
+    return false;
+  }
 
   // Hitung raw identik berturut-turut (untuk READING_INVALID). Dengan noise nyata (sigma ~38 counts)
   // dua sampel berurutan hampir tidak pernah sama persis, apalagi 10.
@@ -121,6 +131,7 @@ bool sensorPoll() {
       } else {
         sen.offset = (int32_t)lround((double)sen.tareSum / sen.tareN);
         sen.taring = false;
+        sen.kg = (float)(raw - sen.offset) / sen.scale;   // kg terakhir dihitung ulang dengan offset baru
         sensorBufReset();   // isi buffer lama memakai offset lama: buang
         Serial.printf("[TARE] offset=%ld counts (%u sampel, sebaran %ld counts)\n",
                       (long)sen.offset, sen.tareN, (long)spread);

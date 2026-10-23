@@ -30,13 +30,17 @@ const uint8_t  TRIALS_PER_SESSION = 3;
 const uint32_t REST_S             = 60;    // istirahat antar percobaan (detik)
 
 // ---------------- Sensor HX711 ----------------
-const float    THRESHOLD_ONSET_KG  = 1.0f;     // E1: onset, dilepas-awal, dan lepas di REST
+const float    THRESHOLD_ONSET_KG  = 1.0f;     // E1: onset, dilepas-awal, lepas di REST, dan penjaga nol
+                                                // di READY/GRIP fase 1 (+1 kg = masih digenggam, -1 kg = nol salah)
 const float    THRESHOLD_STABLE_KG = 0.5f;     // E2: selisih maks-min buffer untuk plateau
 const uint8_t  BUF_SIZE            = 5;        // sampel buffer plateau
 const uint8_t  TARE_SAMPLES        = 10;       // tare = rata-rata 10 sampel (~1 s pada 10 SPS)
 // Sebaran (maks - min) 10 sampel tare lebih dari ini = alat tersentuh/bergerak saat tare:
 // tare diulang otomatis. 1000 counts ~ 19 g; sebaran normal terukur 67-127 counts (langkah 3-4).
 const int32_t  TARE_MAX_SPREAD     = 1000;
+// Sampel pertama setelah HX711 menyala belum stabil: tare pertama gagal di tiga boot berturut-turut
+// (sebaran 941-2019 counts, ulangannya 62-97). Sebanyak ini sampel awal dibuang (~0,5 s).
+const uint8_t  BOOT_SKIP_SAMPLES   = 5;
 const float    SCALE_COUNTS_PER_KG = 53687.0f; // nilai awal; diganti hasil kalibrasi (Bagian 8)
 const int32_t  ADC_MAX             = 8388607;  // skala penuh ADC 24 bit bertanda
 const float    SATURATION_FRACTION = 0.95f;    // |raw| >= 0,95 x ADC_MAX = saturasi
