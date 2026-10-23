@@ -12,7 +12,8 @@
     pemotongan di 16 karakter (harus tampil "Uji potong 16 ka").
   - Baris 2: waktu sejak TAP terakhir (ms), digambar ulang tiap 500 ms. TAP mengembalikannya ke 0:
     angka yang memendek tidak boleh meninggalkan digit lama. TAP juga membalik LED.
-  - Serial: lama tiap redraw (ms) dan putaran loop() terlama tiap 5 s.
+  - LCD hanya menerima karakter yang berubah, paling banyak satu baris per putaran loop().
+  - Serial: jumlah karakter dan lama tiap tulisan ke LCD (ms), putaran loop() terlama tiap 5 s.
 
   Serial Monitor: 115200 baud.
 */
@@ -58,18 +59,26 @@ void loop() {
   uint32_t loopStartUs = micros();
 
   Press p = buttonUpdate();
+
+  // Uji: lama tekanan terakhir. Saat TAP keluar, buttonHeldMs() sudah 0, jadi dipakai nilai
+  // dari putaran sebelumnya (termasuk 50 ms debounce saat lepas).
+  static uint32_t pressMs = 0;
+  uint32_t heldNow = buttonHeldMs();
+  if (heldNow > 0) pressMs = heldNow;
+
   if (p == PRESS_TAP) {
     tapCount++;
     ledOn = !ledOn;
     digitalWrite(PIN_LED, ledOn ? HIGH : LOW);
     lastTapMs = millis();
     displayRequest();   // tampilkan angka 0 segera, tanpa menunggu 500 ms
-    Serial.printf("[BTN] TAP #%lu -> LED %s\n", (unsigned long)tapCount, ledOn ? "ON" : "OFF");
+    Serial.printf("[BTN] t=%lu TAP #%lu (tekan %lu ms) -> LED %s\n", (unsigned long)millis(),
+                  (unsigned long)tapCount, (unsigned long)pressMs, ledOn ? "ON" : "OFF");
   } else if (p == PRESS_HOLD) {
     holdCount++;
     longTextOn = !longTextOn;
     displayRequest();
-    Serial.printf("[BTN] HOLD #%lu\n", (unsigned long)holdCount);
+    Serial.printf("[BTN] t=%lu HOLD #%lu\n", (unsigned long)millis(), (unsigned long)holdCount);
   }
 
   // Waktu tahan untuk reset total (uji langkah 1): cetak sisa detik sekali per detik setelah 3 s.
@@ -91,16 +100,22 @@ void loop() {
     }
   }
 
-  // LCD: redraw paling cepat tiap LCD_REFRESH_MS (atau segera setelah displayRequest()).
+  // LCD: isi baru disusun paling cepat tiap LCD_REFRESH_MS (atau segera setelah displayRequest()).
   if (displayDue()) {
     char line[24];   // sengaja lebih dari 16: lcdLine() yang memotong
-    uint32_t t0 = micros();
     lcdLine(0, longTextOn ? "Uji potong 16 karakter!!" : "HGD siap");
     snprintf(line, sizeof(line), "t=%lu ms", (unsigned long)(millis() - lastTapMs));
     lcdLine(1, line);
+  }
+
+  // Kirim perubahan ke LCD: paling banyak satu baris per putaran.
+  uint32_t t0 = micros();
+  uint8_t sent = displayUpdate();
+  if (sent > 0) {
     uint32_t dt = micros() - t0;
     redrawCount++;
-    Serial.printf("[LCD] redraw #%lu %.2f ms\n", (unsigned long)redrawCount, dt / 1000.0f);
+    Serial.printf("[LCD] tulis #%lu: %u karakter, %.2f ms\n",
+                  (unsigned long)redrawCount, sent, dt / 1000.0f);
   }
 
   // Putaran loop() terlama: penting untuk tombol (tap harus terbaca LOW minimal sekali).
