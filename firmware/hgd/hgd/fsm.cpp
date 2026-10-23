@@ -172,12 +172,17 @@ static State handleGrip(Press press) {
 
   if (gripPhase == WAIT_ONSET) {
     // Fase 1: timer belum jalan; tunggu gaya melewati onset.
-    // TAHAN 1,5 s (langkah 6c): kembali ke READY = tare ulang, untuk menolkan ulang sebelum mulai.
+    // TAHAN 1,5 s (langkah 6c): tare ulang DI TEMPAT, tetap di fase 1. Baris 2 LCD menampilkan
+    // "Menyesuaikan nol" sampai tare selesai (~1 s), lalu kg live lagi.
     // Hanya di fase 1; di fase 2 tombol tidak berarti apa-apa (pengukuran sedang berjalan).
     if (press == PRESS_HOLD) {
-      Serial.println("[GRIP] TAHAN di fase 1: kembali ke READY (tare ulang)");
-      return READY;
+      Serial.println("[GRIP] TAHAN di fase 1: tare ulang");
+      sensorStartTare();
+      displayRequest();
+      return GRIP;
     }
+    // Selama tare kg masih memakai offset lama: onset dan penjaga nol belum boleh dinilai.
+    if (!sensorTareDone()) return GRIP;
     // Penjaga nol (langkah 5c): kg < -1 = tare diambil saat digenggam dan genggaman itu baru
     // dilepas sekarang (orang menggenggam terus sampai START). Kembali ke READY = tare ulang.
     if (kg < -THRESHOLD_ONSET_KG) {
@@ -343,7 +348,8 @@ static void drawScreen() {
         // Dua desimal dan target supaya penggenggam melihat tekanannya bergerak dan seberapa jauh
         // lagi sampai onset (dengan satu desimal tekanan kecil tetap tampil "0.0").
         snprintf(l0, sizeof(l0), "Menunggu genggam");
-        snprintf(l1, sizeof(l1), "%5.2f kg  >%.1f", sensorKg(), THRESHOLD_ONSET_KG);
+        if (!sensorTareDone()) snprintf(l1, sizeof(l1), "Menyesuaikan nol");   // tare ulang (TAHAN)
+        else snprintf(l1, sizeof(l1), "%5.2f kg  >%.1f", sensorKg(), THRESHOLD_ONSET_KG);
       } else {   // "Tahan 3-5 detik" / " 25.3 kg  3.4s" (kg live + detik sejak onset)
         snprintf(l0, sizeof(l0), "Tahan 3-5 detik");
         snprintf(l1, sizeof(l1), "%5.1f kg  %.1fs", sensorKg(), (millis() - gripStartMs) / 1000.0f);

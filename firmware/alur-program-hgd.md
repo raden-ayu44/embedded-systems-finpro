@@ -479,7 +479,7 @@ SESI (3 percobaan)
 - Tidak ada jalur ke `ERROR` dari state ini, kecuali galat sensor saat tare (`HX711_TIMEOUT`, `READING_INVALID`, `ADC_SATURASI`).
 
 **[GENGGAM]** (dua fase dalam satu state)
-- *Fase 1 - Menunggu mulai:* timer 3-5 detik **belum jalan**. LED mati. Sistem hanya menunggu gaya pertama melewati `THRESHOLD_ONSET_KG`. **Penjaga nol (langkah 5c):** kg < −1 di fase 1 → kembali ke `SIAP` (tare ulang, tanpa kedip, nomor percobaan tetap); kasus: alat digenggam saat tare dan terus digenggam sampai START, lalu dilepas. **TAHAN 1,5 s di fase 1 (langkah 6c)** → kembali ke `SIAP` dengan tare ulang (menolkan ulang sebelum mulai); di fase 2 tombol diabaikan.
+- *Fase 1 - Menunggu mulai:* timer 3-5 detik **belum jalan**. LED mati. Sistem hanya menunggu gaya pertama melewati `THRESHOLD_ONSET_KG`. **Penjaga nol (langkah 5c):** kg < −1 di fase 1 → kembali ke `SIAP` (tare ulang, tanpa kedip, nomor percobaan tetap); kasus: alat digenggam saat tare dan terus digenggam sampai START, lalu dilepas. **TAHAN 1,5 s di fase 1 (langkah 6c)** → tare ulang di tempat: tetap di fase 1, baris 2 "Menyesuaikan nol" sampai tare selesai (≈ 1 s), lalu kg live lagi; onset dan penjaga nol tidak dinilai selama tare. Di fase 2 tombol diabaikan.
 - *Fase 2 - Menghitung:* timer mulai; buffer dikosongkan di awal fase 2. Tiap baca: `bufTambah`; lalu uji plateau. **LED menyala tetap selama `bufPlateau()` benar dan mati saat plateau hilang** (kedip di sekitar ambang stabilitas diterima). Plateau bisa sudah tercapai sebelum 3 detik (buffer penuh setelah ≈ 0,5 detik); LED menyala, tetapi keluar lewat plateau baru terjadi pada plateau di t ≥ 3 detik.
 - *LED saat keluar:* lewat plateau → LED tetap menyala dan ikut ke `RESPON_ISTIRAHAT` sampai genggaman dilepas. Lewat batas 5 detik → LED mati saat keluar (bila plateau sempat muncul lalu hilang sebelum 5 detik, LED sempat menyala sebentar; pada akhir percobaan LED mati). Dilepas sebelum 3 detik → LED mati, kembali ke fase 1.
 - *Threshold onset dan dilepas-terlalu-awal adalah nilai yang sama*, dicek dua arah: naik melewati threshold di Fase 1 = mulai; turun di bawahnya sebelum 3 detik = dilepas terlalu awal.
@@ -530,7 +530,7 @@ SESI (3 percobaan)
 | SIAP | TAHAN 1,5 s (langkah 5c) | tare ulang manual | SIAP ("Menyesuaikan nol") |
 | GENGGAM f1 | kg > onset | mulai timer, kosongkan buffer | GENGGAM f2 |
 | GENGGAM f1 | kg < −1 (langkah 5c) | peringatan serial, LED off | SIAP (tare ulang, tanpa kedip) |
-| GENGGAM f1 | TAHAN 1,5 s (langkah 6c) | LED off | SIAP (tare ulang, tanpa kedip) |
+| GENGGAM f1 | TAHAN 1,5 s (langkah 6c) | tare ulang, layar "Menyesuaikan nol" ≈ 1 s | GENGGAM f1 |
 | GENGGAM f2 | tiap sampel | LED = plateau | GENGGAM f2 |
 | GENGGAM f2 | kg < onset dan t < 3000 | reset buffer, LED off | GENGGAM f1 |
 | GENGGAM f2 | plateau genggaman (semua sampel > onset) dan t ≥ 3000 | LED tetap on | HITUNG |
@@ -567,7 +567,7 @@ SESI (3 percobaan)
 | Aksi | State | Cara |
 |------|-------|------|
 | START | `SIAP` | TAP (diabaikan selama tare dan selama kg > +1, langkah 5c) |
-| Tare ulang manual (langkah 5c, 6c) | `SIAP`, `GENGGAM` fase 1 | TAHAN 1,5 s (dari fase 1 kembali ke `SIAP`) |
+| Tare ulang manual (langkah 5c, 6c) | `SIAP`, `GENGGAM` fase 1 | TAHAN 1,5 s (tetap di state yang sama) |
 | NEXT | `RESPON_ISTIRAHAT` sub-fase 2 | TAP |
 | RESTART (data tertulis) | `RINGKASAN` | TAP |
 | RESTART (pengawas) | `ERROR`, `GAGALSIMPAN` | TAHAN 1,5 s (nilai awal) |
@@ -815,6 +815,7 @@ timestamp,sesi,jenis,percobaan,gaya_kg,rerata_kg,catatan
 | SIAP (siap) | `SIAP - UKUR 1/3` | `Tekan tmbl START` |
 | SIAP (masih digenggam, kg > +1 setelah tare, langkah 5c) | `SIAP - UKUR 1/3` | `Lepas genggaman` |
 | GENGGAM fase 1 | `Menunggu genggam` | ` 0.42 kg  >1.0` (kg live dua desimal + target onset, `%5.2f kg  >%.1f`; langkah 5c: dengan satu desimal tekanan kecil tetap tampil 0.0) |
+| GENGGAM fase 1 (tare ulang, TAHAN, langkah 6c) | `Menunggu genggam` | `Menyesuaikan nol` |
 | GENGGAM fase 2 | `Tahan 3-5 detik` | ` 25.3 kg  3.4s` (kg live + detik sejak onset) |
 | RESPON sub-fase 1 (sebelum lepas) | `Hasil 47.23 kg` (`ref`, `%5.2f`) | `Lepas>Rest 60s` |
 | RESPON sub-fase 1 (hitung mundur) | `Hasil 47.23 kg` | `Lepas>Rest 58s` (detik bulat, `%2lus`) |
