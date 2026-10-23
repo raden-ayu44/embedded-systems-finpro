@@ -50,9 +50,10 @@ const uint8_t  BOOT_SKIP_SAMPLES   = 5;
 const int32_t  OFFSET_EXPECTED     = -39000;
 const int32_t  OFFSET_WINDOW       = 20000;
 // Langkah 8d: offset di luar jendela mula-mula diperlakukan seperti tare terganggu (tangan di load
-// cell: tare diulang, layar "Lepas genggaman"). Baru setelah sekian tare berturut-turut di luar
-// jendela -> READING_INVALID (E- terputus tetap ~+500 di setiap ulangan, jadi tetap tertangkap).
-const uint8_t  OFFSET_BAD_N        = 3;
+// cell: tare diulang, layar "Lepas genggaman"). Baru bila di luar jendela TERUS-MENERUS selama ini
+// -> READING_INVALID (E- terputus tetap ~+500 di setiap ulangan, jadi tetap tertangkap). Berbasis
+// waktu: 3 tare hanya ~1,7 s, terlalu singkat untuk tangan yang bertumpu sebentar.
+const uint32_t OFFSET_BAD_MS       = 10000;
 const float    SCALE_COUNTS_PER_KG = 53687.0f; // nilai awal; diganti hasil kalibrasi (Bagian 8)
 const int32_t  ADC_MAX             = 8388607;  // skala penuh ADC 24 bit bertanda
 const float    SATURATION_FRACTION = 0.95f;    // |raw| >= 0,95 x ADC_MAX = saturasi

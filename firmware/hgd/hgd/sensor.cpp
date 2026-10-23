@@ -19,8 +19,9 @@ struct SensorState {
   uint8_t  bootSkip;      // sisa sampel awal yang dibuang setelah boot
   bool     demo;          // perintah x aktif: skala dibagi DEMO_SCALE_DIV (langkah 8c)
   bool     simSat;        // perintah s aktif: raw dipaksa skala penuh (simulasi X2, langkah 8c)
-  bool     offsetBad;     // OFFSET_BAD_N tare berturut-turut di luar jendela: load cell terputus
-  uint8_t  offsetBadRun;  // jumlah tare berturut-turut yang offset-nya di luar jendela (langkah 8d)
+  bool     offsetBad;     // offset di luar jendela terus-menerus >= OFFSET_BAD_MS: load cell terputus
+  bool     offsetOut;     // tare terakhir di luar jendela; offsetOutSinceMs berlaku (langkah 8d)
+  uint32_t offsetOutSinceMs; // millis() saat tare pertama di luar jendela dalam deret ini
   bool     windowRetry;   // tare sedang diulang karena offset di luar jendela (layar "Lepas genggaman")
 
   float    buf[BUF_SIZE]; // buffer melingkar kg
@@ -148,33 +149,40 @@ bool sensorPoll() {
         //   dipertahankan, layar "Lepas genggaman", tare diulang;
         // - load cell tidak terhubung dengan benar (E- terputus 23 Okt.: offset ~+500 terus;
         //   pasangan sinyal tertukar: ~+39000) -> offset tetap di luar jendela di setiap ulangan,
-        //   jadi setelah OFFSET_BAD_N tare berturut-turut di luar jendela: READING_INVALID.
+        //   jadi bila di luar jendela terus-menerus selama OFFSET_BAD_MS (10 s): READING_INVALID.
+        //   Berbasis waktu, bukan jumlah tare: 3 tare hanya ~1,7 s, dan tangan yang bertumpu 2 s
+        //   tidak boleh menjadi galat. Satu tare di dalam jendela mengembalikan hitungan waktu.
         // Dua arah, bukan satu sisi, supaya pasangan sinyal yang tertukar juga terdeteksi.
         // Batas: hanya dicek saat tare, jadi kabel yang putus di tengah percobaan baru tertangkap
         // pada tare berikutnya (masuk READY berikutnya).
         int32_t dev = newOffset - OFFSET_EXPECTED;
         if (dev < 0) dev = -dev;
         if (dev > OFFSET_WINDOW) {
-          sen.offsetBadRun++;
-          if (sen.offsetBadRun < OFFSET_BAD_N) {
-            Serial.printf("[TARE] PERINGATAN: offset %ld di luar jendela (%u/%u), lepas genggaman; "
-                          "tare diulang\n", (long)newOffset, sen.offsetBadRun, OFFSET_BAD_N);
+          uint32_t nowMs = millis();
+          if (!sen.offsetOut) {      // tare pertama di luar jendela dalam deret ini: mulai hitung waktu
+            sen.offsetOut = true;
+            sen.offsetOutSinceMs = nowMs;
+          }
+          uint32_t outMs = nowMs - sen.offsetOutSinceMs;
+          if (outMs < OFFSET_BAD_MS) {
+            Serial.printf("[TARE] PERINGATAN: offset %ld di luar jendela (%lu ms), lepas genggaman; "
+                          "tare diulang\n", (long)newOffset, (unsigned long)outMs);
             sensorStartTare();       // offset lama dipertahankan
             sen.windowRetry = true;  // sesudah sensorStartTare(), yang menghapusnya
             return true;
           }
-          // OFFSET_BAD_N kali berturut-turut: bukan tangan, tetapi sambungan load cell.
-          Serial.printf("[TARE] PERINGATAN: offset di luar jendela (%ld, harus %ld +- %ld, %u kali), "
+          // Di luar jendela terus-menerus >= OFFSET_BAD_MS: bukan tangan, tetapi sambungan load cell.
+          Serial.printf("[TARE] PERINGATAN: offset di luar jendela (%ld, harus %ld +- %ld, selama %lu ms), "
                         "load cell terputus?\n",
-                        (long)newOffset, (long)OFFSET_EXPECTED, (long)OFFSET_WINDOW, sen.offsetBadRun);
+                        (long)newOffset, (long)OFFSET_EXPECTED, (long)OFFSET_WINDOW, (unsigned long)outMs);
           sen.offsetBad = true;      // sensorCheck() -> READING_INVALID
-          sen.offsetBadRun = 0;      // setelah TAHAN keluar FAULT, tare berikutnya dapat 3 kesempatan lagi
+          sen.offsetOut = false;     // setelah TAHAN keluar FAULT, hitungan waktu mulai dari awal
           sen.windowRetry = false;
           sen.taring = false;        // offset lama dipertahankan; FAULT yang menghentikan pengukuran
           return true;
         }
 
-        sen.offsetBadRun = 0;
+        sen.offsetOut = false;       // satu tare di dalam jendela mengembalikan hitungan waktu
         sen.offset = newOffset;
         sen.taring = false;
         // Skala demo (x) TIDAK dibatalkan oleh tare (langkah 8c): x bertahan sampai sesi baru,

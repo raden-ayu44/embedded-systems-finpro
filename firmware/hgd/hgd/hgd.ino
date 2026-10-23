@@ -30,7 +30,7 @@
   - Serial: [FSM] A -> B, [GRIP], [COMPUTE], [REST], [SUMMARY], [FAULT], [E]; 't' tare, 'p' nilai,
     'x' skala demo /40 bolak-balik (bertahan sampai sesi baru), 's' simulasi saturasi bolak-balik.
   - Langkah 8c/8d: offset tare di luar -39000 +- 20000 counts -> tare diulang ("Lepas genggaman");
-    3 kali berturut-turut -> READING_INVALID (load cell terputus).
+    terus-menerus 10 s -> READING_INVALID (load cell terputus).
 
   Serial Monitor: 115200 baud.
 */
