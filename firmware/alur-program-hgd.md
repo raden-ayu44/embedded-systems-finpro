@@ -343,7 +343,7 @@ Mengosongkan `flag` dan menandai tekanan yang sedang berlangsung sebagai "abaika
 Mengatur pin (DT `INPUT_PULLUP` supaya modul yang tercabut terbaca "tidak siap", SCK `OUTPUT` rendah), memasang skala. Tanpa library HX711 (v5). Tidak menunggu: kegagalan dideteksi lewat `T_TUNGGU_HX711_MS` sejak boot.
 
 ### 5.7 `sensorBaca()` ▣
-Dipanggil tiap `loop()`. **Non-blocking (v5):** bila DT masih tinggi (data belum siap) langsung kembali. Bila DT rendah → `hxRead()`: 24 pulsa SCK + pulsa ke-25 (kanal A, gain 128), dibungkus `noInterrupts()/interrupts()` supaya ISR tombol tidak memperpanjang pulsa; pulsa tinggi ≈ 1 µs, jauh di bawah ≈ 60 µs yang mematikan HX711; total ≈ 50-60 µs. Lalu menyimpan `raw` dan waktu sampel, `kg = (raw − offset) / skala`, menambah buffer, dan menyuapi tare bila sedang berjalan. Galat diperiksa terpisah oleh `sensorCek()`: tanpa sampel selama `T_TUNGGU_HX711_MS` → `HX711_TIMEOUT`; `|raw| ≥ SATURASI_FRAKSI × ADC_MAX` → `ADC_SATURASI`; `T_SAMA_N` nilai identik → `READING_INVALID`.
+Dipanggil tiap `loop()`. **Non-blocking (v5):** bila DT masih tinggi (data belum siap) langsung kembali. Bila DT rendah → `hxRead()`: 24 pulsa SCK + pulsa ke-25 (kanal A, gain 128), dibungkus `noInterrupts()/interrupts()` supaya ISR tombol tidak memperpanjang pulsa; pulsa tinggi ≈ 1-2 µs, jauh di bawah ≈ 60 µs yang mematikan HX711; total terukur 92-114 µs (biasanya 93-95 µs; langkah 3, 23 Okt. 2026, core 2.0.17). Lalu menyimpan `raw` dan waktu sampel, `kg = (raw − offset) / skala`, menambah buffer, dan menyuapi tare bila sedang berjalan. Galat diperiksa terpisah oleh `sensorCek()`: tanpa sampel selama `T_TUNGGU_HX711_MS` → `HX711_TIMEOUT`; `|raw| ≥ SATURASI_FRAKSI × ADC_MAX` → `ADC_SATURASI`; `T_SAMA_N` nilai identik → `READING_INVALID`.
 **Pemakai:** `loop()`; hasilnya dibaca `layaniGenggam()`, `layaniRespon()`, `galatTahan()`.
 
 ### 5.8 `sensorTare()` ▣
@@ -540,7 +540,7 @@ SESI (3 percobaan)
 ### 6.4 Mekanisme waktu
 | State | Mekanisme | Catatan |
 |-------|-----------|---------|
-| Semua | Baca HX711 hanya saat DT sudah rendah (data siap): ≈ 50-60 µs per baca, tanpa menunggu | Non-blocking (v5) |
+| Semua | Baca HX711 hanya saat DT sudah rendah (data siap): terukur ≈ 0,1 ms (92-114 µs) per baca, tanpa menunggu | Non-blocking (v5) |
 | SIAP | Tare = 10 sampel dikumpulkan lintas putaran `loop()` (≈ 1 s); kedip restart `LED_BLINK_MS` dengan `millis()` | Non-blocking |
 | GENGGAM | Tiap sampel baru (≈ 10 SPS): buffer, plateau, LED, cek rentang live | Non-blocking |
 | HITUNG | One-shot | Non-blocking |
@@ -608,7 +608,7 @@ stateDiagram-v2
 3. Kirim pulsa ke-25 untuk memilih kanal A dengan gain 128 untuk pembacaan berikutnya.
 4. Sambung 24 bit menjadi bilangan bertanda dua-komplemen: bila bit 23 = 1, kurangi 2²⁴ (perluasan tanda).
 
-> Bit-bang memakai GPIO 18/19. **v5: firmware utama tidak memakai library HX711**; `hxRead()` diadaptasi dari sketsa `uji_bench_hgd` yang sudah teruji di bench. Langkah 2-3 dibungkus `noInterrupts()/interrupts()`: ISR tombol di tengah pembacaan dapat memperpanjang pulsa SCK tinggi, dan pulsa tinggi lebih dari ≈ 60 µs membuat HX711 masuk mode daya rendah. Pulsa tinggi ≈ 1 µs; total pembacaan ≈ 50-60 µs, jadi interrupt tertunda paling lama selama itu (debounce 50 ms tidak terpengaruh).
+> Bit-bang memakai GPIO 18/19. **v5: firmware utama tidak memakai library HX711**; `hxRead()` diadaptasi dari sketsa `uji_bench_hgd` yang sudah teruji di bench. Langkah 2-3 dibungkus `noInterrupts()/interrupts()`: ISR tombol di tengah pembacaan dapat memperpanjang pulsa SCK tinggi, dan pulsa tinggi lebih dari ≈ 60 µs membuat HX711 masuk mode daya rendah. Pulsa tinggi ≈ 1-2 µs; total pembacaan terukur 92-114 µs, biasanya 93-95 µs (perkiraan awal 50-60 µs belum menghitung waktu `digitalWrite`/`digitalRead`), jadi interrupt tertunda paling lama selama itu (debounce 50 ms tidak terpengaruh).
 
 ### 7.2 Dari counts ke kilogram
 ```
@@ -944,7 +944,7 @@ Semua alokasi statis (tanpa `malloc`/`new` di jalur utama); tidak ada struktur d
 | Variabel ISR `volatile` | Tombol | Cegah macet karena optimasi compiler |
 | Pull-up internal pada pin tombol | `setup` | Pin mengambang memicu interrupt palsu |
 | Satu threshold untuk onset/dilepas-awal/lepas | Konfigurasi | Satu eksperimen (E1) |
-| Baca HX711 dan tare non-blocking (v5) | Semua state | Baca hanya saat DT rendah (≈ 50-60 µs, interrupt dimatikan selama 25 pulsa); tare 10 sampel lintas `loop()`; tidak ada `delay()` di `loop()` (A5 selesai) |
+| Baca HX711 dan tare non-blocking (v5) | Semua state | Baca hanya saat DT rendah (terukur ≈ 0,1 ms, interrupt dimatikan selama 25 pulsa); tare 10 sampel lintas `loop()`; tidak ada `delay()` di `loop()` (A5 selesai) |
 | Auto-tare tiap masuk `SIAP` | `SIAP` | Konsistensi titik nol antar percobaan |
 | Tare, kalibrasi, pengukuran pada orientasi sama | Kalibrasi | Massa B ≈ 138 g menggeser offset |
 | Pemetaan kabel: eksitasi hitam/putih, sinyal merah/hijau | Load cell | Terukur; berbeda dari datasheet; jangan menyambung berdasarkan warna datasheet |
@@ -1168,7 +1168,7 @@ Argumen: alat genggam butuh ukuran kompak, daya rendah, dan pewaktuan yang bisa 
 
 | Kode | Hal | Menurut modul praktikum | Cara menyelesaikan |
 |------|-----|-------------------------|--------------------|
-| A5 | `sensorBaca()` menunggu DT turun sampai ≈ 100 ms tiap baca; tare ≈ 1 s tiap masuk `SIAP` | Tunggu blocking hanya dibenarkan sekali di `setup()`. Satu putaran lambat menggeser semua tugas terjadwal; rubrik praktikum menempatkan blocking di loop utama di pita B/C. S2 (update 100 ms, ±10-20 ms) tidak dapat dijamin bila satu putaran menunggu HX711, termasuk di `RESPON_ISTIRAHAT` | Lihat lama tunggu DT dari `uji_hx711` (U7). Pilihan: tetap blocking dan S2 direvisi, atau baca hanya saat DT sudah rendah (pembacaan 25 pulsa sendiri ≈ 50 µs). **Data 15 Okt. 2026:** 706 sampel dalam 60 s, jadi satu sampel tiap ≈ 85 ms; baca blocking bisa menunggu sampai ≈ 85 ms, lebih panjang dari jendela S2 (±10-20 ms). ✔ **Selesai v5:** baca hanya saat DT sudah rendah (≈ 50-60 µs) dan tare 10 sampel lintas `loop()`; tanpa library HX711, tidak ada blocking di `loop()` (Bagian 5.7-5.8, 6.4) |
+| A5 | `sensorBaca()` menunggu DT turun sampai ≈ 100 ms tiap baca; tare ≈ 1 s tiap masuk `SIAP` | Tunggu blocking hanya dibenarkan sekali di `setup()`. Satu putaran lambat menggeser semua tugas terjadwal; rubrik praktikum menempatkan blocking di loop utama di pita B/C. S2 (update 100 ms, ±10-20 ms) tidak dapat dijamin bila satu putaran menunggu HX711, termasuk di `RESPON_ISTIRAHAT` | Lihat lama tunggu DT dari `uji_hx711` (U7). Pilihan: tetap blocking dan S2 direvisi, atau baca hanya saat DT sudah rendah (pembacaan 25 pulsa sendiri ≈ 50 µs). **Data 15 Okt. 2026:** 706 sampel dalam 60 s, jadi satu sampel tiap ≈ 85 ms; baca blocking bisa menunggu sampai ≈ 85 ms, lebih panjang dari jendela S2 (±10-20 ms). ✔ **Selesai v5:** baca hanya saat DT sudah rendah (terukur ≈ 0,1 ms) dan tare 10 sampel lintas `loop()`; tanpa library HX711, tidak ada blocking di `loop()` (Bagian 5.7-5.8, 6.4) |
 | A6 | `T_REFRESH_LCD_MS` = 250 ms | Tidak lebih cepat dari dua kali per detik (500 ms) | Hasil E3 dari `uji_lcd_i2c`; bila 250 ms dipertahankan, tulis alasannya. ✔ **Selesai v5:** `T_REFRESH_LCD_MS` = 500 ms, mengikuti aturan modul praktikum; berlaku untuk semua layar termasuk hitung mundur |
 | A7 | Hitung mundur diperbarui tiap 100 ms "tanpa ganti layar" | Layar menampilkan detik bulat dan redraw dibatasi `T_REFRESH_LCD_MS`, jadi update 100 ms tidak tampak | Tetapkan apa yang diukur S2: pembaruan nilai internal, atau pembaruan layar. ✔ **Selesai v5:** sisa waktu dihitung dari `millis()` tiap putaran; layar digambar ulang tiap 500 ms. **S2 diubah** dari 100 ms ±10-20 ms menjadi 500 ms (Bagian 6.2) |
 | A8 | Cadangan: salin nilai dari Serial Monitor saat `GAGALSIMPAN` (§4.8, §9.6, §10.5, X4) | Hanya satu program dapat memegang port; membuka port me-reset ESP32 (karena itu contoh `logger.py` menunggu 2 detik). Membuka Serial Monitor, atau menjalankan ulang `logger.py`, setelah `logger.py` mati akan me-reset alat dan menghapus data sesi di RAM | Tetapkan cadangan yang tidak membuka port: konsol `logger.py` selama masih hidup, atau layar LCD (saat ini `GAGALSIMPAN` hanya menampilkan puncak dan rerata). ✔ **Selesai v5:** `logger.py` mencetak setiap baris non-`HGD` ke konsolnya dan meneruskan tombol (`x`) ke ESP32; bila `logger.py` sudah berhenti, LCD `GAGALSIMPAN` bergantian tiap 3 s menampilkan P1/P2/P3 dan Pk/Av. Serial Monitor tidak dibuka lebih dulu (Bagian 4.8, 5.22, 9.5, 10.2) |

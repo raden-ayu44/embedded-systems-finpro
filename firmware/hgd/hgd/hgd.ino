@@ -6,14 +6,14 @@
             Pengembangan juga dikompilasi dengan PlatformIO (core 2.0.17).
   Library : LiquidCrystal_I2C 1.1.4 (Frank de Brabander, dirawat Marco Schwartz)
             Wire (bawaan core Arduino-ESP32)
+            HX711 tidak memakai library (bit-bang sendiri, sensor.cpp).
 
-  Langkah 2 (uji LCD, uji tombol langkah 1 tetap jalan):
-  - Baris 1: "HGD siap". Tiap TAHAN menukar baris 1 dengan teks 24 karakter untuk menguji
-    pemotongan di 16 karakter (harus tampil "Uji potong 16 ka").
-  - Baris 2: waktu sejak TAP terakhir (ms), digambar ulang tiap 500 ms. TAP mengembalikannya ke 0:
-    angka yang memendek tidak boleh meninggalkan digit lama. TAP juga membalik LED.
-  - LCD hanya menerima karakter yang berubah, paling banyak satu baris per putaran loop().
-  - Serial: jumlah karakter dan lama tiap tulisan ke LCD (ms), putaran loop() terlama tiap 5 s.
+  Langkah 3 (uji baca sensor dan tare):
+  - Tare otomatis saat boot (~1 s, tanpa memblokir). Jangan sentuh alat saat "Nol-kan...".
+  - Serial: satu baris per sampel (~10-12 baris/s): raw, kg, lama hxRead (us), STBL bila plateau.
+  - LCD baris 1: kg, baris 2: raw (digambar ulang tiap 500 ms).
+  - TAP atau ketik 't' = tare ulang. Ketik 'p' = cetak raw, offset, kg.
+  - Tiap 5 s: jumlah sampel per detik dan putaran loop() terlama.
 
   Serial Monitor: 115200 baud.
 */
@@ -24,17 +24,29 @@
 #include "types.h"
 #include "button.h"
 #include "display.h"
+#include "sensor.h"
 
-static uint32_t tapCount = 0;
-static uint32_t holdCount = 0;
-static bool ledOn = false;
-
-// Variabel uji langkah 2.
-static uint32_t lastTapMs = 0;       // millis() saat TAP terakhir (baris 2 LCD)
-static bool longTextOn = false;      // true = baris 1 menampilkan teks uji 24 karakter
-static uint32_t redrawCount = 0;
+// Variabel uji langkah 3.
+static uint32_t sampleCount = 0;     // sampel dalam jendela 5 s
 static uint32_t loopMaxUs = 0;       // putaran loop() terlama dalam jendela 5 s
-static uint32_t loopReportMs = 0;
+static uint32_t reportMs = 0;
+
+// Perintah serial satu huruf (hanya bila DEBUG_CMD = 1 di config.h). Tidak menunggu:
+// bila tidak ada karakter masuk, langsung kembali.
+static void serialCmd() {
+#if DEBUG_CMD
+  if (Serial.available() == 0) return;
+  char c = (char)Serial.read();
+  if (c == 't') {
+    sensorStartTare();
+    Serial.println("[CMD] t: tare ulang");
+  } else if (c == 'p') {
+    Serial.printf("[CMD] p: raw=%ld offset=%ld kg=%+.3f\n",
+                  (long)sensorRaw(), (long)sensorOffset(), sensorKg());
+  }
+  // Karakter lain (mis. '\n' dari Serial Monitor) diabaikan.
+#endif
+}
 
 void setup() {
   Serial.begin(BAUD);
@@ -47,83 +59,58 @@ void setup() {
   Wire.setClock(I2C_HZ);
   displayInit();
 
+  sensorInit();
+  sensorStartTare();   // tare pertama; selesai sendiri di sensorPoll() setelah 10 sampel
+
   // Cetak versi core supaya jelas build mana yang sedang berjalan (PlatformIO atau Arduino IDE).
   Serial.println();
   Serial.printf("HGD firmware, core %d.%d.%d\n",
                 ESP_ARDUINO_VERSION_MAJOR, ESP_ARDUINO_VERSION_MINOR, ESP_ARDUINO_VERSION_PATCH);
-  Serial.println("Langkah 2: LCD. TAP = LED balik + waktu ke 0, TAHAN = uji teks panjang.");
-  lastTapMs = millis();
+  Serial.println("Langkah 3: sensor. TAP atau 't' = tare ulang, 'p' = cetak nilai.");
 }
 
 void loop() {
   uint32_t loopStartUs = micros();
 
   Press p = buttonUpdate();
-
-  // Uji: lama tekanan terakhir. Saat TAP keluar, buttonHeldMs() sudah 0, jadi dipakai nilai
-  // dari putaran sebelumnya (termasuk 50 ms debounce saat lepas).
-  static uint32_t pressMs = 0;
-  uint32_t heldNow = buttonHeldMs();
-  if (heldNow > 0) pressMs = heldNow;
-
   if (p == PRESS_TAP) {
-    tapCount++;
-    ledOn = !ledOn;
-    digitalWrite(PIN_LED, ledOn ? HIGH : LOW);
-    lastTapMs = millis();
-    displayRequest();   // tampilkan angka 0 segera, tanpa menunggu 500 ms
-    Serial.printf("[BTN] t=%lu TAP #%lu (tekan %lu ms) -> LED %s\n", (unsigned long)millis(),
-                  (unsigned long)tapCount, (unsigned long)pressMs, ledOn ? "ON" : "OFF");
-  } else if (p == PRESS_HOLD) {
-    holdCount++;
-    longTextOn = !longTextOn;
+    sensorStartTare();
     displayRequest();
-    Serial.printf("[BTN] t=%lu HOLD #%lu\n", (unsigned long)millis(), (unsigned long)holdCount);
+    Serial.println("[BTN] TAP: tare ulang");
   }
 
-  // Waktu tahan untuk reset total (uji langkah 1): cetak sisa detik sekali per detik setelah 3 s.
-  static uint32_t lastShownS = 0;
-  static bool forceFired = false;
-  uint32_t held = buttonHeldMs();
-  if (held == 0) {
-    lastShownS = 0;
-    forceFired = false;
-  } else if (!forceFired && held >= FORCE_RESET_MS) {
-    forceFired = true;   // sekali per tekanan
-    buttonReset();       // pelepasan setelah ini tidak boleh menjadi TAP
-    Serial.println("[BTN] tahan 15 s -> RESET TOTAL (langkah 5+ menjalankannya)");
-  } else if (!forceFired && held >= FORCE_RESET_SHOW_MS) {
-    uint32_t leftS = (FORCE_RESET_MS - held + 999) / 1000;   // dibulatkan ke atas
-    if (leftS != lastShownS) {
-      lastShownS = leftS;
-      Serial.printf("[BTN] Reset total %lu (lepas = batal)\n", (unsigned long)leftS);
-    }
+  if (sensorPoll()) {
+    sampleCount++;
+    Serial.printf("raw=%ld kg=%+.3f baca=%lu us%s%s\n",
+                  (long)sensorRaw(), sensorKg(), (unsigned long)sensorReadUs(),
+                  sensorPlateau() ? " STBL" : "",
+                  sensorTareDone() ? "" : " (tare)");
   }
 
-  // LCD: isi baru disusun paling cepat tiap LCD_REFRESH_MS (atau segera setelah displayRequest()).
+  serialCmd();
+
+  // LCD: kg dan raw, paling cepat tiap LCD_REFRESH_MS.
   if (displayDue()) {
-    char line[24];   // sengaja lebih dari 16: lcdLine() yang memotong
-    lcdLine(0, longTextOn ? "Uji potong 16 karakter!!" : "HGD siap");
-    snprintf(line, sizeof(line), "t=%lu ms", (unsigned long)(millis() - lastTapMs));
+    char line[24];
+    if (!sensorTareDone()) {
+      lcdLine(0, "Nol-kan...");
+    } else {
+      snprintf(line, sizeof(line), "%+8.2f kg", sensorKg());
+      lcdLine(0, line);
+    }
+    snprintf(line, sizeof(line), "RAW %ld", (long)sensorRaw());
     lcdLine(1, line);
   }
+  displayUpdate();
 
-  // Kirim perubahan ke LCD: paling banyak satu baris per putaran.
-  uint32_t t0 = micros();
-  uint8_t sent = displayUpdate();
-  if (sent > 0) {
-    uint32_t dt = micros() - t0;
-    redrawCount++;
-    Serial.printf("[LCD] tulis #%lu: %u karakter, %.2f ms\n",
-                  (unsigned long)redrawCount, sent, dt / 1000.0f);
-  }
-
-  // Putaran loop() terlama: penting untuk tombol (tap harus terbaca LOW minimal sekali).
+  // Laporan tiap 5 s: laju sampel dan putaran loop() terlama.
   uint32_t loopUs = micros() - loopStartUs;
   if (loopUs > loopMaxUs) loopMaxUs = loopUs;
-  if (millis() - loopReportMs >= 5000) {
-    loopReportMs = millis();
-    Serial.printf("[LOOP] terlama 5 s terakhir: %.2f ms\n", loopMaxUs / 1000.0f);
+  if (millis() - reportMs >= 5000) {
+    reportMs = millis();
+    Serial.printf("[INFO] %.1f sampel/s, loop terlama %.2f ms\n",
+                  sampleCount / 5.0f, loopMaxUs / 1000.0f);
+    sampleCount = 0;
     loopMaxUs = 0;
   }
 }
