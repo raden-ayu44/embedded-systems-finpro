@@ -26,6 +26,6 @@ void faultClear();
 // Isi dua baris layar FAULT: "ERR:..." dan "RAW <raw live>". n = ukuran buffer tiap baris.
 void faultDraw(char* l0, char* l1, size_t n);
 
-// Kirim baris E (galat atau kejadian). t = detik sejak sesi mulai.
-// Langkah 8: dicetak sebagai teks "[E] ..."; langkah 9 menggantinya dengan baris HGD,E + checksum + ACK.
+// Kirim baris E (galat atau kejadian) lewat serial_log: HGD,E,seq,sesi,percobaan,kode,detik*CS
+// (langkah 9). detik = sejak sesi mulai.
 void faultLogEvent(uint8_t code, uint16_t sessionNo, uint8_t trialNo, uint32_t sessionT0Ms);

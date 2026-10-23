@@ -3,6 +3,7 @@
 #include "button.h"
 #include "led.h"
 #include "sensor.h"
+#include "serial_log.h"
 
 static FaultType active = FAULT_NONE;   // galat yang sedang aktif
 
@@ -33,7 +34,8 @@ void faultDraw(char* l0, char* l1, size_t n) {
 }
 
 void faultLogEvent(uint8_t code, uint16_t sessionNo, uint8_t trialNo, uint32_t sessionT0Ms) {
+  // Langkah 9: baris HGD,E,... dengan checksum lewat antrean serial_log (menunggu ACK).
+  // Bila ACK gagal, galat tetap tampil di LCD dan di serial (Bagian 9.5 butir 4).
   uint32_t secs = (millis() - sessionT0Ms) / 1000;
-  Serial.printf("[E] kode=%u sesi=%u percobaan=%u t=%lu s\n",
-                code, sessionNo, trialNo, (unsigned long)secs);
+  logEvent(code, sessionNo, trialNo, secs);
 }

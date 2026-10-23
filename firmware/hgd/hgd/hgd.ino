@@ -27,7 +27,9 @@
   - Tahan 15 s di state apa pun = reset total (hitung mundur di LCD mulai detik ke-3).
   - Langkah 8: kg > 80 kg live di GRIP, atau ref <= 0 / > 80 kg di COMPUTE -> FAULT OUT_OF_RANGE
     ("ERR:DI LUAR RNTG"). Keadaan aman, layar galat dan baris [E] di fault.cpp.
-  - Serial: [FSM] A -> B, [GRIP], [COMPUTE], [REST], [SUMMARY], [FAULT], [E]; 't' tare, 'p' nilai,
+  - Langkah 9: baris HGD,T/S/E,seq,sesi,percobaan,nilai1,nilai2*CS (serial_log.cpp), tiap baris
+    menunggu "ACK,<seq>" 2 s, NAK/tanpa balasan -> kirim ulang sekali; ringkasan gagal -> GAGAL SIMPAN.
+  - Serial: [FSM] A -> B, [GRIP], [COMPUTE], [REST], [SUMMARY], [FAULT], [LOG]; 't' tare, 'p' nilai,
     'x' skala demo /40 bolak-balik (bertahan sampai sesi baru), 's' simulasi saturasi bolak-balik.
   - Langkah 8c/8d: offset tare di luar -39000 +- 20000 counts -> tare diulang ("Lepas genggaman");
     terus-menerus 10 s -> READING_INVALID (load cell terputus).
@@ -44,17 +46,17 @@
 #include "sensor.h"
 #include "led.h"
 #include "fsm.h"
+#include "serial_log.h"
 
 // Variabel uji: putaran loop() terlama dalam jendela 5 s.
 static uint32_t loopMaxUs = 0;
 static uint32_t reportMs = 0;
 
-// Perintah serial satu huruf (hanya bila DEBUG_CMD = 1 di config.h). Tidak menunggu:
-// bila tidak ada karakter masuk, langsung kembali.
-static void serialCmd() {
+// Perintah serial satu huruf (hanya bila DEBUG_CMD = 1 di config.h). Hurufnya dibaca oleh
+// logPoll() (serial_log.cpp), yang juga membaca baris ACK/NAK dari logger.py; c = 0 = tidak ada.
+static void serialCmd(char c) {
 #if DEBUG_CMD
-  if (Serial.available() == 0) return;
-  char c = (char)Serial.read();
+  if (c == 0) return;
   if (c == 't') {
     sensorStartTare();
     Serial.println("[CMD] t: tare ulang");
@@ -75,7 +77,9 @@ static void serialCmd() {
                   sensorScale(), sensorDemoActive() ? " DEMO" : "",
                   sensorSimSaturateActive() ? " SIM-SAT" : "");
   }
-  // Karakter lain (mis. '\n' dari Serial Monitor) diabaikan.
+  // Huruf lain diabaikan.
+#else
+  (void)c;   // DEBUG_CMD = 0: perintah dimatikan
 #endif
 }
 
@@ -95,7 +99,7 @@ void setup() {
   Serial.println();
   Serial.printf("HGD firmware, core %d.%d.%d\n",
                 ESP_ARDUINO_VERSION_MAJOR, ESP_ARDUINO_VERSION_MINOR, ESP_ARDUINO_VERSION_PATCH);
-  Serial.println("Langkah 8: modul galat + cek rentang.");
+  Serial.println("Langkah 9: baris log HGD + ACK.");
 
   fsmInit();   // READY dengan kedip restart dan tare pertama
 }
@@ -105,7 +109,7 @@ void loop() {
 
   Press press = buttonUpdate();   // TAP / HOLD / tidak ada, satu kali per putaran
   sensorPoll();                   // baca HX711 bila data siap (tidak menunggu)
-  serialCmd();                    // perintah t / p
+  serialCmd(logPoll());           // ACK/NAK + kirim ulang baris log; perintah t / p / x / s
   fsmRun(press);                  // reset total -> cek galat -> handler state -> layar
   ledUpdate();                    // kedip restart (millis)
   displayUpdate();                // kirim perubahan LCD, paling banyak satu baris

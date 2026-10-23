@@ -373,7 +373,7 @@ Dua sub-fase (Bagian 6.2). Memakai `THRESHOLD_ONSET_KG` untuk mendeteksi pelepas
 Sekali setelah percobaan ke-3: `peak = maks(hasil[].ref)`, `avg = rata-rata(hasil[].ref)`; memanggil `catatKirimSesi()`.
 
 ### 5.15 `catatKirimBaris(jenis, ...)` ▣
-Menyusun baris `HGD,<jenis>,...*<checksum>` dengan `seq` berikutnya, mengirim lewat `Serial.print`, dan mencatat `menungguSeq` dan `tsKirim`.
+Menyusun baris `HGD,<jenis>,...*<checksum>` dengan `seq` berikutnya, mengirim lewat `Serial.print`, dan mencatat `menungguSeq` dan `tsKirim`. **Kode (langkah 9):** `logTrial()`, `logSummary()`, `logEvent()` di `serial_log.cpp`; baris masuk antrean dan dikirim satu per satu (Bagian 9.2).
 
 ### 5.16 `catatTungguAck()` ▣
 Non-blocking: dipanggil tiap loop sampai `ACK,<seq>` diterima (→ sukses), `NAK` atau `T_ACK_MS` lewat (→ kirim ulang sekali; bila gagal lagi → gagal).
@@ -766,6 +766,10 @@ HGD,<jenis>,<seq>,<sesi>,<percobaan>,<nilai1>,<nilai2>*<checksum>
 
 `checksum` = XOR semua byte dari `H` (awal `HGD`) sampai karakter tepat sebelum `*`, ditulis dua digit heksadesimal huruf besar. Baris terpotong atau rusak gagal checksum dan dibalas `NAK`.
 
+**Tanda demo (langkah 9):** percobaan yang diukur dengan skala demo `x` (Bagian 5.21) bukan data nyata. Baris `T`: `nilai2` = 1 untuk percobaan demo, 0 untuk percobaan nyata. Baris `S`: `percobaan` = jumlah percobaan demo dalam sesi (0 = semua nyata). `logger.py` menulis `DEMO` di kolom `catatan` untuk keduanya. Format kolom tidak berubah. `seq` dimulai dari 1 sejak boot; balasan dengan `seq` lain (mis. ACK terlambat) diabaikan.
+
+**Kode (langkah 9):** `serial_log.cpp`: antrean 8 baris statis, dikirim satu per satu; `logPoll()` tiap `loop()` membaca `ACK,<n>`/`NAK,<n>` dan huruf perintah debug (huruf kecil di awal baris; ACK/NAK selalu huruf besar), lalu mengirim baris terdepan atau mengirim ulang setelah `T_ACK_MS` (2 s). Uji 23 Okt. 2026 lewat skrip (baris `E` dari perintah `s`): tanpa balasan → kirim ulang 2 s → gagal 2 s kemudian; `ACK` → selesai; `NAK` → kirim ulang seketika → `ACK`; `ACK` dengan `seq` salah → diabaikan (sama dengan tanpa balasan). Checksum cocok dengan perhitungan terpisah.
+
 ### 9.3 Format berkas CSV (dari `logger.py`)
 ```
 timestamp,sesi,jenis,percobaan,gaya_kg,rerata_kg,catatan
@@ -787,7 +791,7 @@ timestamp,sesi,jenis,percobaan,gaya_kg,rerata_kg,catatan
 
 ### 9.5 Urutan di `RINGKASAN`
 1. Kirim 3 baris `T` (satu per percobaan), lalu 1 baris `S`; tiap baris menunggu `ACK` sendiri.
-2. Semua `ACK` diterima → layar menampilkan puncak dan rerata; menunggu TAP.
+2. Selama menunggu, baris 2 LCD `Menyimpan...` dan TAP diabaikan (langkah 9). Semua `ACK` diterima → `Tekan: RESTART`; menunggu TAP. Paling lama ≈ 16 s bila `logger.py` tidak menjawab (4 baris × 2 kiriman × 2 s).
 3. Ada baris yang gagal setelah satu kali kirim ulang → `GAGALSIMPAN`. Nilai tampil di konsol `logger.py` bila masih hidup; bila `logger.py` sudah berhenti, salin dari layar LCD `GAGALSIMPAN` (bergantian tiap 3 detik, Bagian 10.2). Jangan membuka Serial Monitor lebih dulu (me-reset ESP32, A8).
 4. Baris galat `E` dikirim saat masuk `ERROR`. Bila ACK-nya gagal, galat tetap tampil di LCD dan di konsol `logger.py` / Serial.
 5. Baris `E` `FORCE_RESET` dikirim saat reset total; kiriman lain yang masih menunggu ACK dibatalkan lebih dulu. Bila ACK-nya gagal, reset tetap berjalan (tidak masuk `GAGALSIMPAN`).
@@ -826,6 +830,7 @@ timestamp,sesi,jenis,percobaan,gaya_kg,rerata_kg,catatan
 | RESPON sub-fase 1 (hitung mundur) | `Hasil 47.23 kg` | `Lepas>Rest 58s` (detik bulat, `%2lus`) |
 | RESPON sub-fase 2 | `Hasil 47.23 kg` | `NEXT > lanjut` |
 | RESPON sub-fase 2 (percobaan 3) | `Hasil 46.90 kg` | `NEXT > ringkasan` |
+| RINGKASAN (mengirim, menunggu ACK; langkah 9) | `Mx47.2 Av44.8 kg` | `Menyimpan...` |
 | RINGKASAN | `Mx47.2 Av44.8 kg` | `Tekan: RESTART` |
 | ERROR | `ERR:HX711 TMOUT` | `RAW -1234567` |
 | ERROR (`READING_INVALID`, v5) | `ERR:BACA TDK VLD` | `RAW 0` (nilai yang berulang) |
