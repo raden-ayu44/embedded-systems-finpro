@@ -8,16 +8,15 @@
             Wire (bawaan core Arduino-ESP32)
             HX711 tidak memakai library (bit-bang sendiri, sensor.cpp).
 
-  Langkah 4 (uji cek galat sensor; uji langkah 3 tetap jalan):
-  - Cabut DT -> HX711_TIMEOUT dalam ~1 s. Cabut SCK -> READING_INVALID (3 sampel berturut-turut
-    datang < 40 ms; atau HX711_TIMEOUT bila HX711 mati karena SCK mengambang HIGH).
-    Colok kembali -> "normal lagi".
-  - Tiap perubahan galat dicetak sekali: [SENSOR] t=<ms> GALAT <nama> / normal lagi.
-  - LCD saat galat: baris 1 teks galat (Bagian 10.2), baris 2 raw. Saat normal: kg dan raw.
-  - Baris per sampel hanya dicetak saat tidak ada galat (supaya serial tidak banjir bila DT
-    tertahan LOW dan sampel terbaca di tiap putaran loop()).
-  - TAP atau ketik 't' = tare ulang. Ketik 'p' = cetak raw, offset, kg.
-  - Tiap 5 s: jumlah sampel per detik dan putaran loop() terlama.
+  Langkah 5 (kerangka state machine + LED):
+  - Boot: READY, LED kedip 5 s, "Nol-kan..." lalu "Tekan START". TAP = START (dan hentikan kedip).
+  - GRIP: "Genggam..."; tekan > 1 kg = onset, layar kg live; LED menyala selama genggaman stabil;
+    stabil pada >= 3 s -> COMPUTE -> REST ("Lepas tangan", LED tetap menyala sampai dilepas).
+  - REST: setelah dilepas "NEXT: lanjut"; TAP -> percobaan berikutnya. Setelah 3 -> SUMMARY;
+    TAP -> sesi baru (kedip).
+  - Galat sensor di READY/GRIP/COMPUTE/REST -> FAULT (LED mati, ERR + raw); TAHAN 1,5 s -> READY.
+  - Tahan 15 s di state apa pun = reset total (hitung mundur di LCD mulai detik ke-3).
+  - Serial: [FSM] A -> B, [GRIP], [COMPUTE], [REST], [SUMMARY], [FAULT]; 't' tare, 'p' nilai.
 
   Serial Monitor: 115200 baud.
 */
@@ -29,10 +28,11 @@
 #include "button.h"
 #include "display.h"
 #include "sensor.h"
+#include "led.h"
+#include "fsm.h"
 
-// Variabel uji langkah 3.
-static uint32_t sampleCount = 0;     // sampel dalam jendela 5 s
-static uint32_t loopMaxUs = 0;       // putaran loop() terlama dalam jendela 5 s
+// Variabel uji: putaran loop() terlama dalam jendela 5 s.
+static uint32_t loopMaxUs = 0;
 static uint32_t reportMs = 0;
 
 // Perintah serial satu huruf (hanya bila DEBUG_CMD = 1 di config.h). Tidak menunggu:
@@ -45,8 +45,8 @@ static void serialCmd() {
     sensorStartTare();
     Serial.println("[CMD] t: tare ulang");
   } else if (c == 'p') {
-    Serial.printf("[CMD] p: raw=%ld offset=%ld kg=%+.3f\n",
-                  (long)sensorRaw(), (long)sensorOffset(), sensorKg());
+    Serial.printf("[CMD] p: raw=%ld offset=%ld kg=%+.3f state=%s\n",
+                  (long)sensorRaw(), (long)sensorOffset(), sensorKg(), stateName(fsmState()));
   }
   // Karakter lain (mis. '\n' dari Serial Monitor) diabaikan.
 #endif
@@ -54,8 +54,7 @@ static void serialCmd() {
 
 void setup() {
   Serial.begin(BAUD);
-  pinMode(PIN_LED, OUTPUT);
-  digitalWrite(PIN_LED, LOW);
+  ledInit();
   buttonInit();
 
   // I2C: pin ditulis eksplisit (21 = SDA, 22 = SCL), keduanya hanya ke sisi LV level shifter.
@@ -64,84 +63,32 @@ void setup() {
   displayInit();
 
   sensorInit();
-  sensorStartTare();   // tare pertama; selesai sendiri di sensorPoll() setelah 10 sampel
 
   // Cetak versi core supaya jelas build mana yang sedang berjalan (PlatformIO atau Arduino IDE).
   Serial.println();
   Serial.printf("HGD firmware, core %d.%d.%d\n",
                 ESP_ARDUINO_VERSION_MAJOR, ESP_ARDUINO_VERSION_MINOR, ESP_ARDUINO_VERSION_PATCH);
-  Serial.println("Langkah 4: cek galat sensor. TAP atau 't' = tare ulang, 'p' = cetak nilai.");
+  Serial.println("Langkah 5: state machine + LED.");
+
+  fsmInit();   // READY dengan kedip restart dan tare pertama
 }
 
 void loop() {
   uint32_t loopStartUs = micros();
 
-  Press p = buttonUpdate();
-  if (p == PRESS_TAP) {
-    sensorStartTare();
-    displayRequest();
-    Serial.println("[BTN] TAP: tare ulang");
-  }
+  Press press = buttonUpdate();   // TAP / HOLD / tidak ada, satu kali per putaran
+  sensorPoll();                   // baca HX711 bila data siap (tidak menunggu)
+  serialCmd();                    // perintah t / p
+  fsmRun(press);                  // reset total -> cek galat -> handler state -> layar
+  ledUpdate();                    // kedip restart (millis)
+  displayUpdate();                // kirim perubahan LCD, paling banyak satu baris
 
-  bool newSample = sensorPoll();
-
-  // Cek galat sensor tiap putaran; cetak hanya saat jenis galat berubah.
-  static FaultType lastFault = FAULT_NONE;
-  FaultType fault = sensorCheck();
-  if (fault != lastFault) {
-    if (fault == FAULT_NONE) {
-      Serial.printf("[SENSOR] t=%lu normal lagi (raw=%ld)\n", (unsigned long)millis(), (long)sensorRaw());
-    } else {
-      Serial.printf("[SENSOR] t=%lu GALAT %s (raw=%ld, raw sama %u kali, jarak pendek %u kali, "
-                    "jarak terakhir %lu ms, sampel terakhir %lu ms lalu)\n",
-                    (unsigned long)millis(), faultName(fault), (long)sensorRaw(), sensorSameRun(),
-                    sensorShortGapRun(), (unsigned long)sensorLastGapMs(),
-                    (unsigned long)(millis() - sensorLastSampleMs()));
-    }
-    lastFault = fault;
-    displayRequest();   // ganti layar segera
-  }
-
-  if (newSample) {
-    sampleCount++;
-    if (fault == FAULT_NONE) {
-      Serial.printf("raw=%ld kg=%+.3f baca=%lu us%s%s\n",
-                    (long)sensorRaw(), sensorKg(), (unsigned long)sensorReadUs(),
-                    sensorPlateau() ? " STBL" : "",
-                    sensorTareDone() ? "" : " (tare)");
-    }
-  }
-
-  serialCmd();
-
-  // LCD: teks galat + raw saat galat, selain itu kg dan raw; paling cepat tiap LCD_REFRESH_MS.
-  if (displayDue()) {
-    char line[24];
-    if (fault == HX711_TIMEOUT) {
-      lcdLine(0, "ERR:HX711 TMOUT");
-    } else if (fault == ADC_SATURATED) {
-      lcdLine(0, "ERR:ADC SATURASI");
-    } else if (fault == READING_INVALID) {
-      lcdLine(0, "ERR:BACA TDK VLD");
-    } else if (!sensorTareDone()) {
-      lcdLine(0, "Nol-kan...");
-    } else {
-      snprintf(line, sizeof(line), "%+8.2f kg", sensorKg());
-      lcdLine(0, line);
-    }
-    snprintf(line, sizeof(line), "RAW %ld", (long)sensorRaw());
-    lcdLine(1, line);
-  }
-  displayUpdate();
-
-  // Laporan tiap 5 s: laju sampel dan putaran loop() terlama.
+  // Uji: putaran loop() terlama tiap 5 s (harus < 50 ms supaya tap >= 50 ms pasti terbaca).
   uint32_t loopUs = micros() - loopStartUs;
   if (loopUs > loopMaxUs) loopMaxUs = loopUs;
   if (millis() - reportMs >= 5000) {
     reportMs = millis();
-    Serial.printf("[INFO] %.1f sampel/s, loop terlama %.2f ms\n",
-                  sampleCount / 5.0f, loopMaxUs / 1000.0f);
-    sampleCount = 0;
+    Serial.printf("[INFO] loop terlama %.2f ms\n", loopMaxUs / 1000.0f);
     loopMaxUs = 0;
   }
 }

@@ -85,11 +85,11 @@ Proyek ada di `firmware/hgd/`. Folder `hgd/hgd/` adalah folder sketsa Arduino se
 | `types.h` | Enum dan struct (Bagian 2) |
 | `sensor.h/.cpp` | Baca HX711 non-blocking, tare, konversi counts ke kg, buffer, plateau, deteksi galat sensor |
 | `button.h/.cpp` | ISR tombol, debounce, tap vs tahan, waktu tahan reset total |
-| `display.h/.cpp` | LCD, teks per state, pembatasan refresh |
-| `led.h/.cpp` | LED: plateau di `GENGGAM`, tahan sampai dilepas, kedip restart |
+| `display.h/.cpp` | LCD: baris 16 karakter, kirim hanya karakter yang berubah (satu baris per putaran), pembatasan refresh, pulih sendiri |
+| `led.h/.cpp` | LED: nyala/mati dan kedip restart 5 s (non-blocking); kapan menyala diputuskan `fsm.cpp` (Bagian 10.3) |
 | `serial_log.h/.cpp` | Format baris, checksum, kirim, tunggu ACK |
 | `fault.h/.cpp` | Modul penanganan galat bersama (`ERROR` dan `GAGALSIMPAN`) |
-| `fsm.h/.cpp` | `fsmRun()` (`switch` ke handler per state), fungsi masuk tiap state, reset total, pengecualian galat |
+| `fsm.h/.cpp` | `fsmRun()` (`switch` ke handler per state), fungsi masuk tiap state, reset total, pengecualian galat, teks LCD per state (`drawScreen()`, Bagian 10.2), aturan LED (Bagian 10.3) |
 
 ### 1.4a Pemetaan nama: dokumen → kode
 Dokumen ini memakai nama Indonesia; kode memakai identifier bahasa Inggris (istilah umum sistem tertanam). Komentar kode dan teks LCD tetap berbahasa Indonesia. Diagram state di brief memakai nama kode.
