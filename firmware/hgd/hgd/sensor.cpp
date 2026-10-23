@@ -186,14 +186,30 @@ uint8_t  sensorSameRun()     { return sen.sameRun; }
 uint8_t  sensorShortGapRun() { return sen.shortGapRun; }
 uint32_t sensorLastGapMs()   { return sen.lastGapMs; }
 
-bool sensorPlateau() {
-  if (sen.bufN < BUF_SIZE) return false;   // buffer belum penuh: belum bisa dinilai
+bool sensorBufFull() { return sen.bufN >= BUF_SIZE; }
+
+float sensorBufSpread() {
+  if (sen.bufN == 0) return 0.0f;
   float mn = sen.buf[0], mx = sen.buf[0];
-  for (uint8_t i = 1; i < BUF_SIZE; i++) {
+  for (uint8_t i = 1; i < sen.bufN; i++) {
     if (sen.buf[i] < mn) mn = sen.buf[i];
     if (sen.buf[i] > mx) mx = sen.buf[i];
   }
-  return (mx - mn) <= THRESHOLD_STABLE_KG;
+  return mx - mn;
+}
+
+float sensorBufMin() {
+  if (sen.bufN == 0) return 0.0f;
+  float mn = sen.buf[0];
+  for (uint8_t i = 1; i < sen.bufN; i++) {
+    if (sen.buf[i] < mn) mn = sen.buf[i];
+  }
+  return mn;
+}
+
+bool sensorPlateau() {
+  if (!sensorBufFull()) return false;   // buffer belum penuh: belum bisa dinilai
+  return sensorBufSpread() <= THRESHOLD_STABLE_KG;
 }
 
 float sensorBufAvg() {

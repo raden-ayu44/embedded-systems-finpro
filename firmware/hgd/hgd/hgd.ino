@@ -14,6 +14,8 @@
     "Lepas genggaman" (START diabaikan); kg < -1 -> tare ulang otomatis (nol diambil saat dibebani).
     5 sampel HX711 pertama setelah boot dibuang.
   - GRIP: "Menunggu genggam" + kg live; tekan > 1 kg = onset, "Tahan 3-5 detik" + kg + detik;
+    langkah 6: dilepas sebelum 3 s -> kembali "Menunggu genggam"; 5 s tanpa plateau -> COMPUTE dengan
+    jendela buffer paling stabil (LED mati); plateau hanya dihitung bila semua sampel > 1 kg;
     LED menyala selama genggaman stabil; stabil pada >= 3 s -> COMPUTE -> REST
     ("Hasil xx.xx kg" / "Lepas>Rest 60s", LED tetap menyala sampai dilepas).
   - REST: setelah dilepas "NEXT > lanjut"; TAP -> percobaan berikutnya. Setelah 3 -> SUMMARY
@@ -72,7 +74,7 @@ void setup() {
   Serial.println();
   Serial.printf("HGD firmware, core %d.%d.%d\n",
                 ESP_ARDUINO_VERSION_MAJOR, ESP_ARDUINO_VERSION_MINOR, ESP_ARDUINO_VERSION_PATCH);
-  Serial.println("Langkah 5: state machine + LED.");
+  Serial.println("Langkah 6: logika GRIP.");
 
   fsmInit();   // READY dengan kedip restart dan tare pertama
 }

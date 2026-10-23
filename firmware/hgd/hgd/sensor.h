@@ -42,5 +42,8 @@ uint32_t sensorLastGapMs();     // jarak sampel terakhir ke sebelumnya (ms)
 
 // Buffer melingkar BUF_SIZE sampel kg terakhir.
 bool  sensorPlateau();   // buffer penuh dan (maks - min) <= THRESHOLD_STABLE_KG
+bool  sensorBufFull();   // buffer sudah berisi BUF_SIZE sampel
+float sensorBufSpread(); // maks - min isi buffer (0 bila kosong)
+float sensorBufMin();    // nilai terkecil di buffer (0 bila kosong)
 float sensorBufAvg();    // rata-rata isi buffer (0 bila kosong)
 void  sensorBufReset();  // kosongkan buffer (mis. saat mulai mengukur)

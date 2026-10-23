@@ -357,7 +357,7 @@ Memulai tare: `T_TARE_SAMPEL` (10) sampel berikutnya dijumlahkan oleh `sensorBac
 State `GENGGAM`, dua fase (rincian di Bagian 6.2). Mengembalikan `KeluarGenggam`.
 
 ### 5.11 `hitungRef()` ▣
-One-shot: `ref = rata-rata buffer` (atau nilai buffer terbaik pada `BATAS_5S`); menyimpan ke `hasil[percobaanKe]`. Tanpa tampilan LCD.
+One-shot: `ref = rata-rata buffer` (atau nilai buffer terbaik pada `BATAS_5S`: rata-rata jendela 5 sampel paling stabil selama fase 2, langkah 6, Bagian 6.2); menyimpan ke `hasil[percobaanKe]`. Tanpa tampilan LCD.
 
 ### 5.12 `validasiRef(float ref)` ▣
 Dipanggil di titik masuk `RESPON_ISTIRAHAT`. `ref ≤ REF_MIN_KG` atau `ref > REF_MAX_KG` (80 kg) → `DI_LUAR_RENTANG`. Batas atas yang sama juga dicek live pada tiap sampel di `GENGGAM` (Bagian 6.2).
@@ -482,6 +482,8 @@ SESI (3 percobaan)
 - *LED saat keluar:* lewat plateau → LED tetap menyala dan ikut ke `RESPON_ISTIRAHAT` sampai genggaman dilepas. Lewat batas 5 detik → LED mati saat keluar (bila plateau sempat muncul lalu hilang sebelum 5 detik, LED sempat menyala sebentar; pada akhir percobaan LED mati). Dilepas sebelum 3 detik → LED mati, kembali ke fase 1.
 - *Threshold onset dan dilepas-terlalu-awal adalah nilai yang sama*, dicek dua arah: naik melewati threshold di Fase 1 = mulai; turun di bawahnya sebelum 3 detik = dilepas terlalu awal.
 - *Tiga jalur keluar:* (1) dilepas sebelum 3 detik → kembali Fase 1; (2) plateau dan durasi ≥ 3 detik → `HITUNG`; (3) 5 detik tanpa plateau → `HITUNG` memakai nilai buffer terbaik (batas 5 detik adalah force-stop, bukan pembatalan).
+- *Definisi (langkah 6):* **plateau genggaman** = buffer penuh, (maks − min) ≤ `THRESHOLD_STABIL_KG`, **dan semua 5 sampel > `THRESHOLD_ONSET_KG`**. Syarat terakhir ditambahkan karena tangan yang sudah lepas (kg ≈ 0, sangat stabil) terbaca sebagai plateau dan `ref` menjadi ≈ 0 kg (terjadi di uji langkah 5: ref −0,05 kg). **Nilai buffer terbaik** = rata-rata jendela 5 sampel dengan (maks − min) terkecil selama fase 2, hanya dari jendela yang semua sampelnya > onset; dinilai sekali per sampel baru. Dilepas setelah 3 detik tanpa plateau: tidak ada plateau baru, jadi percobaan berakhir pada batas 5 detik dengan nilai buffer terbaik dari saat masih digenggam.
+- *Serial (langkah 6):* `[GRIP] exit=EARLY_RELEASE t=…`, `[GRIP] exit=PLATEAU t=… sebaran=…`, `[GRIP] exit=TIMEOUT t=… jendela terbaik sebaran=… rata=…`.
 - Tidak ada kondisi "gaya turun ke ambang" generik untuk mengakhiri genggaman: akhir ditentukan plateau atau batas 5 detik. Threshold hanya menentukan kapan timer mulai dan kapan percobaan di-reset.
 - *Cek rentang live (v5):* pada tiap sampel di kedua fase, kg > `REF_MAX_KG` (80 kg) → langsung `ERROR` (`DI_LUAR_RENTANG`), LED mati, tanpa menunggu percobaan selesai. Batas 80 kg = kapasitas nominal load cell CZL 601.
 
@@ -528,8 +530,8 @@ SESI (3 percobaan)
 | GENGGAM f1 | kg < −1 (langkah 5c) | peringatan serial, LED off | SIAP (tare ulang, tanpa kedip) |
 | GENGGAM f2 | tiap sampel | LED = plateau | GENGGAM f2 |
 | GENGGAM f2 | kg < onset dan t < 3000 | reset buffer, LED off | GENGGAM f1 |
-| GENGGAM f2 | plateau dan t ≥ 3000 | LED tetap on | HITUNG |
-| GENGGAM f2 | t ≥ 5000 | LED off | HITUNG |
+| GENGGAM f2 | plateau genggaman (semua sampel > onset) dan t ≥ 3000 | LED tetap on | HITUNG |
+| GENGGAM f2 | t ≥ 5000 | LED off; `ref` = rata-rata jendela paling stabil (langkah 6) | HITUNG |
 | GENGGAM f1/f2 | kg > 80 kg (cek live) | catat galat, LED off | ERROR |
 | HITUNG | ref valid | simpan | RESPON_ISTIRAHAT |
 | HITUNG | ref tidak valid (≤ 0 atau > 80 kg) | catat galat, LED off | ERROR |

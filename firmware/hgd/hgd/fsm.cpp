@@ -2,8 +2,8 @@
 //
 // Langkah 5 (kerangka): semua state, aksi masuk, layar (Bagian 10.2), aturan LED (Bagian 10.3),
 // transisi pengecualian galat sensor, dan reset total. Transisi masih sederhana:
-// - GRIP: onset -> fase 2; plateau pada t >= 3 s -> COMPUTE.
-//   Langkah 6 menambah: dilepas sebelum 3 s (kembali ke fase 1) dan batas 5 s.
+// - GRIP (langkah 6): onset -> fase 2; dilepas sebelum 3 s -> fase 1; plateau genggaman pada
+//   t >= 3 s -> COMPUTE; batas 5 s -> COMPUTE dengan jendela buffer paling stabil.
 // - REST: setelah genggaman dilepas langsung menunggu TAP (NEXT).
 //   Langkah 7 menambah hitung mundur istirahat REST_S.
 // - Langkah 5c: penjaga nol di READY (kg > +1 = START diabaikan, kg < -1 = tare ulang), di GRIP
@@ -23,6 +23,10 @@ static RestPhase restPhase = RELEASE_REST;
 static uint32_t  gripStartMs = 0;          // millis() saat onset (fase 2 mulai, timer 3-5 s)
 static uint32_t  gripDurMs = 0;            // lama fase 2 saat keluar GRIP
 static GripExit  gripExit = EXIT_NONE;     // jalur keluar GRIP terakhir
+static uint32_t  gripLastSampleMs = 0;     // waktu sampel terakhir yang sudah dinilai di fase 2
+static float     bestSpread = 0.0f;        // jendela buffer paling stabil sejauh ini (maks - min)
+static float     bestAvg = 0.0f;           // rata-rata jendela itu (dipakai bila keluar lewat batas 5 s)
+static bool      bestFound = false;        // sudah ada jendela genggaman yang dinilai
 static bool      restartPending = false;   // true = masuk READY berikutnya adalah restart (kedip)
 static FaultType activeFault = FAULT_NONE; // galat yang membuat masuk FAULT
 static bool      countdownShown = false;   // layar hitung mundur reset total sedang tampil
@@ -179,21 +183,65 @@ static State handleGrip() {
       gripPhase = MEASURING;
       gripStartMs = millis();
       sensorBufReset();                     // buffer plateau mulai kosong di awal fase 2
+      bestFound = false;
+      gripLastSampleMs = sensorLastSampleMs();
       displayRequest();
       Serial.printf("[GRIP] onset kg=%.2f\n", kg);
     }
     return GRIP;
   }
 
-  // Fase 2: LED = plateau (R4: LED dikendalikan kestabilan gaya yang terukur).
-  bool plateau = sensorPlateau();
-  ledSet(plateau);
+  // Fase 2. Waktu sejak onset.
   uint32_t t = millis() - gripStartMs;
 
-  if (plateau && t >= GRIP_MIN_MS) {        // keluar lewat plateau: LED tetap menyala
+  // Jalur 1: dilepas sebelum 3 s (kg turun di bawah onset) -> kembali ke fase 1, percobaan
+  // tidak dihitung. Setelah 3 s ambang ini tidak dipakai lagi: akhir ditentukan plateau atau 5 s.
+  if (kg < THRESHOLD_ONSET_KG && t < GRIP_MIN_MS) {
+    gripPhase = WAIT_ONSET;
+    sensorBufReset();
+    ledSet(false);
+    displayRequest();
+    Serial.printf("[GRIP] exit=EARLY_RELEASE t=%lu ms, kembali menunggu\n", (unsigned long)t);
+    return GRIP;
+  }
+
+  // Plateau GENGGAMAN: buffer stabil DAN semua isinya di atas onset. Tanpa syarat kedua, tangan
+  // yang sudah lepas (kg ~0, sangat stabil) terbaca sebagai plateau dan ref menjadi ~0 kg.
+  bool gripWindow = sensorBufFull() && sensorBufMin() > THRESHOLD_ONSET_KG;
+  bool plateau = gripWindow && sensorPlateau();
+
+  // Catat jendela paling stabil, sekali per sampel baru (bukan per putaran loop).
+  if (sensorLastSampleMs() != gripLastSampleMs) {
+    gripLastSampleMs = sensorLastSampleMs();
+    if (gripWindow) {
+      float spread = sensorBufSpread();
+      if (!bestFound || spread < bestSpread) {
+        bestFound = true;
+        bestSpread = spread;
+        bestAvg = sensorBufAvg();
+      }
+    }
+  }
+
+  // LED = plateau (R4: LED dikendalikan kestabilan gaya yang terukur).
+  ledSet(plateau);
+
+  // Jalur 2: plateau pada t >= 3 s. LED tetap menyala sampai genggaman dilepas di REST.
+  if (plateau && t >= GRIP_MIN_MS) {
     gripExit = EXIT_PLATEAU;
     gripDurMs = t;
-    Serial.printf("[GRIP] exit=PLATEAU t=%lu ms\n", (unsigned long)t);
+    Serial.printf("[GRIP] exit=PLATEAU t=%lu ms sebaran=%.2f kg\n",
+                  (unsigned long)t, sensorBufSpread());
+    return COMPUTE;
+  }
+
+  // Jalur 3: batas 5 s tanpa plateau (force-stop, bukan pembatalan). LED mati.
+  if (t >= GRIP_MAX_MS) {
+    gripExit = EXIT_TIMEOUT;
+    gripDurMs = t;
+    ledSet(false);
+    Serial.printf("[GRIP] exit=TIMEOUT t=%lu ms jendela terbaik sebaran=%.2f kg rata=%.2f kg\n",
+                  (unsigned long)t, bestSpread, bestAvg);
     return COMPUTE;
   }
   return GRIP;
@@ -202,11 +250,16 @@ static State handleGrip() {
 static State handleCompute() {
   // ref = rata-rata buffer plateau, presisi penuh (pembulatan hanya di LCD).
   Trial& tr = session.trials[session.trialNo - 1];
-  tr.ref = sensorBufAvg();
+  // PLATEAU: rata-rata buffer sekarang (plateau yang baru terjadi).
+  // TIMEOUT: rata-rata jendela paling stabil selama fase 2 ("nilai buffer terbaik", Bagian 6.2).
+  //          Selalu ada setelah >= 3 s di atas onset; bila tidak ada, pakai buffer sekarang.
+  if (gripExit == EXIT_TIMEOUT && bestFound) tr.ref = bestAvg;
+  else                                        tr.ref = sensorBufAvg();
   tr.valid = true;                          // validasi rentang ditambahkan di langkah 8
   tr.durMs = gripDurMs;
   tr.exitBy = gripExit;
-  Serial.printf("[COMPUTE] percobaan %u ref=%.2f kg\n", session.trialNo, tr.ref);
+  Serial.printf("[COMPUTE] percobaan %u ref=%.2f kg (%s)\n", session.trialNo, tr.ref,
+                gripExit == EXIT_TIMEOUT ? "TIMEOUT" : "PLATEAU");
   return REST;
 }
 
