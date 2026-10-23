@@ -81,7 +81,10 @@ const uint32_t LED_BLINK_MS        = 250;   // selang ganti nyala/mati kedip res
 const uint32_t LED_BLINK_TOTAL_MS  = 5000;  // lama kedip restart di READY
 
 // ---------------- Logging serial ----------------
-const uint32_t ACK_TIMEOUT_MS = 2000;  // E5: batas tunggu ACK dari logger.py
+// E5: batas tunggu ACK dari logger.py. Langkah 9b: 750 ms (semula 2000). ACK terukur ~30 ms, jadi
+// masih longgar; dengan kirim ulang sekali, logger.py yang mati terdeteksi dalam ~1,5 s (lihat
+// serial_log.cpp: kelompok berhenti setelah baris pertama yang gagal).
+const uint32_t ACK_TIMEOUT_MS = 750;
 
 // ---------------- Saklar build ----------------
 // 1 = perintah serial t/k/p/x aktif (kalibrasi dan demo galat X3). Lihat Bagian 5.21.

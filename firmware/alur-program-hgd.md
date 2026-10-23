@@ -246,7 +246,7 @@ Hanya dua: `StatusTombol.isrFlag` dan `StatusTombol.isrLastMs`, keduanya `volati
 | `T_SAMA_N` | 10 | **Cadangan (v5, langkah 4b):** 10 nilai `raw` identik berturut-turut → `READING_INVALID` (mis. DT terhubung ke GND pada laju normal). Noise terukur σ ≈ 35 counts, jadi 10 nilai identik pada pembacaan sehat praktis tidak terjadi. Uji 23 Okt. 2026: dengan SCK tercabut aturan ini saja membuat galat berkedip ±130 kali dalam 20 s, karena nilai sampah di antara nol memutus deretan identik; karena itu aturan jarak di bawah menjadi aturan utama |
 | `SAMPLE_MIN_GAP_MS` / `SHORT_GAP_N` | 40 ms / 3 | **Aturan utama `READING_INVALID` (v5, langkah 4b):** 3 sampel berturut-turut masing-masing datang < 40 ms setelah sampel sebelumnya → DT tertahan rendah (mis. SCK tercabut) dan yang terbaca bukan hasil konversi. Hanya berlaku pada 10 SPS: sampel sehat datang tiap ≈ 85 ms (terukur 11,6 sampel/s); laju modul tetap 10 SPS (Bagian 7.3). Tiga, bukan satu: satu baca yang terlambat (putaran sibuk menulis LCD, maks. ≈ 28 ms) memperpendek jarak berikutnya, dan galat palsu terkunci di `ERROR` |
 | `T_TAHAN_MS` | 1500 | **E4**: uji tekan-tahan dengan beberapa orang; ambang di antara 1000 dan 2000 yang tidak terpicu tak sengaja |
-| `T_ACK_MS` | 2000 | **E5**: ukur waktu balasan `logger.py` pada 100 baris; ambang = 10× balasan terlama, tidak kurang dari 500 ms |
+| `T_ACK_MS` | 750 (langkah 9b; semula 2000) | **E5**: ukur waktu balasan `logger.py` pada 100 baris; ambang = 10× balasan terlama, tidak kurang dari 500 ms. Balasan terukur langkah 9 ≈ 30 ms (skrip uji); 750 ms dipilih supaya `logger.py` yang mati terdeteksi dalam ≈ 1,5 s (2 kiriman). Dikonfirmasi dengan uji 100 baris di langkah 10 |
 | `SKALA_COUNTS_PER_KG` | 53.687 | **Bagian 8**: diganti hasil regresi kalibrasi. Nilai awal dari hitungan: 2,0 mV/V × 128 × 2²⁴ / 80 kg, rasiometrik |
 
 > **Kenapa satu threshold untuk tiga fungsi?** Cukup satu eksperimen (E1) dan satu angka yang bisa dipertanggungjawabkan, bukan tiga.
@@ -305,7 +305,7 @@ Perpanjangan debounce: ISR menandai awal tekanan, `loop()` membaca level pin tia
 ESP32 tidak dapat mengetahui sendiri apakah baris benar-benar tertulis di laptop. Mekanisme:
 1. Tiap baris diberi nomor urut `seq` dan checksum.
 2. `logger.py` memvalidasi checksum, menulis, `flush()`, lalu membalas `ACK,<seq>`; bila checksum salah membalas `NAK,<seq>`.
-3. ESP32 menunggu `ACK,<seq>` maksimal `T_ACK_MS`. `NAK` atau tanpa balasan → kirim ulang sekali; bila tetap gagal → `GAGALSIMPAN`.
+3. ESP32 menunggu `ACK,<seq>` maksimal `T_ACK_MS`. `NAK` atau tanpa balasan → kirim ulang sekali; bila tetap gagal → `GAGALSIMPAN`. **Langkah 9b:** di `RINGKASAN`, baris pertama yang gagal dua kali menghentikan kelompok (sisa baris tidak dicoba, karena `logger.py` jelas tidak menjawab), sehingga `GAGALSIMPAN` muncul dalam ≈ 1,5 s.
 4. Nilai selalu juga dicetak ke Serial dan tampil di konsol `logger.py` (atau Serial Monitor bila `logger.py` tidak dipakai), sehingga pengawas dapat menyalinnya manual tanpa membuka port lagi (A8). **Bila `logger.py` sendiri sudah berhenti**, sumber salinan adalah layar LCD `GAGALSIMPAN`, yang bergantian menampilkan semua nilai sesi (Bagian 10.2). Jangan membuka Serial Monitor lebih dulu: membuka port me-reset ESP32 dan menghapus sesi di RAM (A8).
 
 > Deteksi koneksi USB saja tidak cukup: tidak mendeteksi skrip host yang mati atau lupa dijalankan. ACK per baris mendeteksi semuanya, termasuk baris terpotong (lewat checksum).
@@ -768,7 +768,7 @@ HGD,<jenis>,<seq>,<sesi>,<percobaan>,<nilai1>,<nilai2>*<checksum>
 
 **Tanda demo (langkah 9):** percobaan yang diukur dengan skala demo `x` (Bagian 5.21) bukan data nyata. Baris `T`: `nilai2` = 1 untuk percobaan demo, 0 untuk percobaan nyata. Baris `S`: `percobaan` = jumlah percobaan demo dalam sesi (0 = semua nyata). `logger.py` menulis `DEMO` di kolom `catatan` untuk keduanya. Format kolom tidak berubah. `seq` dimulai dari 1 sejak boot; balasan dengan `seq` lain (mis. ACK terlambat) diabaikan.
 
-**Kode (langkah 9):** `serial_log.cpp`: antrean 8 baris statis, dikirim satu per satu; `logPoll()` tiap `loop()` membaca `ACK,<n>`/`NAK,<n>` dan huruf perintah debug (huruf kecil di awal baris; ACK/NAK selalu huruf besar), lalu mengirim baris terdepan atau mengirim ulang setelah `T_ACK_MS` (2 s). Uji 23 Okt. 2026 lewat skrip (baris `E` dari perintah `s`): tanpa balasan → kirim ulang 2 s → gagal 2 s kemudian; `ACK` → selesai; `NAK` → kirim ulang seketika → `ACK`; `ACK` dengan `seq` salah → diabaikan (sama dengan tanpa balasan). Checksum cocok dengan perhitungan terpisah.
+**Kode (langkah 9):** `serial_log.cpp`: antrean 8 baris statis, dikirim satu per satu; `logPoll()` tiap `loop()` membaca `ACK,<n>`/`NAK,<n>` dan huruf perintah debug (huruf kecil di awal baris; ACK/NAK selalu huruf besar), lalu mengirim baris terdepan atau mengirim ulang setelah `T_ACK_MS` (2 s di uji ini; 750 ms sejak langkah 9b). Uji 23 Okt. 2026 lewat skrip (baris `E` dari perintah `s`): tanpa balasan → kirim ulang 2 s → gagal 2 s kemudian; `ACK` → selesai; `NAK` → kirim ulang seketika → `ACK`; `ACK` dengan `seq` salah → diabaikan (sama dengan tanpa balasan). Checksum cocok dengan perhitungan terpisah.
 
 ### 9.3 Format berkas CSV (dari `logger.py`)
 ```
@@ -791,7 +791,7 @@ timestamp,sesi,jenis,percobaan,gaya_kg,rerata_kg,catatan
 
 ### 9.5 Urutan di `RINGKASAN`
 1. Kirim 3 baris `T` (satu per percobaan), lalu 1 baris `S`; tiap baris menunggu `ACK` sendiri.
-2. Selama menunggu, baris 2 LCD `Menyimpan...` dan TAP diabaikan (langkah 9). Semua `ACK` diterima → `Tekan: RESTART`; menunggu TAP. Paling lama ≈ 16 s bila `logger.py` tidak menjawab (4 baris × 2 kiriman × 2 s).
+2. Selama menunggu, baris 2 LCD `Menyimpan...` dan TAP diabaikan (langkah 9). Semua `ACK` diterima → `Tekan: RESTART`; menunggu TAP. Bila `logger.py` tidak menjawab: ≈ 1,5 s (langkah 9b: baris pertama 2 × 750 ms, lalu sisa kelompok dibuang); sebelumnya ≈ 16 s (4 baris × 2 kiriman × 2 s), uji 23 Okt. 2026.
 3. Ada baris yang gagal setelah satu kali kirim ulang → `GAGALSIMPAN`. Nilai tampil di konsol `logger.py` bila masih hidup; bila `logger.py` sudah berhenti, salin dari layar LCD `GAGALSIMPAN` (bergantian tiap 3 detik, Bagian 10.2). Jangan membuka Serial Monitor lebih dulu (me-reset ESP32, A8).
 4. Baris galat `E` dikirim saat masuk `ERROR`. Bila ACK-nya gagal, galat tetap tampil di LCD dan di konsol `logger.py` / Serial.
 5. Baris `E` `FORCE_RESET` dikirim saat reset total; kiriman lain yang masih menunggu ACK dibatalkan lebih dulu. Bila ACK-nya gagal, reset tetap berjalan (tidak masuk `GAGALSIMPAN`).

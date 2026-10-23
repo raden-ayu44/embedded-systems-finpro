@@ -10,9 +10,10 @@
 // - checksum = XOR semua byte dari 'H' sampai tepat sebelum '*', dua digit heksadesimal huruf besar.
 //
 // Pengiriman: baris masuk antrean dan dikirim SATU per SATU. Tiap baris menunggu "ACK,<seq>"
-// paling lama ACK_TIMEOUT_MS. NAK atau tanpa balasan -> kirim ulang sekali; gagal lagi -> baris
-// itu dihitung gagal dan antrean lanjut. Tidak ada penungguan di dalam fungsi: logPoll() dipanggil
-// tiap loop() dan langsung kembali.
+// paling lama ACK_TIMEOUT_MS (750 ms). NAK atau tanpa balasan -> kirim ulang sekali; gagal lagi ->
+// baris itu dihitung gagal. Di dalam kelompok ringkasan, sisa baris lalu dibuang (logger.py jelas
+// tidak menjawab), jadi GAGAL SIMPAN muncul dalam ~1,5 s. Tidak ada penungguan di dalam fungsi:
+// logPoll() dipanggil tiap loop() dan langsung kembali.
 //
 // Teks debug lain (mis. "[FSM] ...") tidak diawali "HGD", jadi diabaikan logger.py.
 #pragma once

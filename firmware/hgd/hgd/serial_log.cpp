@@ -23,6 +23,7 @@ static uint8_t  headTries = 0;      // jumlah kirim baris ini (1 = pertama, 2 = 
 static uint32_t headSentMs = 0;     // millis() saat kiriman terakhir
 
 static uint8_t  batchFails = 0;     // baris gagal sejak logBatchStart()
+static bool     batchActive = false; // kelompok ringkasan sedang dikirim (langkah 9b)
 
 // Masukan serial yang sedang dikumpulkan (baris ACK/NAK).
 static char    inLine[IN_LINE_MAX];
@@ -72,9 +73,12 @@ uint16_t logEvent(uint8_t code, uint16_t session, uint8_t trial, uint32_t secs) 
   return enqueue('E', session, trial, v1, v2);
 }
 
-bool logBusy() { return qCount > 0; }
+bool logBusy() {
+  if (qCount == 0) batchActive = false;
+  return qCount > 0;
+}
 
-void logBatchStart() { batchFails = 0; }
+void logBatchStart() { batchFails = 0; batchActive = true; }
 bool logBatchFailed() { return batchFails > 0; }
 
 void logCancel() {
@@ -82,6 +86,7 @@ void logCancel() {
   qCount = 0;
   headSent = false;
   headTries = 0;
+  batchActive = false;
 }
 
 // Buang baris terdepan (sudah ber-ACK atau gagal) dan siapkan baris berikutnya.
@@ -108,6 +113,13 @@ static void headFailed(const char* why) {
     Serial.printf("[LOG] seq %u GAGAL setelah kirim ulang (%s)\n", queue[qHead].seq, why);
     batchFails++;
     popHead();
+    // Langkah 9b: dalam kelompok ringkasan, satu baris yang gagal dua kali berarti logger.py tidak
+    // mendengar; sisa baris tidak dicoba lagi (hasilnya pasti sama), supaya GAGAL SIMPAN muncul
+    // dalam ~1,5 s, bukan ~16 s. Nilainya tetap dicetak di layar GAGAL SIMPAN dan di serial.
+    if (batchActive && qCount > 0) {
+      Serial.printf("[LOG] %u baris ringkasan lain tidak dikirim (logger.py tidak menjawab)\n", qCount);
+      qCount = 0;
+    }
   }
 }
 
