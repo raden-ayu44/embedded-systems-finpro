@@ -809,7 +809,7 @@ timestamp,sesi,jenis,percobaan,gaya_kg,rerata_kg,catatan
 | SIAP (tare) | `SIAP - UKUR 1/3` | `Menyesuaikan nol` |
 | SIAP (siap) | `SIAP - UKUR 1/3` | `Tekan tmbl START` |
 | SIAP (masih digenggam, kg > +1 setelah tare, langkah 5c) | `SIAP - UKUR 1/3` | `Lepas genggaman` |
-| GENGGAM fase 1 | `Menunggu genggam` | ` 0.4 kg` (kg live, `%5.1f kg`) |
+| GENGGAM fase 1 | `Menunggu genggam` | ` 0.42 kg  >1.0` (kg live dua desimal + target onset, `%5.2f kg  >%.1f`; langkah 5c: dengan satu desimal tekanan kecil tetap tampil 0.0) |
 | GENGGAM fase 2 | `Tahan 3-5 detik` | ` 25.3 kg  3.4s` (kg live + detik sejak onset) |
 | RESPON sub-fase 1 (sebelum lepas) | `Hasil 47.23 kg` (`ref`, `%5.2f`) | `Lepas>Rest 60s` |
 | RESPON sub-fase 1 (hitung mundur) | `Hasil 47.23 kg` | `Lepas>Rest 58s` (detik bulat, `%2lus`) |

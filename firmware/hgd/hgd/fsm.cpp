@@ -281,9 +281,11 @@ static void drawScreen() {
       else                                       snprintf(l1, sizeof(l1), "Tekan tmbl START");
       break;
     case GRIP:
-      if (gripPhase == WAIT_ONSET) {   // "Menunggu genggam" / " 0.4 kg" (kg live)
+      if (gripPhase == WAIT_ONSET) {   // "Menunggu genggam" / " 0.42 kg  >1.0" (kg live + target onset)
+        // Dua desimal dan target supaya penggenggam melihat tekanannya bergerak dan seberapa jauh
+        // lagi sampai onset (dengan satu desimal tekanan kecil tetap tampil "0.0").
         snprintf(l0, sizeof(l0), "Menunggu genggam");
-        snprintf(l1, sizeof(l1), "%5.1f kg", sensorKg());
+        snprintf(l1, sizeof(l1), "%5.2f kg  >%.1f", sensorKg(), THRESHOLD_ONSET_KG);
       } else {   // "Tahan 3-5 detik" / " 25.3 kg  3.4s" (kg live + detik sejak onset)
         snprintf(l0, sizeof(l0), "Tahan 3-5 detik");
         snprintf(l1, sizeof(l1), "%5.1f kg  %.1fs", sensorKg(), (millis() - gripStartMs) / 1000.0f);
