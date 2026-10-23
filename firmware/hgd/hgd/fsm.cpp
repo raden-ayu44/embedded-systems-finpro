@@ -4,8 +4,7 @@
 // transisi pengecualian galat sensor, dan reset total. Transisi masih sederhana:
 // - GRIP (langkah 6): onset -> fase 2; dilepas sebelum 3 s -> fase 1; plateau genggaman pada
 //   t >= 3 s -> COMPUTE; batas 5 s -> COMPUTE dengan jendela buffer terkuat.
-// - REST: setelah genggaman dilepas langsung menunggu TAP (NEXT).
-//   Langkah 7 menambah hitung mundur istirahat REST_S.
+// - REST (langkah 7): tunggu dilepas -> hitung mundur REST_S (tombol diabaikan) -> tunggu TAP (NEXT).
 // - Langkah 5c: penjaga nol di READY (kg > +1 = START diabaikan, kg < -1 = tare ulang), di GRIP
 //   fase 1 (kg < -1 = kembali ke READY), dan TAHAN di READY = tare ulang manual.
 // - Langkah 8 menambah cek rentang (OUT_OF_RANGE) dan modul galat; langkah 9 baris log + ACK.
@@ -20,6 +19,8 @@ static State     state = READY;
 static Session   session;
 static GripPhase gripPhase = WAIT_ONSET;
 static RestPhase restPhase = RELEASE_REST;
+static bool      restCounting = false;     // sub-fase 1: genggaman sudah dilepas, hitung mundur berjalan
+static uint32_t  restStartMs = 0;          // millis() saat dilepas (awal istirahat REST_S)
 static uint32_t  gripStartMs = 0;          // millis() saat onset (fase 2 mulai, timer 3-5 s)
 static uint32_t  gripDurMs = 0;            // lama fase 2 saat keluar GRIP
 static GripExit  gripExit = EXIT_NONE;     // jalur keluar GRIP terakhir
@@ -89,6 +90,7 @@ static void enterCompute() {
 static void enterRest() {
   buttonReset();
   restPhase = RELEASE_REST;
+  restCounting = false;      // hitung mundur baru mulai saat genggaman dilepas
   // LED tidak diubah: bila GRIP keluar lewat plateau, LED tetap menyala sampai dilepas.
 }
 
@@ -275,13 +277,23 @@ static State handleCompute() {
 
 static State handleRest(Press press) {
   if (restPhase == RELEASE_REST) {
-    // Sub-fase 1: tunggu genggaman dilepas. Saat itu LED mati.
-    if (sensorKg() < THRESHOLD_ONSET_KG) {
-      ledSet(false);
+    // Sub-fase 1a: tunggu genggaman dilepas. Saat itu LED mati dan hitung mundur mulai.
+    if (!restCounting) {
+      if (sensorKg() < THRESHOLD_ONSET_KG) {
+        ledSet(false);
+        restCounting = true;
+        restStartMs = millis();
+        displayRequest();
+        Serial.printf("[REST] dilepas, istirahat %lu s\n", (unsigned long)REST_S);
+      }
+      return REST;
+    }
+    // Sub-fase 1b: hitung mundur REST_S dari millis() (tanpa delay). Tombol diabaikan.
+    if (millis() - restStartMs >= REST_S * 1000UL) {
       restPhase = WAIT_NEXT;
-      buttonReset();                        // sub-fase 2 menunggu tombol: mulai bersih
+      buttonReset();                        // sub-fase 2 menunggu tombol: tekanan lama dibuang
       displayRequest();
-      Serial.println("[REST] dilepas");
+      Serial.println("[REST] istirahat selesai");
     }
     return REST;
   }
@@ -360,8 +372,15 @@ static void drawScreen() {
     case REST:    // "Hasil 47.23 kg" / "Lepas>Rest 60s" lalu "NEXT > lanjut"
       snprintf(l0, sizeof(l0), "Hasil %5.2f kg", tr.ref);
       if (restPhase == RELEASE_REST) {
-        // Langkah 7: setelah dilepas, hitung mundur detik bulat "Lepas>Rest %2lus".
-        snprintf(l1, sizeof(l1), "Lepas>Rest %lus", (unsigned long)REST_S);
+        // Sebelum dilepas: angka tetap REST_S. Setelah dilepas (langkah 7): sisa detik, dibulatkan
+        // ke atas (59,2 s tampil "60s", 0,4 s tampil " 1s"), digambar ulang tiap LCD_REFRESH_MS.
+        uint32_t leftS = REST_S;
+        if (restCounting) {
+          uint32_t elapsed = millis() - restStartMs;
+          uint32_t total = REST_S * 1000UL;
+          leftS = (elapsed >= total) ? 0 : (total - elapsed + 999) / 1000;
+        }
+        snprintf(l1, sizeof(l1), "Lepas>Rest %2lus", (unsigned long)leftS);
       } else {
         snprintf(l1, sizeof(l1), "%s",
                  session.trialNo < TRIALS_PER_SESSION ? "NEXT > lanjut" : "NEXT > ringkasan");

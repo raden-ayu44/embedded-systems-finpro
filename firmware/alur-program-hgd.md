@@ -496,6 +496,7 @@ SESI (3 percobaan)
 
 **[RESPON_ISTIRAHAT]** (dua sub-fase)
 - *Sub-fase 1:* tampil hasil dan perintah lepas. LED masih menyala bila percobaan keluar lewat plateau. Begitu gaya turun di bawah `THRESHOLD_ONSET_KG` (nilai sama, simetris), LED mati dan hitung mundur 60 → 0 berjalan di tempat. Sisa waktu dihitung dari `millis()` tiap putaran `loop()`; layar digambar ulang tiap `T_REFRESH_LCD_MS` (500 ms) seperti layar lain. **Mengubah spesifikasi proposal S2** (update 100 ms ±10-20 ms): layar menampilkan detik bulat, jadi redraw 100 ms tidak tampak, dan modul praktikum melarang redraw lebih cepat dari dua kali per detik (A6, A7).
+- *Langkah 7 (kode):* tombol diabaikan selama hitung mundur (tekanan lama dibuang saat masuk sub-fase 2); sisa detik dibulatkan ke atas (`Lepas>Rest %2lus`, 60 … 1). Genggaman ulang selama istirahat tidak menghentikan hitung mundur. Serial: `[REST] dilepas, istirahat 60 s`, `[REST] istirahat selesai`.
 - *Sub-fase 2:* tampil hasil lagi dan "NEXT"; tunggu tombol. Pada percobaan ke-3 teksnya "NEXT > ringkasan".
 
 **[RINGKASAN]**
