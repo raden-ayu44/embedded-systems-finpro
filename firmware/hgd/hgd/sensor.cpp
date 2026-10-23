@@ -14,6 +14,8 @@ struct SensorState {
   uint32_t lastSampleMs;  // millis() saat sampel terakhir
   uint32_t readUs;        // lama hxRead() terakhir
   uint8_t  sameRun;       // jumlah sampel berturut-turut dengan raw yang sama (termasuk yang terakhir)
+  uint8_t  shortGapRun;   // jumlah sampel berturut-turut yang datang < SAMPLE_MIN_GAP_MS setelah sebelumnya
+  uint32_t lastGapMs;     // jarak sampel terakhir ke sampel sebelumnya (ms), untuk pesan galat
 
   float    buf[BUF_SIZE]; // buffer melingkar kg
   uint8_t  bufIdx;        // posisi tulis berikutnya
@@ -85,8 +87,18 @@ bool sensorPoll() {
   } else {
     sen.sameRun = 1;
   }
+  // Hitung jarak pendek berturut-turut (READING_INVALID utama). Jarak normal ~85 ms; jarak
+  // berulang < 40 ms berarti DT tertahan LOW dan yang terbaca bukan hasil konversi.
+  uint32_t now = millis();
+  sen.lastGapMs = now - sen.lastSampleMs;
+  if (sen.lastGapMs < SAMPLE_MIN_GAP_MS) {
+    if (sen.shortGapRun < 255) sen.shortGapRun++;
+  } else {
+    sen.shortGapRun = 0;   // satu jarak normal sudah cukup untuk mengembalikan hitungan
+  }
+
   sen.raw = raw;
-  sen.lastSampleMs = millis();
+  sen.lastSampleMs = now;
   sen.kg = (float)(raw - sen.offset) / sen.scale;
   bufAdd(sen.kg);
 
@@ -132,18 +144,26 @@ FaultType sensorCheck() {
   // Belum ada sampel sejak boot: nilai raw belum berarti, tunggu (timeout di atas tetap berlaku).
   if (sen.sameRun == 0) return FAULT_NONE;
 
-  // 2) Mendekati batas skala penuh ADC (mis. kabel sinyal tercabut, masukan mengambang).
+  // 2) SHORT_GAP_N sampel berturut-turut datang terlalu cepat: DT tertahan LOW (mis. SCK tercabut),
+  //    sehingga "sampel" terbaca di tiap putaran loop() dan isinya sampah (0, 255, 4194300, ...).
+  //    Dicek sebelum saturasi: sampah itu kadang mendekati skala penuh, tetapi masalahnya bukan ADC.
+  //    Selama DT tertahan, tiap putaran menambah hitungan, jadi galat tetap menyala (tidak berkedip).
+  if (sen.shortGapRun >= SHORT_GAP_N) return READING_INVALID;
+
+  // 3) Mendekati batas skala penuh ADC (mis. kabel sinyal tercabut, masukan mengambang).
   //    Dicek sebelum nilai berulang: ADC yang jenuh mengeluarkan kode maksimum yang sama terus.
   if (abs(sen.raw) >= (int32_t)(SATURATION_FRACTION * ADC_MAX)) return ADC_SATURATED;
 
-  // 3) SAME_RAW_N raw identik berturut-turut: data tidak bergeser (mis. SCK tercabut, DT tetap LOW
-  //    sehingga semua bit terbaca 0 dan raw = 0 di tiap putaran loop()).
+  // 4) Cadangan: SAME_RAW_N raw identik berturut-turut pada laju normal (data tidak bergeser
+  //    walau jarak sampel wajar, mis. DT terhubung ke GND).
   if (sen.sameRun >= SAME_RAW_N) return READING_INVALID;
 
   return FAULT_NONE;
 }
 
-uint8_t sensorSameRun() { return sen.sameRun; }
+uint8_t  sensorSameRun()     { return sen.sameRun; }
+uint8_t  sensorShortGapRun() { return sen.shortGapRun; }
+uint32_t sensorLastGapMs()   { return sen.lastGapMs; }
 
 bool sensorPlateau() {
   if (sen.bufN < BUF_SIZE) return false;   // buffer belum penuh: belum bisa dinilai

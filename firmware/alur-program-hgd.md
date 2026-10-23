@@ -12,7 +12,7 @@ title: Alur Program - Hand Grip Dynamometer
 > - (3) **Reset total**: tahan tombol 15 detik di state apa pun; nomor sesi naik, baris `E` `FORCE_RESET`; uji X11a-c.
 > - (4) **Batas rentang 80 kg** (kapasitas CZL 601, sebelumnya 100 kg) dengan **cek live di `GENGGAM`**, selain cek `ref` di `HITUNG`.
 > - (5) **Baca HX711 non-blocking** tanpa library HX711 (baca saat DT rendah, 25 pulsa dalam `noInterrupts()`, tare 10 sampel lintas `loop()`); A5 selesai.
-> - (6) Galat baru **`READING_INVALID`** (10 nilai `raw` identik, mis. SCK tercabut).
+> - (6) Galat baru **`READING_INVALID`** (mis. SCK tercabut): utama 3 sampel berturut-turut datang < 40 ms, cadangan 10 nilai `raw` identik (langkah 4b, Bagian 7.4).
 > - (7) **Identifier kode berbahasa Inggris** dengan tabel pemetaan nama (Bagian 1.4a); state machine berbentuk `switch` + handler per state (Bagian 1.3).
 > - (8) **Build:** PlatformIO (core 2.0.17) untuk pengembangan, Arduino IDE core 3.3.11 untuk build akhir dan flash demo; satu folder sketsa untuk keduanya (Bagian 12.1).
 > - (9) **`logger.py`** meneruskan tombol (`x`) ke ESP32 dan mencetak baris non-`HGD` ke konsolnya; **layar `GAGALSIMPAN`** bergantian tiap 3 detik menampilkan semua nilai (A8 selesai); X4 diperluas.
@@ -121,7 +121,7 @@ Dokumen ini memakai nama Indonesia; kode memakai identifier bahasa Inggris (isti
 | Konstanta | `REF_MIN_KG` / `REF_MAX_KG`, `THRESHOLD_STABIL_KG`, `T_TARE_SAMPEL` | `MIN_FORCE_KG` / `MAX_FORCE_KG`, `THRESHOLD_STABLE_KG`, `TARE_SAMPLES` |
 | Konstanta | `SKALA_COUNTS_PER_KG`, `SATURASI_FRAKSI`, `T_SAMA_N` | `SCALE_COUNTS_PER_KG`, `SATURATION_FRACTION`, `SAME_RAW_N` |
 | Saklar build | `DEBUG_CMD` | `DEBUG_CMD` |
-| Sama di keduanya | `THRESHOLD_ONSET_KG`, `ADC_MAX`, `I2C_HZ`, `BAUD`, `LED_BLINK_MS`, `LED_BLINK_TOTAL_MS`, `FORCE_RESET_MS`, `FORCE_RESET_SHOW_MS`, `SAVE_FAILED_PAGE_MS` | sama |
+| Sama di keduanya | `THRESHOLD_ONSET_KG`, `ADC_MAX`, `I2C_HZ`, `BAUD`, `LED_BLINK_MS`, `LED_BLINK_TOTAL_MS`, `FORCE_RESET_MS`, `FORCE_RESET_SHOW_MS`, `SAVE_FAILED_PAGE_MS`, `SAMPLE_MIN_GAP_MS`, `SHORT_GAP_N` | sama |
 
 ### 1.5 Struktur berkas sisi laptop
 | Berkas | Isi |
@@ -243,7 +243,8 @@ Hanya dua: `StatusTombol.isrFlag` dan `StatusTombol.isrLastMs`, keduanya `volati
 | `T_TARE_SAMPEL` | 10 | Tare = rata-rata 10 sampel ≈ 1 detik pada 10 SPS; diperiksa di **E1** (15 Okt. 2026: sebaran 10 sampel tare 48 counts ≈ 0,9 g) |
 | `T_REFRESH_LCD_MS` | 500 ✔ | **Ditetapkan v5 (A6 selesai):** aturan modul praktikum ADC dan serial, layar tidak digambar ulang lebih cepat dari dua kali per detik, karena tiap redraw berisi puluhan transaksi I2C. Berlaku juga untuk hitung mundur istirahat (mengubah S2). E3 tetap dapat dipakai untuk memeriksa keterbacaan |
 | `T_TUNGGU_HX711_MS` | 1000 | Tanpa sampel baru selama ini → `HX711_TIMEOUT`. Tidak ada penungguan: dicek dari `millis()` sejak sampel terakhir. HX711 10 SPS siap tiap ≈ 85-100 ms, jadi 1 s adalah 10× margin |
-| `T_SAMA_N` | 10 | 10 nilai `raw` identik berturut-turut → `READING_INVALID` (mis. SCK terputus: DT tidak bergeser, semua bit sama). Noise terukur σ ≈ 35 counts, jadi 10 nilai identik pada pembacaan sehat praktis tidak terjadi (v5) |
+| `T_SAMA_N` | 10 | **Cadangan (v5, langkah 4b):** 10 nilai `raw` identik berturut-turut → `READING_INVALID` (mis. DT terhubung ke GND pada laju normal). Noise terukur σ ≈ 35 counts, jadi 10 nilai identik pada pembacaan sehat praktis tidak terjadi. Uji 23 Okt. 2026: dengan SCK tercabut aturan ini saja membuat galat berkedip ±130 kali dalam 20 s, karena nilai sampah di antara nol memutus deretan identik; karena itu aturan jarak di bawah menjadi aturan utama |
+| `SAMPLE_MIN_GAP_MS` / `SHORT_GAP_N` | 40 ms / 3 | **Aturan utama `READING_INVALID` (v5, langkah 4b):** 3 sampel berturut-turut masing-masing datang < 40 ms setelah sampel sebelumnya → DT tertahan rendah (mis. SCK tercabut) dan yang terbaca bukan hasil konversi. Hanya berlaku pada 10 SPS: sampel sehat datang tiap ≈ 85 ms (terukur 11,6 sampel/s); laju modul tetap 10 SPS (Bagian 7.3). Tiga, bukan satu: satu baca yang terlambat (putaran sibuk menulis LCD, maks. ≈ 28 ms) memperpendek jarak berikutnya, dan galat palsu terkunci di `ERROR` |
 | `T_TAHAN_MS` | 1500 | **E4**: uji tekan-tahan dengan beberapa orang; ambang di antara 1000 dan 2000 yang tidak terpicu tak sengaja |
 | `T_ACK_MS` | 2000 | **E5**: ukur waktu balasan `logger.py` pada 100 baris; ambang = 10× balasan terlama, tidak kurang dari 500 ms |
 | `SKALA_COUNTS_PER_KG` | 53.687 | **Bagian 8**: diganti hasil regresi kalibrasi. Nilai awal dari hitungan: 2,0 mV/V × 128 × 2²⁴ / 80 kg, rasiometrik |
@@ -343,7 +344,7 @@ Mengosongkan `flag` dan menandai tekanan yang sedang berlangsung sebagai "abaika
 Mengatur pin (DT `INPUT_PULLUP` supaya modul yang tercabut terbaca "tidak siap", SCK `OUTPUT` rendah), memasang skala. Tanpa library HX711 (v5). Tidak menunggu: kegagalan dideteksi lewat `T_TUNGGU_HX711_MS` sejak boot.
 
 ### 5.7 `sensorBaca()` ▣
-Dipanggil tiap `loop()`. **Non-blocking (v5):** bila DT masih tinggi (data belum siap) langsung kembali. Bila DT rendah → `hxRead()`: 24 pulsa SCK + pulsa ke-25 (kanal A, gain 128), dibungkus `noInterrupts()/interrupts()` supaya ISR tombol tidak memperpanjang pulsa; pulsa tinggi ≈ 1-2 µs, jauh di bawah ≈ 60 µs yang mematikan HX711; total terukur 92-114 µs (biasanya 93-95 µs; langkah 3, 23 Okt. 2026, core 2.0.17). Lalu menyimpan `raw` dan waktu sampel, `kg = (raw − offset) / skala`, menambah buffer, dan menyuapi tare bila sedang berjalan. Galat diperiksa terpisah oleh `sensorCek()`: tanpa sampel selama `T_TUNGGU_HX711_MS` → `HX711_TIMEOUT`; `|raw| ≥ SATURASI_FRAKSI × ADC_MAX` → `ADC_SATURASI`; `T_SAMA_N` nilai identik → `READING_INVALID`.
+Dipanggil tiap `loop()`. **Non-blocking (v5):** bila DT masih tinggi (data belum siap) langsung kembali. Bila DT rendah → `hxRead()`: 24 pulsa SCK + pulsa ke-25 (kanal A, gain 128), dibungkus `noInterrupts()/interrupts()` supaya ISR tombol tidak memperpanjang pulsa; pulsa tinggi ≈ 1-2 µs, jauh di bawah ≈ 60 µs yang mematikan HX711; total terukur 92-114 µs (biasanya 93-95 µs; langkah 3, 23 Okt. 2026, core 2.0.17). Lalu menyimpan `raw` dan waktu sampel, `kg = (raw − offset) / skala`, menambah buffer, dan menyuapi tare bila sedang berjalan. Galat diperiksa terpisah oleh `sensorCek()`: tanpa sampel selama `T_TUNGGU_HX711_MS` → `HX711_TIMEOUT`; `|raw| ≥ SATURASI_FRAKSI × ADC_MAX` → `ADC_SATURASI`; 3 sampel berturut-turut datang < `SAMPLE_MIN_GAP_MS` (40 ms) setelah sebelumnya, atau (cadangan) `T_SAMA_N` nilai identik → `READING_INVALID`.
 **Pemakai:** `loop()`; hasilnya dibaca `layaniGenggam()`, `layaniRespon()`, `galatTahan()`.
 
 ### 5.8 `sensorTare()` ▣
@@ -629,7 +630,7 @@ skala  = counts per kg dari regresi kalibrasi
 | Kondisi | Deteksi | Jenis |
 |---------|---------|-------|
 | HX711 tidak merespons (mis. DT tercabut; DT ditarik `INPUT_PULLUP` sehingga terbaca "tidak siap") | Tidak ada sampel baru selama `T_TUNGGU_HX711_MS` (dihitung dari `millis()`, tanpa menunggu) | `HX711_TIMEOUT` |
-| Pembacaan tidak valid (mis. SCK tercabut: DT tidak bergeser sehingga semua bit sama) | `T_SAMA_N` (10) nilai `raw` identik berturut-turut | `READING_INVALID` (v5; di v4 hanya dicek di uji) |
+| Pembacaan tidak valid (mis. SCK tercabut: DT tertahan rendah, sehingga `sensorPoll()` "membaca" di tiap putaran `loop()` dan hasilnya sampah: kebanyakan 0, kadang 255, 4.194.300, 8.388.600) | **Utama (langkah 4b):** `SHORT_GAP_N` (3) sampel berturut-turut masing-masing datang < `SAMPLE_MIN_GAP_MS` (40 ms) setelah sebelumnya; normal ≈ 85 ms pada 10 SPS. Selama DT tertahan, tiap putaran menambah hitungan, jadi galat tetap menyala. **Cadangan:** `T_SAMA_N` (10) nilai `raw` identik berturut-turut. Urutan cek: `HX711_TIMEOUT` → jarak pendek → `ADC_SATURASI` → nilai identik (sampah dari DT tertahan bisa mendekati skala penuh, tetapi masalahnya bukan ADC) | `READING_INVALID` (v5; di v4 hanya dicek di uji) |
 | ADC mendekati saturasi | \|raw\| ≥ 0,95 × 8.388.607 | `ADC_SATURASI` |
 | Nilai di luar rentang fisik | Live di `GENGGAM`: kg > 80 kg pada sampel mana pun; di `HITUNG`: `ref ≤ 0` atau `ref > 80 kg`. 80 kg = kapasitas nominal CZL 601 (v4 memakai 100 kg dari data kekuatan genggam tertinggi di literatur `[sitasi]`, di atas kapasitas load cell) | `DI_LUAR_RENTANG` |
 
@@ -868,7 +869,7 @@ timestamp,sesi,jenis,percobaan,gaya_kg,rerata_kg,catatan
 | ID | Skenario | Hasil yang diharapkan |
 |----|----------|----------------------|
 | X1a | Cabut kabel DT HX711 | `ERROR: HX711 TMOUT` dalam ≤ 1 s (DT ditarik pull-up = tidak siap), dicatat, layar tahan, LED mati |
-| X1b | Cabut kabel SCK HX711 (v5) | `ERROR: BACA TDK VLD` (`READING_INVALID`) hampir seketika (≤ 0,1 s): DT tetap rendah, jadi tiap putaran `loop()` membaca nilai yang sama dan 10 nilai identik terkumpul dalam beberapa milidetik. Dicatat, layar tahan, LED mati. **Catatan:** bila pin PD_SCK HX711 yang mengambang terbaca tinggi > 60 µs, HX711 masuk mode daya rendah, DT naik, dan hasilnya `HX711_TIMEOUT` (≤ 1 s); keduanya aman. Catat mana yang terjadi di uji bench |
+| X1b | Cabut kabel SCK HX711 (v5) | `ERROR: BACA TDK VLD` (`READING_INVALID`) hampir seketika (≤ 0,1 s): DT tetap rendah, jadi tiap putaran `loop()` membaca sampel sampah dan 3 jarak pendek berturut-turut terkumpul dalam beberapa milidetik (langkah 4b; uji 23 Okt. 2026 dengan aturan 10 nilai identik saja: terdeteksi, tetapi berkedip). Dicatat, layar tahan, LED mati. **Catatan:** bila pin PD_SCK HX711 yang mengambang terbaca tinggi > 60 µs, HX711 masuk mode daya rendah, DT naik, dan hasilnya `HX711_TIMEOUT` (≤ 1 s); keduanya aman. Catat mana yang terjadi di uji bench |
 | X2 | Cabut satu kabel sinyal load cell (merah atau hijau) di modul HX711 saat alat menyala (v5). **Jangan** memberi eksitasi di luar rating (risiko merusak load cell/HX711) | Masukan mengambang → pembacaan menuju skala penuh → `ERROR: ADC SATURASI`, LED mati. **Bila uji bench menunjukkan \|raw\| tidak mencapai 0,95 × `ADC_MAX`**, tambahkan perintah `DEBUG_CMD` yang menyimulasikan saturasi, dan catat di sini metode mana yang dipakai (cabut kabel / simulasi). Metode terpakai: *belum diuji* |
 | X3 | Melewati 80 kg disimulasikan: ketik `x` (skala dibagi 20) di konsol `logger.py` **saat layar menampilkan "Tekan START"** (tare berikutnya membatalkan `x`, jadi jangan diketik saat "Nol-kan..."), yang meneruskannya ke ESP32 tanpa membuka Serial Monitor (A8); lalu START dan tekan ≈ 4 kg di `GENGGAM`. Beban nyata > 80 kg tidak diuji (melewati kapasitas load cell) | `ERROR: DI LUAR RNTG` **saat genggaman masih berlangsung** (cek live), LED mati seketika, baris `E` kode 3 |
 | X4 | Matikan `logger.py` sebelum `RINGKASAN` (atau saat `RINGKASAN` menunggu ACK) | `GAGALSIMPAN`; LCD bergantian tiap 3 s menampilkan P1/P2/P3 dan Pk/Av (v5), sehingga semua nilai dapat disalin dari LCD tanpa membuka Serial Monitor (A8); TAHAN → sesi baru |
@@ -929,7 +930,7 @@ Semua alokasi statis (tanpa `malloc`/`new` di jalur utama); tidak ada struktur d
 | kg > 80 kg pada sampel mana pun | `GENGGAM` (cek live, v5) | Kegagalan sensor → `ERROR` seketika, LED mati; 80 kg = kapasitas nominal CZL 601 |
 | `ref ≤ 0` atau `ref > 80 kg` | Titik masuk `RESPON_ISTIRAHAT` | Kegagalan sensor → `ERROR` (v4: 100 kg) |
 | Tidak ada sampel baru dalam `T_TUNGGU_HX711_MS` | `sensorCek` | `ERROR: HX711_TIMEOUT` |
-| `T_SAMA_N` (10) nilai `raw` identik berturut-turut | `sensorCek` | `ERROR: READING_INVALID` (v5; mis. SCK tercabut) |
+| 3 sampel berturut-turut datang < 40 ms (`SAMPLE_MIN_GAP_MS`, `SHORT_GAP_N`), atau cadangan `T_SAMA_N` (10) nilai `raw` identik | `sensorCek` | `ERROR: READING_INVALID` (v5; mis. SCK tercabut) |
 | \|raw\| ≥ 0,95 × skala penuh | `sensorCek` | `ERROR: ADC_SATURASI` |
 | Percobaan yang error | `ERROR` | Tidak dihitung sebagai satu dari 3 |
 | `ERROR`, `GAGALSIMPAN`, reset total | Semua | LED dipaksa mati (tidak terus mengaktuasi) |

@@ -9,8 +9,9 @@
             HX711 tidak memakai library (bit-bang sendiri, sensor.cpp).
 
   Langkah 4 (uji cek galat sensor; uji langkah 3 tetap jalan):
-  - Cabut DT -> HX711_TIMEOUT dalam ~1 s. Cabut SCK -> READING_INVALID (atau HX711_TIMEOUT bila
-    HX711 mati karena SCK mengambang HIGH). Colok kembali -> "normal lagi".
+  - Cabut DT -> HX711_TIMEOUT dalam ~1 s. Cabut SCK -> READING_INVALID (3 sampel berturut-turut
+    datang < 40 ms; atau HX711_TIMEOUT bila HX711 mati karena SCK mengambang HIGH).
+    Colok kembali -> "normal lagi".
   - Tiap perubahan galat dicetak sekali: [SENSOR] t=<ms> GALAT <nama> / normal lagi.
   - LCD saat galat: baris 1 teks galat (Bagian 10.2), baris 2 raw. Saat normal: kg dan raw.
   - Baris per sampel hanya dicetak saat tidak ada galat (supaya serial tidak banjir bila DT
@@ -91,8 +92,10 @@ void loop() {
     if (fault == FAULT_NONE) {
       Serial.printf("[SENSOR] t=%lu normal lagi (raw=%ld)\n", (unsigned long)millis(), (long)sensorRaw());
     } else {
-      Serial.printf("[SENSOR] t=%lu GALAT %s (raw=%ld, raw sama %u kali, sampel terakhir %lu ms lalu)\n",
+      Serial.printf("[SENSOR] t=%lu GALAT %s (raw=%ld, raw sama %u kali, jarak pendek %u kali, "
+                    "jarak terakhir %lu ms, sampel terakhir %lu ms lalu)\n",
                     (unsigned long)millis(), faultName(fault), (long)sensorRaw(), sensorSameRun(),
+                    sensorShortGapRun(), (unsigned long)sensorLastGapMs(),
                     (unsigned long)(millis() - sensorLastSampleMs()));
     }
     lastFault = fault;

@@ -38,7 +38,15 @@ const float    SCALE_COUNTS_PER_KG = 53687.0f; // nilai awal; diganti hasil kali
 const int32_t  ADC_MAX             = 8388607;  // skala penuh ADC 24 bit bertanda
 const float    SATURATION_FRACTION = 0.95f;    // |raw| >= 0,95 x ADC_MAX = saturasi
 const uint32_t HX711_TIMEOUT_MS    = 1000;     // tanpa sampel baru selama ini = HX711_TIMEOUT
-const uint8_t  SAME_RAW_N          = 10;       // 10 raw identik berturut-turut = READING_INVALID
+const uint8_t  SAME_RAW_N          = 10;       // 10 raw identik berturut-turut = READING_INVALID (cadangan)
+// Jarak antarsampel terlalu pendek = DT tertahan LOW (mis. SCK tercabut), bukan data asli.
+// HANYA berlaku pada 10 SPS: HX711 sehat memberi sampel tiap ~85 ms (terukur 11,6 sampel/s), dan
+// setelah dibaca DT naik HIGH sampai konversi berikutnya. Laju modul tetap 10 SPS (pin RATE di
+// papan; 80 SPS butuh ubah resistor), jadi nilai ini tidak berubah tanpa ubah perangkat keras.
+// Butuh SHORT_GAP_N jarak pendek BERTURUT-TURUT, bukan satu: satu baca yang terlambat (loop sibuk
+// menulis LCD, maks. ~28 ms) memperpendek jarak berikutnya, dan mulai langkah 8 galat palsu terkunci.
+const uint32_t SAMPLE_MIN_GAP_MS   = 40;       // jarak < ini dihitung "pendek" (normal ~85 ms)
+const uint8_t  SHORT_GAP_N         = 3;        // 3 jarak pendek berturut-turut = READING_INVALID
 const float    MIN_FORCE_KG        = 0.0f;     // ref harus > nilai ini
 const float    MAX_FORCE_KG        = 80.0f;    // kapasitas nominal CZL 601; dicek live di GRIP
 
