@@ -19,7 +19,9 @@ struct SensorState {
   uint8_t  bootSkip;      // sisa sampel awal yang dibuang setelah boot
   bool     demo;          // perintah x aktif: skala dibagi DEMO_SCALE_DIV (langkah 8c)
   bool     simSat;        // perintah s aktif: raw dipaksa skala penuh (simulasi X2, langkah 8c)
-  bool     offsetBad;     // offset tare terakhir di luar jendela OFFSET_EXPECTED +- OFFSET_WINDOW
+  bool     offsetBad;     // OFFSET_BAD_N tare berturut-turut di luar jendela: load cell terputus
+  uint8_t  offsetBadRun;  // jumlah tare berturut-turut yang offset-nya di luar jendela (langkah 8d)
+  bool     windowRetry;   // tare sedang diulang karena offset di luar jendela (layar "Lepas genggaman")
 
   float    buf[BUF_SIZE]; // buffer melingkar kg
   uint8_t  bufIdx;        // posisi tulis berikutnya
@@ -137,7 +139,43 @@ bool sensorPoll() {
                       (long)spread, (long)TARE_MAX_SPREAD);
         sensorStartTare();
       } else {
-        sen.offset = (int32_t)lround((double)sen.tareSum / sen.tareN);
+        int32_t newOffset = (int32_t)lround((double)sen.tareSum / sen.tareN);
+
+        // Jendela offset (langkah 8c, 8d): jembatan load cell unit ini punya ketidakseimbangan tetap
+        // ~-39000 counts. Offset jauh dari itu berarti salah satu dari dua hal:
+        // - ada beban saat tare (tangan di load cell; pelat B rakitan sendiri ~7400 counts sudah
+        //   memakan sebagian jendela) -> perlakukan seperti tare yang terganggu: offset lama
+        //   dipertahankan, layar "Lepas genggaman", tare diulang;
+        // - load cell tidak terhubung dengan benar (E- terputus 23 Okt.: offset ~+500 terus;
+        //   pasangan sinyal tertukar: ~+39000) -> offset tetap di luar jendela di setiap ulangan,
+        //   jadi setelah OFFSET_BAD_N tare berturut-turut di luar jendela: READING_INVALID.
+        // Dua arah, bukan satu sisi, supaya pasangan sinyal yang tertukar juga terdeteksi.
+        // Batas: hanya dicek saat tare, jadi kabel yang putus di tengah percobaan baru tertangkap
+        // pada tare berikutnya (masuk READY berikutnya).
+        int32_t dev = newOffset - OFFSET_EXPECTED;
+        if (dev < 0) dev = -dev;
+        if (dev > OFFSET_WINDOW) {
+          sen.offsetBadRun++;
+          if (sen.offsetBadRun < OFFSET_BAD_N) {
+            Serial.printf("[TARE] PERINGATAN: offset %ld di luar jendela (%u/%u), lepas genggaman; "
+                          "tare diulang\n", (long)newOffset, sen.offsetBadRun, OFFSET_BAD_N);
+            sensorStartTare();       // offset lama dipertahankan
+            sen.windowRetry = true;  // sesudah sensorStartTare(), yang menghapusnya
+            return true;
+          }
+          // OFFSET_BAD_N kali berturut-turut: bukan tangan, tetapi sambungan load cell.
+          Serial.printf("[TARE] PERINGATAN: offset di luar jendela (%ld, harus %ld +- %ld, %u kali), "
+                        "load cell terputus?\n",
+                        (long)newOffset, (long)OFFSET_EXPECTED, (long)OFFSET_WINDOW, sen.offsetBadRun);
+          sen.offsetBad = true;      // sensorCheck() -> READING_INVALID
+          sen.offsetBadRun = 0;      // setelah TAHAN keluar FAULT, tare berikutnya dapat 3 kesempatan lagi
+          sen.windowRetry = false;
+          sen.taring = false;        // offset lama dipertahankan; FAULT yang menghentikan pengukuran
+          return true;
+        }
+
+        sen.offsetBadRun = 0;
+        sen.offset = newOffset;
         sen.taring = false;
         // Skala demo (x) TIDAK dibatalkan oleh tare (langkah 8c): x bertahan sampai sesi baru,
         // reset total, atau x lagi.
@@ -145,21 +183,6 @@ bool sensorPoll() {
         sensorBufReset();   // isi buffer lama memakai offset lama: buang
         Serial.printf("[TARE] offset=%ld counts (%u sampel, sebaran %ld counts)\n",
                       (long)sen.offset, sen.tareN, (long)spread);
-
-        // Jendela offset (langkah 8c): jembatan load cell unit ini punya ketidakseimbangan tetap
-        // ~-39000 counts. Offset jauh dari itu = load cell tidak terhubung dengan benar (mis. E-
-        // terputus 23 Okt.: offset ~+500 dan tidak ada galat lain yang terpicu). Dua arah, bukan
-        // satu sisi: pasangan sinyal yang tertukar memberi ~+39000 dan juga harus terdeteksi.
-        // Batas: hanya dicek saat tare, jadi kabel yang putus di tengah percobaan baru tertangkap
-        // pada tare berikutnya (masuk READY berikutnya).
-        int32_t dev = sen.offset - OFFSET_EXPECTED;
-        if (dev < 0) dev = -dev;
-        if (dev > OFFSET_WINDOW) {
-          sen.offsetBad = true;
-          Serial.printf("[TARE] PERINGATAN: offset di luar jendela (%ld, harus %ld +- %ld): "
-                        "load cell terputus?\n",
-                        (long)sen.offset, (long)OFFSET_EXPECTED, (long)OFFSET_WINDOW);
-        }
       }
     }
   }
@@ -169,6 +192,7 @@ bool sensorPoll() {
 void sensorStartTare() {
   sen.taring = true;
   sen.offsetBad = false;   // dinilai ulang saat tare ini selesai
+  sen.windowRetry = false; // diisi lagi oleh pemanggil bila ulangan karena jendela offset
   sen.tareN = 0;
   sen.tareSum = 0;
   sen.tareMin = INT32_MAX;
@@ -176,6 +200,7 @@ void sensorStartTare() {
 }
 
 bool sensorTareDone() { return !sen.taring; }
+bool sensorTareWindowRetry() { return sen.taring && sen.windowRetry; }
 
 void sensorDemoSet(bool on) {
   // Demo galat X3 dan uji batas 5 s (langkah 8, 8c): skala dibagi DEMO_SCALE_DIV, jadi tekanan

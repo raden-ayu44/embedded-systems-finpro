@@ -20,6 +20,10 @@ void sensorStartTare();
 // true bila tidak ada tare yang sedang berjalan (offset siap dipakai).
 bool sensorTareDone();
 
+// true bila tare sedang diulang karena offset terakhir di luar jendela (kemungkinan tangan di
+// load cell): layar menampilkan "Lepas genggaman" alih-alih "Menyesuaikan nol" (langkah 8d).
+bool sensorTareWindowRetry();
+
 // Perintah x (langkah 8c): skala dibagi DEMO_SCALE_DIV selama aktif (demo X3, uji batas 5 s).
 // Bertahan melewati tare; dimatikan oleh sesi baru (termasuk reset total) atau x lagi.
 void  sensorDemoSet(bool on);
