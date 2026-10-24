@@ -1071,6 +1071,8 @@ Langkah 10c: antrean log 8 × (96 + 2) byte (baris diperpanjang dari 64 untuk pe
 ---
 
 ## 15. LAMPIRAN: ARSITEKTUR SISTEM DAN STATE MACHINE (DARI CATATAN PROYEK)
+> Lampiran lama dari catatan proyek; Bagian 6 dan 10 yang berlaku bila berbeda.
+
 
 > **Catatan v5:** lampiran ini adalah teks lama dan **tidak diperbarui baris per baris**. Bila berbeda, Bagian 1-14 yang berlaku. Yang sudah diganti di v5: aturan LED (Bagian 10.3; menggantikan S5), tare dan baca HX711 non-blocking tanpa library (Bagian 5.7-5.8, 6.4), batas rentang 80 kg dengan cek live di `GENGGAM` (Bagian 6.2, 7.4), hitung mundur digambar ulang tiap 500 ms (mengubah S2), galat `READING_INVALID`, reset total, layar `GAGALSIMPAN` bergantian, dan konsol `logger.py` sebagai pengganti Serial Monitor (A8).
 
@@ -1229,6 +1231,8 @@ Pin dan antarmuka ada di Bagian 2 dan 8 di [desain-pcb-hgd.md](../pcb/desain-pcb
 ---
 
 ## 16. LAMPIRAN: NARASI PENGALAMAN PENGGUNA (DARI CATATAN PROYEK)
+> Lampiran lama dari catatan proyek; Bagian 6 dan 10 yang berlaku bila berbeda.
+
 
 > **Catatan v5:** narasi ini teks lama. Aturan LED (menyala saat plateau, kedip restart; Bagian 10.3) dan reset total ada di Bagian 10.4, yang berlaku bila berbeda.
 
@@ -1246,6 +1250,8 @@ Pin dan antarmuka ada di Bagian 2 dan 8 di [desain-pcb-hgd.md](../pcb/desain-pcb
 ---
 
 ## 17. LAMPIRAN: CATATAN PLATFORM, ESP32 VS RASPBERRY PI (DARI CATATAN PROYEK)
+> Lampiran lama dari catatan proyek; Bagian 6 dan 10 yang berlaku bila berbeda.
+
 
 - Dokumen formal pertama jatuh tempo minggu 5-6; Raspberry Pi baru diajarkan minggu 10 (topik kuliah) - artinya arsitektur inti proyek **realistisnya harus ESP32-only** pada tahap itu
 - Raspberry Pi dicatat sebagai **kemungkinan ekstensi pasca-minggu 10** (mis. sebagai local data hub/dashboard), bukan kebutuhan wajib
