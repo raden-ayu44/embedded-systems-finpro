@@ -66,6 +66,8 @@ static int32_t   onsetMs = -1;             // sampel onset (waktu nol grafik)
 static float     peakKg = -1.0f;           // sampel tertinggi di fase 2
 // Waktu 5 sampel terakhir di fase 2, sejajar dengan buffer plateau di sensor.cpp, supaya awal dan
 // akhir jendela yang menjadi ref bisa dicatat. Setelah diisi, winTimes[winNext] = sampel tertua.
+// Saat onset buffer plateau di-reset (sensorBufReset) dan winNext = 0, jadi sampel onset tidak ada
+// di keduanya dan keduanya mulai dari sampel berikutnya.
 static int32_t   winTimes[BUF_SIZE];
 static uint8_t   winNext = 0;
 static int32_t   bestWinStartMs = -1, bestWinEndMs = -1;       // jendela terkuat
