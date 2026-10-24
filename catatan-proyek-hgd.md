@@ -3,7 +3,7 @@ title: Catatan Proyek - Hand Grip Dynamometer
 
 ---
 
-# Catatan Proyek - Hand Grip Dynamometer (v55)
+# Catatan Proyek - Hand Grip Dynamometer (v56)
 **Proyek akhir - embedded system**
 
 > Catatan kerja proyek akhir mata kuliah embedded system, sekaligus **dokumen induk**: ringkasan, kebutuhan, rumusan masalah, spesifikasi, BOM, risiko, jadwal, anggaran, keselamatan, riwayat keputusan, dan log audit ada di sini; bahan teknis dipecah ke dokumen di peta di bawah. Ditulis supaya bisa dibaca sendiri (offline). Dipakai untuk G2-G4, makalah akhir, dan demo.
@@ -25,6 +25,7 @@ title: Catatan Proyek - Hand Grip Dynamometer
 | [kalibrasi/hgd_perhitungan.xlsx](kalibrasi/hgd_perhitungan.xlsx) | Perhitungan dengan rumus: tab Mekanik (kekakuan, tegangan, celah, spacer, baut, massa) dan tab Elektrik (sinyal, ADC, noise, galat, regresi kalibrasi) | Berjalan |
 | [kalibrasi/dimensi_dumbbell.xlsx](kalibrasi/dimensi_dumbbell.xlsx) | Dimensi dumbbell heksagonal untuk rig kalibrasi | Berjalan |
 | [pengukuran/tabel-pengukuran-hgd.xlsx](pengukuran/tabel-pengukuran-hgd.xlsx) | Tabel pengukuran jangka sorong, satu tab per komponen, dengan angka resmi bila ada | Sebagian terisi; LCD dan HX711 per 15 Okt. 2026 |
+| [laptop/panduan-menjalankan-hgd.md](laptop/panduan-menjalankan-hgd.md) | Cara menjalankan purwarupa dari nol di laptop Windows mana pun: pasang (Arduino IDE, core 3.3.11, Python + pyserial, termasuk kasus Python MSYS2), flash, port COM, `logger.py`, uji bench satu sesi, buka CSV | v1 (24 Okt. 2026); berisi hasil uji bench resmi v1 (pra-kalibrasi) |
 | [pengukuran/protokol-arus-rail-hgd.md](pengukuran/protokol-arus-rail-hgd.md) | Protokol pengukuran arus tiap rail dengan satu multimeter oleh satu orang (wiring breadboard sampai UTS, keselamatan, kontinuitas, rentang, tanda dari alat, templat hasil) | v1 (24 Okt. 2026); hasil di Bagian 5.1 desain PCB |
 | [pengukuran/e1-noise-hgd.xlsx](pengukuran/e1-noise-hgd.xlsx) | Semua baris uji noise E1 (15 dan 16 Okt. 2026), pemanasan, uji tekan, log mentah; ringkasan dengan rumus dan grafik; lembar kosong untuk E1 rakitan akhir | Berjalan |
 | [datasheet/datasheet-library.md](datasheet/datasheet-library.md) | Catatan datasheet per komponen (DS-LC1, DS-HX1, DS-ESP1, DS-ESP2, DS-LCD1, DS-I2C1, DS-LLS1, DS-INS1, dan lainnya) beserta daftar cek kedatangan; PDF di `datasheet/pdf/` | Berjalan; memuat hasil ukur 10 dan 15 Okt. 2026 |
@@ -442,7 +443,7 @@ Lihat Bagian 4 di [desain-pcb-hgd.md](pcb/desain-pcb-hgd.md). Jangan dibawa lewa
 | Housing elektronik | ✔ | **Desain v1 selesai (17 Okt. 2026), belum disetujui**: lid, body, bibir, 4 snap-fit, slice uji; STEP di repo. Belum: lubang tombol/LED (termasuk D2), tiang PCB, cetak uji lidah; cetak menunggu PCB |
 | Kalibrasi | ▣ | Protokol ada; belum dijalankan. **Bukan bagian UTS tim ini** (disetujui pengajar, 24 Okt. 2026); dipindah ke proyek akhir. Brief UTS menyebut pengecualian ini dan bahwa nilai gaya memakai skala nominal |
 | Pengujian | ◐ | U1-U5, U7, E1 ✔; level shifter di breadboard ✔ (17 Okt. 2026); U8 sebagian; U9, U10 ✔ (23 Okt. 2026); X4, X14 ✔ (24 Okt. 2026); U11-U14, X15, X16, E7 ✔ (24 Okt. 2026, langkah 10c); lima skenario galat panduan UTS (cabut X1a/X1b, di luar rentang X15, tombol cepat X8, aktuator X17, power cycle X5) + X18 watchdog + E8 latensi LED ✔ (24 Okt. 2026, langkah 11); U6 belum |
-| Dokumen | ◐ | Catatan proyek v55, alur program v5 (isi sampai langkah 11), teks LCD v2, README dengan urutan baca UTS, protokol uji bench v3, desain PCB v5, log kerja KiCad v1, README KiCad v5, housing elektronik v5, tabel pengukuran, sitasi v1, datasheet library |
+| Dokumen | ◐ | Catatan proyek v56, panduan menjalankan v1, protokol arus rail v1, alur program v5 (isi sampai langkah 11), teks LCD v2, README dengan urutan baca UTS, protokol uji bench v3, desain PCB v5, log kerja KiCad v1, README KiCad v5, housing elektronik v5, tabel pengukuran, sitasi v1, datasheet library |
 
 ### 15.2 Yang akan dikerjakan berikutnya
 1. Persetujuan PCB v1, lalu unggah ZIP Gerber (batas 27 Okt. 2026, 23:59).
@@ -473,6 +474,7 @@ Lihat Bagian 4 di [desain-pcb-hgd.md](pcb/desain-pcb-hgd.md). Jangan dibawa lewa
 - Tenggat gerber: konflik panduan (Minggu 7) dan panduan tugas (Minggu 8) belum terkonfirmasi (Bagian 4.1).
 - Media logging: SD card hanya fasilitas opsional lab (satu unit); cloud opsional menurut Panduan; keputusan: CSV lewat USB-Serial sebagai inti (Bagian 5 dan Bagian 15.1 di [alur-program-hgd.md](firmware/alur-program-hgd.md)).
 - Persyaratan format resmi: status per item di Bagian 4.3.
+- v56 (24 Okt. 2026): Uji bench resmi v1 (pra-kalibrasi) di build Arduino IDE core 3.3.11: 3 percobaan 2,89 / 1,76 / 2,75 kg, puncak 2,89, rerata 2,47 kg, semua baris ringkasan ber-ACK, rekaman tanpa kehilangan. Panduan `laptop/panduan-menjalankan-hgd.md` (v1) di peta dokumen dan README.
 - v55 (24 Okt. 2026): Arus tiap rail terukur (uji S3 untuk UTS): verifikasi S3 di Bagian 9.1, posisi saat ini, Bagian 15.2; desain PCB v5 (Bagian 5.1, tabel lengkap); protokol pengukuran `pengukuran/protokol-arus-rail-hgd.md` (v1) di peta dokumen.
 - v54 (24 Okt. 2026): Penyegaran dokumen: README (status, folder `laptop/` dan `teks-lcd-hgd.md`, urutan baca "Mulai di sini untuk UTS"); baris status yang usang diperbarui (posisi saat ini, Bagian 15.1, 15.2); kalibrasi bukan bagian UTS tim ini (disetujui pengajar), dipindah ke proyek akhir; catatan "lampiran lama" di alur program Bagian 15-17; teks LCD v2.
 - v53 (24 Okt. 2026): Langkah 11 selesai: watchdog loop, sinkron ulang LCD tanpa blocking tiap 2 s, batas tampilan kg (−9.99..99.99, tanpa `-0.00`), log `[TIMING]` latensi LED (E8: rata-rata 0,58 ms, maks 0,70 ms; rantai lengkap ≈ 0,43 s), `logger.py` tersambung lagi sendiri setelah USB dicabut, lima skenario galat diuji (X1a, X1b, X5, X8, X15, X17) + X18, build akhir core 3.3.11 dari folder bersih. Firmware dibekukan untuk UTS. Desain ulang teks LCD dipindah ke proyek akhir.
