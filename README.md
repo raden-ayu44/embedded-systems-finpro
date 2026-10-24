@@ -7,7 +7,26 @@ Design and documentation for a hand grip strength meter, made for an embedded sy
 - Housing: two plain Al 6061-T6 plates (170 × 30 × 10 mm) with PLA spacers (28 × 28 × 2.5 mm), joined to the load cell with M6 × 25 bolts. The cable clamp is printed as one piece with spacer A.
 - Budget: maximum Rp300.000.
 
-**Status:** design and breadboard stage. The ESP32 pins, the load cell (resistance and dimensions), the LCD (I2C address 0x27) and the HX711 have been tested on the bench; the unloaded noise test gave σ ≈ 0.7 g. The KiCad schematic is checked and the PCB placement is a proposal; the housing and calibration are not yet built or tested. Documents are written in Indonesian.
+**Status (24 Oct. 2026):** breadboard prototype working.
+- **Firmware:** steps 0-11 written and tested on the board (state machine, non-blocking HX711 reading, LED rule, fault handling, watchdog, logging with ACK), built with Arduino IDE core 3.3.11. **Frozen for the UTS**: bug fixes only.
+- **Laptop logger:** `laptop/logger.py` works: it writes three daily CSV files (results, faults, grip traces), answers ACK/NAK, and reconnects after a USB unplug.
+- **Hardware design:** KiCad schematic and PCB v1 done; electronics housing and grip housing designed (not yet built). Bench tests: ESP32 pins, load cell, LCD (I2C 0x27), HX711; unloaded noise σ ≈ 0.7 g.
+- **Not yet done:** calibration (moved to the final project; force values use the nominal scale, uncalibrated), building the housings.
+
+Documents are written in Indonesian.
+
+## Mulai di sini untuk UTS
+
+Urutan baca untuk memahami purwarupa UTS (firmware, logger, layar), dari nol:
+
+1. `README.md` (berkas ini): gambaran dan status.
+2. [`catatan-proyek-hgd.md`](catatan-proyek-hgd.md): **hanya** gambaran proyek (Bagian 1), tujuan dan spesifikasi target S1-S5 (Bagian 2), fungsi perangkat (Bagian 6), riwayat keputusan (Bagian 14), dan status (Bagian 15). Bagian lain (sumber, anggaran, risiko, audit) tidak diperlukan untuk UTS.
+3. [`firmware/alur-program-hgd.md`](firmware/alur-program-hgd.md) **Bagian 1-13**: arsitektur, struktur data, konstanta, fungsi, state machine, HX711, logging, antarmuka, uji, build, memori. Bagian 15-17 adalah lampiran lama dari catatan proyek; Bagian 6 dan 10 yang berlaku bila berbeda.
+4. [`firmware/teks-lcd-hgd.md`](firmware/teks-lcd-hgd.md): semua layar LCD persis seperti dicetak firmware.
+5. Kode firmware di [`firmware/hgd/hgd/`](firmware/hgd/hgd/) (mulai dari `hgd.ino`, lalu `config.h`, `types.h`, `fsm.cpp`). Folder ini juga isi ZIP firmware UTS.
+6. [`laptop/logger.py`](laptop/logger.py): pencatat di laptop (CSV, ACK/NAK).
+
+**Tidak diperlukan untuk UTS:** `housing-load-cell/`, `housing-elektronik/`, `kalibrasi/` (kalibrasi dipindah ke proyek akhir), `sitasi/`, PDF datasheet di `datasheet/pdf/`, dan sketsa uji lama di `firmware/sketches/` (hanya untuk uji modul awal).
 
 ## Start here
 
@@ -17,7 +36,8 @@ Design and documentation for a hand grip strength meter, made for an embedded sy
 
 | Folder | Contents |
 |---|---|
-| [`firmware/`](firmware/) | `alur-program-hgd.md`: program flow for the ESP32 firmware and the laptop-side logger (data, constants, functions, state machine, logging); `protokol-uji-bench-hgd.md`: bench test procedure and results; `sketches/` holds the test sketches (pin loopback, LCD, HX711, button and LED, and the combined bench test) |
+| [`firmware/`](firmware/) | `hgd/`: the main ESP32 firmware (PlatformIO project; the sketch folder `hgd/hgd/` also opens in Arduino IDE and is the firmware ZIP); `alur-program-hgd.md`: program flow for the ESP32 firmware and the laptop-side logger (data, constants, functions, state machine, logging, tests, build); `teks-lcd-hgd.md`: every LCD screen exactly as the firmware prints it; `protokol-uji-bench-hgd.md`: bench test procedure and results; `sketches/` holds the early test sketches (pin loopback, LCD, HX711, button and LED, and the combined bench test) |
+| [`laptop/`](laptop/) | `logger.py`: laptop-side logger (Python 3 + pyserial): reads the ESP32 log lines over USB serial, writes the daily CSV files, replies ACK/NAK |
 | [`pcb/`](pcb/) | `desain-pcb-hgd.md` (schematic and PCB design), `pcb_netlist.xlsx` (components with official part names, KiCad symbols and footprints, netlist), `gambar/` (placement drawing, SVG), and [`kicad/`](pcb/kicad/README.md), the hub for KiCad files |
 | [`housing-load-cell/`](housing-load-cell/) | Grip housing design, assumptions (`asumsi.md`), drawings in `gambar/` (SVG), Fusion 360 parameters and instructions in `fusion/` |
 | [`housing-elektronik/`](housing-elektronik/) | Electronics housing design (LCD on the lid, shrink compensation, print rules) and Fusion 360 parameters in `fusion/` |

@@ -3,10 +3,10 @@ title: Teks LCD - Hand Grip Dynamometer
 
 ---
 
-# Teks LCD - Hand Grip Dynamometer (v1)
+# Teks LCD - Hand Grip Dynamometer (v2)
 **Proyek akhir - embedded system**
 
-Tabel semua layar LCD 16x2 persis seperti yang dicetak firmware (cabang `feat/logger`, langkah 10), untuk ditinjau dan didiskusikan. Rujukan utama tetap [alur-program-hgd.md](alur-program-hgd.md) Bagian 10.2; bila satu teks diubah, kode (`fsm.cpp` `drawScreen()`, `fault.cpp` `faultDraw()`), Bagian 10.2, dan berkas ini diubah bersama.
+Tabel semua layar LCD 16x2 persis seperti yang dicetak firmware (firmware UTS, langkah 11, dibekukan; v2: layar percobaan 3 tanpa istirahat), untuk ditinjau dan didiskusikan. Desain ulang teks LCD dijadwalkan untuk proyek akhir. Rujukan utama tetap [alur-program-hgd.md](alur-program-hgd.md) Bagian 10.2; bila satu teks diubah, kode (`fsm.cpp` `drawScreen()`, `fault.cpp` `faultDraw()`), Bagian 10.2, dan berkas ini diubah bersama.
 
 Nama state mengikuti dokumen alur program (Bagian 1.4a): nama dokumen, lalu nama di kode dalam kurung.
 
