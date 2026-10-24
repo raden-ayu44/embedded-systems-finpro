@@ -3,7 +3,7 @@ title: Desain PCB dan Skema - Hand Grip Dynamometer
 
 ---
 
-# Desain PCB dan Skema - Hand Grip Dynamometer (v5)
+# Desain PCB dan Skema - Hand Grip Dynamometer (v6)
 **Proyek akhir - embedded system**
 
 > Skema dan PCB (skema termasuk): komponen, alokasi pin, rantai sinyal, load cell, catu daya, keputusan catu LCD, wiring antarmodul, PCB `hgd-v1` (KiCad), netlist, usulan penempatan, pemeriksaan load cell, dan sisa pekerjaan. Berkas netlist dan daftar komponen: `pcb_netlist.xlsx`; berkas KiCad: [kicad/](kicad/README.md); gambar penempatan: [gambar/penempatan-pcb-hgd.svg](gambar/penempatan-pcb-hgd.svg); log langkah KiCad: [log-kerja-kicad-hgd.md](log-kerja-kicad-hgd.md). Firmware ada di [alur-program-hgd.md](../firmware/alur-program-hgd.md); induk: [catatan-proyek-hgd.md](../catatan-proyek-hgd.md).
@@ -107,7 +107,7 @@ Langkah lengkap untuk mengulang pengukuran: [protokol-arus-rail-hgd.md](../pengu
 
 - Beban luar praktis sama pada keadaan diam dan puncak, karena tidak ada beban di breadboard yang dinyalakan-dimatikan firmware; LED D1 (GPIO27) menarik arus dari 3V3 di dalam DevKit, bukan dari rail breadboard.
 - Batas metode: multimeter memperbarui tampilan ≈ 2-3 kali per detik, jadi lonjakan singkat (mis. saat dinyalakan) tidak tertangkap. Tukar probe merah/hitam hanya membalik tanda (−), bukan besarnya.
-- **Wiring breadboard yang terlihat saat pengukuran:** beban 3,3 V diberi dua kabel dari pin 3V3 DevKit (rail atas: D2; rail bawah: HX711 dan sisi LV), LCD (VCC backpack) dan sisi HV diberi kabel langsung dari pin VIN. Secara listrik sama dengan net +3V3 dan +5V di skema (tidak ada perbedaan untuk R8).
+- **Wiring breadboard yang terlihat saat pengukuran:** beban 3,3 V diberi dua kabel dari pin 3V3 DevKit (rail atas: D2; rail bawah: HX711 dan sisi LV), LCD (VCC backpack) dan sisi HV diberi kabel langsung dari pin VIN. Secara listrik sama dengan net +3V3 dan +5V di skema (tidak ada perbedaan untuk R8). Kapasitor: saat pengukuran keempatnya masih di 3V3; C3 dan C4 dipindah ke +5V sesudahnya (Bagian 6). Kapasitor tidak menarik arus DC, jadi hasil di atas tetap berlaku.
 
 - Decoupling: C1 100 nF keramik + C2 10 µF elektrolit di +3V3 dekat J1 (HX711); C3 10 µF elektrolit + C4 100 nF keramik di +5V dekat J2 (LCD). Elektrolit: + ke rail.
 
@@ -131,7 +131,7 @@ Aturan keputusan v1 (ukur dulu, baru putuskan) sudah dijalankan:
 | LV: GPIO21/22 ↔ LV1/LV2 (3,3 V) | Shifter 9,86 kΩ (+ internal ESP32 ≈ 45 kΩ bila aktif) | 9,86 kΩ (≈ 8,1 kΩ) | ✔ |
 | HV: HV1/HV2 ↔ backpack (5 V) | Shifter 9,90 kΩ ‖ backpack 4,67 kΩ | 3,17 kΩ (≈ 1,6 mA pada 4,93 V) | ✔ |
 
-Semua pull-up milik modul; **PCB tanpa pull-up tambahan**. Rincian di DS-LLS1 dan DS-I2C1. Shifter yang sudah disolder: LV1/LV2 = 3,26 V, HV1/HV2 = 4,98 V saat dicatu tanpa LCD. **Uji breadboard 17 Okt. 2026 dengan wiring sesuai skema (termasuk D2/R2): LCD bekerja lewat level shifter dan menampilkan data HX711; D2 menyala dengan R2 220 ohm, terang cukup. Tidak ada perbedaan breadboard dan skema.**
+Semua pull-up milik modul; **PCB tanpa pull-up tambahan**. Rincian di DS-LLS1 dan DS-I2C1. Shifter yang sudah disolder: LV1/LV2 = 3,26 V, HV1/HV2 = 4,98 V saat dicatu tanpa LCD. **Uji breadboard 17 Okt. 2026 dengan wiring sesuai skema (termasuk D2/R2): LCD bekerja lewat level shifter dan menampilkan data HX711; D2 menyala dengan R2 220 ohm, terang cukup. Tidak ada perbedaan breadboard dan skema.** Koreksi 24 Okt. 2026: kapasitor berbeda. Di breadboard keempatnya ada di +3V3, padahal C3 dan C4 di skema ada di +5V. Sudah dipindah sesuai skema dan dicek (kaki di 3V3: 3,25 V, kaki di VIN: 4,95 V); gambar wiring di Bagian 2.1 [protokol-arus-rail-hgd.md](../pengukuran/protokol-arus-rail-hgd.md).
 
 Alternatif yang dibahas dan tidak dipakai: penggeser level dari MOSFET 2N7000 THT (V_GS(th) 0,8-3 V, R_DS(on) hanya dijamin pada 4,5 V; datasheet Microchip disimpan di Project), atau melepas pull-up backpack. Modul BSS138 dipilih karena sudah jadi, murah, dan dua arah.
 
@@ -163,7 +163,7 @@ Semua modul dicolok ke **soket betina** di sisi bawah PCB (Bagian 8).
 |---|---|
 | ERC skema | 0 error, 0 warning; 7 `lib_symbol_mismatch` dikecualikan dengan alasan |
 | DRC papan | 0 error, 0 tak tersambung, 0 beda skema; 4 pengecualian beralasan |
-| Breadboard = skema | Wiring sesuai skema termasuk D2/R2, tanpa perbedaan; LCD bekerja lewat level shifter (17 Okt. 2026) |
+| Breadboard = skema | Wiring sesuai skema termasuk D2/R2; LCD bekerja lewat level shifter (17 Okt. 2026). Kapasitor C3/C4 dipindah ke +5V sesuai skema (24 Okt. 2026); gambar wiring di protokol arus rail Bagian 2.1 |
 | Gerber + bor | Diekspor 17 Okt. 2026 19:44, Revision 1; 129 PTH, 4 NPTH; dicek di viewer JLCPCB: 2 lapis, 80 x 55 mm |
 | Berkas | [kicad/proyek/](kicad/proyek/): skema, papan, salinan 3D verbatim, STEP; langkah kerja di [log-kerja-kicad-hgd.md](log-kerja-kicad-hgd.md) |
 | Belum | Persetujuan; unggah Gerber; PDF skema dan BOM |
@@ -304,6 +304,7 @@ Penyimpanan: kotak kedap udara dengan gelembung plastik (sisi gelembung menghada
 
 | Versi | Tanggal | Perubahan |
 |---|---|---|
+| v6 | 24 Okt. 2026 | Breadboard: C3 dan C4 dipindah dari +3V3 ke +5V sesuai skema (Bagian 5.1, Bagian 6, tabel Bagian 8), dengan hasil cek; gambar wiring di protokol arus rail |
 | v5 | 24 Okt. 2026 | Bagian 5.1: arus tiap rail terukur (uji S3), diam dan puncak, dengan estimasi papan DevKit dan perbandingan terhadap S3 |
 | v4 | 17 Okt. 2026 | **Skema dan PCB v1 selesai (belum disetujui)**; gambar penempatan diperbarui dari papan final (D2/R2, pour GND, via); Gerber diekspor ulang dan dicek di viewer JLCPCB; berkas KiCad, salinan 3D, dan STEP di repo; log kerja KiCad; pembersihan berkas dan sisa pekerjaan diperbarui; pour GND F.Cu dan B.Cu + 57 via jahit; nomor tim dan nama proyek di silkscreen; lubang mounting dipertahankan; KiCad diizinkan sebagai pengganti EasyEDA; LED daya D2 (3 mm) + R2 220 ohm dari +3V3; netlist dan keputusan desain diperbarui; ERC 0 error (no-connect, `PWR_FLAG`); hitungan pull-up I2C terukur (LV 9,86 kΩ, HV 3,17 kΩ gabungan): tanpa pull-up tambahan; tegangan shifter tersolder 3,26 V / 4,98 V |
 | v3 | 16-17 Okt. 2026 | 17 Okt.: teks gambar dari silkscreen berkas papan; Gerber diekspor dan dicek (belum di repo). 16 Okt.: gambar `penempatan-pcb-hgd.svg` diganti dengan PCB v1 berjalur final dari berkas KiCad (lolos DRC, belum disetujui); skema `hgd-v1.kicad_sch` ditambahkan di `kicad/proyek/` |

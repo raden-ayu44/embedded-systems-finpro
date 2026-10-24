@@ -1,0 +1,1276 @@
+{
+  "version": 1,
+  "author": "Wokwi",
+  "editor": "wokwi",
+  "parts": [
+    {
+      "type": "wokwi-breadboard-half",
+      "id": "bottom-breadboard",
+      "top": 217.8,
+      "left": -83.6,
+      "attrs": {
+        "color": "#575756"
+      }
+    },
+    {
+      "type": "wokwi-breadboard-half",
+      "id": "top-breadboard",
+      "top": 83.4,
+      "left": -83.6,
+      "attrs": {
+        "color": "#575756"
+      }
+    },
+    {
+      "type": "wokwi-breadboard-mini",
+      "id": "level-shifter",
+      "top": 517,
+      "left": 381.6,
+      "attrs": {
+        "color": "#2958b0"
+      }
+    },
+    {
+      "type": "wokwi-esp32-devkit-v1",
+      "id": "esp",
+      "top": 185.5,
+      "left": 110.8,
+      "rotate": 270,
+      "attrs": {}
+    },
+    {
+      "type": "wokwi-lcd1602",
+      "id": "1602-i2c-lcd",
+      "top": 313.6,
+      "left": 437.6,
+      "attrs": {
+        "pins": "i2c"
+      }
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "R1",
+      "top": 157.55,
+      "left": 115.2,
+      "attrs": {
+        "value": "220"
+      }
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "R2",
+      "top": 120,
+      "left": 66.65,
+      "rotate": 90,
+      "attrs": {
+        "value": "220"
+      }
+    },
+    {
+      "type": "wokwi-led",
+      "id": "D1",
+      "top": 111.6,
+      "left": 157.8,
+      "attrs": {
+        "color": "red",
+        "flip": "1"
+      }
+    },
+    {
+      "type": "wokwi-led",
+      "id": "D2",
+      "top": 121.2,
+      "left": 71,
+      "attrs": {
+        "color": "red"
+      }
+    },
+    {
+      "type": "wokwi-led",
+      "id": "10uF-C2",
+      "top": 188.4,
+      "left": -63,
+      "attrs": {
+        "color": "white",
+        "flip": "1"
+      }
+    },
+    {
+      "type": "wokwi-led",
+      "id": "10uF-C3",
+      "top": 188.4,
+      "left": -5.4,
+      "attrs": {
+        "color": "white",
+        "flip": "1"
+      }
+    },
+    {
+      "type": "wokwi-led",
+      "id": "100nF-C1",
+      "top": 255.6,
+      "left": -63.4,
+      "attrs": {
+        "color": "orange",
+        "flip": ""
+      }
+    },
+    {
+      "type": "wokwi-led",
+      "id": "100nF-C4",
+      "top": 255.6,
+      "left": -34.6,
+      "attrs": {
+        "color": "orange",
+        "flip": ""
+      }
+    },
+    {
+      "type": "wokwi-pushbutton",
+      "id": "button",
+      "top": 316.2,
+      "left": -6.6,
+      "rotate": 90,
+      "attrs": {
+        "color": "black",
+        "xray": "1"
+      }
+    },
+    {
+      "type": "wokwi-hx711",
+      "id": "load-cell-80kg",
+      "top": 175.4,
+      "left": 444.2,
+      "attrs": {
+        "type": "5kg"
+      }
+    },
+    {
+      "type": "wokwi-led",
+      "id": "HV1",
+      "top": 524.4,
+      "left": 378.2,
+      "attrs": {
+        "color": "cyan"
+      }
+    },
+    {
+      "type": "wokwi-led",
+      "id": "HV2",
+      "top": 524.4,
+      "left": 407,
+      "attrs": {
+        "color": "cyan"
+      }
+    },
+    {
+      "type": "wokwi-led",
+      "id": "HV",
+      "top": 524.4,
+      "left": 435.8,
+      "attrs": {
+        "color": "cyan"
+      }
+    },
+    {
+      "type": "wokwi-led",
+      "id": "GNDH",
+      "top": 524.4,
+      "left": 464.6,
+      "attrs": {
+        "color": "cyan"
+      }
+    },
+    {
+      "type": "wokwi-led",
+      "id": "HV3",
+      "top": 524.4,
+      "left": 493.4,
+      "attrs": {
+        "color": "cyan"
+      }
+    },
+    {
+      "type": "wokwi-led",
+      "id": "HV4",
+      "top": 524.4,
+      "left": 522.2,
+      "attrs": {
+        "color": "cyan"
+      }
+    },
+    {
+      "type": "wokwi-led",
+      "id": "LV1",
+      "top": 582,
+      "left": 378.2,
+      "attrs": {
+        "color": "cyan"
+      }
+    },
+    {
+      "type": "wokwi-led",
+      "id": "LV2",
+      "top": 582,
+      "left": 407,
+      "attrs": {
+        "color": "cyan"
+      }
+    },
+    {
+      "type": "wokwi-led",
+      "id": "LV",
+      "top": 582,
+      "left": 435.8,
+      "attrs": {
+        "color": "cyan"
+      }
+    },
+    {
+      "type": "wokwi-led",
+      "id": "GNDL",
+      "top": 582,
+      "left": 464.6,
+      "attrs": {
+        "color": "cyan"
+      }
+    },
+    {
+      "type": "wokwi-led",
+      "id": "LV3",
+      "top": 582,
+      "left": 493.4,
+      "attrs": {
+        "color": "cyan"
+      }
+    },
+    {
+      "type": "wokwi-led",
+      "id": "LV4",
+      "top": 582,
+      "left": 522.2,
+      "attrs": {
+        "color": "cyan"
+      }
+    }
+  ],
+  "connections": [
+    [
+      "esp:TX",
+      "$serialMonitor:RX",
+      "",
+      []
+    ],
+    [
+      "esp:RX",
+      "$serialMonitor:TX",
+      "",
+      []
+    ],
+    [
+      "top-breadboard:19t.e",
+      "bottom-breadboard:25b.g",
+      "yellow",
+      [
+        "v9.6",
+        "h163.2",
+        "v192",
+        "h0",
+        "v9.6",
+        "h-105.6"
+      ]
+    ],
+    [
+      "top-breadboard:tn.13",
+      "top-breadboard:16t.a",
+      "blue",
+      [
+        "v0"
+      ]
+    ],
+    [
+      "top-breadboard:tn.21",
+      "top-breadboard:26t.a",
+      "white",
+      [
+        "v0"
+      ]
+    ],
+    [
+      "top-breadboard:tn.24",
+      "top-breadboard:29b.f",
+      "white",
+      [
+        "v0"
+      ]
+    ],
+    [
+      "top-breadboard:29b.h",
+      "bottom-breadboard:bn.25",
+      "white",
+      [
+        "v0",
+        "h76.8",
+        "v172.8"
+      ]
+    ],
+    [
+      "top-breadboard:30b.i",
+      "bottom-breadboard:bp.25",
+      "red",
+      [
+        "v0",
+        "h76.8",
+        "v172.8"
+      ]
+    ],
+    [
+      "top-breadboard:tp.1",
+      "top-breadboard:2b.f",
+      "orange",
+      [
+        "v0"
+      ]
+    ],
+    [
+      "top-breadboard:tn.2",
+      "top-breadboard:3b.f",
+      "black",
+      [
+        "v0"
+      ]
+    ],
+    [
+      "top-breadboard:tn.7",
+      "top-breadboard:9b.f",
+      "black",
+      [
+        "v0"
+      ]
+    ],
+    [
+      "bottom-breadboard:2t.e",
+      "bottom-breadboard:bn.1",
+      "black",
+      [
+        "v0"
+      ]
+    ],
+    [
+      "bottom-breadboard:3t.e",
+      "bottom-breadboard:bp.2",
+      "orange",
+      [
+        "v0"
+      ]
+    ],
+    [
+      "bottom-breadboard:5t.e",
+      "bottom-breadboard:bn.4",
+      "black",
+      [
+        "v0"
+      ]
+    ],
+    [
+      "bottom-breadboard:bn.7",
+      "button:2.r",
+      "white",
+      [
+        "v0"
+      ]
+    ],
+    [
+      "bottom-breadboard:11t.d",
+      "bottom-breadboard:23b.g",
+      "magenta",
+      [
+        "v0",
+        "h19.2",
+        "v86.4",
+        "h96"
+      ]
+    ],
+    [
+      "bottom-breadboard:30b.h",
+      "1602-i2c-lcd:VCC",
+      "red",
+      [
+        "v0"
+      ]
+    ],
+    [
+      "bottom-breadboard:bn.23",
+      "1602-i2c-lcd:GND",
+      "black",
+      [
+        "v17.9",
+        "h107.2",
+        "v-86.4"
+      ]
+    ],
+    [
+      "1602-i2c-lcd:SDA",
+      "level-shifter:1t.a",
+      "limegreen",
+      [
+        "h0"
+      ]
+    ],
+    [
+      "1602-i2c-lcd:SCL",
+      "level-shifter:4t.a",
+      "magenta",
+      [
+        "h0"
+      ]
+    ],
+    [
+      "bottom-breadboard:30b.j",
+      "level-shifter:7t.a",
+      "red",
+      [
+        "v0",
+        "h163.2",
+        "v124.8",
+        "h67.2"
+      ]
+    ],
+    [
+      "top-breadboard:20b.f",
+      "level-shifter:1b.j",
+      "limegreen",
+      [
+        "v-9.6",
+        "h-220.8",
+        "v470.4",
+        "h489.6"
+      ]
+    ],
+    [
+      "top-breadboard:17b.h",
+      "level-shifter:4b.j",
+      "magenta",
+      [
+        "v-9.6",
+        "h-201.6",
+        "v460.8",
+        "h528"
+      ]
+    ],
+    [
+      "bottom-breadboard:bp.20",
+      "level-shifter:7b.j",
+      "red",
+      [
+        "v277.5",
+        "h289.6"
+      ]
+    ],
+    [
+      "bottom-breadboard:bn.18",
+      "level-shifter:10t.a",
+      "blue",
+      [
+        "v75.5",
+        "h337.6"
+      ]
+    ],
+    [
+      "bottom-breadboard:bn.16",
+      "level-shifter:10b.j",
+      "blue",
+      [
+        "v277.1",
+        "h356.8"
+      ]
+    ],
+    [
+      "top-breadboard:30b.f",
+      "top-breadboard:tp.25",
+      "red",
+      [
+        "v0",
+        "h67.2",
+        "v-105.6"
+      ]
+    ],
+    [
+      "top-breadboard:22b.g",
+      "load-cell-80kg:DT",
+      "magenta",
+      [
+        "v0"
+      ]
+    ],
+    [
+      "top-breadboard:21b.f",
+      "load-cell-80kg:SCK",
+      "#8f4814",
+      [
+        "v-9.6",
+        "h297.6",
+        "v28.8"
+      ]
+    ],
+    [
+      "bottom-breadboard:bn.9",
+      "load-cell-80kg:GND",
+      "black",
+      [
+        "v56.3",
+        "h308.8",
+        "v-268.8"
+      ]
+    ],
+    [
+      "bottom-breadboard:bp.23",
+      "load-cell-80kg:VCC",
+      "red",
+      [
+        "v-10.5",
+        "h126.4",
+        "v-163.2"
+      ]
+    ],
+    [
+      "top-breadboard:8b.j",
+      "bottom-breadboard:6b.h",
+      "orange",
+      [
+        "v9.6",
+        "h-9.6",
+        "v105.6"
+      ]
+    ],
+    [
+      "bottom-breadboard:6t.e",
+      "bottom-breadboard:6b.g",
+      "orange",
+      [
+        "v0"
+      ]
+    ],
+    [
+      "bottom-breadboard:6b.i",
+      "bottom-breadboard:30b.i",
+      "red",
+      [
+        "v0"
+      ]
+    ],
+    [
+      "esp:VIN",
+      "bottom-breadboard:30b.f",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "esp:GND.2",
+      "bottom-breadboard:29b.f",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "esp:D13",
+      "bottom-breadboard:28b.f",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "esp:D12",
+      "bottom-breadboard:27b.f",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "esp:D14",
+      "bottom-breadboard:26b.f",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "esp:D27",
+      "bottom-breadboard:25b.f",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "esp:D26",
+      "bottom-breadboard:24b.f",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "esp:D25",
+      "bottom-breadboard:23b.f",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "esp:D33",
+      "bottom-breadboard:22b.f",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "esp:D32",
+      "bottom-breadboard:21b.f",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "esp:D35",
+      "bottom-breadboard:20b.f",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "esp:D34",
+      "bottom-breadboard:19b.f",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "esp:VN",
+      "bottom-breadboard:18b.f",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "esp:VP",
+      "bottom-breadboard:17b.f",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "esp:EN",
+      "bottom-breadboard:16b.f",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "esp:3V3",
+      "bottom-breadboard:tn.25",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "esp:GND.1",
+      "bottom-breadboard:tn.24",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "esp:D15",
+      "bottom-breadboard:tn.23",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "esp:D4",
+      "bottom-breadboard:tn.21",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "esp:TX2",
+      "bottom-breadboard:tn.20",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "esp:D5",
+      "bottom-breadboard:tn.19",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "esp:D18",
+      "bottom-breadboard:tn.18",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "esp:D19",
+      "bottom-breadboard:tn.17",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "esp:D21",
+      "bottom-breadboard:tn.16",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "esp:D22",
+      "bottom-breadboard:tn.14",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "esp:D23",
+      "bottom-breadboard:tn.13",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "esp:3V3",
+      "top-breadboard:30b.j",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "esp:GND.1",
+      "top-breadboard:29b.j",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "esp:D15",
+      "top-breadboard:28b.j",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "esp:D2",
+      "top-breadboard:27b.j",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "esp:D4",
+      "top-breadboard:26b.j",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "esp:RX2",
+      "top-breadboard:25b.j",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "esp:TX2",
+      "top-breadboard:24b.j",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "esp:D5",
+      "top-breadboard:23b.j",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "esp:D18",
+      "top-breadboard:22b.j",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "esp:D19",
+      "top-breadboard:21b.j",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "esp:D21",
+      "top-breadboard:20b.j",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "esp:RX0",
+      "top-breadboard:19b.j",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "esp:TX0",
+      "top-breadboard:18b.j",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "esp:D22",
+      "top-breadboard:17b.j",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "esp:D23",
+      "top-breadboard:16b.j",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "D1:A",
+      "top-breadboard:25t.c",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "D1:C",
+      "top-breadboard:26t.c",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "D2:A",
+      "top-breadboard:17t.d",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "D2:C",
+      "top-breadboard:16t.d",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "10uF-C2:A",
+      "bottom-breadboard:tp.1",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "10uF-C2:C",
+      "bottom-breadboard:tp.2",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "10uF-C2:A",
+      "top-breadboard:2b.i",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "10uF-C2:C",
+      "top-breadboard:3b.i",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "10uF-C3:A",
+      "bottom-breadboard:tp.6",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "10uF-C3:C",
+      "bottom-breadboard:tp.7",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "10uF-C3:A",
+      "top-breadboard:8b.i",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "10uF-C3:C",
+      "top-breadboard:9b.i",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "100nF-C1:A",
+      "bottom-breadboard:3t.d",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "100nF-C1:C",
+      "bottom-breadboard:2t.d",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "100nF-C4:A",
+      "bottom-breadboard:6t.d",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "100nF-C4:C",
+      "bottom-breadboard:5t.d",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "button:1.l",
+      "bottom-breadboard:11t.e",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "button:2.l",
+      "bottom-breadboard:9t.e",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "button:1.r",
+      "bottom-breadboard:11b.j",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "button:2.r",
+      "bottom-breadboard:9b.j",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "HV1:A",
+      "level-shifter:2t.e",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "HV1:C",
+      "level-shifter:1t.e",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "HV2:A",
+      "level-shifter:5t.e",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "HV2:C",
+      "level-shifter:4t.e",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "HV:A",
+      "level-shifter:8t.e",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "HV:C",
+      "level-shifter:7t.e",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "GNDH:A",
+      "level-shifter:11t.e",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "GNDH:C",
+      "level-shifter:10t.e",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "HV3:A",
+      "level-shifter:14t.e",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "HV3:C",
+      "level-shifter:13t.e",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "HV4:A",
+      "level-shifter:17t.e",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "HV4:C",
+      "level-shifter:16t.e",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "LV1:A",
+      "level-shifter:2b.i",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "LV1:C",
+      "level-shifter:1b.i",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "LV2:A",
+      "level-shifter:5b.i",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "LV2:C",
+      "level-shifter:4b.i",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "LV:A",
+      "level-shifter:8b.i",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "LV:C",
+      "level-shifter:7b.i",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "GNDL:A",
+      "level-shifter:11b.i",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "GNDL:C",
+      "level-shifter:10b.i",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "LV3:A",
+      "level-shifter:14b.i",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "LV3:C",
+      "level-shifter:13b.i",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "LV4:A",
+      "level-shifter:17b.i",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "LV4:C",
+      "level-shifter:16b.i",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "R1:1",
+      "top-breadboard:19t.d",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "R1:2",
+      "top-breadboard:25t.d",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "R2:1",
+      "top-breadboard:tp.14",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "R2:2",
+      "top-breadboard:17t.c",
+      "",
+      [
+        "$bb"
+      ]
+    ]
+  ],
+  "dependencies": {}
+}
