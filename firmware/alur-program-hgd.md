@@ -6,7 +6,7 @@ title: Alur Program - Hand Grip Dynamometer
 # Alur Program - Hand Grip Dynamometer (v5)
 **Proyek akhir - embedded system**
 
-> **Status (24 Okt. 2026): firmware langkah 0-10 dan `laptop/logger.py` sudah dikode dan diuji di papan** (`firmware/hgd/`, `laptop/`); bagian yang belum dikode (langkah 10c, 11, `kalibrasi.py`) masih rencana. Bagian yang bertanda ✔ sudah selesai. Sketsa uji modul (U4, U7, U8) sudah ada di `sketches/` (Bagian 11.3); langkah uji bench ada di [protokol-uji-bench-hgd.md](protokol-uji-bench-hgd.md). Versi v5 (18 Okt. 2026), perubahan:
+> **Status (24 Okt. 2026): firmware langkah 0-10c dan `laptop/logger.py` sudah dikode dan diuji di papan** (`firmware/hgd/`, `laptop/`); bagian yang belum dikode (langkah 11, `kalibrasi.py`, skrip grafik) masih rencana. Bagian yang bertanda ✔ sudah selesai. Sketsa uji modul (U4, U7, U8) sudah ada di `sketches/` (Bagian 11.3); langkah uji bench ada di [protokol-uji-bench-hgd.md](protokol-uji-bench-hgd.md). Versi v5 (18 Okt. 2026), perubahan:
 > - (1) **Aturan LED baru** (menyala selama plateau di `GENGGAM`, tetap menyala sampai genggaman dilepas, kedip 5 detik setelah tiap restart, mati di galat) **menggantikan spesifikasi proposal S5** (LED menyala sepanjang `GENGGAM`), karena LED kini memberi dua sinyal: "genggaman stabil" dan "restart" (Bagian 10.3).
 > - (2) **S2 diubah**: hitung mundur istirahat digambar ulang tiap `T_REFRESH_LCD_MS` = 500 ms, bukan 100 ms ±10-20 ms (aturan modul praktikum; A6 dan A7 selesai).
 > - (3) **Reset total**: tahan tombol 15 detik di state apa pun; nomor sesi naik, baris `E` `FORCE_RESET`; uji X11a-c.
@@ -100,7 +100,7 @@ Dokumen ini memakai nama Indonesia; kode memakai identifier bahasa Inggris (isti
 | Fase `GENGGAM` | `MENUNGGU_MULAI`, `MENGHITUNG` | `WAIT_ONSET`, `MEASURING` |
 | Sub-fase `RESPON_ISTIRAHAT` | `LEPAS_ISTIRAHAT`, `TUNGGU_LANJUT` | `RELEASE_REST`, `WAIT_NEXT` |
 | Jenis galat (`JenisGalat` → `FaultType`) | `GALAT_NONE`, `HX711_TIMEOUT`, `ADC_SATURASI`, `DI_LUAR_RENTANG`, `READING_INVALID` | `FAULT_NONE`, `HX711_TIMEOUT`, `ADC_SATURATED`, `OUT_OF_RANGE`, `READING_INVALID` |
-| Jalur keluar (`KeluarGenggam` → `GripExit`) | `TETAP`, `DILEPAS_AWAL`, `PLATEAU`, `BATAS_5S` | `EXIT_NONE`, `EXIT_EARLY_RELEASE`, `EXIT_PLATEAU`, `EXIT_TIMEOUT` |
+| Jalur keluar (`KeluarGenggam` → `GripExit`) | `TETAP`, `DILEPAS_AWAL`, `DILEPAS`, `BATAS_5S`, `GALAT`, `RESET_TOTAL`, `PENJAGA_NOL` | `EXIT_NONE`, `EXIT_EARLY_RELEASE`, `EXIT_RELEASE`, `EXIT_TIMEOUT`, `EXIT_FAULT`, `EXIT_FORCE_RESET`, `EXIT_ZERO_GUARD` (langkah 6d: `PLATEAU` diganti `DILEPAS`; langkah 10c: 4-6) |
 | Tekanan (`Tekan` → `Press`) | `TIDAK`, `TAP`, `TAHAN` | `PRESS_NONE`, `PRESS_TAP`, `PRESS_HOLD` |
 | Struct | `Percobaan`, `Sesi`, `Sensor`, `StatusTombol`, `StatusCatat` | `Trial`, `Session`, `SensorState`, `ButtonState`, `LogState` |
 | Fungsi | `tombolInit`, `isrTombol`, `tombolUpdate`, `tombolReset`, `tombolLamaTahan` | `buttonInit`, `isrButton`, `buttonUpdate`, `buttonReset`, `buttonHeldMs` |
@@ -120,7 +120,7 @@ Dokumen ini memakai nama Indonesia; kode memakai identifier bahasa Inggris (isti
 | Konstanta | `T_DEBOUNCE_MS`, `T_TAHAN_MS`, `T_REFRESH_LCD_MS`, `T_TUNGGU_HX711_MS`, `T_ACK_MS` | `DEBOUNCE_MS`, `HOLD_MS`, `LCD_REFRESH_MS`, `HX711_TIMEOUT_MS`, `ACK_TIMEOUT_MS` |
 | Konstanta | `REF_MIN_KG` / `REF_MAX_KG`, `THRESHOLD_STABIL_KG`, `T_TARE_SAMPEL` | `MIN_FORCE_KG` / `MAX_FORCE_KG`, `THRESHOLD_STABLE_KG`, `TARE_SAMPLES` |
 | Konstanta | `SKALA_COUNTS_PER_KG`, `SATURASI_FRAKSI`, `T_SAMA_N` | `SCALE_COUNTS_PER_KG`, `SATURATION_FRACTION`, `SAME_RAW_N` |
-| Saklar build | `DEBUG_CMD` | `DEBUG_CMD` |
+| Saklar build | `DEBUG_CMD`, `LOG_RAW` (langkah 10c) | `DEBUG_CMD`, `LOG_RAW` |
 | Sama di keduanya | `THRESHOLD_ONSET_KG`, `ADC_MAX`, `I2C_HZ`, `BAUD`, `LED_BLINK_MS`, `LED_BLINK_TOTAL_MS`, `FORCE_RESET_MS`, `FORCE_RESET_SHOW_MS`, `SAVE_FAILED_PAGE_MS`, `SUMMARY_PAGE_MS`, `SAMPLE_MIN_GAP_MS`, `SHORT_GAP_N` | sama |
 
 ### 1.5 Struktur berkas sisi laptop
@@ -147,7 +147,7 @@ Dokumen ini memakai nama Indonesia; kode memakai identifier bahasa Inggris (isti
 | `FaseGenggam` | `MENUNGGU_MULAI=1`, `MENGHITUNG=2` | Dua fase di dalam `GENGGAM` |
 | `FaseRespon` | `LEPAS_ISTIRAHAT=1`, `TUNGGU_LANJUT=2` | Dua sub-fase `RESPON_ISTIRAHAT` |
 | `JenisGalat` | `GALAT_NONE=0`, `HX711_TIMEOUT`, `ADC_SATURASI`, `DI_LUAR_RENTANG`, `READING_INVALID` (v5) | Kegagalan sensor yang dicatat |
-| `KeluarGenggam` | `TETAP=0`, `DILEPAS_AWAL`, `PLATEAU`, `BATAS_5S` | Tiga jalur keluar `GENGGAM` |
+| `KeluarGenggam` | `TETAP=0`, `DILEPAS_AWAL=1`, `DILEPAS=2`, `BATAS_5S=3`, `GALAT=4`, `RESET_TOTAL=5`, `PENJAGA_NOL=6` | Jalur keluar `GENGGAM` (1-3) dan cara lain sebuah upaya genggam berakhir (4-6, langkah 10c). Angkanya juga kolom `keluar` penanda `M` (Bagian 9.2), jadi urutan tidak boleh diubah |
 | `Tekan` | `TIDAK=0`, `TAP`, `TAHAN` | Hasil klasifikasi tekanan tombol |
 
 > **Kenapa nilai 0 dipilih begini?** Semua struct di-reset dengan `memset(..., 0, ...)`, jadi arti nilai 0 tiap enum disengaja (sama dengan komentar di `types.h`): `JenisGalat`, `KeluarGenggam`, `Tekan` → 0 = "tidak ada" (`GALAT_NONE`, `TETAP`, `TIDAK`); `State` → 0 = `SIAP`, supaya `memset` meninggalkan mesin di `SIAP` (titik awal yang aman); `FaseGenggam` dan `FaseRespon` mulai dari 1, sehingga 0 berarti "belum dimulai".
@@ -169,6 +169,18 @@ hasil[3]     → Percobaan
 peak, avg    → dihitung sekali di RINGKASAN
 t0Ms         → millis() saat sesi mulai (untuk penanda T+mm:ss)
 ```
+
+### Struct `PenandaGenggam` (`GripMarker`, langkah 10c)
+Isi satu baris penanda `M` (Bagian 9.2), diisi `gripAttemptEnd()` di `fsm.cpp` saat sebuah upaya genggam berakhir. Semua waktu dalam ms sejak upaya mulai; −1 = tidak ada.
+```
+sesi, percobaan, upaya  → nomor sesi, nomor percobaan, nomor upaya sejak boot
+keluar                  → KeluarGenggam (1-6)
+onsetMs, akhirMs        → sampel onset (waktu nol grafik) dan saat upaya berakhir
+jendelaAwalMs/AkhirMs   → sampel pertama dan terakhir jendela 5 sampel yang menjadi ref
+ref, puncak             → hasil (kg; −1 bila upaya tidak sampai HITUNG) dan sampel tertinggi fase 2
+demo, galat, n          → ada sampel skala demo; kode galat 1-4 (0 = tidak); jumlah baris G terkirim
+```
+Pencatat upaya di `fsm.cpp` (semua statis): nomor upaya, waktu mulai, waktu sampel terakhir yang dikirim, cincin `winTimes[5]` (waktu 5 sampel terakhir fase 2, sejajar buffer plateau), dan awal/akhir jendela terkuat dan jendela stabil terkuat.
 
 ### Struct `Sensor`
 ```
@@ -233,6 +245,7 @@ Hanya dua: `StatusTombol.isrFlag` dan `StatusTombol.isrLastMs`, keduanya `volati
 | `FORCE_RESET_MS` | 15000 | Tahan tombol selama ini di state apa pun = reset total |
 | `FORCE_RESET_SHOW_MS` | 3000 | Setelah ditahan selama ini, LCD menampilkan hitung mundur reset total |
 | `SAVE_FAILED_PAGE_MS` | 3000 | Selang ganti halaman layar `GAGALSIMPAN` |
+| `SERIAL_TX_BUF` | 1024 | Buffer kirim serial (byte), dipasang sebelum `Serial.begin()` (langkah 10c). Tanpa buffer, `Serial.print()` menunggu bila FIFO UART 128 byte penuh; saat keluar `GENGGAM` satu putaran mencetak ≈ 200 byte |
 | `SUMMARY_PAGE_MS` | 2000 | `RINGKASAN` setelah semua ACK: baris 2 bergantian `Data tersimpan` / `Tekan: RESTART` (uji papan langkah 10: `Menyimpan...` hanya < 0,1 s, tidak terbaca) |
 | `LAJU_HX711` | 10 SPS | Bawaan papan modul (hanya spesifikasi, tidak ada di `config.h`; diatur pin RATE di modul, bukan firmware) |
 
@@ -260,6 +273,7 @@ Hanya dua: `StatusTombol.isrFlag` dan `StatusTombol.isrLastMs`, keduanya `volati
 | E3 | Angka berubah di LCD, refresh 50-500 ms (sketsa `uji_lcd_i2c` mencetak durasi tiap redraw) | Refresh LCD |
 | E4 | Uji tekan-tahan (tap vs tahan) | Ambang tahan |
 | E5 | 100 baris CSV + ACK | Timeout ACK |
+| E7 | Waktu `loop()` dan ACK dengan rekaman genggaman (langkah 10c) | ✔ **24 Okt. 2026**, putaran `loop()` terlama selama `GENGGAM` (`[INFO] loop terlama`): build langkah 10 (acuan, tanpa baris G) 28,05-28,25 ms; `LOG_RAW 0` 28,45-28,76 ms; `LOG_RAW 1` 28,30-29,11 ms (naik ≤ 0,9 ms, dalam variasi antar-uji; semua jauh di bawah `SAMPLE_MIN_GAP_MS` 40 ms). Uji ACK `u`: `LOG_RAW 0` 100/100, terlama 6,2 ms; `LOG_RAW 1` 100/100, terlama 7,0 ms |
 | E6 | Tarik kabel load cell perlahan | Besar pergeseran pembacaan akibat kabel (dokumen [desain-housing-load-cell.md](../housing-load-cell/desain-housing-load-cell.md)) |
 
 ---
@@ -494,6 +508,7 @@ SESI (3 percobaan)
 - *Definisi (langkah 6):* **plateau genggaman** = buffer penuh, (maks − min) ≤ `THRESHOLD_STABIL_KG`, **dan semua 5 sampel > `THRESHOLD_ONSET_KG`**. Syarat terakhir ditambahkan karena tangan yang sudah lepas (kg ≈ 0, sangat stabil) terbaca sebagai plateau dan `ref` menjadi ≈ 0 kg (terjadi di uji langkah 5: ref −0,05 kg). **Nilai buffer terbaik** = jendela terkuat (rata-rata tertinggi jendela 5 sampel di atas onset), definisi di Bagian 5.11. Dilepas setelah 3 detik tanpa plateau: percobaan berakhir saat itu juga (langkah 6d) dengan nilai buffer terbaik dari saat masih digenggam.
 - *Serial (langkah 6):* `[GRIP] exit=EARLY_RELEASE t=…`, `[GRIP] exit=PLATEAU t=… sebaran=…`, `[GRIP] exit=TIMEOUT t=… jendela terkuat rata=…`.
 - Tidak ada kondisi "gaya turun ke ambang" generik untuk mengakhiri genggaman: akhir ditentukan plateau atau batas 5 detik. Threshold hanya menentukan kapan timer mulai dan kapan percobaan di-reset.
+- *Upaya dan rekaman (langkah 10c):* satu **upaya** = dari masuk `GENGGAM` (atau sesudah dilepas terlalu awal) sampai `GENGGAM` berakhir dengan cara apa pun; satu percobaan bisa punya beberapa upaya. Selama upaya terbuka, tiap sampel baru dikirim sebagai baris `G` (bila `LOG_RAW` = 1); saat upaya berakhir dikirim satu penanda `M` dengan jalur keluarnya (Bagian 9.2): dilepas awal, dilepas, batas 5 s (dari `HITUNG`, setelah ref dan cek rentang), galat (transisi pengecualian), reset total, atau penjaga nol. Sampel baru dicatat **sebelum** cek galat di `fsmRun()`, supaya sampel yang memicu galat (> 80 kg, saturasi) ikut terekam; galat tetap terpicu pada putaran yang sama. `HX711_TIMEOUT` tidak punya sampel, jadi tidak menambah baris `G`. Puncak upaya yang diputus galat hanya untuk rekaman: tidak pernah menjadi hasil percobaan dan tidak ikut Mx/Av.
 - *Cek rentang live (v5):* pada tiap sampel di kedua fase, kg > `REF_MAX_KG` (80 kg) → langsung `ERROR` (`DI_LUAR_RENTANG`), LED mati, tanpa menunggu percobaan selesai. Batas 80 kg = kapasitas nominal load cell CZL 601.
 
 **[HITUNG]**
@@ -746,57 +761,80 @@ Massa batang B ≈ 138 g di ujung bebas load cell menggeser offset bila orientas
 
 ### 9.1 Alur
 ```
-ESP32 ── Serial.print(baris) ──► logger.py ── tulis + flush ──► berkas CSV
-   ▲                                  │
-   └────────── ACK,<seq> / NAK,<seq> ◄┘
+ESP32 ── Serial.print(baris) ──► logger.py ── tulis + flush + fsync ──► hgd_YYYYMMDD.csv         (T, S)
+   ▲                                  │                              ├► hgd_galat_YYYYMMDD.csv   (E)
+   └────────── ACK,<seq> / NAK,<seq> ◄┘                              └► hgd_genggam_YYYYMMDD.csv (G, M)
 ```
+Baris `T`, `S`, `E`, `M` (dan uji `U`) menunggu ACK. Baris `G` (langkah 10c) tidak di-ACK: `logger.py` menyimpannya di memori per upaya genggam dan baru menulisnya bersama penanda `M` upaya itu, jadi ACK penanda berarti "rekaman upaya ini sudah di disk".
 
 ### 9.2 Format baris dari ESP32 (115200 baud, satu baris per `\n`)
+Semua baris diawali bagian yang sama (langkah 10c):
 ```
-HGD,<jenis>,<seq>,<sesi>,<percobaan>,<nilai1>,<nilai2>*<checksum>
+HGD,<jenis>,<seq>,<boot>,<kolom jenis itu...>*<checksum>
 ```
-| Jenis | Isi | Contoh |
-|-------|-----|--------|
-| `T` | Hasil satu percobaan: `nilai1` = gaya (kg) | `HGD,T,12,3,2,46.82,0*0B` |
-| `S` | Ringkasan sesi: `nilai1` = puncak, `nilai2` = rerata | `HGD,S,14,3,0,47.20,44.85*12` |
-| `E` | Galat atau kejadian: `percobaan` = nomor, `nilai1` = kode (tabel di bawah), `nilai2` = detik sejak sesi mulai | `HGD,E,15,3,2,3,41*3D` |
+- `seq` = nomor urut baris sejak boot (1, 2, 3, ...), dibalas `ACK,<seq>` / `NAK,<seq>`; balasan dengan `seq` lain (mis. ACK terlambat) diabaikan. `seq` 0 = baris tanpa ACK (`G`).
+- `boot` (langkah 10c) = 4 digit heksadesimal acak yang dipilih sekali saat ESP32 menyala (`random()` = pembangkit acak perangkat keras; peluang dua boot sama 1 : 65 536), dicetak `[LOG] boot XXXX`. Setelah reset, `seq` dan nomor sesi mulai lagi dari 1, jadi sebuah baris bisa sama persis dengan baris sebelum reset; tanpa `boot`, `logger.py` mengiranya kiriman ulang (duplikat), membalas ACK, tetapi tidak menulisnya. Diuji 24 Okt. 2026: setelah reset (boot `8F4F` → `73C7`) sesi 1 / upaya 1 / seq 1 tertulis normal.
+- `checksum` = XOR semua byte dari `H` (awal `HGD`) sampai karakter tepat sebelum `*`, ditulis dua digit heksadesimal huruf besar. Baris terpotong atau rusak gagal checksum: dibalas `NAK` (baris `G`: dibuang dan dihitung).
 
-| Kode `nilai1` | Nama di `catatan` | Jenis |
+| Jenis | Kolom sesudah `boot` | Contoh (checksum asli) |
+|-------|-----|--------|
+| `T` | `sesi,percobaan,kg,demo`: hasil satu percobaan | `HGD,T,12,8F4F,3,2,46.82,0*2B` |
+| `S` | `sesi,jumlah_demo,puncak,rerata`: ringkasan sesi | `HGD,S,14,8F4F,3,0,47.20,44.85*32` |
+| `E` | `sesi,percobaan,kode,detik`: galat atau kejadian (kode di tabel bawah), detik sejak sesi mulai | `HGD,E,15,8F4F,3,2,3,41*1D` |
+| `U` | `0,0,nomor,0`: baris uji ACK (perintah `u` / `r`), tidak ditulis ke CSV | `HGD,U,5,8F4F,0,0,1,0*0A` |
+| `G` | `upaya,ms,kg,fase,demo`: satu sampel HX711 selama `GENGGAM`, **tanpa ACK** (hanya bila `LOG_RAW` = 1) | `HGD,G,0,8F4F,7,4255,47.10,2,0*2F` |
+| `M` | `sesi,percobaan,upaya,keluar,onset_ms,akhir_ms,jendela_awal_ms,jendela_akhir_ms,ref,puncak,demo,galat,n`: penanda satu upaya genggam, **dengan ACK** | `HGD,M,16,8F4F,3,2,7,2,2723,6979,4255,4595,46.82,47.31,0,0,82*04` |
+
+| Kode `E` / kolom `galat` | Nama | Jenis |
 |---|---|---|
 | 1 | `HX711_TIMEOUT` | Galat sensor (`JenisGalat`) |
 | 2 | `ADC_SATURASI` | Galat sensor (`JenisGalat`) |
-| 3 | `DI_LUAR_RENTANG` | Galat sensor (`JenisGalat`) |
+| 3 | `DI_LUAR_RENTANG` | Galat sensor (`JenisGalat`); pada penanda `M` juga untuk ref di luar rentang saat `HITUNG` |
 | 4 | `READING_INVALID` | Galat sensor (`JenisGalat`, v5) |
-| 5 | `FORCE_RESET` | **Kejadian, bukan galat sensor** (v5): reset total oleh pengawas (Bagian 6.2). Tidak termasuk `JenisGalat`; di kode `EVENT_FORCE_RESET`. `sesi` dan `percobaan` adalah nilai sebelum reset |
+| 5 | `FORCE_RESET` | **Kejadian, bukan galat sensor** (v5, hanya baris `E`): reset total oleh pengawas (Bagian 6.2). Tidak termasuk `JenisGalat`; di kode `EVENT_FORCE_RESET`. `sesi` dan `percobaan` adalah nilai sebelum reset |
 
-`checksum` = XOR semua byte dari `H` (awal `HGD`) sampai karakter tepat sebelum `*`, ditulis dua digit heksadesimal huruf besar. Baris terpotong atau rusak gagal checksum dan dibalas `NAK`.
+**Kolom baris `G` dan penanda `M` (langkah 10c).** Satu *upaya* = dari masuk `GENGGAM` (atau sesudah dilepas terlalu awal) sampai `GENGGAM` berakhir (Bagian 6.2). Semua waktu dalam ms sejak upaya mulai; −1 = tidak ada.
+- `G`: `upaya` = nomor upaya sejak boot; `ms` = waktu sampel (bukan waktu cetak); `kg`; `fase` 0 = tare berjalan (nol belum siap), 1 = menunggu onset, 2 = mengukur; `demo` 1 = skala demo `x` aktif pada sampel ini. Sesi dan percobaan tidak dikirim (hemat byte); `logger.py` mengambilnya dari penanda.
+- `M`: `keluar` = `KeluarGenggam` (1 dilepas awal, 2 dilepas 3-5 s, 3 batas 5 s, 4 galat, 5 reset total, 6 penjaga nol); `onset_ms` = sampel onset (waktu nol grafik); `akhir_ms`; `jendela_awal_ms`/`jendela_akhir_ms` = sampel pertama dan terakhir jendela 5 sampel yang menjadi ref; `ref` (−1 bila upaya tidak sampai `HITUNG`); `puncak` = sampel tertinggi fase 2; `demo` = ada sampel demo dalam upaya; `galat` = kode 1-4 bila upaya diputus galat; `n` = jumlah baris `G` yang dikirim (0 bila `LOG_RAW` = 0), supaya `logger.py` bisa melaporkan baris yang hilang. Upaya dengan `galat` ≠ 0 atau `demo` = 1 tidak boleh dicampur dengan data nyata di grafik.
 
-**Tanda demo (langkah 9):** percobaan yang diukur dengan skala demo `x` (Bagian 5.21) bukan data nyata. Baris `T`: `nilai2` = 1 untuk percobaan demo, 0 untuk percobaan nyata. Baris `S`: `percobaan` = jumlah percobaan demo dalam sesi (0 = semua nyata). `logger.py` menulis `DEMO` di kolom `catatan` untuk keduanya. Format kolom tidak berubah. `seq` dimulai dari 1 sejak boot; balasan dengan `seq` lain (mis. ACK terlambat) diabaikan.
+**Tanda demo (langkah 9):** percobaan yang diukur dengan skala demo `x` (Bagian 5.21) bukan data nyata. Baris `T`: `demo` = 1. Baris `S`: `jumlah_demo` = jumlah percobaan demo dalam sesi (0 = semua nyata). `logger.py` menulis `DEMO` di kolom `catatan` untuk keduanya.
 
-**Baris uji `U` (langkah 10):** `HGD,U,seq,0,0,<nomor>,0*CS`, dikirim hanya oleh perintah debug `u` (100 baris, uji U9/E5) dan `r` (satu baris dengan checksum sengaja salah pada kiriman pertama, uji U10). `logger.py` membalas ACK/NAK seperti baris lain tetapi tidak menulisnya ke CSV.
-
-**Kode (langkah 9):** `serial_log.cpp`: antrean 8 baris statis, dikirim satu per satu; `logPoll()` tiap `loop()` membaca `ACK,<n>`/`NAK,<n>` dan huruf perintah debug (huruf kecil di awal baris; ACK/NAK selalu huruf besar), lalu mengirim baris terdepan atau mengirim ulang setelah `T_ACK_MS` (2 s di uji ini; 750 ms sejak langkah 9b). Uji 23 Okt. 2026 lewat skrip (baris `E` dari perintah `s`): tanpa balasan → kirim ulang 2 s → gagal 2 s kemudian; `ACK` → selesai; `NAK` → kirim ulang seketika → `ACK`; `ACK` dengan `seq` salah → diabaikan (sama dengan tanpa balasan). Checksum cocok dengan perhitungan terpisah.
+**Kode:** `serial_log.cpp`: antrean 8 baris statis (≤ 96 karakter per baris, penanda `M` ≈ 63-75), dikirim satu per satu; `logPoll()` tiap `loop()` membaca `ACK,<n>`/`NAK,<n>` dan huruf perintah debug (huruf kecil di awal baris; ACK/NAK selalu huruf besar), lalu mengirim baris terdepan atau mengirim ulang setelah `T_ACK_MS` (500 ms). Baris `G` dicetak langsung (`logGripSample()`), tidak lewat antrean. Uji 23 Okt. 2026 (langkah 9, format lama): tanpa balasan → kirim ulang → gagal; `ACK` → selesai; `NAK` → kirim ulang seketika → `ACK`; `ACK` dengan `seq` salah → diabaikan. Uji 24 Okt. 2026 (format 10c): U9 100/100 ACK (terlama 7,0 ms), U10 NAK → kiriman ulang → ACK.
 
 ### 9.3 Format berkas CSV (dari `logger.py`)
+Tiga berkas per hari (langkah 10c), header ditulis sekali di awal tiap berkas; semua cocok dengan pola `hgd_*.csv` yang diabaikan git.
+
+**`hgd_YYYYMMDD.csv`**: baris `T` dan `S` (kolom tidak berubah dari langkah 10):
 ```
 timestamp,sesi,jenis,percobaan,gaya_kg,rerata_kg,catatan
-2026-10-21T10:15:32,3,T,2,46.82,,
-2026-10-21T10:16:40,3,S,0,47.20,44.85,
-2026-10-21T10:17:05,3,E,2,3,41,DI_LUAR_RENTANG
+2026-10-24T11:21:57,1,T,1,1.40,,
+2026-10-24T11:21:57,1,S,0,1.60,1.52,
 ```
-- `timestamp` diberikan `logger.py` dari jam laptop saat menulis (ESP32 tidak punya jam kalender).
-- `catatan` memuat nama jenis galat atau kejadian (`FORCE_RESET`) untuk baris `E`.
-- Satu berkas per hari: `hgd_YYYYMMDD.csv`; header ditulis sekali di awal berkas.
+**`hgd_galat_YYYYMMDD.csv`**: baris `E` (sebelum langkah 10c di berkas harian):
+```
+timestamp,boot,sesi,percobaan,kode,nama,detik_sesi
+2026-10-24T11:29:45,8F4F,2,1,3,DI_LUAR_RENTANG,463
+```
+**`hgd_genggam_YYYYMMDD.csv`**: tiap baris `G` lalu satu baris `M` per upaya. `t_onset_s` = (`ms` − `onset_ms`) / 1000, dihitung `logger.py` (negatif sebelum onset; kosong bila upaya tanpa onset). Kolom penanda kosong pada baris `G`.
+```
+timestamp,boot,sesi,percobaan,upaya,jenis,ms,t_onset_s,kg,fase,demo,keluar,onset_ms,akhir_ms,jendela_awal_ms,jendela_akhir_ms,ref_kg,puncak_kg,galat,n,catatan
+2026-10-24T11:20:25,8F4F,1,1,3,G,4255,1.532,1.39,2,0,,,,,,,,,,
+2026-10-24T11:20:27,8F4F,1,1,3,M,,,,,0,RELEASE,2723,6979,4255,4595,1.40,1.41,,82,
+```
+- `timestamp` diberikan `logger.py` dari jam laptop saat menerima (ESP32 tidak punya jam kalender).
+- `catatan` pada baris `M`: `ditulis terlambat` (Bagian 9.4 butir 9), `n=…, diterima …` (baris `G` hilang); pada baris `G`: `tanpa penanda` (penanda tidak pernah diterima).
 
 ### 9.4 Perilaku `logger.py`
-1. Buka port (argumen: nama port, baud 115200) dan berkas CSV (mode tambah).
-2. Baca baris; validasi awalan `HGD`, jumlah kolom, dan checksum.
-3. Valid → tulis baris CSV, `flush()`, balas `ACK,<seq>`.
-4. Tidak valid → balas `NAK,<seq>` (bila `seq` terbaca), tanpa menulis.
-5. Cetak ke layar tiap baris yang diterima, supaya pengawas melihat bahwa pencatat hidup.
-6. Tidak menutup berkas sampai dihentikan; `flush()` tiap baris menjamin data tidak hilang bila laptop mati mendadak.
-7. **Kode (langkah 10):** [`laptop/logger.py`](../laptop/logger.py). Tambahan dari rancangan: (a) port dibuka dengan RTS dan DTR mati, jadi membuka atau menjalankan ulang `logger.py` **tidak me-reset ESP32** (RTS terhubung ke EN pada DevKit) dan sesi di RAM tidak hilang; (b) baris yang dikirim ulang karena ACK hilang dibalas ACK lagi tetapi tidak ditulis dua kali (32 baris terakhir diingat); (c) byte sampah di depan `HGD,` (kadang muncul di jalur USB) dilewati, sedangkan isi baris tetap dijaga checksum; (d) tombol `t p x s u r` yang diketik di konsol diteruskan ke ESP32 (`msvcrt`, Windows); (e) opsi uji `--kirim <huruf>`; (f) **baris ditulis dan di-`flush()` (plus `fsync`) SEBELUM ACK dikirim**, karena ACK berarti "sudah tertulis" (Bagian 4.8); berkas dibuka-tulis-tutup per baris, dan bila penulisan gagal (mis. `PermissionError` karena CSV sedang dibuka di Excel) `logger.py` mencetak galatnya dan membalas **NAK**, sehingga ESP32 mengirim ulang lalu masuk `GAGALSIMPAN`; `logger.py` tetap berjalan. Berkas CSV `hgd_*.csv` diabaikan git (`.gitignore`) supaya data pengukuran tidak masuk repo publik.
-8. **Uji 23 Okt. 2026:** U9 4 × 100/100 ACK (terlama 33,3 ms); U10 `NAK,302 (checksum salah)` → kiriman ulang → `ACK,302`; CSV dibuat read-only (sama dengan kunci Excel): `NAK,101 GAGAL MENULIS … Permission denied` dua kali → ESP32 `GAGAL setelah kirim ulang`, `logger.py` tetap berjalan, CSV tidak berubah; baris `E` dari perintah `s` tertulis `…,1,E,1,2,130,ADC_SATURASI`.
+1. Buka port (argumen: nama port, baud 115200).
+2. Baca baris; validasi awalan `HGD`, jumlah kolom sesuai jenis (`T S E U` 8, `G` 9, `M` 17), dan checksum.
+3. Valid → tulis ke berkas sesuai jenis, `flush()` + `fsync`, **baru** balas `ACK,<seq>` (ACK berarti "sudah tertulis", Bagian 4.8). Berkas dibuka-tulis-tutup tiap kali, supaya berkas yang dikunci program lain terdeteksi.
+4. Tidak valid, atau gagal ditulis (mis. `PermissionError` karena CSV dibuka di Excel) → galat dicetak, balas `NAK,<seq>`; `logger.py` tetap berjalan. Baris `G` yang rusak tidak dibalas: dibuang dan dihitung.
+5. Cetak ke layar tiap baris ber-ACK dan tiap teks debug ESP32 (baris `G` tidak dicetak satu per satu; jumlahnya tampil pada baris penanda).
+6. **Kode (langkah 10):** [`laptop/logger.py`](../laptop/logger.py). (a) Port dibuka dengan RTS dan DTR mati, jadi membuka atau menjalankan ulang `logger.py` **tidak me-reset ESP32** (RTS terhubung ke EN pada DevKit); (b) baris yang dikirim ulang karena ACK hilang dibalas ACK lagi tetapi tidak ditulis dua kali (32 baris terakhir diingat; **langkah 10c: kuncinya seluruh baris termasuk `boot`**, jadi baris yang sama setelah reset ESP32 tetap ditulis); (c) byte sampah di depan `HGD,` dilewati; (d) tombol `t p x s u r` di konsol diteruskan ke ESP32 (`msvcrt`, Windows); (e) opsi uji `--kirim <huruf>`. Berkas `hgd_*.csv` diabaikan git supaya data pengukuran tidak masuk repo publik.
+7. **Rekaman genggaman (langkah 10c):** baris `G` disimpan di memori per upaya (kunci `boot` + `upaya`). Saat penanda `M` upaya itu datang, semua baris `G`-nya + baris `M` ditulis sekaligus, lalu ACK. Bila `n` ≠ jumlah baris `G` yang diterima, catatan `n=…, diterima …`.
+8. **Baris `G` tanpa penanda** (ESP32 reset di tengah upaya, `logger.py` mulai di tengah upaya) ditulis sendiri setelah 10 s tanpa sampel baru, dengan catatan `tanpa penanda`.
+9. **Berkas genggaman terkunci:** penanda dibalas `NAK` seperti biasa; **`NAK` tetap berarti "tidak tertulis sekarang"**, dan ESP32 mengirim ulang sekali lalu membuang penanda itu (tidak pernah `GAGALSIMPAN`, Bagian 9.5 butir 6). `logger.py` menyimpan penanda yang sudah diterimanya (kunci `boot` + `seq`, jadi kiriman ulang tidak tersimpan dua kali) bersama baris `G`-nya, dan mencoba menulisnya lagi tiap 5 s; berhasil → catatan `ditulis terlambat`, dan kiriman ulang yang datang sesudahnya hanya di-ACK. Penulisan terlambat ini **hanya usaha terbaik**: rekaman tertunda dibatasi 50 upaya / 20 000 baris `G` (≈ 29 menit genggaman; di atasnya upaya tertua dibuang dengan peringatan), dan saat Ctrl+C dicoba sekali lagi; bila tetap gagal, jumlah upaya dan baris yang hilang dicetak (`HILANG: …`). Satu baris peringatan per putaran coba ulang.
+10. **Uji:** 23 Okt. 2026 (langkah 10): U9 4 × 100/100 ACK (terlama 33,3 ms); U10 NAK → ACK; CSV read-only → NAK dua kali → `GAGAL setelah kirim ulang`, CSV tidak berubah. 24 Okt. 2026 (langkah 10c): U11-U13, X15, X16, E7 (Bagian 11, 3.3).
 
 ### 9.5 Urutan di `RINGKASAN`
 1. Kirim 3 baris `T` (satu per percobaan), lalu 1 baris `S`; tiap baris menunggu `ACK` sendiri.
@@ -804,9 +842,12 @@ timestamp,sesi,jenis,percobaan,gaya_kg,rerata_kg,catatan
 3. Ada baris yang gagal setelah satu kali kirim ulang → `GAGALSIMPAN`. Nilai tampil di konsol `logger.py` bila masih hidup; bila `logger.py` sudah berhenti, salin dari layar LCD `GAGALSIMPAN` (bergantian tiap 3 detik, Bagian 10.2). Jangan membuka Serial Monitor lebih dulu (me-reset ESP32, A8).
 4. Baris galat `E` dikirim saat masuk `ERROR`. Bila ACK-nya gagal, galat tetap tampil di LCD dan di konsol `logger.py` / Serial.
 5. Baris `E` `FORCE_RESET` dikirim saat reset total; kiriman lain yang masih menunggu ACK dibatalkan lebih dulu. Bila ACK-nya gagal, reset tetap berjalan (tidak masuk `GAGALSIMPAN`).
+6. **Penanda `M` (langkah 10c)** tidak pernah menunda atau menggagalkan baris `T`/`S`. Penanda yang gagal setelah kirim ulang hanya dibuang dengan peringatan `[LOG] PERINGATAN: penanda genggaman seq … dibuang` dan tidak dihitung sebagai gagal kelompok. Penanda dikirim paling lambat di `HITUNG` percobaan 3 dan paling lama ≈ 1 s di antrean, jadi biasanya antrean sudah kosong saat `RINGKASAN`; bila belum, `logBatchStart()` membuang penanda yang masih di depan antrean sebelum baris ringkasan dimasukkan.
 
 ### 9.6 Prasyarat dan batasan
 - Laptop host tersambung USB dan `logger.py` sudah berjalan **sebelum** sesi dimulai.
+- **Beban serial (langkah 10c):** 115200 baud ≈ 11 520 byte/s. Baris `G` ≈ 32-35 byte × 11,6 sampel/s ≈ 400 byte/s (≈ 3,5 %); penanda `M` ≈ 65-80 byte per upaya; bersama teks debug < 5 %. `SERIAL_TX_BUF` 1024 byte mencegah `Serial.print()` menunggu FIFO (E7: putaran `loop()` terlama naik ≤ 0,9 ms).
+- **Jalur USB:** selama uji, kadang 64 byte berturut-turut tiba sebagai `0xFF` (satu paket USB CP210x), kadang menggantikan teks asli. Baris ber-ACK dilindungi checksum + kirim ulang; baris `G` yang rusak dibuang dan tercatat lewat `n` di penanda.
 - Alat bukan data logger mandiri.
 - **Tidak dipakai:** modul SD card (lab hanya punya satu unit, risiko rebutan) dan cloud sebagai jalur utama.
 - **Stretch goal:** pengiriman cloud asinkron setelah CSV tersimpan, dan dashboard tren antar sesi.
@@ -901,7 +942,11 @@ timestamp,sesi,jenis,percobaan,gaya_kg,rerata_kg,catatan
 | U7 | Baca HX711 (sketsa `uji_hx711`): respons, noise, tare, tanda, lama tunggu DT | Tidak "NO RESPONSE", nilai berubah saat ditekan; lama tunggu DT dicatat (Bagian 18) | ✔ 15 Okt. 2026: DT turun, nilai berubah saat ditekan; ≈ 11,8 sampel/s |
 | U8 | Tombol dan LED: debounce, tap vs tahan. Sketsa `uji_tombol_led` (logika v4) dan **firmware utama langkah 1** (`hgd.ino` + `button.cpp`, logika v5: debounce saat lepas, `sawLow`, abaikan sampai dilepas, hitung mundur reset total). Uji 10/10 dijalankan dengan firmware utama | 10 tap = 10 TAP; 10 tahan = 10 TAHAN tanpa TAP tambahan saat dilepas | ◐ 15-16 Okt. 2026 kumulatif: 5 tap = 5 TAP, 3 tahan = 3 TAHAN, tanpa TAP tambahan; uji 10/10 belum |
 | U9 | ACK: 100 baris, tiap baris berbalas | 100/100 ACK | ✔ 23 Okt. 2026: 4 × 100/100 (perintah `u`, `logger.py` asli), terlama 33,3 ms |
-| U10 | Format baris dan checksum | Baris rusak dibalas NAK | ✔ 23 Okt. 2026: perintah `r` → `NAK,302` → kiriman ulang → `ACK,302` |
+| U10 | Format baris dan checksum | Baris rusak dibalas NAK | ✔ 23 Okt. 2026: perintah `r` → `NAK,302` → kiriman ulang → `ACK,302`; ✔ 24 Okt. 2026 format 10c (dengan `boot`) |
+| U11 | Rekaman genggaman (langkah 10c): satu sesi penuh dengan `logger.py` | Tiap upaya punya satu penanda `M`; `n` = baris `G` diterima; jarak sampel ≈ 85 ms; jendela ref = 5 sampel | ✔ 24 Okt. 2026: 5 upaya, `n` = diterima di semua (130/70/82/147/82), jarak 61-103 ms, jendela 340 ms, puncak ≥ ref |
+| U12 | Dilepas sebelum 3 s, lalu genggaman penuh (langkah 10c) | Upaya dilepas awal dengan `keluar` `EARLY_RELEASE`, ref −1, lalu upaya baru dengan nomor berikutnya | ✔ 24 Okt. 2026 (upaya 1-2 → 3) |
+| U13 | Skala demo `x`, lalu satu percobaan (langkah 10c) | `demo` = 1 di semua baris `G` dan di penanda; `T`/`S` bertanda `DEMO` | ✔ 24 Okt. 2026: 163/163 baris `G` demo, `T` dan `S` bertanda `DEMO` |
+| U14 | `LOG_RAW` = 0 (langkah 10c) | Kompilasi; penanda tetap datang dengan `n` = 0; `logger.py` tanpa peringatan dan tanpa baris kosong | ✔ 24 Okt. 2026: 2 penanda (dilepas awal, dilepas), jendela dan puncak tetap terisi |
 
 ### 11.2 Uji galat (adversarial)
 | ID | Skenario | Hasil yang diharapkan |
@@ -922,6 +967,8 @@ timestamp,sesi,jenis,percobaan,gaya_kg,rerata_kg,catatan
 | X11c | Reset total di `GAGALSIMPAN`: tahan tombol 15 s; ulangi dengan melepas pada detik ke-10 | 1,5 s: TAHAN → sesi baru (`nomorSesi` +1), `SIAP` dengan kedip. 15 s: reset total → `nomorSesi` +1 lagi (total +2), `E` `FORCE_RESET`. Lepas di detik ke-10: tetap di `SIAP` sesi baru (+1), tanpa TAP palsu |
 | X12 | Genggaman stabil (LED menyala) ditahan sampai 5 detik (langkah 6d) | Sejak 3 s baris 2 `Lepas ok`; percobaan berakhir tepat pada 5 s (`[GRIP] exit=TIMEOUT t=5000 ms`), `ref` = jendela stabil terkuat, LED tetap menyala sampai dilepas di `RESPON_ISTIRAHAT` |
 | X13 | Genggaman stabil dilepas pada ≈ 4 detik (langkah 6d) | Percobaan berakhir saat kg < 1,0 kg (`[GRIP] exit=RELEASE t≈4000 ms`), tidak menunggu 5 s; `ref` = jendela stabil terkuat; LED mati |
+| X15 | Galat saat menggenggam (langkah 10c): `s` (saturasi) selama fase 2; `x` + tekan sampai > 80 kg | Penanda `keluar` `FAULT` dengan kode galat; baris di `hgd_galat_…`; rekaman berakhir pada sampel yang memicu galat | ✔ 24 Okt. 2026: `ADC_SATURASI` dan `DI_LUAR_RENTANG`; setelah perbaikan rekaman berakhir pada 84,28 kg = nilai `[FAULT]`, puncak 84,28, ref −1 |
+| X16 | Buka `hgd_genggam_…` di Excel selama sesi, tutup di tengah sesi (langkah 10c) | Penanda NAK dua kali lalu dibuang di ESP32, tanpa `GAGALSIMPAN`; ringkasan ber-ACK normal; setelah Excel ditutup, upaya tertunda ditulis terlambat, masing-masing tepat sekali | ✔ 24 Okt. 2026: upaya 7 dan 8 `ditulis terlambat` (82 + 69 baris `G`, lengkap dengan sesi, percobaan, `t_onset_s`), upaya 9 normal; `rekaman hilang: 0` |
 | X14 | Buka CSV hari ini di Excel, lalu jalankan satu sesi dengan `logger.py` berjalan (langkah 10) | Baris tidak bisa ditulis → `logger.py` mencetak `GAGAL MENULIS … Tutup berkas itu` dan membalas NAK → ESP32 mengirim ulang sekali → `GAGALSIMPAN` (≈ 1 s); `logger.py` tetap berjalan; setelah Excel ditutup, sesi berikutnya tersimpan normal |
 
 ### 11.3 Sketsa uji modul
@@ -949,7 +996,7 @@ Kelima sketsa memakai API yang sama di core 2.x dan 3.x (papan DOIT ESP32 DEVKIT
 ### 12.2 Sisi laptop
 1. Pasang Python 3 dan `pip install pyserial`.
 2. Dari folder repo, jalankan `python laptop/logger.py COM3 --dir ..\data` sebelum memulai sesi (CSV di folder `data` di samping repo, bukan di dalam repo). Membuka `logger.py` tidak me-reset ESP32 (langkah 10). Jangan membuka CSV hari ini di Excel selama `logger.py` berjalan (X14).
-3. Berkas CSV muncul di folder `--dir` (`hgd_YYYYMMDD.csv`; tanpa `--dir`: folder kerja).
+3. Berkas CSV muncul di folder `--dir` (tanpa `--dir`: folder kerja): `hgd_YYYYMMDD.csv`, `hgd_galat_YYYYMMDD.csv`, `hgd_genggam_YYYYMMDD.csv` (Bagian 9.3). Jangan membuka berkas genggaman di Excel selama sesi (X16); bila terlanjur, tutup lalu tunggu ≈ 5 s sampai `ditulis terlambat` muncul sebelum Ctrl+C.
 4. Untuk kalibrasi: `python kalibrasi.py <berkas-hasil>`.
 
 ### 12.3 Uji cepat load cell
@@ -959,6 +1006,8 @@ Sketsa [`uji_hx711`](sketches/uji_hx711/uji_hx711.ino) (DT = 18, SCK = 19), meng
 
 ## 13. MEMORI
 Semua alokasi statis (tanpa `malloc`/`new` di jalur utama); tidak ada struktur dengan ukuran tak diketahui. Rincian di Bagian 2.
+
+Langkah 10c: antrean log 8 × (96 + 2) byte (baris diperpanjang dari 64 untuk penanda `M`), pencatat upaya ≈ 60 byte, buffer kirim serial 1024 byte (`SERIAL_TX_BUF`, dialokasikan core sekali di `setup()`). RAM terpakai 7,2 % (23 716 dari 327 680 byte, PlatformIO).
 
 ---
 

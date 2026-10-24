@@ -1,8 +1,8 @@
 // serial_log.cpp - lihat serial_log.h.
 #include "serial_log.h"
 
-const uint8_t LOG_LINE_MAX = 64;   // baris terpanjang ~40 karakter; sisa untuk aman
-const uint8_t LOG_QUEUE_N  = 8;    // 3 T + 1 S + beberapa E sudah cukup
+const uint8_t LOG_LINE_MAX = 96;   // baris terpanjang = penanda M ~75 karakter; sisa untuk aman
+const uint8_t LOG_QUEUE_N  = 8;    // 3 T + 1 S + beberapa E / M sudah cukup
 const uint8_t IN_LINE_MAX  = 24;   // "ACK,65535" dst.
 
 // Satu baris yang menunggu dikirim / di-ACK.
@@ -16,6 +16,7 @@ static LogEntry queue[LOG_QUEUE_N];
 static uint8_t  qHead = 0;          // indeks baris terdepan (yang sedang dikirim)
 static uint8_t  qCount = 0;         // jumlah baris di antrean
 static uint16_t nextSeq = 1;        // seq berikutnya sejak boot (1, 2, 3, ...)
+static char     bootId[5] = "0000"; // nomor boot 4 digit heksadesimal (logInit)
 
 // Status baris terdepan.
 static bool     headSent = false;   // sudah dikirim, menunggu ACK
@@ -45,41 +46,72 @@ static uint8_t checksum(const char* s) {
   return cs;
 }
 
-// Susun satu baris dari bagian isi (tanpa "HGD," dan seq), tambah checksum, masukkan ke antrean.
-// body contoh: "T", "3,2", "46.82", "0"  -> "HGD,T,<seq>,3,2,46.82,0*CS"
-static uint16_t enqueue(char type, uint16_t session, uint8_t trial, const char* v1, const char* v2) {
+// Jenis baris di kepala antrean ('T', 'S', 'E', 'U', 'M'). Teks selalu diawali "HGD,<jenis>".
+static char headType() { return queue[qHead].text[4]; }
+
+void logInit() {
+  // random() di Arduino-ESP32 memakai pembangkit angka acak perangkat keras (esp_random), jadi
+  // tiap boot hampir pasti mendapat nomor lain (peluang sama 1 : 65536).
+  snprintf(bootId, sizeof(bootId), "%04lX", (unsigned long)random(0x10000));
+  Serial.printf("[LOG] boot %s\n", bootId);
+}
+
+// Susun satu baris ber-ACK: "HGD,<jenis>,<seq>,<boot>,<fields>", tambah checksum, masukkan ke
+// antrean. fields = kolom khusus jenis itu, sudah dipisah koma, mis. "3,2,46.82,0" untuk T.
+static uint16_t enqueue(char type, const char* fields) {
   if (qCount >= LOG_QUEUE_N) {
     Serial.println("[LOG] PERINGATAN: antrean penuh, baris dibuang");
     return 0;
   }
   LogEntry& e = queue[(qHead + qCount) % LOG_QUEUE_N];
   e.seq = nextSeq++;
-  if (nextSeq == 0) nextSeq = 1;   // seq 0 dipakai sebagai "tidak ada"; lewati saat meluap
+  if (nextSeq == 0) nextSeq = 1;   // seq 0 berarti "tanpa ACK" (baris G); lewati saat meluap
   char body[LOG_LINE_MAX];
-  snprintf(body, sizeof(body), "HGD,%c,%u,%u,%u,%s,%s", type, e.seq, session, trial, v1, v2);
+  snprintf(body, sizeof(body), "HGD,%c,%u,%s,%s", type, e.seq, bootId, fields);
   snprintf(e.text, sizeof(e.text), "%s*%02X", body, checksum(body));
   qCount++;
   return e.seq;
 }
 
 uint16_t logTrial(uint16_t session, uint8_t trial, float kg, bool demo) {
-  char v1[16];
-  snprintf(v1, sizeof(v1), "%.2f", kg);
-  return enqueue('T', session, trial, v1, demo ? "1" : "0");
+  char f[40];
+  snprintf(f, sizeof(f), "%u,%u,%.2f,%u", session, trial, kg, demo ? 1 : 0);
+  return enqueue('T', f);
 }
 
 uint16_t logSummary(uint16_t session, uint8_t demoCount, float peak, float avg) {
-  char v1[16], v2[16];
-  snprintf(v1, sizeof(v1), "%.2f", peak);
-  snprintf(v2, sizeof(v2), "%.2f", avg);
-  return enqueue('S', session, demoCount, v1, v2);
+  char f[40];
+  snprintf(f, sizeof(f), "%u,%u,%.2f,%.2f", session, demoCount, peak, avg);
+  return enqueue('S', f);
 }
 
 uint16_t logEvent(uint8_t code, uint16_t session, uint8_t trial, uint32_t secs) {
-  char v1[8], v2[12];
-  snprintf(v1, sizeof(v1), "%u", code);
-  snprintf(v2, sizeof(v2), "%lu", (unsigned long)secs);
-  return enqueue('E', session, trial, v1, v2);
+  char f[40];
+  snprintf(f, sizeof(f), "%u,%u,%u,%lu", session, trial, code, (unsigned long)secs);
+  return enqueue('E', f);
+}
+
+void logGripSample(uint16_t attempt, uint32_t ms, float kg, uint8_t phase, bool demo) {
+#if LOG_RAW
+  // Dicetak langsung (tanpa antrean): baris ini tidak menunggu ACK. seq = 0 memberi tahu
+  // logger.py supaya tidak membalas. Checksum tetap ada, supaya baris yang rusak di jalur USB
+  // dibuang logger.py, bukan digambar sebagai data.
+  char body[LOG_LINE_MAX];
+  snprintf(body, sizeof(body), "HGD,G,0,%s,%u,%lu,%.2f,%u,%u",
+           bootId, attempt, (unsigned long)ms, kg, phase, demo ? 1 : 0);
+  Serial.printf("%s*%02X\n", body, checksum(body));
+#else
+  (void)attempt; (void)ms; (void)kg; (void)phase; (void)demo;   // LOG_RAW = 0: tidak dikirim
+#endif
+}
+
+uint16_t logGripMarker(const GripMarker& m) {
+  char f[LOG_LINE_MAX];
+  snprintf(f, sizeof(f), "%u,%u,%u,%u,%ld,%ld,%ld,%ld,%.2f,%.2f,%u,%u,%u",
+           m.session, m.trial, m.attempt, m.exitBy,
+           (long)m.onsetMs, (long)m.endMs, (long)m.winStartMs, (long)m.winEndMs,
+           m.ref, m.peak, m.demo ? 1 : 0, m.fault, m.samples);
+  return enqueue('M', f);
 }
 
 bool logBusy() {
@@ -87,7 +119,27 @@ bool logBusy() {
   return qCount > 0;
 }
 
-void logBatchStart() { batchFails = 0; batchActive = true; }
+// Buang baris terdepan (sudah ber-ACK atau gagal) dan siapkan baris berikutnya.
+static void popHead() {
+  qHead = (qHead + 1) % LOG_QUEUE_N;
+  qCount--;
+  headSent = false;
+  headTries = 0;
+}
+
+void logBatchStart() {
+  // Langkah 10c: penanda M tidak boleh menunda atau menggagalkan baris ringkasan T/S di
+  // belakangnya. Penanda dikirim jauh sebelum RINGKASAN (paling lambat di HITUNG percobaan 3,
+  // lalu istirahat >= 10 s), dan satu penanda paling lama ~1 s di antrean, jadi biasanya antrean
+  // sudah kosong di sini. Bila belum, penanda yang masih di depan dibuang sekarang.
+  while (qCount > 0 && headType() == 'M') {
+    Serial.printf("[LOG] seq %u (penanda M) dibuang: ringkasan sesi didahulukan\n", queue[qHead].seq);
+    popHead();
+  }
+  batchFails = 0;
+  batchActive = true;
+}
+
 bool logBatchFailed() { return batchFails > 0; }
 
 void logStartAckTest() {
@@ -100,7 +152,7 @@ void logStartAckTest() {
 
 void logSendCorruptTest() {
   corruptNext = true;
-  enqueue('U', 0, 0, "999", "0");
+  enqueue('U', "0,0,999,0");
   Serial.println("[UJI NAK] satu baris uji dengan checksum salah pada kiriman pertama");
 }
 
@@ -112,14 +164,6 @@ void logCancel() {
   headSent = false;
   headTries = 0;
   batchActive = false;
-}
-
-// Buang baris terdepan (sudah ber-ACK atau gagal) dan siapkan baris berikutnya.
-static void popHead() {
-  qHead = (qHead + 1) % LOG_QUEUE_N;
-  qCount--;
-  headSent = false;
-  headTries = 0;
 }
 
 static void sendHead() {
@@ -146,23 +190,32 @@ static void headFailed(const char* why) {
   if (headTries < 2) {
     Serial.printf("[LOG] seq %u %s, kirim ulang\n", queue[qHead].seq, why);
     sendHead();
-  } else {
-    uint16_t failedSeq = queue[qHead].seq;   // disimpan dulu: popHead() membuang baris ini
-    Serial.printf("[LOG] seq %u GAGAL setelah kirim ulang (%s)\n", failedSeq, why);
-    if (testActive && queue[qHead].text[4] == 'U') testFailed++;
-    batchFails++;
-    popHead();
-    // Langkah 9b: dalam kelompok ringkasan, satu baris yang gagal dua kali berarti logger.py tidak
-    // mendengar (tanpa ACK) atau tidak bisa menulis CSV (NAK, mis. berkas dibuka di Excel); sisa
-    // baris tidak dicoba lagi (hasilnya pasti sama), supaya GAGAL SIMPAN muncul dalam ~1,5 s, bukan
-    // ~16 s. Nilainya tetap dicetak di layar GAGAL SIMPAN dan di serial.
-    // Perbaikan langkah 10 (uji papan): alasan sebenarnya (NAK / tanpa ACK) ikut dicetak, supaya
-    // pesan tidak menyesatkan.
-    if (batchActive && qCount > 0) {
-      Serial.printf("[LOG] %u baris ringkasan lain tidak dikirim (seq %u gagal: %s)\n",
-                    qCount, failedSeq, why);
-      qCount = 0;
-    }
+    return;
+  }
+  uint16_t failedSeq = queue[qHead].seq;   // disimpan dulu: popHead() membuang baris ini
+  char failedType = headType();
+  Serial.printf("[LOG] seq %u GAGAL setelah kirim ulang (%s)\n", failedSeq, why);
+  if (testActive && failedType == 'U') testFailed++;
+  popHead();
+  // Langkah 10c: penanda M yang gagal (mis. berkas genggaman dibuka di Excel) hanya dibuang.
+  // Rekaman genggaman adalah data tambahan; hasil percobaan tetap dikirim lewat baris T/S, jadi
+  // penanda tidak pernah dihitung sebagai gagal simpan.
+  if (failedType == 'M') {
+    Serial.printf("[LOG] PERINGATAN: penanda genggaman seq %u dibuang (data sesi tidak terpengaruh)\n",
+                  failedSeq);
+    return;
+  }
+  batchFails++;
+  // Langkah 9b: dalam kelompok ringkasan, satu baris yang gagal dua kali berarti logger.py tidak
+  // mendengar (tanpa ACK) atau tidak bisa menulis CSV (NAK, mis. berkas dibuka di Excel); sisa
+  // baris tidak dicoba lagi (hasilnya pasti sama), supaya GAGAL SIMPAN muncul dalam ~1 s, bukan
+  // ~16 s. Nilainya tetap dicetak di layar GAGAL SIMPAN dan di serial.
+  // Perbaikan langkah 10 (uji papan): alasan sebenarnya (NAK / tanpa ACK) ikut dicetak, supaya
+  // pesan tidak menyesatkan.
+  if (batchActive && qCount > 0) {
+    Serial.printf("[LOG] %u baris ringkasan lain tidak dikirim (seq %u gagal: %s)\n",
+                  qCount, failedSeq, why);
+    qCount = 0;
   }
 }
 
@@ -178,7 +231,7 @@ static void handleInputLine() {
   if (isAck) {
     // Waktu kirim -> ACK (kiriman terakhir baris ini). Untuk baris uji U dikumpulkan sebagai statistik.
     uint32_t rttUs = micros() - headSentUs;
-    if (testActive && queue[qHead].text[4] == 'U') {
+    if (testActive && headType() == 'U') {
       testAcked++;
       testSumUs += rttUs;
       if (rttUs > testMaxUs) testMaxUs = rttUs;
@@ -210,9 +263,9 @@ char logPoll() {
 
   // 2) Uji ACK: isi antrean dengan baris uji selama masih ada tempat; ringkasan setelah selesai.
   while (testToQueue > 0 && qCount < LOG_QUEUE_N) {
-    char v1[8];
-    snprintf(v1, sizeof(v1), "%u", (unsigned)(ACK_TEST_N - testToQueue + 1));
-    enqueue('U', 0, 0, v1, "0");
+    char f[24];
+    snprintf(f, sizeof(f), "0,0,%u,0", (unsigned)(ACK_TEST_N - testToQueue + 1));
+    enqueue('U', f);
     testToQueue--;
   }
   if (testActive && testToQueue == 0 && qCount == 0) {

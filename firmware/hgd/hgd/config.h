@@ -88,7 +88,15 @@ const uint32_t LED_BLINK_TOTAL_MS  = 5000;  // lama kedip restart di READY
 // terdeteksi dalam ~1 s (serial_log.cpp: kelompok ringkasan berhenti setelah baris pertama gagal).
 // Ukur ulang (perintah u) bila laptop atau kabel USB berganti.
 const uint32_t ACK_TIMEOUT_MS = 500;
+// Buffer kirim serial (byte). Tanpa ini Serial.print() langsung mengisi FIFO UART 128 byte dan
+// MENUNGGU bila FIFO penuh. Saat keluar GRIP satu putaran mencetak ~200 byte (baris G, [GRIP],
+// [COMPUTE], penanda M), jadi bisa tertahan ~6 ms. Dengan 1024 byte print hanya menyalin ke RAM.
+const size_t SERIAL_TX_BUF = 1024;
 
 // ---------------- Saklar build ----------------
 // 1 = perintah serial t/k/p/x aktif (kalibrasi dan demo galat X3). Lihat Bagian 5.21.
 #define DEBUG_CMD 1
+// 1 = tiap sampel HX711 selama GRIP dikirim sebagai baris G tanpa ACK (rekaman genggaman, langkah
+// 10c). 0 = hanya penanda M per upaya (tetap dengan ACK). Beban serial ~400 byte/s (~3,5 % dari
+// 115200 baud), Bagian 9.6.
+#define LOG_RAW 1

@@ -53,11 +53,17 @@ inline const char* faultName(FaultType f) {
 
 // Jalur keluar GRIP.
 // Langkah 6d: genggaman TIDAK lagi berakhir otomatis saat plateau; pengguna yang memutuskan lepas.
+// Langkah 10c: angka ini juga kolom "keluar" pada baris penanda M (Bagian 9.2), jadi tiap upaya
+// genggam punya satu jalur keluar yang tercatat. 4-6 bukan jalur di handleGrip(), tetapi cara lain
+// sebuah upaya berakhir (galat, reset total, penjaga nol); urutan angka tidak boleh diubah.
 enum GripExit {
   EXIT_NONE = 0,
-  EXIT_EARLY_RELEASE,   // dilepas sebelum 3 s: kembali ke fase 1, tidak dihitung
-  EXIT_RELEASE,         // dilepas antara 3 dan 5 s: percobaan selesai dan dihitung
-  EXIT_TIMEOUT          // masih digenggam pada 5 s: batas paksa
+  EXIT_EARLY_RELEASE,   // 1: dilepas sebelum 3 s: kembali ke fase 1, tidak dihitung
+  EXIT_RELEASE,         // 2: dilepas antara 3 dan 5 s: percobaan selesai dan dihitung
+  EXIT_TIMEOUT,         // 3: masih digenggam pada 5 s: batas paksa
+  EXIT_FAULT,           // 4: galat sensor saat GRIP (transisi pengecualian ke FAULT)
+  EXIT_FORCE_RESET,     // 5: reset total (tombol ditahan 15 s) saat GRIP
+  EXIT_ZERO_GUARD       // 6: kg < -1 di fase 1 (nol salah) -> kembali ke READY
 };
 
 // Hasil klasifikasi tombol, satu per putaran loop().
