@@ -63,6 +63,8 @@ Perlu hanya bila papan belum berisi firmware UTS, atau setelah kode berubah.
 
 Peringatan `library LiquidCrystal_I2C claims to run on avr architecture(s)` normal dan tidak berpengaruh.
 
+**Pengaturan Tools yang dipakai untuk build UTS** (nilai bawaan papan, tidak perlu diubah; tercatat di `build.options.json` build 24 Okt. 2026): Core Debug Level **None**, Flash Frequency **80 MHz**, Upload Speed **921600**, Erase All Flash Before Upload **Disabled**. Menu "Events Run On" tidak ada untuk papan ini. Ukuran: 313 739 byte flash (23 %), 25 404 byte RAM (7 %); build `arduino-cli` dari salinan folder bersih 313 675 byte dengan pengaturan sama (selisih 64 byte kemungkinan dari path berkas yang ikut dikompilasi; perilaku sama).
+
 ## 5. Mencari port COM
 
 - **Device Manager → Ports (COM & LPT)**: "Silicon Labs CP210x USB to UART Bridge (COMx)". Atau di Arduino IDE **Tools → Port**.
