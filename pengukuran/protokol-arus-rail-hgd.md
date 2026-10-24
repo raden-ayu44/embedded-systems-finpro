@@ -3,7 +3,7 @@ title: Protokol Pengukuran Arus Rail - Hand Grip Dynamometer
 
 ---
 
-# Protokol Pengukuran Arus Rail - Hand Grip Dynamometer (v1)
+# Protokol Pengukuran Arus Rail - Hand Grip Dynamometer (v2)
 **Proyek akhir - embedded system**
 
 Cara mengukur arus tiap rail purwarupa breadboard dengan **satu multimeter, oleh satu orang**, persis seperti pengukuran 24 Okt. 2026 (uji S3 untuk UTS). Hasilnya ada di Bagian 5.1 [desain-pcb-hgd.md](../pcb/desain-pcb-hgd.md). Protokol ini ditulis untuk **wiring breadboard yang berlaku sampai hari UTS** (Bagian 2); bila wiring berubah, Bagian 2 harus dicek ulang dulu.
@@ -31,7 +31,7 @@ Diperiksa dengan uji kontinuitas, 24 Okt. 2026:
 | VIN | kabel female-male langsung | VCC backpack LCD | LCD |
 | VIN | kabel female-male langsung | HV level shifter | pull-up sisi HV |
 
-**Ujung-ujung sambungan** (sesuai yang dilihat dan dicek saat pengukuran 24 Okt. 2026; nomor lubang breadboard tidak dicatat):
+**Ujung-ujung sambungan** (sesuai yang dilihat dan dicek saat pengukuran 24 Okt. 2026; letaknya di gambar Bagian 2.1):
 
 | Sambungan | Ujung 1 | Ujung 2 | Dicabut saat mengukur | Dicek dengan |
 |---|---|---|---|---|
@@ -45,8 +45,36 @@ Diperiksa dengan uji kontinuitas, 24 Okt. 2026:
 
 - Rail 3V3 atas dan bawah **tidak tersambung satu sama lain**: tiap rail hanya diberi jumpernya sendiri. Karena itu mencabut **satu** jumper 3V3 hanya memutus satu rail. Pengukuran pertama memberi 0 mA karena jumper yang lain masih memberi arus ke beban (arus melewati jalur lain, bukan lewat meter).
 - Kedua ujung bebas jumper 1 dan 2 berbunyi (beep, 0 Ω) satu sama lain: itu normal, keduanya berasal dari pin 3V3 yang sama.
-- Sisi 5 V tidak memakai rail breadboard: kedua kabel langsung dari pin VIN.
+- Sisi 5 V tidak memakai rail breadboard: kedua kabel langsung dari pin VIN. Sejak 24 Okt. 2026 malam (sesudah pengukuran) ada juga kabel dari baris VIN ke C3 dan C4 (Bagian 2.1).
 - Secara listrik sama dengan net +3V3 dan +5V di skema (tidak ada perbedaan untuk R8).
+
+### 2.1 Gambar wiring
+
+![Wiring breadboard purwarupa](gambar/wiring-breadboard-hgd.png)
+
+Digambar di Wokwi sebagai **gambar saja, bukan simulasi**; berkasnya [wokwi/diagram.json](wokwi/diagram.json) (buka proyek ESP32 baru di wokwi.com, tempel isinya ke tab `diagram.json`). **Jangan jalankan simulasinya**: dua breadboard digambar bertumpuk, sehingga Wokwi menyambungkan satu baris pin ESP32 ke rail breadboard bawah dan hasilnya salah.
+
+Cara membaca:
+- **Patokan: posisi ESP32.** Tata letak gambar sama dengan papan nyata (USB DevKit di kanan); ESP32 menempati lubang yang sama dengan papan nyata.
+- **Nomor kolom dan huruf baris di gambar tidak sama dengan papan nyata** (Wokwi tidak bisa membalik penomoran breadboard; di papan nyata nomor kolom berjalan 30 → 1 dari kiri ke kanan). Karena itu letak komponen di bawah ditulis sebagai posisi (kiri, kanan, atas, bawah), bukan nomor lubang.
+- **Dua breadboard setengah.** Di papan nyata rail bawah breadboard atas dan rail atas breadboard bawah ditekuk, sehingga kedua breadboard rapat dan ESP32 berdiri di atas keduanya. Di gambar keduanya bertumpuk: anggap rail bawah breadboard atas tidak ada.
+- Warna kabel = warna kabel nyata. Breadboard diberi warna abu-abu hanya supaya kabel terlihat.
+- Wokwi tidak punya kapasitor, modul level shifter, dan load cell 80 kg; penggantinya ada di legenda.
+
+| Di gambar | Komponen nyata | Letak |
+|---|---|---|
+| Resistor tegak + LED merah di kirinya | R2 220 Ω + D2 (LED daya) | breadboard atas, tengah atas; satu kaki R2 langsung di rail + atas |
+| Resistor mendatar + LED merah di ujung kanannya | R1 220 Ω + D1 (LED status) | breadboard atas, tengah atas, kanan D2; kabel kuning dari GPIO27 (baris pin bawah ESP32) |
+| Dua LED putih | kapasitor elektrolit 10 µF; kaki anoda LED = kaki + kapasitor | breadboard atas, kiri bawah: **C2** (kiri, di rail 3V3 atas), **C3** (kanan, ke VIN) |
+| Dua LED oranye | kapasitor keramik 100 nF (104) | breadboard bawah, kiri atas: **C1** (kiri, di rail 3V3 bawah), **C4** (kanan, ke VIN) |
+| Tombol hitam | tombol (GPIO25 ke GND) | breadboard bawah, kiri ESP32 |
+| Modul HX711 + load cell "5kg" | HX711 + load cell CZL 601 80 kg (Wokwi hanya punya 5 kg; sama-sama single beam) | kanan atas |
+| LCD 1602 | LCD 1602 + backpack PCF8574 | kanan tengah |
+| Breadboard mini biru + 12 LED cyan | modul level shifter BSS138; LED cyan = label pin. Baris atas (kiri ke kanan): HV1, HV2, HV, GND, HV3, HV4; baris bawah: LV1, LV2, LV, GND, LV3, LV4 | kanan bawah |
+
+**Kapasitor dipindah sesuai skema (24 Okt. 2026 malam, sesudah pengukuran arus).** Sebelumnya keempat kapasitor ada di 3V3 (C3 dan C4 seharusnya di +5V). Sekarang C1 + C2 di +3V3, C3 + C4 di +5V: kabel merah dari baris pin VIN (ujung kanan baris pin bawah ESP32) ke sisi kiri breadboard bawah, lalu kabel oranye ke kaki + C3 dan kabel oranye melintasi celah tengah ke C4; kaki lain ke rail GND. Kapasitor tidak menarik arus DC, jadi hasil A1-B2 tetap berlaku. Dicek:
+- Kontinuitas (USB dicabut): 3V3 ↔ VIN 500-1500 Ω dan berubah-ubah; VIN ↔ GND dan 3V3 ↔ GND tidak bunyi; kaki + C3 dan kaki C4 ↔ VIN bunyi; kaki + C3 ↔ rail 3V3 atas dan kaki C4 ↔ rail 3V3 bawah tidak bunyi (kabel 3V3 lama sudah dicabut).
+- Tegangan (DC 20 V, probe merah di kaki +): C1, C2 3,25 V; C3, C4 4,95 V. LCD `SIAP - UKUR 1/3` dan D2 menyala.
 
 ## 3. Alat
 
@@ -166,3 +194,10 @@ Tanggal: ……  Multimeter: ……  Firmware: ……
 | S3 | | | rata-rata ≤ 150 | puncak ≤ 600 | |
 
 Hasil 24 Okt. 2026 sebagai pembanding: A1 6,7 / 6,7; A2 10,4 / 10,4; B1 26,4 / 27,0; B2 < 0,01 / 0,1-0,2 mA (Bagian 5.1 di [desain-pcb-hgd.md](../pcb/desain-pcb-hgd.md)).
+
+## 12. Riwayat versi
+
+| Versi | Tanggal | Perubahan |
+|---|---|---|
+| v2 | 24 Okt. 2026 | Bagian 2.1: gambar wiring breadboard (Wokwi) dengan cara membaca dan legenda; C3 dan C4 dipindah ke +5V sesuai skema, dengan hasil cek kontinuitas dan tegangan |
+| v1 | 24 Okt. 2026 | Ditulis dari sesi pengukuran arus rail 24 Okt. 2026 |
