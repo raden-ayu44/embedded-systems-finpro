@@ -42,6 +42,7 @@ float    sensorKgReal();         // (raw - offset) / SCALE_COUNTS_PER_KG, selalu
                                  // hanya untuk penjaga nol (READY, GRIP fase 1)
 uint32_t sensorLastSampleMs();   // millis() saat sampel terakhir diterima
 uint32_t sensorReadUs();         // lama hxRead() terakhir (us), untuk uji waktu
+uint32_t sensorLastSampleUs();   // micros() saat baca sampel terakhir dimulai (uji waktu LED)
 
 // Galat sensor saat ini (alur-program-hgd.md Bagian 7.4), dihitung ulang dari data terakhir tiap
 // kali dipanggil, jadi kembali FAULT_NONE sendiri setelah kabel dibetulkan. Urutan prioritas:

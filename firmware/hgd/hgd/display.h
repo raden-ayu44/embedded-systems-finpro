@@ -22,7 +22,8 @@ bool displayInit();
 void lcdLine(uint8_t row, const char* text);
 
 // Panggil sekali per loop(). Mengirim karakter yang berubah dari paling banyak satu baris.
-// Tiap LCD_HEAL_MS satu baris (bergantian) dikirim ulang penuh untuk pulih dari gangguan I2C.
+// Tiap LCD_RESYNC_MS urutan sinkron ulang LCD dikirim satu langkah per panggilan (tanpa delay),
+// lalu kedua baris dikirim ulang penuh: pulih dari gangguan I2C (langkah 11, display.cpp).
 // Mengembalikan jumlah karakter yang dikirim (0 = layar sudah sesuai, tidak ada transaksi I2C).
 uint8_t displayUpdate();
 

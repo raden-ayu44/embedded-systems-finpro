@@ -178,6 +178,29 @@ static void fsmNewSession() {
   }
 }
 
+// ---------------- Uji waktu LED (langkah 11, spesifikasi S5) ----------------
+// LED "genggaman stabil" dinyalakan/dimatikan lewat fungsi ini, yang juga mencetak latensi
+// FIRMWARE: dari dimulainya baca sampel pemicu (sampel yang membuat genggaman stabil, atau
+// sampel lepas kg < 1) sampai pin LED ditulis. Rantai lengkap untuk brief dihitung terpisah:
+// konversi HX711 (~86 ms) + jendela 5 sampel (~340-430 ms, disengaja) + latensi ini.
+// Hanya perubahan yang dicetak; ledSteadyOn dinolkan setiap LED dipaksa mati di luar fungsi ini
+// (masuk GRIP, galat), supaya tidak ada "LED mati" palsu.
+static bool ledSteadyOn = false;
+static void ledSteady(bool on) {
+  ledSet(on);
+  if (on == ledSteadyOn) return;
+  ledSteadyOn = on;
+  uint32_t us = micros() - sensorLastSampleUs();   // dihitung sebelum mencetak
+  if (on) {
+    // winTimes[winNext] = sampel tertua jendela stabil yang baru saja terpenuhi.
+    Serial.printf("[TIMING] LED nyala %lu us setelah sampel pemicu (jendela 5 sampel %ld ms)\n",
+                  (unsigned long)us, (long)(attemptMs(sensorLastSampleMs()) - winTimes[winNext]));
+  } else {
+    Serial.printf("[TIMING] LED mati %lu us setelah sampel pemicu (kg=%.2f)\n",
+                  (unsigned long)us, sensorKg());
+  }
+}
+
 // ---------------- Aksi masuk tiap state ----------------
 static void enterReady() {
   buttonReset();             // buang tekanan lama; tekanan yang sedang berlangsung diabaikan
@@ -195,6 +218,7 @@ static void enterGrip() {
   gripPhase = WAIT_ONSET;
   gripExit = EXIT_NONE;
   ledSet(false);             // fase 1: LED mati
+  ledSteadyOn = false;
   gripAttemptStart();        // langkah 10c: upaya pertama percobaan ini
 }
 
@@ -357,7 +381,7 @@ static State handleGrip(Press press) {
   if (kg < THRESHOLD_ONSET_KG && t < GRIP_MIN_MS) {
     gripPhase = WAIT_ONSET;
     sensorBufReset();
-    ledSet(false);
+    ledSteady(false);
     displayRequest();
     Serial.printf("[GRIP] exit=EARLY_RELEASE t=%lu ms, kembali menunggu\n", (unsigned long)t);
     gripAttemptEnd(EXIT_EARLY_RELEASE, FAULT_NONE, false, 0.0f);   // langkah 10c: upaya ini
@@ -400,14 +424,14 @@ static State handleGrip(Press press) {
   }
 
   // LED = plateau (R4: LED dikendalikan kestabilan gaya yang terukur).
-  ledSet(plateau);
+  ledSteady(plateau);
   gripSteadyNow = plateau;                  // dipakai drawScreen() untuk petunjuk "Lepas ok"
 
   // Jalur 2: dilepas antara 3 dan 5 s -> percobaan selesai (pilihan pengguna).
   if (kg < THRESHOLD_ONSET_KG) {
     gripExit = EXIT_RELEASE;
     gripDurMs = t;
-    ledSet(false);
+    ledSteady(false);
     Serial.printf("[GRIP] exit=RELEASE t=%lu ms%s\n", (unsigned long)t,
                   steadyFound ? "" : " (tidak pernah stabil)");
     return COMPUTE;
@@ -464,7 +488,7 @@ static State handleRest(Press press) {
         // Setelah percobaan 3 tidak ada istirahat: istirahat ada untuk pemulihan otot SEBELUM
         // genggaman berikutnya, dan sesudah percobaan 3 tidak ada genggaman lagi. Dilepas ->
         // langsung "NEXT > ringkasan"; hasil percobaan 3 tetap tampil di baris 1.
-        ledSet(false);
+        ledSteady(false);
         restPhase = WAIT_NEXT;
         buttonReset();                      // sub-fase 2 menunggu tombol: tekanan lama dibuang
         displayRequest();
@@ -472,7 +496,7 @@ static State handleRest(Press press) {
         return REST;
       }
       if (sensorKg() < THRESHOLD_ONSET_KG) {
-        ledSet(false);
+        ledSteady(false);
         restCounting = true;
         restStartMs = millis();
         displayRequest();
@@ -547,6 +571,19 @@ static State handleSaveFailed(Press press) {
 
 // ---------------- Layar ----------------
 // Teks per state dari Bagian 10.2. Dipanggil tiap putaran; menggambar hanya bila displayDue().
+// Nilai kg untuk LCD (langkah 11). Slot %5.2f hanya muat -9.99 s.d. 99.99 (5 karakter):
+// - di luar rentang itu angkanya dibatasi, supaya teks di kanannya tidak tergeser atau terpotong
+//   (mis. satu gambar 112 kg dengan skala demo x sebelum OUT_OF_RANGE, atau 156 kg saat saturasi);
+// - |kg| < 0,005 ditulis 0, karena printf menulis -0.004 sebagai "-0.00" dan angka di layar
+//   berkedip antara " 0.00" dan "-0.00" saat alat diam.
+// Hanya untuk tampilan: nilai yang dihitung, dicatat, dan dikirim tetap nilai aslinya.
+static float lcdKg(float kg) {
+  if (kg > 99.99f) return 99.99f;
+  if (kg < -9.99f) return -9.99f;
+  if (kg > -0.005f && kg < 0.005f) return 0.0f;
+  return kg;
+}
+
 static void drawScreen() {
   if (!displayDue()) return;
   char l0[24], l1[24];   // lebih dari 16: lcdLine() memotong dan mengisi spasi
@@ -564,8 +601,8 @@ static void drawScreen() {
   // semua kg dua desimal, RINGKASAN tanpa "kg" (supaya muat), GAGALSIMPAN tiga halaman, dan
   // "Data tersimpan" setelah semua ACK. Daftar lengkap: alur-program-hgd.md Bagian 10.2 dan
   // teks-lcd-hgd.md. Semua baris <= 16 karakter.
-  // Angka ditulis dengan lebar tetap (%5.2f = 5 karakter untuk -9.99 s.d. 80.00) supaya posisi
-  // tidak bergeser saat nilai berubah.
+  // Angka ditulis dengan lebar tetap (%5.2f = 5 karakter untuk -9.99 s.d. 99.99) supaya posisi
+  // tidak bergeser saat nilai berubah; semua kg lewat lcdKg() supaya tetap di rentang itu.
   const Trial& tr = session.trials[session.trialNo - 1];
   switch (state) {
     case READY:   // "SIAP - UKUR 1/3" / "Menyesuaikan nol", "Lepas genggaman" atau "Tekan tmbl START"
@@ -589,22 +626,22 @@ static void drawScreen() {
         if (sensorTareWindowRetry()) snprintf(l1, sizeof(l1), "Nol ulang: lepas");     // 8d
         else if (!sensorTareDone()) snprintf(l1, sizeof(l1), "Menyesuaikan nol");   // tare ulang (TAHAN)
         // Target juga dua desimal dengan satuan, gaya sama dengan "25.34kg Lepas ok" (15 karakter).
-        else snprintf(l1, sizeof(l1), "%5.2fkg >%.2fkg", sensorKg(), THRESHOLD_ONSET_KG);
+        else snprintf(l1, sizeof(l1), "%5.2fkg >%.2fkg", lcdKg(sensorKg()), THRESHOLD_ONSET_KG);
       } else {   // "Tahan 3-5 detik" / "25.34 kg  3.4s" (kg live + detik sejak onset)
         snprintf(l0, sizeof(l0), "Tahan 3-5 detik");
         uint32_t t = millis() - gripStartMs;
         if (t >= GRIP_MIN_MS && gripSteadyNow)
           // Langkah 6d: sudah >= 3 s dan genggaman stabil (LED menyala) -> boleh dilepas kapan saja.
           // "25.34kg Lepas ok" = 16 karakter (tanpa spasi sebelum "kg" supaya muat).
-          snprintf(l1, sizeof(l1), "%5.2fkg Lepas ok", sensorKg());
+          snprintf(l1, sizeof(l1), "%5.2fkg Lepas ok", lcdKg(sensorKg()));
         else
-          snprintf(l1, sizeof(l1), "%5.2f kg  %.1fs", sensorKg(), t / 1000.0f);
+          snprintf(l1, sizeof(l1), "%5.2f kg  %.1fs", lcdKg(sensorKg()), t / 1000.0f);
       }
       break;
     case COMPUTE:
       return;   // one-shot tanpa layar
     case REST:    // "Hasil 47.23 kg" / "Lepas>Rest 60s" lalu "NEXT > lanjut"
-      snprintf(l0, sizeof(l0), "Hasil %5.2f kg", tr.ref);
+      snprintf(l0, sizeof(l0), "Hasil %5.2f kg", lcdKg(tr.ref));
       if (restPhase == RELEASE_REST && session.trialNo >= TRIALS_PER_SESSION) {
         // Percobaan 3: tanpa istirahat, jadi tanpa hitung mundur. Gaya sama dengan "Lepas>Rest";
         // "Lepas genggaman" tidak dipakai karena di SIAP artinya lain (alat masih ditekan).
@@ -624,7 +661,7 @@ static void drawScreen() {
       break;
     case SUMMARY: // "Mx47.23 Av44.81" / "Menyimpan...", lalu "Data tersimpan" <-> "Tekan: RESTART"
       // Dua desimal: "kg" tidak muat lagi (18 karakter), jadi dibuang; Mx = puncak, Av = rerata.
-      snprintf(l0, sizeof(l0), "Mx%5.2f Av%5.2f", session.peak, session.avg);
+      snprintf(l0, sizeof(l0), "Mx%5.2f Av%5.2f", lcdKg(session.peak), lcdKg(session.avg));
       if (logBusy() || !summaryChecked) {
         snprintf(l1, sizeof(l1), "Menyimpan...");
       } else {
@@ -645,15 +682,15 @@ static void drawScreen() {
       // Halaman 3 memakai label "Mx" yang sama dengan layar SUMMARY (puncak = satu nama).
       switch (((millis() - pageStartMs) / SAVE_FAILED_PAGE_MS) % 3) {
         case 0:
-          snprintf(l0, sizeof(l0), "P1 %5.2f kg", session.trials[0].ref);
-          snprintf(l1, sizeof(l1), "P2 %5.2f kg", session.trials[1].ref);
+          snprintf(l0, sizeof(l0), "P1 %5.2f kg", lcdKg(session.trials[0].ref));
+          snprintf(l1, sizeof(l1), "P2 %5.2f kg", lcdKg(session.trials[1].ref));
           break;
         case 1:
-          snprintf(l0, sizeof(l0), "P3 %5.2f kg", session.trials[2].ref);
+          snprintf(l0, sizeof(l0), "P3 %5.2f kg", lcdKg(session.trials[2].ref));
           snprintf(l1, sizeof(l1), "GAGAL SIMPAN");
           break;
         default:
-          snprintf(l0, sizeof(l0), "Mx%5.2f Av%5.2f", session.peak, session.avg);
+          snprintf(l0, sizeof(l0), "Mx%5.2f Av%5.2f", lcdKg(session.peak), lcdKg(session.avg));
           snprintf(l1, sizeof(l1), "GAGAL SIMPAN");
           break;
       }
@@ -723,6 +760,7 @@ void fsmRun(Press press) {
       // Langkah 10c: galat saat GRIP (atau HITUNG) memutus upaya: penanda dengan keluar = 4 dan
       // kode galat, supaya grafik tidak mencampurnya dengan data nyata.
       gripAttemptEnd(EXIT_FAULT, f, false, 0.0f);
+      ledSteadyOn = false;                  // LED dipaksa mati di faultEnter()
       changeState(FAULT);
       drawScreen();
       return;

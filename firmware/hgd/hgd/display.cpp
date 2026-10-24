@@ -99,22 +99,68 @@ static uint8_t sendRowChanges(uint8_t row) {
   return sent;
 }
 
-uint8_t displayUpdate() {
-  // Pemulihan sendiri tanpa delay(): tiap LCD_HEAL_MS (2 s) satu baris buffer "tampil" ditandai
-  // "tidak diketahui" (diisi 0x00, tidak pernah sama dengan karakter ASCII cetak), bergantian
-  // baris 0 dan 1. Akibatnya baris itu dikirim ulang penuh pada putaran berikutnya (tetap satu
-  // baris per putaran, <= 28 ms). Alasan: bila gangguan I2C mengacaukan isi layar, karakter yang
-  // "tidak berubah" menurut buffer tidak akan pernah dikirim lagi dan tetap salah selamanya.
-  // Menulis ulang isi yang sama tidak membuat layar berkedip (tanpa Clear).
-  // Batas: ini memperbaiki isi DDRAM, bukan pengontrol LCD yang kehilangan sinkron 4-bit.
-  static uint32_t lastHealMs = 0;
-  static uint8_t  healRow = 0;
-  uint32_t now = millis();
-  if (now - lastHealMs >= LCD_HEAL_MS) {
-    lastHealMs = now;
-    memset(shown[healRow], 0x00, LCD_COLS);
-    healRow = (healRow + 1) % LCD_ROWS;
+// ---------------- Sinkron ulang LCD (langkah 11) ----------------
+// Backpack mengirim tiap byte perintah/karakter sebagai DUA nibble (mode 4 bit). Gangguan di bus
+// I2C (mis. kabel tersentuh) bisa membuat pengontrol LCD menerima nibble yang hilang atau lebih;
+// sejak itu ia membaca nibble TINGGI sebagai RENDAH dan layar berisi sampah, walau semua karakter
+// dikirim ulang. Perbaikannya urutan inisialisasi HD44780 ("inisialisasi lewat instruksi"):
+// 0x30 tiga kali (nibble saja) memaksa mode 8 bit dari keadaan apa pun, 0x20 (nibble) kembali ke
+// mode 4 bit, lalu 0x28 (4 bit, 2 baris, 5x8), 0x0C (layar nyala, kursor mati), 0x06 (alamat naik).
+// Tanpa Clear, jadi isi layar tidak hilang dan tidak berkedip.
+// Dikirim tanpa syarat tiap LCD_RESYNC_MS (2 s), SATU langkah per putaran loop() dengan jeda
+// >= LCD_RESYNC_STEP_MS (5 ms, datasheet: > 4,1 ms setelah 0x30 pertama) yang diukur dengan
+// millis(): tidak ada delay(). Selama urutan berjalan (~35 ms) tidak ada karakter yang dikirim
+// (karakter di tengah urutan akan salah dibaca). Urutan hanya DIMULAI bila tidak ada perubahan
+// layar yang menunggu (mis. hitung mundur reset total atau ganti halaman sedang digambar), supaya
+// tidak menunda layar itu. Sesudahnya kedua baris dikirim ulang penuh (buffer "tampil" diisi 0x00
+// = tidak diketahui), yang juga memulihkan karakter yang rusak (pengganti "heal" langkah 4c).
+static const uint8_t RESYNC_SEQ[] = {0x30, 0x30, 0x30, 0x20, 0x28, 0x0C, 0x06};
+static const uint8_t RESYNC_NIBBLES = 4;    // 4 langkah pertama: nibble saja, sisanya perintah penuh
+static const uint8_t RESYNC_STEPS = sizeof(RESYNC_SEQ);
+static uint8_t  resyncStep = 0;             // 0 = tidak berjalan; 1..7 = langkah berikutnya
+static uint32_t resyncLastMs = 0;           // millis() langkah terakhir (atau akhir urutan terakhir)
+
+// Kirim satu nibble (4 bit atas `value`) dengan pulsa Enable, langsung lewat Wire, karena fungsi
+// nibble library bersifat private. Bit PCF8574 sama dengan library: P2 = Enable, P3 = lampu latar.
+static void lcdWriteNibble(uint8_t value) {
+  const uint8_t BL = 0x08, EN = 0x04;
+  uint8_t data = (value & 0xF0) | BL;       // RS = 0 (perintah), RW = 0 (tulis), lampu tetap nyala
+  const uint8_t frames[3] = {data, (uint8_t)(data | EN), data};   // data, Enable naik, Enable turun
+  for (uint8_t i = 0; i < 3; i++) {
+    Wire.beginTransmission(LCD_ADDR);
+    Wire.write(frames[i]);
+    Wire.endTransmission();
   }
+}
+
+static bool rowsPending() {
+  return memcmp(wanted[0], shown[0], LCD_COLS) != 0 || memcmp(wanted[1], shown[1], LCD_COLS) != 0;
+}
+
+// Satu langkah urutan sinkron ulang bila waktunya. true = urutan sedang berjalan (jangan tulis
+// karakter pada putaran ini).
+static bool resyncPoll(uint32_t now) {
+  if (resyncStep == 0) {
+    if (now - resyncLastMs < LCD_RESYNC_MS || rowsPending()) return false;
+    resyncStep = 1;                         // mulai; langkah 1 dikirim sekarang juga
+    resyncLastMs = now - LCD_RESYNC_STEP_MS;
+  }
+  if (now - resyncLastMs < LCD_RESYNC_STEP_MS) return true;   // tunggu jeda antarlangkah
+  uint8_t i = resyncStep - 1;
+  if (i < RESYNC_NIBBLES) lcdWriteNibble(RESYNC_SEQ[i]);
+  else                    lcd.command(RESYNC_SEQ[i]);
+  resyncLastMs = now;
+  resyncStep++;
+  if (resyncStep > RESYNC_STEPS) {          // selesai: kedua baris dikirim ulang penuh
+    resyncStep = 0;
+    memset(shown[0], 0x00, LCD_COLS);
+    memset(shown[1], 0x00, LCD_COLS);
+  }
+  return true;
+}
+
+uint8_t displayUpdate() {
+  if (resyncPoll(millis())) return 0;       // langkah 11: urutan sinkron ulang sedang berjalan
 
   // Periksa kedua baris mulai dari nextRow; kirim baris pertama yang berbeda, lalu berhenti.
   // Perubahan dua baris karena itu selesai dalam dua putaran loop().

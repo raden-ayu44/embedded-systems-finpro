@@ -36,6 +36,9 @@
 // log pertama.
 void logInit();
 
+// Nomor boot 4 digit (untuk perintah p: cek nomor boot setelah cabut-pasang USB, langkah 11).
+const char* logBootId();
+
 // Panggil sekali per loop(). Membaca masukan serial tanpa menunggu:
 // - baris "ACK,<n>" / "NAK,<n>" dipakai untuk antrean;
 // - satu huruf kecil perintah debug (t, p, x, s, u, r) dikembalikan ke pemanggil;
