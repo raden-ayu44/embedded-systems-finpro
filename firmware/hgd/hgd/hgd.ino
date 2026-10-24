@@ -23,16 +23,19 @@
   - REST: setelah dilepas hitung mundur "Lepas>Rest 60s" ... " 1s" (langkah 7, TAP diabaikan;
     digenggam lagi = hitung mundur dijeda sampai dilepas), lalu
     "NEXT > lanjut"; TAP -> percobaan berikutnya. Setelah 3 -> SUMMARY
-    ("Mx.. Av.. kg" / "Tekan: RESTART"); TAP -> sesi baru (kedip).
+    ("Mx.. Av.." tanpa kg / "Menyimpan...", lalu "Data tersimpan" dan "Tekan: RESTART" bergantian
+    tiap 2 s); TAP -> sesi baru (kedip).
   - Galat sensor di READY/GRIP/COMPUTE/REST -> FAULT (LED mati, ERR + raw); TAHAN 1,5 s -> READY.
   - Tahan 15 s di state apa pun = reset total (hitung mundur di LCD mulai detik ke-3).
   - Langkah 8: kg > 80 kg live di GRIP, atau ref <= 0 / > 80 kg di COMPUTE -> FAULT OUT_OF_RANGE
     ("ERR:DI LUAR RNTG"). Keadaan aman, layar galat dan baris [E] di fault.cpp.
   - Langkah 9: baris HGD,T/S/E,seq,sesi,percobaan,nilai1,nilai2*CS (serial_log.cpp), tiap baris
-    menunggu "ACK,<seq>" 2 s, NAK/tanpa balasan -> kirim ulang sekali; ringkasan gagal -> GAGAL SIMPAN.
+    menunggu "ACK,<seq>" 500 ms (ACK_TIMEOUT_MS, langkah 10), NAK/tanpa balasan -> kirim ulang
+    sekali; ringkasan gagal -> GAGAL SIMPAN.
   - Serial: [FSM] A -> B, [GRIP], [COMPUTE], [REST], [SUMMARY], [FAULT], [LOG]; 't' tare, 'p' nilai,
-    'x' skala demo /40 bolak-balik (bertahan sampai sesi baru), 's' simulasi saturasi bolak-balik.
-  - Langkah 8c/8d: offset tare di luar -39000 +- 20000 counts -> tare diulang ("Lepas genggaman");
+    'x' skala demo /40 bolak-balik (bertahan sampai sesi baru), 's' simulasi saturasi bolak-balik,
+    'u' uji ACK 100 baris (U9/E5), 'r' satu baris rusak (U10).
+  - Langkah 8c/8d: offset tare di luar -39000 +- 20000 counts -> tare diulang ("Nol ulang: lepas");
     terus-menerus 10 s -> READING_INVALID (load cell terputus).
 
   Serial Monitor: 115200 baud.
@@ -72,6 +75,12 @@ static void serialCmd(char c) {
     // Tombol bolak-balik: s lagi = "kabel dipasang kembali", lalu TAHAN 1,5 s untuk keluar FAULT.
     sensorSimSaturateSet(!sensorSimSaturateActive());
     Serial.printf("[CMD] s: simulasi saturasi %s\n", sensorSimSaturateActive() ? "AKTIF" : "mati");
+  } else if (c == 'u') {
+    // Uji U9 / E5: 100 baris uji ke logger.py, cetak waktu balasan ACK terlama dan rata-rata.
+    logStartAckTest();
+  } else if (c == 'r') {
+    // Uji U10: satu baris dengan checksum salah -> logger.py harus membalas NAK, lalu ACK.
+    logSendCorruptTest();
   } else if (c == 'p') {
     Serial.printf("[CMD] p: raw=%ld offset=%ld kg=%+.3f state=%s skala=%.1f%s%s\n",
                   (long)sensorRaw(), (long)sensorOffset(), sensorKg(), stateName(fsmState()),

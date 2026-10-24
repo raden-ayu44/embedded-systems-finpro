@@ -49,7 +49,7 @@ static bool      summaryChecked = false;   // hasil kiriman ringkasan sudah dini
 static bool      restartPending = false;   // true = masuk READY berikutnya adalah restart (kedip)
 static FaultType pendingFault = FAULT_NONE; // galat yang dicatat saat masuk FAULT (diisi sebelum transisi)
 static bool      countdownShown = false;   // layar hitung mundur reset total sedang tampil
-static uint32_t  pageStartMs = 0;          // millis() saat masuk SAVE_FAILED (ganti halaman)
+static uint32_t  pageStartMs = 0;          // millis() awal layar berganti halaman (SAVE_FAILED, SUMMARY tersimpan)
 
 const char* stateName(State s) {
   switch (s) {
@@ -401,6 +401,7 @@ static State handleSummary(Press press) {
     summaryChecked = true;
     if (logBatchFailed()) return SAVE_FAILED;   // ada baris yang tidak ber-ACK: data belum aman
     Serial.println("[SUMMARY] semua baris tersimpan (ACK)");
+    pageStartMs = millis();                 // layar mulai dari "Data tersimpan"
     displayRequest();
   }
   if (press != PRESS_TAP) return SUMMARY;
@@ -440,8 +441,12 @@ static void drawScreen() {
     return;
   }
 
-  // Teks mengikuti Tabel 4 proposal (sama dengan firmware tim lainnya); semua <= 16 karakter.
-  // Angka ditulis dengan lebar tetap (%5.1f dst.) supaya posisi tidak bergeser saat nilai berubah.
+  // Teks mengikuti Tabel 4 proposal (sama dengan firmware tim lainnya) dengan perubahan langkah 10:
+  // semua kg dua desimal, RINGKASAN tanpa "kg" (supaya muat), GAGALSIMPAN tiga halaman, dan
+  // "Data tersimpan" setelah semua ACK. Daftar lengkap: alur-program-hgd.md Bagian 10.2 dan
+  // teks-lcd-hgd.md. Semua baris <= 16 karakter.
+  // Angka ditulis dengan lebar tetap (%5.2f = 5 karakter untuk -9.99 s.d. 80.00) supaya posisi
+  // tidak bergeser saat nilai berubah.
   const Trial& tr = session.trials[session.trialNo - 1];
   switch (state) {
     case READY:   // "SIAP - UKUR 1/3" / "Menyesuaikan nol", "Lepas genggaman" atau "Tekan tmbl START"
@@ -450,28 +455,31 @@ static void drawScreen() {
         snprintf(l0, sizeof(l0), "SIAP x%.0f %u/%u", DEMO_SCALE_DIV, session.trialNo, TRIALS_PER_SESSION);
       else
         snprintf(l0, sizeof(l0), "SIAP - UKUR %u/%u", session.trialNo, TRIALS_PER_SESSION);
-      if (sensorTareWindowRetry())               snprintf(l1, sizeof(l1), "Lepas genggaman");   // 8d
+      // "Nol ulang: lepas" = tare diulang karena offset di luar jendela (8d, teks langkah 10);
+      // "Lepas genggaman" di bawah = alat masih ditekan setelah tare (5c).
+      if (sensorTareWindowRetry())               snprintf(l1, sizeof(l1), "Nol ulang: lepas");
       else if (!sensorTareDone())                snprintf(l1, sizeof(l1), "Menyesuaikan nol");
       else if (sensorKgReal() > THRESHOLD_ONSET_KG) snprintf(l1, sizeof(l1), "Lepas genggaman");
       else                                       snprintf(l1, sizeof(l1), "Tekan tmbl START");
       break;
     case GRIP:
-      if (gripPhase == WAIT_ONSET) {   // "Menunggu genggam" / " 0.42 kg  >1.0" (kg live + target onset)
+      if (gripPhase == WAIT_ONSET) {   // "Menunggu genggam" / " 0.42kg >1.00kg" (kg live + target onset)
         // Dua desimal dan target supaya penggenggam melihat tekanannya bergerak dan seberapa jauh
         // lagi sampai onset (dengan satu desimal tekanan kecil tetap tampil "0.0").
         snprintf(l0, sizeof(l0), "Menunggu genggam");
-        if (sensorTareWindowRetry()) snprintf(l1, sizeof(l1), "Lepas genggaman");      // 8d
+        if (sensorTareWindowRetry()) snprintf(l1, sizeof(l1), "Nol ulang: lepas");     // 8d
         else if (!sensorTareDone()) snprintf(l1, sizeof(l1), "Menyesuaikan nol");   // tare ulang (TAHAN)
-        else snprintf(l1, sizeof(l1), "%5.2f kg  >%.1f", sensorKg(), THRESHOLD_ONSET_KG);
-      } else {   // "Tahan 3-5 detik" / " 25.3 kg  3.4s" (kg live + detik sejak onset)
+        // Target juga dua desimal dengan satuan, gaya sama dengan "25.34kg Lepas ok" (15 karakter).
+        else snprintf(l1, sizeof(l1), "%5.2fkg >%.2fkg", sensorKg(), THRESHOLD_ONSET_KG);
+      } else {   // "Tahan 3-5 detik" / "25.34 kg  3.4s" (kg live + detik sejak onset)
         snprintf(l0, sizeof(l0), "Tahan 3-5 detik");
         uint32_t t = millis() - gripStartMs;
         if (t >= GRIP_MIN_MS && gripSteadyNow)
           // Langkah 6d: sudah >= 3 s dan genggaman stabil (LED menyala) -> boleh dilepas kapan saja.
-          // " 25.3kg Lepas ok" = 16 karakter (tanpa spasi sebelum "kg" supaya muat).
-          snprintf(l1, sizeof(l1), "%5.1fkg Lepas ok", sensorKg());
+          // "25.34kg Lepas ok" = 16 karakter (tanpa spasi sebelum "kg" supaya muat).
+          snprintf(l1, sizeof(l1), "%5.2fkg Lepas ok", sensorKg());
         else
-          snprintf(l1, sizeof(l1), "%5.1f kg  %.1fs", sensorKg(), t / 1000.0f);
+          snprintf(l1, sizeof(l1), "%5.2f kg  %.1fs", sensorKg(), t / 1000.0f);
       }
       break;
     case COMPUTE:
@@ -491,21 +499,40 @@ static void drawScreen() {
                  session.trialNo < TRIALS_PER_SESSION ? "NEXT > lanjut" : "NEXT > ringkasan");
       }
       break;
-    case SUMMARY: // "Mx47.2 Av44.8 kg" / "Tekan: RESTART"
-      snprintf(l0, sizeof(l0), "Mx%4.1f Av%4.1f kg", session.peak, session.avg);
-      snprintf(l1, sizeof(l1), "%s", logBusy() ? "Menyimpan..." : "Tekan: RESTART");
+    case SUMMARY: // "Mx47.23 Av44.81" / "Menyimpan...", lalu "Data tersimpan" <-> "Tekan: RESTART"
+      // Dua desimal: "kg" tidak muat lagi (18 karakter), jadi dibuang; Mx = puncak, Av = rerata.
+      snprintf(l0, sizeof(l0), "Mx%5.2f Av%5.2f", session.peak, session.avg);
+      if (logBusy() || !summaryChecked) {
+        snprintf(l1, sizeof(l1), "Menyimpan...");
+      } else {
+        // "Menyimpan..." dengan logger.py hanya tampil < 0,1 s (tidak sempat terbaca), jadi bukti
+        // data sudah aman adalah "Data tersimpan". Baris 2 bergantian tiap SUMMARY_PAGE_MS (2 s)
+        // dengan petunjuk "Tekan: RESTART", supaya tetap terlihat walau LCD baru dilihat kemudian.
+        // Tidak ada penundaan buatan: TAP tetap langsung memulai sesi baru.
+        bool savedPage = ((millis() - pageStartMs) / SUMMARY_PAGE_MS) % 2 == 0;
+        snprintf(l1, sizeof(l1), "%s", savedPage ? "Data tersimpan" : "Tekan: RESTART");
+      }
       break;
     case FAULT:   // "ERR:..." / "RAW <raw live>" (fault.cpp)
       faultDraw(l0, l1, sizeof(l0));
       break;
     case SAVE_FAILED:
-      // Dua halaman bergantian tiap SAVE_FAILED_PAGE_MS (3 s) supaya semua nilai bisa disalin.
-      if (((millis() - pageStartMs) / SAVE_FAILED_PAGE_MS) % 2 == 0) {
-        snprintf(l0, sizeof(l0), "P1 %.1f P2 %.1f", session.trials[0].ref, session.trials[1].ref);
-        snprintf(l1, sizeof(l1), "P3 %.1f   GAGAL", session.trials[2].ref);
-      } else {
-        snprintf(l0, sizeof(l0), "Pk %.1f Av %.1f", session.peak, session.avg);
-        snprintf(l1, sizeof(l1), "GAGAL SIMPAN");
+      // Tiga halaman bergantian tiap SAVE_FAILED_PAGE_MS (3 s) supaya semua nilai bisa disalin.
+      // Dua desimal tidak muat bila P1 dan P2 satu baris (17 karakter), jadi satu nilai per baris.
+      // Halaman 3 memakai label "Mx" yang sama dengan layar SUMMARY (puncak = satu nama).
+      switch (((millis() - pageStartMs) / SAVE_FAILED_PAGE_MS) % 3) {
+        case 0:
+          snprintf(l0, sizeof(l0), "P1 %5.2f kg", session.trials[0].ref);
+          snprintf(l1, sizeof(l1), "P2 %5.2f kg", session.trials[1].ref);
+          break;
+        case 1:
+          snprintf(l0, sizeof(l0), "P3 %5.2f kg", session.trials[2].ref);
+          snprintf(l1, sizeof(l1), "GAGAL SIMPAN");
+          break;
+        default:
+          snprintf(l0, sizeof(l0), "Mx%5.2f Av%5.2f", session.peak, session.avg);
+          snprintf(l1, sizeof(l1), "GAGAL SIMPAN");
+          break;
       }
       break;
     default:

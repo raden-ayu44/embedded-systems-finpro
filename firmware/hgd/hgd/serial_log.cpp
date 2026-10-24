@@ -22,8 +22,17 @@ static bool     headSent = false;   // sudah dikirim, menunggu ACK
 static uint8_t  headTries = 0;      // jumlah kirim baris ini (1 = pertama, 2 = kirim ulang)
 static uint32_t headSentMs = 0;     // millis() saat kiriman terakhir
 
+static uint32_t headSentUs = 0;     // micros() saat kiriman terakhir (ukur waktu balasan ACK)
 static uint8_t  batchFails = 0;     // baris gagal sejak logBatchStart()
 static bool     batchActive = false; // kelompok ringkasan sedang dikirim (langkah 9b)
+
+// Uji ACK (perintah u) dan baris rusak (perintah r), langkah 10.
+const uint16_t ACK_TEST_N = 100;
+static uint16_t testToQueue = 0;    // baris uji yang belum masuk antrean
+static bool     testActive = false; // uji ACK sedang berjalan
+static uint16_t testAcked = 0, testFailed = 0;
+static uint32_t testMaxUs = 0, testSumUs = 0;
+static bool     corruptNext = false; // kiriman pertama baris berikutnya diberi checksum salah
 
 // Masukan serial yang sedang dikumpulkan (baris ACK/NAK).
 static char    inLine[IN_LINE_MAX];
@@ -81,7 +90,23 @@ bool logBusy() {
 void logBatchStart() { batchFails = 0; batchActive = true; }
 bool logBatchFailed() { return batchFails > 0; }
 
+void logStartAckTest() {
+  testToQueue = ACK_TEST_N;
+  testActive = true;
+  testAcked = testFailed = 0;
+  testMaxUs = testSumUs = 0;
+  Serial.printf("[UJI ACK] mulai: %u baris uji U\n", ACK_TEST_N);
+}
+
+void logSendCorruptTest() {
+  corruptNext = true;
+  enqueue('U', 0, 0, "999", "0");
+  Serial.println("[UJI NAK] satu baris uji dengan checksum salah pada kiriman pertama");
+}
+
 void logCancel() {
+  testToQueue = 0;
+  testActive = false;
   if (qCount > 0) Serial.printf("[LOG] %u baris dibatalkan\n", qCount);
   qCount = 0;
   headSent = false;
@@ -98,10 +123,22 @@ static void popHead() {
 }
 
 static void sendHead() {
-  Serial.println(queue[qHead].text);
+  if (corruptNext && headTries == 0) {
+    // Uji U10: ubah digit terakhir checksum pada kiriman pertama saja; kiriman ulang memakai teks asli.
+    char bad[LOG_LINE_MAX];
+    strncpy(bad, queue[qHead].text, sizeof(bad));
+    bad[sizeof(bad) - 1] = '\0';
+    size_t n = strlen(bad);
+    if (n > 0) bad[n - 1] = (bad[n - 1] == '0') ? '1' : '0';
+    Serial.println(bad);
+    corruptNext = false;
+  } else {
+    Serial.println(queue[qHead].text);
+  }
   headSent = true;
   headTries++;
   headSentMs = millis();
+  headSentUs = micros();
 }
 
 // Kiriman baris terdepan tidak berhasil (NAK atau batas waktu): kirim ulang sekali, lalu menyerah.
@@ -110,14 +147,20 @@ static void headFailed(const char* why) {
     Serial.printf("[LOG] seq %u %s, kirim ulang\n", queue[qHead].seq, why);
     sendHead();
   } else {
-    Serial.printf("[LOG] seq %u GAGAL setelah kirim ulang (%s)\n", queue[qHead].seq, why);
+    uint16_t failedSeq = queue[qHead].seq;   // disimpan dulu: popHead() membuang baris ini
+    Serial.printf("[LOG] seq %u GAGAL setelah kirim ulang (%s)\n", failedSeq, why);
+    if (testActive && queue[qHead].text[4] == 'U') testFailed++;
     batchFails++;
     popHead();
     // Langkah 9b: dalam kelompok ringkasan, satu baris yang gagal dua kali berarti logger.py tidak
-    // mendengar; sisa baris tidak dicoba lagi (hasilnya pasti sama), supaya GAGAL SIMPAN muncul
-    // dalam ~1,5 s, bukan ~16 s. Nilainya tetap dicetak di layar GAGAL SIMPAN dan di serial.
+    // mendengar (tanpa ACK) atau tidak bisa menulis CSV (NAK, mis. berkas dibuka di Excel); sisa
+    // baris tidak dicoba lagi (hasilnya pasti sama), supaya GAGAL SIMPAN muncul dalam ~1,5 s, bukan
+    // ~16 s. Nilainya tetap dicetak di layar GAGAL SIMPAN dan di serial.
+    // Perbaikan langkah 10 (uji papan): alasan sebenarnya (NAK / tanpa ACK) ikut dicetak, supaya
+    // pesan tidak menyesatkan.
     if (batchActive && qCount > 0) {
-      Serial.printf("[LOG] %u baris ringkasan lain tidak dikirim (logger.py tidak menjawab)\n", qCount);
+      Serial.printf("[LOG] %u baris ringkasan lain tidak dikirim (seq %u gagal: %s)\n",
+                    qCount, failedSeq, why);
       qCount = 0;
     }
   }
@@ -132,8 +175,18 @@ static void handleInputLine() {
   uint16_t seq = (uint16_t)atoi(inLine + 4);
   // Balasan untuk baris lain (mis. ACK terlambat dari kiriman sebelumnya) diabaikan.
   if (qCount == 0 || !headSent || seq != queue[qHead].seq) return;
-  if (isAck) popHead();
-  else       headFailed("NAK");
+  if (isAck) {
+    // Waktu kirim -> ACK (kiriman terakhir baris ini). Untuk baris uji U dikumpulkan sebagai statistik.
+    uint32_t rttUs = micros() - headSentUs;
+    if (testActive && queue[qHead].text[4] == 'U') {
+      testAcked++;
+      testSumUs += rttUs;
+      if (rttUs > testMaxUs) testMaxUs = rttUs;
+    }
+    popHead();
+  } else {
+    headFailed("NAK");
+  }
 }
 
 char logPoll() {
@@ -155,7 +208,22 @@ char logPoll() {
     }
   }
 
-  // 2) Keluaran: kirim baris terdepan, atau cek batas waktu ACK.
+  // 2) Uji ACK: isi antrean dengan baris uji selama masih ada tempat; ringkasan setelah selesai.
+  while (testToQueue > 0 && qCount < LOG_QUEUE_N) {
+    char v1[8];
+    snprintf(v1, sizeof(v1), "%u", (unsigned)(ACK_TEST_N - testToQueue + 1));
+    enqueue('U', 0, 0, v1, "0");
+    testToQueue--;
+  }
+  if (testActive && testToQueue == 0 && qCount == 0) {
+    testActive = false;
+    uint16_t n = testAcked + testFailed;
+    Serial.printf("[UJI ACK] %u/%u ACK, terlama %.1f ms, rata-rata %.1f ms, gagal %u\n",
+                  testAcked, n, testMaxUs / 1000.0f,
+                  testAcked ? (testSumUs / 1000.0f) / testAcked : 0.0f, testFailed);
+  }
+
+  // 3) Keluaran: kirim baris terdepan, atau cek batas waktu ACK.
   if (qCount > 0) {
     if (!headSent) sendHead();
     else if (millis() - headSentMs >= ACK_TIMEOUT_MS) headFailed("tanpa ACK");

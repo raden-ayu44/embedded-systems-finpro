@@ -10,9 +10,9 @@
 // - checksum = XOR semua byte dari 'H' sampai tepat sebelum '*', dua digit heksadesimal huruf besar.
 //
 // Pengiriman: baris masuk antrean dan dikirim SATU per SATU. Tiap baris menunggu "ACK,<seq>"
-// paling lama ACK_TIMEOUT_MS (750 ms). NAK atau tanpa balasan -> kirim ulang sekali; gagal lagi ->
+// paling lama ACK_TIMEOUT_MS (500 ms). NAK atau tanpa balasan -> kirim ulang sekali; gagal lagi ->
 // baris itu dihitung gagal. Di dalam kelompok ringkasan, sisa baris lalu dibuang (logger.py jelas
-// tidak menjawab), jadi GAGAL SIMPAN muncul dalam ~1,5 s. Tidak ada penungguan di dalam fungsi:
+// tidak menjawab), jadi GAGAL SIMPAN muncul dalam ~1 s. Tidak ada penungguan di dalam fungsi:
 // logPoll() dipanggil tiap loop() dan langsung kembali.
 //
 // Teks debug lain (mis. "[FSM] ...") tidak diawali "HGD", jadi diabaikan logger.py.
@@ -41,3 +41,12 @@ bool logBatchFailed();
 
 // Batalkan semua baris yang belum ber-ACK (reset total, Bagian 9.5 butir 5).
 void logCancel();
+
+// Uji U9 / E5 (langkah 10, perintah u): kirim 100 baris uji jenis U (logger.py membalas ACK tetapi
+// tidak menulisnya ke CSV), ukur waktu kirim -> ACK tiap baris, lalu cetak ringkasan
+// "[UJI ACK] n/100 ACK, terlama .. ms, rata-rata .. ms".
+void logStartAckTest();
+
+// Uji U10 (langkah 10, perintah r): kirim satu baris uji U yang checksum-nya sengaja salah pada
+// kiriman pertama; logger.py harus membalas NAK, lalu kiriman ulang (benar) di-ACK.
+void logSendCorruptTest();
