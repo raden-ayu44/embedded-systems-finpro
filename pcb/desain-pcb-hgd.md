@@ -3,7 +3,7 @@ title: Desain PCB dan Skema - Hand Grip Dynamometer
 
 ---
 
-# Desain PCB dan Skema - Hand Grip Dynamometer (v4)
+# Desain PCB dan Skema - Hand Grip Dynamometer (v5)
 **Proyek akhir - embedded system**
 
 > Skema dan PCB (skema termasuk): komponen, alokasi pin, rantai sinyal, load cell, catu daya, keputusan catu LCD, wiring antarmodul, PCB `hgd-v1` (KiCad), netlist, usulan penempatan, pemeriksaan load cell, dan sisa pekerjaan. Berkas netlist dan daftar komponen: `pcb_netlist.xlsx`; berkas KiCad: [kicad/](kicad/README.md); gambar penempatan: [gambar/penempatan-pcb-hgd.svg](gambar/penempatan-pcb-hgd.svg); log langkah KiCad: [log-kerja-kicad-hgd.md](log-kerja-kicad-hgd.md). Firmware ada di [alur-program-hgd.md](../firmware/alur-program-hgd.md); induk: [catatan-proyek-hgd.md](../catatan-proyek-hgd.md).
@@ -85,8 +85,30 @@ ESP32  ── (raw − offset) / skala = kg ── state machine
 | +5V | 5 V (✔ VIN terukur 4,98-5,08 V; 4,93 V di backpack) | VIN papan (USB) | LCD + backpack, sisi HV level shifter, C3, C4 |
 
 - Papan dicatu dari USB saja; tidak ada baterai dan tidak ada catu luar yang disambung ke `VIN` bersamaan dengan USB.
-- Estimasi arus: tipikal ≈ 117 mA, puncak ≈ 540 mA (didominasi lonjakan WiFi TX, yang tidak aktif pada jalur logging inti); margin terhadap regulator 1 A. LED kini ≈ 6 mA (R1 220 ohm), bukan 15 mA; LED daya D2 menambah ≈ 6 mA tetap ((3,3 − 2,0) / 220). Diverifikasi di uji S3.
+- Estimasi arus: tipikal ≈ 117 mA, puncak ≈ 540 mA (didominasi lonjakan WiFi TX, yang tidak aktif pada jalur logging inti); margin terhadap regulator 1 A. LED kini ≈ 6 mA (R1 220 ohm), bukan 15 mA; LED daya D2 menambah ≈ 6 mA tetap ((3,3 − 2,0) / 220). Diverifikasi di uji S3 (24 Okt. 2026, Bagian 5.1): D2 terukur 6,7 mA, beban luar total 43,5 mA diam / 44,3 mA puncak, total dari USB ≈ 100-150 mA (dengan estimasi papan DevKit).
 - Eksitasi load cell diturunkan dari catu HX711 (E+ = AVDD). Pengukuran bersifat **rasiometrik**, jadi jumlah counts per kg praktis sama pada 5 V dan 3,3 V; yang berubah adalah noise relatif. Pada 3,3 V noise terukur σ ≈ 0,7 g (E1), jauh di bawah kebutuhan.
+### 5.1 Arus tiap rail, terukur (uji S3, 24 Okt. 2026)
+Multimeter digital, arus DC lewat jack mA, dipasang **seri menggantikan kabel catu** tiap beban (kabel dicabut saat USB tidak tersambung; pemutusan dicek dengan uji kontinuitas sebelum dinyalakan). Rentang 200 mA, kecuali B2 pada rentang 2 mA. Rentang 2 mA terlalu kecil untuk LCD (26 mA): meter menampilkan lewat batas dan tegangan jatuh di meter membuat LCD tidak bekerja. Firmware UTS final (core 3.3.11), catu USB laptop.
+
+- **Diam**: `SIAP` ("Tekan tmbl START"), tare selesai, kedip restart sudah berhenti, alat tidak disentuh.
+- **Puncak**: `GENGGAM` dengan genggaman stabil (LED D1 menyala, "Lepas ok"): semua beban aktif bersamaan. Tanpa Wi-Fi/Bluetooth dan tanpa motor, ini keadaan beban tertinggi alat.
+
+| Rail / beban | Isi | Diam (mA) | Puncak (mA) | Sumber |
+|---|---|---|---|---|
+| A1: +3V3 | LED daya D2 + R2 220 Ω | 6,7 | 6,7 | terukur (puncak sama: D2 langsung dari 3V3) |
+| A2: +3V3 | HX711 + eksitasi load cell, sisi LV level shifter | 10,4 | 10,4 | terukur |
+| B1: +5V (VIN) | LCD 1602 + backpack PCF8574 (lampu latar) | 26,4 | 27,0 | terukur (puncak berkedip 26,0-27,0: pembaruan layar saat menggenggam) |
+| B2: +5V (VIN) | sisi HV level shifter (pull-up 10 kΩ) | < 0,01 | 0,1-0,2 | terukur, rentang 2 mA (arus hanya saat jalur I2C rendah) |
+| **Beban luar total** | A1 + A2 + B1 + B2 | **43,5** | **44,3** | terukur |
+| Papan DevKit sendiri | ESP32 tanpa radio, CP2102, regulator 3,3 V, LED daya papan; D1 (≈ 6 mA) saat puncak | ≈ 55-105 | ≈ 61-111 | **estimasi**: ESP32 30-68 mA (datasheet ESP32 series, Modem-sleep 240 MHz dual-core, radio mati); CP2102 dan regulator = nilai tipikal, datasheet keduanya tidak ada di repo. Tidak dapat diukur tanpa memutus jalur 5 V USB |
+| **Total dari USB** | terukur + estimasi | **≈ 100-150** (tipikal ≈ 115-120) | **≈ 105-155** | |
+| S3 (proposal) | | rata-rata ≤ 150 | puncak ≤ 600 | memenuhi |
+| Estimasi di atas | | 117 | 540 | puncak 540 mA berasal dari lonjakan Wi-Fi TX, yang tidak dipakai firmware |
+
+- Beban luar praktis sama pada keadaan diam dan puncak, karena tidak ada beban di breadboard yang dinyalakan-dimatikan firmware; LED D1 (GPIO27) menarik arus dari 3V3 di dalam DevKit, bukan dari rail breadboard.
+- Batas metode: multimeter memperbarui tampilan ≈ 2-3 kali per detik, jadi lonjakan singkat (mis. saat dinyalakan) tidak tertangkap. Tukar probe merah/hitam hanya membalik tanda (−), bukan besarnya.
+- **Wiring breadboard yang terlihat saat pengukuran:** beban 3,3 V diberi dua kabel dari pin 3V3 DevKit (rail atas: D2; rail bawah: HX711 dan sisi LV), LCD (VCC backpack) dan sisi HV diberi kabel langsung dari pin VIN. Secara listrik sama dengan net +3V3 dan +5V di skema (tidak ada perbedaan untuk R8).
+
 - Decoupling: C1 100 nF keramik + C2 10 µF elektrolit di +3V3 dekat J1 (HX711); C3 10 µF elektrolit + C4 100 nF keramik di +5V dekat J2 (LCD). Elektrolit: + ke rail.
 
 ---
@@ -282,6 +304,7 @@ Penyimpanan: kotak kedap udara dengan gelembung plastik (sisi gelembung menghada
 
 | Versi | Tanggal | Perubahan |
 |---|---|---|
+| v5 | 24 Okt. 2026 | Bagian 5.1: arus tiap rail terukur (uji S3), diam dan puncak, dengan estimasi papan DevKit dan perbandingan terhadap S3 |
 | v4 | 17 Okt. 2026 | **Skema dan PCB v1 selesai (belum disetujui)**; gambar penempatan diperbarui dari papan final (D2/R2, pour GND, via); Gerber diekspor ulang dan dicek di viewer JLCPCB; berkas KiCad, salinan 3D, dan STEP di repo; log kerja KiCad; pembersihan berkas dan sisa pekerjaan diperbarui; pour GND F.Cu dan B.Cu + 57 via jahit; nomor tim dan nama proyek di silkscreen; lubang mounting dipertahankan; KiCad diizinkan sebagai pengganti EasyEDA; LED daya D2 (3 mm) + R2 220 ohm dari +3V3; netlist dan keputusan desain diperbarui; ERC 0 error (no-connect, `PWR_FLAG`); hitungan pull-up I2C terukur (LV 9,86 kΩ, HV 3,17 kΩ gabungan): tanpa pull-up tambahan; tegangan shifter tersolder 3,26 V / 4,98 V |
 | v3 | 16-17 Okt. 2026 | 17 Okt.: teks gambar dari silkscreen berkas papan; Gerber diekspor dan dicek (belum di repo). 16 Okt.: gambar `penempatan-pcb-hgd.svg` diganti dengan PCB v1 berjalur final dari berkas KiCad (lolos DRC, belum disetujui); skema `hgd-v1.kicad_sch` ditambahkan di `kicad/proyek/` |
 | v2 | 16 Okt. 2026 | R1 100 → 220 ohm; catu LCD diputuskan (5 V + level shifter BSS138 4 kanal); rail +5V; tanpa baterai; DevKit dan semua soket di sisi bawah, modul dicolok ke soket (HX711 langsung); netlist KiCad `hgd-v1`; usulan penempatan v2 dan gambar; hasil uji bench 15 Okt. 2026 |
