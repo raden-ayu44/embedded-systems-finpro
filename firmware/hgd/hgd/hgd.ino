@@ -39,7 +39,9 @@
     gagal hanya dibuang dengan peringatan, tidak pernah GAGAL SIMPAN.
   - Serial: [FSM] A -> B, [GRIP], [COMPUTE], [REST], [SUMMARY], [FAULT], [LOG]; 't' tare, 'p' nilai,
     'x' skala demo /40 bolak-balik (bertahan sampai sesi baru), 's' simulasi saturasi bolak-balik,
-    'u' uji ACK 100 baris (U9/E5), 'r' satu baris rusak (U10).
+    'u' uji ACK 100 baris (U9/E5), 'r' satu baris rusak (U10), 'w' uji watchdog (langkah 11).
+  - Langkah 11: watchdog loop() (enableLoopWDT), sinkron ulang LCD tanpa blocking tiap 2 s,
+    kg di LCD dibatasi -9.99..99.99 dan tanpa "-0.00", log [TIMING] latensi LED (S5).
   - Langkah 8c/8d: offset tare di luar -39000 +- 20000 counts -> tare diulang ("Nol ulang: lepas");
     terus-menerus 10 s -> READING_INVALID (load cell terputus).
 
@@ -86,9 +88,17 @@ static void serialCmd(char c) {
   } else if (c == 'r') {
     // Uji U10: satu baris dengan checksum salah -> logger.py harus membalas NAK, lalu ACK.
     logSendCorruptTest();
+  } else if (c == 'w') {
+    // Uji watchdog (langkah 11): loop() sengaja macet. Tanpa watchdog alat akan diam selamanya;
+    // dengan watchdog ESP32 reset sendiri setelah ~5 s (boot baru = nomor boot baru).
+    Serial.println("[CMD] w: uji watchdog, loop() sengaja macet; ESP32 harus reset dalam ~5 s");
+    Serial.flush();
+    while (true) {
+      // sengaja kosong: watchdog tidak diberi makan
+    }
   } else if (c == 'p') {
-    Serial.printf("[CMD] p: raw=%ld offset=%ld kg=%+.3f state=%s skala=%.1f%s%s\n",
-                  (long)sensorRaw(), (long)sensorOffset(), sensorKg(), stateName(fsmState()),
+    Serial.printf("[CMD] p: boot=%s raw=%ld offset=%ld kg=%+.3f state=%s skala=%.1f%s%s\n",
+                  logBootId(), (long)sensorRaw(), (long)sensorOffset(), sensorKg(), stateName(fsmState()),
                   sensorScale(), sensorDemoActive() ? " DEMO" : "",
                   sensorSimSaturateActive() ? " SIM-SAT" : "");
   }
@@ -121,6 +131,14 @@ void setup() {
   logInit();   // nomor boot acak, sebelum baris log pertama
 
   fsmInit();   // READY dengan kedip restart dan tare pertama
+
+  // Watchdog (Bagian 4.9, langkah 11): task watchdog untuk task loop(). Core Arduino-ESP32 memberi
+  // makan watchdog SATU kali setelah tiap putaran loop() selesai (loopTask di main.cpp), jadi
+  // tidak ada feedLoopWDT() tambahan di kode ini. loop() yang macet > 5 s (batas core) membuat
+  // ESP32 reset sendiri, bukan diam selamanya. Diaktifkan paling akhir: init LCD (~1 s) tidak ikut
+  // diawasi.
+  enableLoopWDT();
+  Serial.println("[WDT] watchdog loop() aktif (batas 5 s)");
 }
 
 void loop() {

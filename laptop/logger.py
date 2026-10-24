@@ -13,7 +13,7 @@ Peran (alur-program-hgd.md Bagian 4.8, 5.22, 9):
                               datang, semua baris G upaya itu + baris M ditulis sekaligus, lalu ACK.
                               Jadi ACK penanda berarti "rekaman upaya ini sudah di disk".
 - baris lain (teks debug, [FAULT], [GAGAL SIMPAN], ...) dicetak ke konsol, tidak ke CSV;
-- tombol yang diketik di konsol ini (t, p, x, s, u, r) diteruskan ke ESP32, karena Serial Monitor
+- tombol yang diketik di konsol ini (t, p, x, s, u, r, w) diteruskan ke ESP32, karena Serial Monitor
   tidak bisa dibuka selama logger.py memegang port.
 
 Kebutuhan: Python 3 dan pyserial (diuji dengan Python 3.11 dan pyserial 3.5):
@@ -34,6 +34,8 @@ Alat uji: --kirim u (uji ACK 100 baris, U9/E5), --kirim r (baris rusak -> NAK, U
 Catatan:
 - Port dibuka dengan RTS dan DTR mati, jadi membuka (atau membuka ulang) logger.py TIDAK me-reset
   ESP32 dan sesi di RAM tidak hilang. (Pada papan DevKit, RTS terhubung ke pin EN = reset.)
+- Langkah 11: bila port hilang (kabel USB dicabut / alat mati), logger.py tidak berhenti; ia
+  mencetak peringatan, menyimpan rekaman yang tertunda, dan membuka port lagi tiap 1 s.
 - Bila ACK hilang dan ESP32 mengirim ulang baris yang sama, baris itu dibalas ACK lagi tetapi tidak
   ditulis dua kali. Langkah 10c: tiap baris membawa nomor boot ESP32, jadi baris yang sama persis
   SETELAH reset ESP32 (seq dan sesi mulai lagi dari 1) tidak dianggap duplikat.
@@ -56,7 +58,7 @@ except ImportError:  # sistem lain: penerusan tombol tidak tersedia
     msvcrt = None
 
 BAUD = 115200
-KEYS_TO_FORWARD = "tpxsur"  # perintah debug firmware (Bagian 5.21)
+KEYS_TO_FORWARD = "tpxsurw"  # perintah debug firmware (Bagian 5.21); w = uji watchdog (langkah 11)
 
 # Jumlah kolom tiap jenis baris, termasuk "HGD", jenis, seq dan boot (Bagian 9.2).
 FIELD_COUNT = {"T": 8, "S": 8, "E": 8, "U": 8, "G": 9, "M": 17}
@@ -397,6 +399,25 @@ def forward_keys(port):
             print("[logger] kirim '%s' ke ESP32" % ch)
 
 
+def open_port(name):
+    """Buka port serial dengan RTS dan DTR mati SEBELUM dibuka: ESP32 tidak di-reset (pada DevKit,
+    RTS terhubung ke EN = reset), jadi sesi di RAM tidak hilang saat logger.py dibuka (lagi)."""
+    port = serial.Serial()
+    port.port = name
+    port.baudrate = BAUD
+    port.timeout = 0
+    port.rts = False
+    port.dtr = False
+    port.open()
+    return port
+
+
+def drain_keys():
+    """Buang tombol yang diketik selama port hilang, supaya tidak terkirim mendadak sesudahnya."""
+    while msvcrt and msvcrt.kbhit():
+        msvcrt.getwch()
+
+
 def main():
     ap = argparse.ArgumentParser(description="Pencatat sesi HGD (CSV + ACK)")
     ap.add_argument("port", help="port serial ESP32, mis. COM3")
@@ -410,13 +431,8 @@ def main():
     sys.stdout.reconfigure(errors="backslashreplace", line_buffering=True)
     os.makedirs(args.dir, exist_ok=True)
 
-    port = serial.Serial()
-    port.port = args.port
-    port.baudrate = BAUD
-    port.timeout = 0
-    port.rts = False  # RTS/DTR mati sebelum dibuka: ESP32 tidak di-reset
-    port.dtr = False
-    port.open()
+    port = open_port(args.port)  # gagal di awal (mis. port salah): berhenti dengan pesan galat
+    t_reopen = 0.0               # waktu coba buka ulang terakhir (bila port hilang)
 
     logs = {
         "daily": CsvLog(args.dir, "hgd_", DAILY_HEADER),
@@ -434,31 +450,60 @@ def main():
         print("[logger] tombol diteruskan ke ESP32: %s; berhenti: Ctrl+C" % ", ".join(KEYS_TO_FORWARD))
     try:
         while True:
-            data = port.read(port.in_waiting or 1)
-            if data:
-                buf += data
-                while b"\n" in buf:
-                    raw, buf = buf.split(b"\n", 1)
-                    line = raw.decode("ascii", "backslashreplace").strip()
-                    if not line:
-                        continue
-                    if "HGD," in line:
-                        handle_hgd(line, port, logs, grips, recent, stats)
-                    else:
-                        print(line)  # teks debug ESP32: hanya ke konsol
-            else:
-                time.sleep(0.001)  # tidak ada data: istirahat 1 ms supaya CPU tidak 100 %
-            forward_keys(port)
-            grips.retry()  # rekaman tertunda (paling sering tiap RETRY_S)
-            if to_send and time.time() - t_start > 3.0:  # --kirim: satu huruf per detik
-                port.write(to_send[0].encode("ascii"))
-                print("[logger] kirim '%s' ke ESP32 (--kirim)" % to_send[0])
-                to_send = to_send[1:]
-                t_start = time.time() - 2.0
+            grips.retry()  # rekaman tertunda (paling sering tiap RETRY_S), juga saat port hilang
+            if port is None:
+                # Langkah 11: port hilang (kabel USB dicabut, atau alat mati karena USB juga catunya).
+                # Coba buka lagi tiap 1 s; rekaman yang tertunda tetap di memori. Membuka lagi tidak
+                # me-reset ESP32 (RTS/DTR mati).
+                drain_keys()
+                if time.time() - t_reopen >= 1.0:
+                    t_reopen = time.time()
+                    try:
+                        port = open_port(args.port)
+                        buf = b""
+                        print("[logger] port %s tersambung lagi" % args.port)
+                    except serial.SerialException:
+                        pass
+                time.sleep(0.05)
+                continue
+            try:
+                data = port.read(port.in_waiting or 1)
+                if data:
+                    buf += data
+                    while b"\n" in buf:
+                        raw, buf = buf.split(b"\n", 1)
+                        line = raw.decode("ascii", "backslashreplace").strip()
+                        if not line:
+                            continue
+                        if "HGD," in line:
+                            handle_hgd(line, port, logs, grips, recent, stats)
+                        else:
+                            print(line)  # teks debug ESP32: hanya ke konsol
+                else:
+                    time.sleep(0.001)  # tidak ada data: istirahat 1 ms supaya CPU tidak 100 %
+                forward_keys(port)
+                if to_send and time.time() - t_start > 3.0:  # --kirim: satu huruf per detik
+                    port.write(to_send[0].encode("ascii"))
+                    print("[logger] kirim '%s' ke ESP32 (--kirim)" % to_send[0])
+                    to_send = to_send[1:]
+                    t_start = time.time() - 2.0
+            except serial.SerialException as err:
+                # Sebelum langkah 11 logger.py berhenti di sini dan pencatatan mati sampai
+                # dijalankan ulang. Sekarang: tutup port, tunggu, buka lagi (lihat atas).
+                print("[logger] PERINGATAN: port %s hilang (%s); menunggu tersambung lagi, "
+                      "berhenti: Ctrl+C" % (args.port, err))
+                try:
+                    port.close()
+                except serial.SerialException:
+                    pass
+                port = None
+                buf = b""  # baris yang terpotong saat port hilang dibuang
+                t_reopen = time.time()
     except KeyboardInterrupt:
         pass
     finally:
-        port.close()
+        if port is not None:
+            port.close()
         grips.retry(final=True)  # percobaan terakhir menulis rekaman yang tertunda
         # Penanda yang ditulis terlambat tidak di-ACK (ESP32 sudah membuangnya), jadi tidak masuk
         # hitungan "baris ditulis"; dihitung terpisah di "penanda".

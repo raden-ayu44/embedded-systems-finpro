@@ -56,6 +56,8 @@ void logInit() {
   Serial.printf("[LOG] boot %s\n", bootId);
 }
 
+const char* logBootId() { return bootId; }
+
 // Susun satu baris ber-ACK: "HGD,<jenis>,<seq>,<boot>,<fields>", tambah checksum, masukkan ke
 // antrean. fields = kolom khusus jenis itu, sudah dipisah koma, mis. "3,2,46.82,0" untuk T.
 static uint16_t enqueue(char type, const char* fields) {
@@ -66,7 +68,7 @@ static uint16_t enqueue(char type, const char* fields) {
   LogEntry& e = queue[(qHead + qCount) % LOG_QUEUE_N];
   e.seq = nextSeq++;
   if (nextSeq == 0) nextSeq = 1;   // seq 0 berarti "tanpa ACK" (baris G); lewati saat meluap
-  char body[LOG_LINE_MAX];
+  char body[LOG_LINE_MAX - 3];   // 3 karakter disisakan untuk "*CS", jadi baris lengkap selalu muat
   snprintf(body, sizeof(body), "HGD,%c,%u,%s,%s", type, e.seq, bootId, fields);
   snprintf(e.text, sizeof(e.text), "%s*%02X", body, checksum(body));
   qCount++;

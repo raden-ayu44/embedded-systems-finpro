@@ -13,6 +13,7 @@ struct SensorState {
   float    kg;            // (raw - offset) / scale
   uint32_t lastSampleMs;  // millis() saat sampel terakhir
   uint32_t readUs;        // lama hxRead() terakhir
+  uint32_t lastSampleUs;  // micros() saat baca sampel terakhir dimulai (uji waktu LED, langkah 11)
   uint8_t  sameRun;       // jumlah sampel berturut-turut dengan raw yang sama (termasuk yang terakhir)
   uint8_t  shortGapRun;   // jumlah sampel berturut-turut yang datang < SAMPLE_MIN_GAP_MS setelah sebelumnya
   uint32_t lastGapMs;     // jarak sampel terakhir ke sampel sebelumnya (ms), untuk pesan galat
@@ -121,6 +122,7 @@ bool sensorPoll() {
 
   sen.raw = raw;
   sen.lastSampleMs = now;
+  sen.lastSampleUs = t0;
   sen.kg = (float)(raw - sen.offset) / sen.scale;
   bufAdd(sen.kg);
 
@@ -232,6 +234,7 @@ float    sensorKg()           { return sen.kg; }
 float    sensorKgReal()       { return (float)(sen.raw - sen.offset) / SCALE_COUNTS_PER_KG; }
 uint32_t sensorLastSampleMs() { return sen.lastSampleMs; }
 uint32_t sensorReadUs()       { return sen.readUs; }
+uint32_t sensorLastSampleUs() { return sen.lastSampleUs; }
 
 FaultType sensorCheck() {
   // 1) Tidak ada sampel baru selama HX711_TIMEOUT_MS: HX711 tidak menjawab
