@@ -460,6 +460,17 @@ static State handleRest(Press press) {
   if (restPhase == RELEASE_REST) {
     // Sub-fase 1a: tunggu genggaman dilepas. Saat itu LED mati dan hitung mundur mulai.
     if (!restCounting) {
+      if (sensorKg() < THRESHOLD_ONSET_KG && session.trialNo >= TRIALS_PER_SESSION) {
+        // Setelah percobaan 3 tidak ada istirahat: istirahat ada untuk pemulihan otot SEBELUM
+        // genggaman berikutnya, dan sesudah percobaan 3 tidak ada genggaman lagi. Dilepas ->
+        // langsung "NEXT > ringkasan"; hasil percobaan 3 tetap tampil di baris 1.
+        ledSet(false);
+        restPhase = WAIT_NEXT;
+        buttonReset();                      // sub-fase 2 menunggu tombol: tekanan lama dibuang
+        displayRequest();
+        Serial.println("[REST] percobaan terakhir dilepas: tanpa istirahat, tunggu NEXT");
+        return REST;
+      }
       if (sensorKg() < THRESHOLD_ONSET_KG) {
         ledSet(false);
         restCounting = true;
@@ -594,7 +605,11 @@ static void drawScreen() {
       return;   // one-shot tanpa layar
     case REST:    // "Hasil 47.23 kg" / "Lepas>Rest 60s" lalu "NEXT > lanjut"
       snprintf(l0, sizeof(l0), "Hasil %5.2f kg", tr.ref);
-      if (restPhase == RELEASE_REST) {
+      if (restPhase == RELEASE_REST && session.trialNo >= TRIALS_PER_SESSION) {
+        // Percobaan 3: tanpa istirahat, jadi tanpa hitung mundur. Gaya sama dengan "Lepas>Rest";
+        // "Lepas genggaman" tidak dipakai karena di SIAP artinya lain (alat masih ditekan).
+        snprintf(l1, sizeof(l1), "Lepas>ringkasan");
+      } else if (restPhase == RELEASE_REST) {
         // Sebelum dilepas: angka tetap REST_S. Setelah dilepas (langkah 7): sisa detik, dibulatkan
         // ke atas (59,2 s tampil "60s", 0,4 s tampil " 1s"), digambar ulang tiap LCD_REFRESH_MS.
         // Saat dijeda angkanya berhenti (restElapsedMs() tidak bertambah).

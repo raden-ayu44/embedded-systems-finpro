@@ -16,6 +16,7 @@ title: Alur Program - Hand Grip Dynamometer
 > - (7) **Identifier kode berbahasa Inggris** dengan tabel pemetaan nama (Bagian 1.4a); state machine berbentuk `switch` + handler per state (Bagian 1.3).
 > - (8) **Build:** PlatformIO (core 2.0.17) untuk pengembangan, Arduino IDE core 3.3.11 untuk build akhir dan flash demo; satu folder sketsa untuk keduanya (Bagian 12.1).
 > - (9) **`logger.py`** meneruskan tombol (`x`) ke ESP32 dan mencetak baris non-`HGD` ke konsolnya; **layar `GAGALSIMPAN`** bergantian tiap 3 detik menampilkan semua nilai (A8 selesai); X4 diperluas.
+> - (11) **Tanpa istirahat setelah percobaan 3** (keputusan tim, 24 Okt. 2026) **menyimpang dari proposal** (istirahat ≈ 1 menit setelah tiap percobaan): istirahat ada untuk pemulihan otot sebelum genggaman berikutnya, dan setelah percobaan 3 tidak ada genggaman lagi. Hasil percobaan 3 tetap tampil (`Lepas>ringkasan` sampai dilepas, lalu langsung `NEXT > ringkasan`); pengawas tetap yang memulai penyimpanan dengan TAP (Bagian 6.2, 10.2).
 > - (10) **Uji galat diperbarui:** X1 dipecah (X1a DT → `HX711_TIMEOUT`, X1b SCK → `READING_INVALID`); X2 tanpa eksitasi berlebih (cabut satu kabel sinyal); X3 lewat `x`; X5 = catu hilang (bukan `GAGALSIMPAN`); X11a-c reset total.
 >
 > Versi v4 (16 Okt. 2026): E1 resmi setelah pemanasan (σ 35,0 counts), uji arah tekan, U8 kumulatif. Versi v3 (16 Okt. 2026): hasil uji bench 15 Okt. 2026 (U4, U5, U7, U8 sebagian, E1) dicatat; `THRESHOLD_ONSET_KG` = 1,0 kg terkonfirmasi E1; data untuk A5 dan A12 di Bagian 18. Versi v2 (15 Okt. 2026): sitasi dan rujukan silang dikoreksi terhadap modul praktikum dan buku, hal terbuka dicatat di Bagian 18; keputusan desain tidak berubah. Versi v1 (13 Okt. 2026) disusun dari alur proyek WIP-0.1 (10 Okt. 2026) dan Bagian 6-8 catatan lama. Tanda (✔ ▣ ◐ `[sitasi]`) dijelaskan di [catatan-proyek-hgd.md](../catatan-proyek-hgd.md); sumber `[sitasi]` ada di [sitasi-hgd.md](../sitasi/sitasi-hgd.md).
@@ -465,6 +466,7 @@ SESI (3 percobaan)
    └─ [RESPON_ISTIRAHAT]  LED tetap menyala (bila masih stabil pada batas 5 s) sampai genggaman dilepas
         ├─ Sub-fase 1 LEPAS_ISTIRAHAT: LCD hasil + "Lepas, rest 60s";
         │             kg < onset → LED mati; hitung mundur 60→0 (layar tiap T_REFRESH_LCD_MS = 500 ms, tanpa ganti layar)
+        │             percobaan 3: LCD hasil + "Lepas>ringkasan"; kg < onset → LED mati, langsung sub-fase 2 (tanpa istirahat)
         └─ Sub-fase 2 TUNGGU_LANJUT: LCD hasil + "NEXT > lanjut"; tunggu TAP
              ├─ percobaanKe < 3 → percobaanKe++ → SIAP
              └─ percobaanKe = 3 → RINGKASAN
@@ -519,6 +521,7 @@ SESI (3 percobaan)
 **[RESPON_ISTIRAHAT]** (dua sub-fase)
 - *Sub-fase 1:* tampil hasil dan perintah lepas. LED masih menyala bila percobaan keluar lewat plateau. Begitu gaya turun di bawah `THRESHOLD_ONSET_KG` (nilai sama, simetris), LED mati dan hitung mundur 60 → 0 berjalan di tempat. Sisa waktu dihitung dari `millis()` tiap putaran `loop()`; layar digambar ulang tiap `T_REFRESH_LCD_MS` (500 ms) seperti layar lain. **Mengubah spesifikasi proposal S2** (update 100 ms ±10-20 ms): layar menampilkan detik bulat, jadi redraw 100 ms tidak tampak, dan modul praktikum melarang redraw lebih cepat dari dua kali per detik (A6, A7).
 - *Langkah 7 (kode):* tombol diabaikan selama hitung mundur (tekanan lama dibuang saat masuk sub-fase 2); sisa detik dibulatkan ke atas (`Lepas>Rest %2lus`, 60 … 1). **Digenggam lagi selama istirahat (keputusan tim, langkah 7b): hitung mundur dijeda** selama kg > `THRESHOLD_ONSET_KG` (angka di LCD berhenti) dan berlanjut dari angka yang sama saat dilepas; waktu menggenggam tidak dihitung sebagai istirahat (pemulihan otot). Serial: `[REST] dilepas, istirahat 60 s`, `[REST] digenggam lagi, jeda (sisa … ms)`, `[REST] dilepas lagi, lanjut`, `[REST] istirahat selesai`.
+- *Percobaan 3 (24 Okt. 2026, keputusan tim):* **tanpa istirahat**. Sub-fase 1 menampilkan hasil dan `Lepas>ringkasan` (tanpa angka hitung mundur); begitu dilepas (kg < `THRESHOLD_ONSET_KG`), LED mati dan langsung sub-fase 2. Alasan: istirahat untuk pemulihan otot sebelum genggaman berikutnya, dan setelah percobaan 3 tidak ada genggaman lagi. Teks `Lepas genggaman` tidak dipakai karena di `SIAP` artinya "alat masih ditekan".
 - *Sub-fase 2:* tampil hasil lagi dan "NEXT"; tunggu tombol. Pada percobaan ke-3 teksnya "NEXT > ringkasan".
 
 **[RINGKASAN]**
@@ -561,7 +564,8 @@ SESI (3 percobaan)
 | GENGGAM f1/f2 | kg > 80 kg (cek live) | catat galat, LED off | ERROR |
 | HITUNG | ref valid | simpan | RESPON_ISTIRAHAT |
 | HITUNG | ref tidak valid (≤ 0 atau > 80 kg) | catat galat, LED off | ERROR |
-| RESPON f1 | kg < onset | LED off, mulai hitung mundur | RESPON f1 (menghitung) |
+| RESPON f1 | kg < onset dan percobaanKe < 3 | LED off, mulai hitung mundur | RESPON f1 (menghitung) |
+| RESPON f1 | kg < onset dan percobaanKe = 3 | LED off, tanpa istirahat | RESPON f2 |
 | RESPON f1 | hitung mundur = 0 | - | RESPON f2 |
 | RESPON f2 | TAP dan percobaanKe < 3 | percobaanKe++ | SIAP (tanpa kedip) |
 | RESPON f2 | TAP dan percobaanKe = 3 | - | RINGKASAN |
@@ -842,7 +846,7 @@ timestamp,boot,sesi,percobaan,upaya,jenis,ms,t_onset_s,kg,fase,demo,keluar,onset
 3. Ada baris yang gagal setelah satu kali kirim ulang → `GAGALSIMPAN`. Nilai tampil di konsol `logger.py` bila masih hidup; bila `logger.py` sudah berhenti, salin dari layar LCD `GAGALSIMPAN` (bergantian tiap 3 detik, Bagian 10.2). Jangan membuka Serial Monitor lebih dulu (me-reset ESP32, A8).
 4. Baris galat `E` dikirim saat masuk `ERROR`. Bila ACK-nya gagal, galat tetap tampil di LCD dan di konsol `logger.py` / Serial.
 5. Baris `E` `FORCE_RESET` dikirim saat reset total; kiriman lain yang masih menunggu ACK dibatalkan lebih dulu. Bila ACK-nya gagal, reset tetap berjalan (tidak masuk `GAGALSIMPAN`).
-6. **Penanda `M` (langkah 10c)** tidak pernah menunda atau menggagalkan baris `T`/`S`. Penanda yang gagal setelah kirim ulang hanya dibuang dengan peringatan `[LOG] PERINGATAN: penanda genggaman seq … dibuang` dan tidak dihitung sebagai gagal kelompok. Penanda dikirim paling lambat di `HITUNG` percobaan 3 dan paling lama ≈ 1 s di antrean, jadi biasanya antrean sudah kosong saat `RINGKASAN`; bila belum, `logBatchStart()` membuang penanda yang masih di depan antrean sebelum baris ringkasan dimasukkan.
+6. **Penanda `M` (langkah 10c)** tidak pernah menunda atau menggagalkan baris `T`/`S`. Penanda yang gagal setelah kirim ulang hanya dibuang dengan peringatan `[LOG] PERINGATAN: penanda genggaman seq … dibuang` dan tidak dihitung sebagai gagal kelompok. Penanda dikirim paling lambat di `HITUNG` percobaan 3, lalu genggaman harus dilepas dan NEXT ditekan; dengan `logger.py` berjalan penanda selesai (ACK atau NAK) dalam beberapa ms, jadi biasanya antrean sudah kosong saat `RINGKASAN`; bila belum, `logBatchStart()` membuang penanda yang masih di depan antrean sebelum baris ringkasan dimasukkan.
 
 ### 9.6 Prasyarat dan batasan
 - Laptop host tersambung USB dan `logger.py` sudah berjalan **sebelum** sesi dimulai.
@@ -882,7 +886,8 @@ timestamp,boot,sesi,percobaan,upaya,jenis,ms,t_onset_s,kg,fase,demo,keluar,onset
 | RESPON sub-fase 1 (sebelum lepas) | `Hasil 47.23 kg` (`ref`, `%5.2f`) | `Lepas>Rest 60s` |
 | RESPON sub-fase 1 (hitung mundur) | `Hasil 47.23 kg` | `Lepas>Rest 58s` (detik bulat, `%2lus`) |
 | RESPON sub-fase 2 | `Hasil 47.23 kg` | `NEXT > lanjut` |
-| RESPON sub-fase 2 (percobaan 3) | `Hasil 46.90 kg` | `NEXT > ringkasan` |
+| RESPON sub-fase 1 (percobaan 3, sebelum lepas; tanpa istirahat) | `Hasil 46.90 kg` | `Lepas>ringkasan` |
+| RESPON sub-fase 2 (percobaan 3, langsung setelah dilepas) | `Hasil 46.90 kg` | `NEXT > ringkasan` |
 | RINGKASAN (mengirim, menunggu ACK; langkah 9) | `Mx47.23 Av44.81` | `Menyimpan...` |
 | RINGKASAN (semua ACK; bergantian tiap 2 s) | `Mx47.23 Av44.81` | `Data tersimpan` / `Tekan: RESTART` |
 | ERROR | `ERR:HX711 TMOUT` | `RAW -1234567` |
@@ -917,7 +922,7 @@ timestamp,boot,sesi,percobaan,upaya,jenis,ms,t_onset_s,kg,fase,demo,keluar,onset
 3. Pengguna menekan START (kedip berhenti) dan mengambil genggaman; layar menampilkan kg langsung. LED menyala begitu genggaman stabil (plateau).
 4. LED menyala saat genggaman stabil; setelah 3 detik pengguna boleh melepas kapan saja, paling lama 5 detik (langkah 6d). Setelah dilepas (atau pada 5 detik), layar menampilkan hasil; bila masih digenggam pada 5 detik, layar menampilkan perintah melepas dan LED tetap menyala (bila stabil) sampai dilepas. Hasil = bagian stabil terkuat dari genggaman, atau bagian terkuat bila tidak pernah stabil.
 5. Setelah genggaman dilepas, LED mati dan hitung mundur istirahat 60 detik berjalan; lalu "NEXT".
-6. Diulang sampai tiga percobaan; "NEXT > ringkasan".
+6. Diulang sampai tiga percobaan; setelah percobaan 3 tanpa istirahat: "Lepas>ringkasan", lalu "NEXT > ringkasan".
 7. Ringkasan: puncak dan rerata; data otomatis tersimpan ke CSV; RESTART (TAP) untuk sesi baru, LED berkedip 5 detik.
 8. Bila alat perlu dimulai ulang dari state mana pun: pengawas menahan tombol 15 detik (reset total); sesi berjalan dibuang, nomor sesi naik, LED berkedip 5 detik.
 

@@ -129,9 +129,10 @@ static void popHead() {
 
 void logBatchStart() {
   // Langkah 10c: penanda M tidak boleh menunda atau menggagalkan baris ringkasan T/S di
-  // belakangnya. Penanda dikirim jauh sebelum RINGKASAN (paling lambat di HITUNG percobaan 3,
-  // lalu istirahat >= 10 s), dan satu penanda paling lama ~1 s di antrean, jadi biasanya antrean
-  // sudah kosong di sini. Bila belum, penanda yang masih di depan dibuang sekarang.
+  // belakangnya. Penanda dikirim sebelum RINGKASAN (paling lambat di HITUNG percobaan 3, lalu
+  // genggaman dilepas dan NEXT ditekan); dengan logger.py berjalan penanda selesai (ACK atau NAK)
+  // dalam beberapa ms, jadi biasanya antrean sudah kosong di sini. Bila belum (mis. logger.py
+  // tidak menjawab), penanda yang masih di depan dibuang sekarang.
   while (qCount > 0 && headType() == 'M') {
     Serial.printf("[LOG] seq %u (penanda M) dibuang: ringkasan sesi didahulukan\n", queue[qHead].seq);
     popHead();

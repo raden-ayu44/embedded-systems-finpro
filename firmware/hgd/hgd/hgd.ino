@@ -22,7 +22,8 @@
     ("Hasil xx.xx kg" / "Lepas>Rest 60s", LED tetap menyala sampai dilepas).
   - REST: setelah dilepas hitung mundur "Lepas>Rest 60s" ... " 1s" (langkah 7, TAP diabaikan;
     digenggam lagi = hitung mundur dijeda sampai dilepas), lalu
-    "NEXT > lanjut"; TAP -> percobaan berikutnya. Setelah 3 -> SUMMARY
+    "NEXT > lanjut"; TAP -> percobaan berikutnya. Percobaan 3 tanpa istirahat: "Lepas>ringkasan"
+    sampai dilepas, lalu langsung "NEXT > ringkasan". Setelah 3 -> SUMMARY
     ("Mx.. Av.." tanpa kg / "Menyimpan...", lalu "Data tersimpan" dan "Tekan: RESTART" bergantian
     tiap 2 s); TAP -> sesi baru (kedip).
   - Galat sensor di READY/GRIP/COMPUTE/REST -> FAULT (LED mati, ERR + raw); TAHAN 1,5 s -> READY.
