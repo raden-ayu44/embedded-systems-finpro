@@ -51,6 +51,94 @@ static FaultType pendingFault = FAULT_NONE; // galat yang dicatat saat masuk FAU
 static bool      countdownShown = false;   // layar hitung mundur reset total sedang tampil
 static uint32_t  pageStartMs = 0;          // millis() awal layar berganti halaman (SAVE_FAILED, SUMMARY tersimpan)
 
+// ---------------- Rekaman upaya genggam (langkah 10c, Bagian 9.2) ----------------
+// Satu UPAYA = dari masuk GRIP (atau sesudah dilepas terlalu awal) sampai GRIP berakhir dengan cara
+// apa pun. Satu percobaan bisa punya beberapa upaya (tiap dilepas sebelum 3 s = upaya baru).
+// Selama upaya terbuka, tiap sampel baru dikirim sebagai baris G; saat upaya berakhir dikirim
+// SATU penanda M (gripAttemptEnd). Semua waktu dalam ms sejak upaya mulai; -1 = tidak ada.
+static uint16_t  attemptNo = 0;            // nomor upaya sejak boot (1, 2, 3, ...)
+static bool      attemptOpen = false;      // ada upaya yang belum dikirim penandanya
+static uint32_t  attemptStartMs = 0;       // millis() saat upaya mulai
+static uint32_t  attemptLoggedMs = 0;      // waktu sampel terakhir yang sudah dikirim sebagai baris G
+static uint16_t  attemptSamples = 0;       // jumlah baris G upaya ini (kolom n penanda M)
+static bool      attemptDemo = false;      // ada sampel upaya ini dengan skala demo x
+static int32_t   onsetMs = -1;             // sampel onset (waktu nol grafik)
+static float     peakKg = -1.0f;           // sampel tertinggi di fase 2
+// Waktu 5 sampel terakhir di fase 2, sejajar dengan buffer plateau di sensor.cpp, supaya awal dan
+// akhir jendela yang menjadi ref bisa dicatat. Setelah diisi, winTimes[winNext] = sampel tertua.
+static int32_t   winTimes[BUF_SIZE];
+static uint8_t   winNext = 0;
+static int32_t   bestWinStartMs = -1, bestWinEndMs = -1;       // jendela terkuat
+static int32_t   steadyWinStartMs = -1, steadyWinEndMs = -1;   // jendela stabil terkuat
+
+// Waktu (millis) diubah menjadi ms sejak upaya mulai.
+static int32_t attemptMs(uint32_t t) { return (int32_t)(t - attemptStartMs); }
+
+// Upaya baru: nomor naik, semua catatan upaya dikosongkan. Sampel yang sudah ada sebelum upaya
+// mulai tidak dikirim (attemptLoggedMs = sampel terakhir sekarang).
+static void gripAttemptStart() {
+  attemptNo++;
+  attemptOpen = true;
+  attemptStartMs = millis();
+  attemptLoggedMs = sensorLastSampleMs();
+  attemptSamples = 0;
+  attemptDemo = false;
+  onsetMs = -1;
+  peakKg = -1.0f;
+  bestWinStartMs = bestWinEndMs = -1;
+  steadyWinStartMs = steadyWinEndMs = -1;
+}
+
+// Kirim sampel baru (bila ada) sebagai baris G, dan catat puncak di fase 2. Dipanggil di fsmRun()
+// SEBELUM cek galat, supaya sampel yang memicu galat ikut terekam: kg > 80 (OUT_OF_RANGE) dan
+// sampel saturasi (ADC_SATURATED). HX711_TIMEOUT tidak punya sampel (justru tidak ada sampel
+// baru), jadi pada galat itu tidak ada baris G tambahan. Hanya pencatatan yang dipindah: galat
+// tetap terpicu pada putaran yang sama seperti sebelumnya.
+// Puncak hanya untuk rekaman (penanda M). Puncak upaya yang diputus galat TIDAK pernah menjadi
+// hasil percobaan dan tidak ikut Mx/Av: hasil hanya dari handleCompute() (ref), dan upaya galat
+// tidak melewati HITUNG (penanda: ref -1, kolom galat terisi).
+// Fase yang tercatat = fase sebelum sampel ini dinilai handleGrip() (sampel onset = fase 1).
+static void gripLogNewSample() {
+  if (sensorLastSampleMs() == attemptLoggedMs) return;   // belum ada sampel baru
+  attemptLoggedMs = sensorLastSampleMs();
+  uint8_t phase = !sensorTareDone() ? 0 : (gripPhase == WAIT_ONSET ? 1 : 2);
+  if (phase == 2 && sensorKg() > peakKg) peakKg = sensorKg();
+  if (sensorDemoActive()) attemptDemo = true;
+  logGripSample(attemptNo, attemptMs(attemptLoggedMs), sensorKg(), phase, sensorDemoActive());
+  if (LOG_RAW) attemptSamples++;            // LOG_RAW = 0: tidak ada baris G, n tetap 0
+}
+
+// Upaya berakhir: kirim satu penanda M. hasRef = upaya menghasilkan ref (hanya dari HITUNG).
+// Jendela yang dicatat = jendela yang dipakai handleCompute() untuk ref (stabil, atau terkuat).
+// Aman dipanggil dua kali: tanpa upaya terbuka tidak terjadi apa-apa.
+static void gripAttemptEnd(GripExit exitBy, FaultType fault, bool hasRef, float ref) {
+  if (!attemptOpen) return;
+  attemptOpen = false;
+  GripMarker m;
+  m.session = session.number;
+  m.trial = session.trialNo;
+  m.attempt = attemptNo;
+  m.exitBy = (uint8_t)exitBy;
+  m.onsetMs = onsetMs;
+  m.endMs = attemptMs(millis());
+  m.winStartMs = m.winEndMs = -1;
+  if (hasRef && steadyFound) {
+    m.winStartMs = steadyWinStartMs;
+    m.winEndMs = steadyWinEndMs;
+  } else if (hasRef && bestFound) {
+    m.winStartMs = bestWinStartMs;
+    m.winEndMs = bestWinEndMs;
+  }
+  m.ref = hasRef ? ref : -1.0f;
+  m.peak = peakKg;
+  m.demo = attemptDemo;
+  m.fault = (uint8_t)fault;
+  m.samples = attemptSamples;
+  logGripMarker(m);
+  Serial.printf("[GRIP] upaya %u selesai: keluar=%u galat=%u, %u baris G\n",
+                attemptNo, m.exitBy, m.fault, attemptSamples);
+}
+
 const char* stateName(State s) {
   switch (s) {
     case READY:       return "READY";
@@ -105,6 +193,7 @@ static void enterGrip() {
   gripPhase = WAIT_ONSET;
   gripExit = EXIT_NONE;
   ledSet(false);             // fase 1: LED mati
+  gripAttemptStart();        // langkah 10c: upaya pertama percobaan ini
 }
 
 static void enterCompute() {
@@ -236,6 +325,7 @@ static State handleGrip(Press press) {
     // Skala normal (sensorKgReal), sama alasannya dengan penjaga di READY. Onset tetap memakai kg.
     if (sensorKgReal() < -THRESHOLD_ONSET_KG) {
       Serial.printf("[GRIP] kg=%.2f di bawah -1, nol salah: kembali ke READY\n", sensorKgReal());
+      gripAttemptEnd(EXIT_ZERO_GUARD, FAULT_NONE, false, 0.0f);
       return READY;
     }
     if (kg > THRESHOLD_ONSET_KG) {
@@ -246,6 +336,8 @@ static State handleGrip(Press press) {
       steadyFound = false;
       gripSteadyNow = false;
       gripLastSampleMs = sensorLastSampleMs();
+      onsetMs = attemptMs(sensorLastSampleMs());   // langkah 10c: waktu nol grafik
+      winNext = 0;                          // waktu jendela mulai kosong, sejajar buffer plateau
       displayRequest();
       Serial.printf("[GRIP] onset kg=%.2f\n", kg);
     }
@@ -266,6 +358,8 @@ static State handleGrip(Press press) {
     ledSet(false);
     displayRequest();
     Serial.printf("[GRIP] exit=EARLY_RELEASE t=%lu ms, kembali menunggu\n", (unsigned long)t);
+    gripAttemptEnd(EXIT_EARLY_RELEASE, FAULT_NONE, false, 0.0f);   // langkah 10c: upaya ini
+    gripAttemptStart();                                            // selesai, upaya baru mulai
     return GRIP;
   }
 
@@ -281,15 +375,24 @@ static State handleGrip(Press press) {
   // melepas tidak stabil dan lebih rendah, jadi tidak terpilih.
   if (sensorLastSampleMs() != gripLastSampleMs) {
     gripLastSampleMs = sensorLastSampleMs();
+    // Langkah 10c: waktu sampel ini masuk cincin waktu jendela (sejajar buffer plateau).
+    // Puncak upaya dicatat di gripLogNewSample().
+    int32_t sampleMs = attemptMs(gripLastSampleMs);
+    winTimes[winNext] = sampleMs;
+    winNext = (winNext + 1) % BUF_SIZE;     // sekarang menunjuk sampel tertua jendela
     if (gripWindow) {
       float avg = sensorBufAvg();
       if (!bestFound || avg > bestAvg) {
         bestFound = true;
         bestAvg = avg;
+        bestWinStartMs = winTimes[winNext];
+        bestWinEndMs = sampleMs;
       }
       if (plateau && (!steadyFound || avg > bestSteadyAvg)) {
         steadyFound = true;
         bestSteadyAvg = avg;
+        steadyWinStartMs = winTimes[winNext];
+        steadyWinEndMs = sampleMs;
       }
     }
   }
@@ -341,6 +444,9 @@ static State handleCompute() {
   // Validasi rentang (langkah 8, cek kedua; cek pertama berjalan live di GRIP):
   // ref harus > MIN_FORCE_KG (0) dan <= MAX_FORCE_KG (80, kapasitas load cell).
   tr.valid = (tr.ref > MIN_FORCE_KG && tr.ref <= MAX_FORCE_KG);
+  // Langkah 10c: penanda M upaya ini. ref di luar rentang -> galat 3 (OUT_OF_RANGE) di penanda,
+  // supaya grafik tidak memperlakukannya sebagai hasil yang dihitung.
+  gripAttemptEnd(gripExit, tr.valid ? FAULT_NONE : OUT_OF_RANGE, true, tr.ref);
   if (!tr.valid) {
     pendingFault = OUT_OF_RANGE;            // percobaan tidak dihitung; TAHAN mengulangnya
     return FAULT;
@@ -572,6 +678,9 @@ void fsmRun(Press press) {
     // FORCE_RESET memakai sesi dan percobaan SEBELUM reset (Bagian 9.2); bila ACK-nya gagal,
     // reset tetap berjalan.
     logCancel();
+    // Langkah 10c: upaya genggam yang sedang berjalan ditutup dengan penanda (setelah logCancel(),
+    // supaya penanda ini tidak ikut dibatalkan).
+    gripAttemptEnd(EXIT_FORCE_RESET, FAULT_NONE, false, 0.0f);
     faultLogEvent(EVENT_FORCE_RESET, session.number, session.trialNo, session.t0Ms);
     faultClear();                           // reset dari FAULT juga menghapus galat aktif
     fsmNewSession();                        // sesi berjalan dibuang, nomor sesi naik
@@ -587,10 +696,16 @@ void fsmRun(Press press) {
   //     Langkah 8: di GRIP juga cek rentang LIVE, tanpa menunggu percobaan selesai
   //     (kg > 80 kg pada sampel mana pun = melewati kapasitas load cell).
   if (inTrialCycle(state)) {
+    // Langkah 10c: sampel baru di GRIP dicatat (baris G, puncak) sebelum dinilai di sini, supaya
+    // sampel yang memicu galat juga ada di rekaman. Tidak mengubah kapan galat terpicu.
+    if (state == GRIP) gripLogNewSample();
     FaultType f = sensorCheck();
     if (f == FAULT_NONE && state == GRIP && sensorKg() > MAX_FORCE_KG) f = OUT_OF_RANGE;
     if (f != FAULT_NONE) {
       pendingFault = f;
+      // Langkah 10c: galat saat GRIP (atau HITUNG) memutus upaya: penanda dengan keluar = 4 dan
+      // kode galat, supaya grafik tidak mencampurnya dengan data nyata.
+      gripAttemptEnd(EXIT_FAULT, f, false, 0.0f);
       changeState(FAULT);
       drawScreen();
       return;

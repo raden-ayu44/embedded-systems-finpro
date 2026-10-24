@@ -29,9 +29,13 @@
   - Tahan 15 s di state apa pun = reset total (hitung mundur di LCD mulai detik ke-3).
   - Langkah 8: kg > 80 kg live di GRIP, atau ref <= 0 / > 80 kg di COMPUTE -> FAULT OUT_OF_RANGE
     ("ERR:DI LUAR RNTG"). Keadaan aman, layar galat dan baris [E] di fault.cpp.
-  - Langkah 9: baris HGD,T/S/E,seq,sesi,percobaan,nilai1,nilai2*CS (serial_log.cpp), tiap baris
-    menunggu "ACK,<seq>" 500 ms (ACK_TIMEOUT_MS, langkah 10), NAK/tanpa balasan -> kirim ulang
-    sekali; ringkasan gagal -> GAGAL SIMPAN.
+  - Langkah 9: baris HGD,T/S/E,seq,boot,sesi,percobaan,nilai1,nilai2*CS (serial_log.cpp), tiap
+    baris menunggu "ACK,<seq>" 500 ms (ACK_TIMEOUT_MS, langkah 10), NAK/tanpa balasan -> kirim
+    ulang sekali; ringkasan gagal -> GAGAL SIMPAN.
+  - Langkah 10c: boot = 4 digit acak per nyala, di semua baris (logger.py membedakan baris
+    sebelum dan sesudah reset). Selama GRIP tiap sampel = baris G tanpa ACK (LOG_RAW di config.h);
+    tiap upaya genggam (termasuk dilepas terlalu awal) diakhiri satu penanda M ber-ACK. Penanda yang
+    gagal hanya dibuang dengan peringatan, tidak pernah GAGAL SIMPAN.
   - Serial: [FSM] A -> B, [GRIP], [COMPUTE], [REST], [SUMMARY], [FAULT], [LOG]; 't' tare, 'p' nilai,
     'x' skala demo /40 bolak-balik (bertahan sampai sesi baru), 's' simulasi saturasi bolak-balik,
     'u' uji ACK 100 baris (U9/E5), 'r' satu baris rusak (U10).
@@ -94,6 +98,8 @@ static void serialCmd(char c) {
 }
 
 void setup() {
+  // Langkah 10c: buffer kirim 1024 byte (config.h SERIAL_TX_BUF), HARUS sebelum Serial.begin().
+  Serial.setTxBufferSize(SERIAL_TX_BUF);
   Serial.begin(BAUD);
   ledInit();
   buttonInit();
@@ -109,7 +115,9 @@ void setup() {
   Serial.println();
   Serial.printf("HGD firmware, core %d.%d.%d\n",
                 ESP_ARDUINO_VERSION_MAJOR, ESP_ARDUINO_VERSION_MINOR, ESP_ARDUINO_VERSION_PATCH);
-  Serial.println("Langkah 9: baris log HGD + ACK.");
+  Serial.printf("Langkah 10c: baris log HGD + ACK, rekaman genggaman %s.\n",
+                LOG_RAW ? "aktif (LOG_RAW 1)" : "mati (LOG_RAW 0)");
+  logInit();   // nomor boot acak, sebelum baris log pertama
 
   fsmInit();   // READY dengan kedip restart dan tare pertama
 }
