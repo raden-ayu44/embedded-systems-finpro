@@ -23,7 +23,8 @@
   - REST: setelah dilepas hitung mundur "Lepas>Rest 60s" ... " 1s" (langkah 7, TAP diabaikan;
     digenggam lagi = hitung mundur dijeda sampai dilepas), lalu
     "NEXT > lanjut"; TAP -> percobaan berikutnya. Setelah 3 -> SUMMARY
-    ("Mx.. Av.. kg" / "Tekan: RESTART"); TAP -> sesi baru (kedip).
+    ("Mx.. Av.. kg" / "Menyimpan...", lalu "Data tersimpan" dan "Tekan: RESTART" bergantian
+    tiap 2 s); TAP -> sesi baru (kedip).
   - Galat sensor di READY/GRIP/COMPUTE/REST -> FAULT (LED mati, ERR + raw); TAHAN 1,5 s -> READY.
   - Tahan 15 s di state apa pun = reset total (hitung mundur di LCD mulai detik ke-3).
   - Langkah 8: kg > 80 kg live di GRIP, atau ref <= 0 / > 80 kg di COMPUTE -> FAULT OUT_OF_RANGE

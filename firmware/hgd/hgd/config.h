@@ -77,6 +77,7 @@ const float    DEMO_SCALE_DIV      = 40.0f;
 const uint32_t LCD_REFRESH_MS      = 500;   // aturan modul praktikum: maks. 2 redraw per detik
 const uint32_t LCD_HEAL_MS         = 2000;  // tiap 2 s satu baris dikirim ulang penuh (pulih dari gangguan I2C)
 const uint32_t SAVE_FAILED_PAGE_MS = 3000;  // ganti halaman layar SAVE_FAILED
+const uint32_t SUMMARY_PAGE_MS     = 2000;  // SUMMARY tersimpan: "Data tersimpan" <-> "Tekan: RESTART"
 const uint32_t LED_BLINK_MS        = 250;   // selang ganti nyala/mati kedip restart (2 Hz)
 const uint32_t LED_BLINK_TOTAL_MS  = 5000;  // lama kedip restart di READY
 

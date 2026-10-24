@@ -147,15 +147,20 @@ static void headFailed(const char* why) {
     Serial.printf("[LOG] seq %u %s, kirim ulang\n", queue[qHead].seq, why);
     sendHead();
   } else {
-    Serial.printf("[LOG] seq %u GAGAL setelah kirim ulang (%s)\n", queue[qHead].seq, why);
+    uint16_t failedSeq = queue[qHead].seq;   // disimpan dulu: popHead() membuang baris ini
+    Serial.printf("[LOG] seq %u GAGAL setelah kirim ulang (%s)\n", failedSeq, why);
     if (testActive && queue[qHead].text[4] == 'U') testFailed++;
     batchFails++;
     popHead();
     // Langkah 9b: dalam kelompok ringkasan, satu baris yang gagal dua kali berarti logger.py tidak
-    // mendengar; sisa baris tidak dicoba lagi (hasilnya pasti sama), supaya GAGAL SIMPAN muncul
-    // dalam ~1,5 s, bukan ~16 s. Nilainya tetap dicetak di layar GAGAL SIMPAN dan di serial.
+    // mendengar (tanpa ACK) atau tidak bisa menulis CSV (NAK, mis. berkas dibuka di Excel); sisa
+    // baris tidak dicoba lagi (hasilnya pasti sama), supaya GAGAL SIMPAN muncul dalam ~1,5 s, bukan
+    // ~16 s. Nilainya tetap dicetak di layar GAGAL SIMPAN dan di serial.
+    // Perbaikan langkah 10 (uji papan): alasan sebenarnya (NAK / tanpa ACK) ikut dicetak, supaya
+    // pesan tidak menyesatkan.
     if (batchActive && qCount > 0) {
-      Serial.printf("[LOG] %u baris ringkasan lain tidak dikirim (logger.py tidak menjawab)\n", qCount);
+      Serial.printf("[LOG] %u baris ringkasan lain tidak dikirim (seq %u gagal: %s)\n",
+                    qCount, failedSeq, why);
       qCount = 0;
     }
   }

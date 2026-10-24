@@ -121,7 +121,7 @@ Dokumen ini memakai nama Indonesia; kode memakai identifier bahasa Inggris (isti
 | Konstanta | `REF_MIN_KG` / `REF_MAX_KG`, `THRESHOLD_STABIL_KG`, `T_TARE_SAMPEL` | `MIN_FORCE_KG` / `MAX_FORCE_KG`, `THRESHOLD_STABLE_KG`, `TARE_SAMPLES` |
 | Konstanta | `SKALA_COUNTS_PER_KG`, `SATURASI_FRAKSI`, `T_SAMA_N` | `SCALE_COUNTS_PER_KG`, `SATURATION_FRACTION`, `SAME_RAW_N` |
 | Saklar build | `DEBUG_CMD` | `DEBUG_CMD` |
-| Sama di keduanya | `THRESHOLD_ONSET_KG`, `ADC_MAX`, `I2C_HZ`, `BAUD`, `LED_BLINK_MS`, `LED_BLINK_TOTAL_MS`, `FORCE_RESET_MS`, `FORCE_RESET_SHOW_MS`, `SAVE_FAILED_PAGE_MS`, `SAMPLE_MIN_GAP_MS`, `SHORT_GAP_N` | sama |
+| Sama di keduanya | `THRESHOLD_ONSET_KG`, `ADC_MAX`, `I2C_HZ`, `BAUD`, `LED_BLINK_MS`, `LED_BLINK_TOTAL_MS`, `FORCE_RESET_MS`, `FORCE_RESET_SHOW_MS`, `SAVE_FAILED_PAGE_MS`, `SUMMARY_PAGE_MS`, `SAMPLE_MIN_GAP_MS`, `SHORT_GAP_N` | sama |
 
 ### 1.5 Struktur berkas sisi laptop
 | Berkas | Isi |
@@ -233,6 +233,7 @@ Hanya dua: `StatusTombol.isrFlag` dan `StatusTombol.isrLastMs`, keduanya `volati
 | `FORCE_RESET_MS` | 15000 | Tahan tombol selama ini di state apa pun = reset total |
 | `FORCE_RESET_SHOW_MS` | 3000 | Setelah ditahan selama ini, LCD menampilkan hitung mundur reset total |
 | `SAVE_FAILED_PAGE_MS` | 3000 | Selang ganti halaman layar `GAGALSIMPAN` |
+| `SUMMARY_PAGE_MS` | 2000 | `RINGKASAN` setelah semua ACK: baris 2 bergantian `Data tersimpan` / `Tekan: RESTART` (uji papan langkah 10: `Menyimpan...` hanya < 0,1 s, tidak terbaca) |
 | `LAJU_HX711` | 10 SPS | Bawaan papan modul (hanya spesifikasi, tidak ada di `config.h`; diatur pin RATE di modul, bukan firmware) |
 
 ### 3.2 Nilai awal yang disetel lewat eksperimen
@@ -488,7 +489,7 @@ SESI (3 percobaan)
 - *Fase 2 - Menghitung:* timer mulai; buffer dikosongkan di awal fase 2. Tiap baca: `bufTambah`; lalu uji plateau. **LED menyala tetap selama `bufPlateau()` benar dan mati saat plateau hilang** (kedip di sekitar ambang stabilitas diterima). Plateau bisa sudah tercapai sebelum 3 detik (buffer penuh setelah ≈ 0,5 detik); LED menyala. **Langkah 6d: plateau tidak lagi mengakhiri percobaan.** LED yang menyala adalah tanda "genggaman stabil"; setelah 3 detik pengguna boleh melepas kapan saja sampai 5 detik.
 - *LED saat keluar (langkah 6d):* dilepas antara 3 dan 5 detik → LED mati (genggaman sudah lepas). Batas 5 detik saat genggaman masih stabil → LED tetap menyala dan ikut ke `RESPON_ISTIRAHAT` sampai genggaman dilepas; batas 5 detik tanpa plateau saat itu → LED mati. Dilepas sebelum 3 detik → LED mati, kembali ke fase 1.
 - *Threshold onset dan dilepas adalah nilai yang sama*, dicek dua arah: naik melewati threshold di Fase 1 = mulai; turun di bawahnya sebelum 3 detik = dilepas terlalu awal; turun di bawahnya antara 3 dan 5 detik = selesai (langkah 6d). **Ketiganya memakai satu `THRESHOLD_ONSET_KG` (kg < 1,0 kg = dilepas).** Ini mengikuti instruksi proposal "Tahan 3-5 detik": pengguna yang memilih kapan melepas di dalam jendela 3-5 detik.
-- *Layar fase 2 (langkah 6d):* sejak t ≥ 3 detik dan selama genggaman stabil (LED menyala), baris 2 LCD menampilkan kg live dan petunjuk `25.3kg Lepas ok` (`%5.1fkg Lepas ok`, 16 karakter); selain itu kg live dan detik sejak onset.
+- *Layar fase 2 (langkah 6d):* sejak t ≥ 3 detik dan selama genggaman stabil (LED menyala), baris 2 LCD menampilkan kg live dan petunjuk `25.34kg Lepas ok` (`%5.2fkg Lepas ok`, 16 karakter); selain itu kg live dan detik sejak onset.
 - *Tiga jalur keluar (langkah 6d, keputusan tim: pengguna yang memutuskan kapan melepas):* (1) dilepas sebelum 3 detik → kembali Fase 1; (2) dilepas antara 3 dan 5 detik → `HITUNG`, stabil atau tidak; (3) masih digenggam pada 5 detik → `HITUNG` (batas paksa, bukan pembatalan). `ref` untuk (2) dan (3) = jendela stabil terkuat, atau jendela terkuat bila tidak pernah stabil (Bagian 5.11). Sebelum langkah 6d, plateau pada t ≥ 3 detik langsung mengakhiri percobaan, sehingga genggaman yang stabil selalu berhenti tepat 3 detik walau pengguna ingin menahan sampai 5 detik.
 - *Definisi (langkah 6):* **plateau genggaman** = buffer penuh, (maks − min) ≤ `THRESHOLD_STABIL_KG`, **dan semua 5 sampel > `THRESHOLD_ONSET_KG`**. Syarat terakhir ditambahkan karena tangan yang sudah lepas (kg ≈ 0, sangat stabil) terbaca sebagai plateau dan `ref` menjadi ≈ 0 kg (terjadi di uji langkah 5: ref −0,05 kg). **Nilai buffer terbaik** = jendela terkuat (rata-rata tertinggi jendela 5 sampel di atas onset), definisi di Bagian 5.11. Dilepas setelah 3 detik tanpa plateau: percobaan berakhir saat itu juga (langkah 6d) dengan nilai buffer terbaik dari saat masih digenggam.
 - *Serial (langkah 6):* `[GRIP] exit=EARLY_RELEASE t=…`, `[GRIP] exit=PLATEAU t=… sebaran=…`, `[GRIP] exit=TIMEOUT t=… jendela terkuat rata=…`.
@@ -517,7 +518,7 @@ SESI (3 percobaan)
 **[ERROR] dan [GAGALSIMPAN]: LED dipaksa mati** (tidak terus mengaktuasi saat galat).
 
 **[GAGALSIMPAN]**
-- Pola sama dengan `ERROR` (modul `galatTahan`). Menampilkan data yang tidak terkonfirmasi tersimpan: layar berganti otomatis tiap `SAVE_FAILED_PAGE_MS` (3 detik) antara dua halaman (P1/P2/P3, lalu Pk/Av; Bagian 10.2), memakai `millis()` (non-blocking, tetap dalam aturan `T_REFRESH_LCD_MS`), sehingga semua nilai bisa disalin dari LCD bila `logger.py` sudah berhenti. Keluar lewat TAHAN langsung ke akhir sesi (datanya benar, hanya tidak tersimpan; setelah diselamatkan manual tidak perlu mengulang sesi).
+- Pola sama dengan `ERROR` (modul `galatTahan`). Menampilkan data yang tidak terkonfirmasi tersimpan: layar berganti otomatis tiap `SAVE_FAILED_PAGE_MS` (3 detik) antara tiga halaman (P1/P2, P3, lalu Mx/Av; Bagian 10.2), memakai `millis()` (non-blocking, tetap dalam aturan `T_REFRESH_LCD_MS`), sehingga semua nilai bisa disalin dari LCD bila `logger.py` sudah berhenti. Keluar lewat TAHAN langsung ke akhir sesi (datanya benar, hanya tidak tersimpan; setelah diselamatkan manual tidak perlu mengulang sesi).
 
 **Reset total (v5, berlaku di semua state)**
 - Tombol ditahan terus selama `FORCE_RESET_MS` (15 detik) di state apa pun, termasuk `ERROR` dan `GAGALSIMPAN`: sesi di RAM dihapus, `nomorSesi` naik 1 (tidak kembali ke 1), baris `E` dengan jenis `FORCE_RESET` dikirim, LED mati, tare ulang, lalu `SIAP` dengan kedip restart. Kiriman ACK yang sedang ditunggu dibatalkan. Bila baris `E` itu tidak mendapat ACK, reset tetap jalan (sama seperti baris `E` galat, Bagian 9.5).
@@ -799,7 +800,7 @@ timestamp,sesi,jenis,percobaan,gaya_kg,rerata_kg,catatan
 
 ### 9.5 Urutan di `RINGKASAN`
 1. Kirim 3 baris `T` (satu per percobaan), lalu 1 baris `S`; tiap baris menunggu `ACK` sendiri.
-2. Selama menunggu, baris 2 LCD `Menyimpan...` dan TAP diabaikan (langkah 9). Semua `ACK` diterima → `Tekan: RESTART`; menunggu TAP. Bila `logger.py` tidak menjawab: ≈ 1 s (langkah 10: baris pertama 2 × 500 ms, lalu sisa kelompok dibuang; langkah 9b dengan 750 ms: terukur 1,54 s); sebelumnya ≈ 16 s (4 baris × 2 kiriman × 2 s), uji 23 Okt. 2026.
+2. Selama menunggu, baris 2 LCD `Menyimpan...` dan TAP diabaikan (langkah 9). Semua `ACK` diterima → baris 2 bergantian `Data tersimpan` dan `Tekan: RESTART` tiap `SUMMARY_PAGE_MS` (2 s); menunggu TAP (TAP langsung berlaku, tanpa penundaan). Dengan `logger.py`, `Menyimpan...` hanya tampil < 0,1 s, jadi `Data tersimpan` yang menjadi bukti data aman (uji papan langkah 10, 24 Okt. 2026). Bila `logger.py` tidak menjawab: ≈ 1 s (langkah 10: baris pertama 2 × 500 ms, lalu sisa kelompok dibuang; langkah 9b dengan 750 ms: terukur 1,54 s); sebelumnya ≈ 16 s (4 baris × 2 kiriman × 2 s), uji 23 Okt. 2026.
 3. Ada baris yang gagal setelah satu kali kirim ulang → `GAGALSIMPAN`. Nilai tampil di konsol `logger.py` bila masih hidup; bila `logger.py` sudah berhenti, salin dari layar LCD `GAGALSIMPAN` (bergantian tiap 3 detik, Bagian 10.2). Jangan membuka Serial Monitor lebih dulu (me-reset ESP32, A8).
 4. Baris galat `E` dikirim saat masuk `ERROR`. Bila ACK-nya gagal, galat tetap tampil di LCD dan di konsol `logger.py` / Serial.
 5. Baris `E` `FORCE_RESET` dikirim saat reset total; kiriman lain yang masih menunggu ACK dibatalkan lebih dulu. Bila ACK-nya gagal, reset tetap berjalan (tidak masuk `GAGALSIMPAN`).
@@ -823,7 +824,7 @@ timestamp,sesi,jenis,percobaan,gaya_kg,rerata_kg,catatan
 - Kegagalan pembacaan tidak boleh senyap.
 
 ### 10.2 Teks per state (≤ 16 karakter per baris)
-*v5 (langkah 5, 23 Okt. 2026): teks disesuaikan supaya lebih dekat dengan Tabel 4 proposal dan sama dengan firmware tim lainnya; perilaku v5 tidak berubah. Angka ditulis dengan lebar tetap (`%5.1f`, `%5.2f`, `%4.1f`) supaya posisi tidak bergeser.*
+*v5 (langkah 5, 23 Okt. 2026): teks disesuaikan supaya lebih dekat dengan Tabel 4 proposal dan sama dengan firmware tim lainnya; perilaku v5 tidak berubah. Angka ditulis dengan lebar tetap (`%5.2f`) supaya posisi tidak bergeser. Uji papan langkah 10 (24 Okt. 2026): semua nilai kg di LCD dua desimal; `RINGKASAN` tanpa "kg" dan `GAGALSIMPAN` tiga halaman supaya muat 16 karakter.*
 
 | State | Baris 1 | Baris 2 |
 |-------|---------|---------|
@@ -832,26 +833,27 @@ timestamp,sesi,jenis,percobaan,gaya_kg,rerata_kg,catatan
 | SIAP (masih digenggam, kg > +1 setelah tare, langkah 5c) | `SIAP - UKUR 1/3` | `Lepas genggaman` |
 | SIAP (tare diulang karena nol di luar jendela, langkah 8d; teks langkah 10) | `SIAP - UKUR 1/3` | `Nol ulang: lepas` |
 | SIAP saat skala demo `x` aktif (langkah 8c) | `SIAP x40 1/3` | sama seperti di atas |
-| GENGGAM fase 1 | `Menunggu genggam` | ` 0.42 kg  >1.0` (kg live dua desimal + target onset, `%5.2f kg  >%.1f`; langkah 5c: dengan satu desimal tekanan kecil tetap tampil 0.0) |
+| GENGGAM fase 1 | `Menunggu genggam` | ` 0.42kg >1.00kg` (kg live + target onset, keduanya dua desimal, `%5.2fkg >%.2fkg`; langkah 5c: dengan satu desimal tekanan kecil tetap tampil 0.0) |
 | GENGGAM fase 1 (tare ulang, TAHAN, langkah 6c) | `Menunggu genggam` | `Menyesuaikan nol` |
 | GENGGAM fase 1 (tare ulang, nol di luar jendela, langkah 8d) | `Menunggu genggam` | `Nol ulang: lepas` |
-| GENGGAM fase 2, t ≥ 3 s dan stabil (langkah 6d) | `Tahan 3-5 detik` | ` 25.3kg Lepas ok` (kg live + petunjuk boleh lepas) |
-| GENGGAM fase 2 | `Tahan 3-5 detik` | ` 25.3 kg  3.4s` (kg live + detik sejak onset) |
+| GENGGAM fase 2, t ≥ 3 s dan stabil (langkah 6d) | `Tahan 3-5 detik` | `25.34kg Lepas ok` (kg live + petunjuk boleh lepas) |
+| GENGGAM fase 2 | `Tahan 3-5 detik` | `25.34 kg  3.4s` (kg live + detik sejak onset) |
 | RESPON sub-fase 1 (sebelum lepas) | `Hasil 47.23 kg` (`ref`, `%5.2f`) | `Lepas>Rest 60s` |
 | RESPON sub-fase 1 (hitung mundur) | `Hasil 47.23 kg` | `Lepas>Rest 58s` (detik bulat, `%2lus`) |
 | RESPON sub-fase 2 | `Hasil 47.23 kg` | `NEXT > lanjut` |
 | RESPON sub-fase 2 (percobaan 3) | `Hasil 46.90 kg` | `NEXT > ringkasan` |
-| RINGKASAN (mengirim, menunggu ACK; langkah 9) | `Mx47.2 Av44.8 kg` | `Menyimpan...` |
-| RINGKASAN | `Mx47.2 Av44.8 kg` | `Tekan: RESTART` |
+| RINGKASAN (mengirim, menunggu ACK; langkah 9) | `Mx47.23 Av44.81` | `Menyimpan...` |
+| RINGKASAN (semua ACK; bergantian tiap 2 s) | `Mx47.23 Av44.81` | `Data tersimpan` / `Tekan: RESTART` |
 | ERROR | `ERR:HX711 TMOUT` | `RAW -1234567` |
 | ERROR (`READING_INVALID`, v5) | `ERR:BACA TDK VLD` | `RAW 0` (nilai yang berulang) |
-| GAGALSIMPAN halaman 1 (v5) | `P1 47.2 P2 43.1` | `P3 44.1   GAGAL` |
-| GAGALSIMPAN halaman 2 (v5) | `Pk 47.2 Av 44.8` | `GAGAL SIMPAN` |
+| GAGALSIMPAN halaman 1 | `P1 47.23 kg` | `P2 43.10 kg` |
+| GAGALSIMPAN halaman 2 | `P3 44.10 kg` | `GAGAL SIMPAN` |
+| GAGALSIMPAN halaman 3 | `Mx47.23 Av44.81` | `GAGAL SIMPAN` |
 | Reset total, hitung mundur (v5, tombol ditahan ≥ 3 s, di state apa pun) | `Reset total 12` | `Lepas = batal` |
 
 > Tiga jenis galat lain: `ERR:ADC SATURASI`, `ERR:DI LUAR RNTG`, dan `ERR:BACA TDK VLD` (`READING_INVALID`, v5). Semua teks ≤ 16 karakter.
 >
-> **GAGALSIMPAN (v5):** dua halaman bergantian otomatis tiap 3 detik (`millis()`, tanpa memblokir; redraw hanya saat ganti halaman, jadi tetap di bawah batas `T_REFRESH_LCD_MS`). Nilai tampil dengan satu desimal; nilai dua desimal ada di konsol `logger.py` bila masih hidup. TAHAN tetap keluar kapan saja. Instruksi menyalin data diberikan secara lisan oleh pengawas: dari konsol `logger.py` bila masih hidup, selain itu dari LCD; jangan membuka Serial Monitor lebih dulu (A8).
+> **GAGALSIMPAN (v5):** tiga halaman bergantian otomatis tiap 3 detik (`millis()`, tanpa memblokir; redraw hanya saat ganti halaman, jadi tetap di bawah batas `T_REFRESH_LCD_MS`). Nilai tampil dengan dua desimal, sama dengan konsol `logger.py`; `Mx` = puncak, label yang sama dengan `RINGKASAN`. TAHAN tetap keluar kapan saja. Instruksi menyalin data diberikan secara lisan oleh pengawas: dari konsol `logger.py` bila masih hidup, selain itu dari LCD; jangan membuka Serial Monitor lebih dulu (A8).
 >
 > **Reset total (v5):** angka hitung mundur = sisa detik sampai 15 s, digambar ulang tiap `T_REFRESH_LCD_MS`. Saat tombol dilepas sebelum 0, layar state semula kembali.
 
@@ -908,7 +910,7 @@ timestamp,sesi,jenis,percobaan,gaya_kg,rerata_kg,catatan
 | X1b | Cabut kabel SCK HX711 (v5) | `ERROR: BACA TDK VLD` (`READING_INVALID`) hampir seketika (≤ 0,1 s): DT tetap rendah, jadi tiap putaran `loop()` membaca sampel sampah dan 3 jarak pendek berturut-turut terkumpul dalam beberapa milidetik (langkah 4b; uji 23 Okt. 2026 dengan aturan 10 nilai identik saja: terdeteksi, tetapi berkedip). Dicatat, layar tahan, LED mati. **Catatan:** bila pin PD_SCK HX711 yang mengambang terbaca tinggi > 60 µs, HX711 masuk mode daya rendah, DT naik, dan hasilnya `HX711_TIMEOUT` (≤ 1 s); keduanya aman. Catat mana yang terjadi di uji bench |
 | X2 | Cabut satu kabel sinyal load cell (merah atau hijau) di modul HX711 saat alat menyala (v5). **Jangan** memberi eksitasi di luar rating (risiko merusak load cell/HX711) | Masukan mengambang → pembacaan menuju skala penuh → `ERROR: ADC SATURASI`, LED mati. **Bila uji bench menunjukkan \|raw\| tidak mencapai 0,95 × `ADC_MAX`**, tambahkan perintah `DEBUG_CMD` yang menyimulasikan saturasi, dan catat di sini metode mana yang dipakai (cabut kabel / simulasi). **Metode terpakai: simulasi (langkah 8c)**, perintah `s`: keempat kabel load cell disolder langsung ke HX711 tanpa konektor, jadi kabel sinyal tidak bisa dicabut saat alat menyala. Kasus fisik terkait (E− terputus) ditangkap jendela offset saat tare (Bagian 7.4) |
 | X3 | Melewati 80 kg disimulasikan: ketik `x` (skala dibagi 40, langkah 8) di konsol `logger.py` **saat layar menampilkan "Tekan tmbl START"** (langkah 8c: `x` bertahan melewati tare sampai sesi baru, reset total, atau `x` lagi; layar `SIAP x40 1/3`), yang meneruskannya ke ESP32 tanpa membuka Serial Monitor (A8); lalu START dan tekan ≈ 2 kg di `GENGGAM`. Beban nyata > 80 kg tidak diuji (melewati kapasitas load cell) | `ERROR: DI LUAR RNTG` **saat genggaman masih berlangsung** (cek live), LED mati seketika, baris `E` kode 3 |
-| X4 | Matikan `logger.py` sebelum `RINGKASAN` (atau saat `RINGKASAN` menunggu ACK) | `GAGALSIMPAN`; LCD bergantian tiap 3 s menampilkan P1/P2/P3 dan Pk/Av (v5), sehingga semua nilai dapat disalin dari LCD tanpa membuka Serial Monitor (A8); TAHAN → sesi baru |
+| X4 | Matikan `logger.py` sebelum `RINGKASAN` (atau saat `RINGKASAN` menunggu ACK) | `GAGALSIMPAN`; LCD bergantian tiap 3 s menampilkan P1/P2, P3, lalu Mx/Av, sehingga semua nilai dapat disalin dari LCD tanpa membuka Serial Monitor (A8); TAHAN → sesi baru |
 | X5 | Putus kabel USB di tengah sesi atau saat kirim (juga skenario "power cycle" penguji). USB adalah satu-satunya catu, jadi alat ikut mati | Catu hilang: sesi di RAM hilang (baris yang belum ber-ACK tidak tersimpan; yang sudah ber-ACK aman di CSV). Saat USB disambung lagi: boot bersih ke `SIAP` dengan tare dan kedip restart, sesi 1. `logger.py` perlu dijalankan ulang karena port hilang. Bukan `GAGALSIMPAN` (v4 salah mengharapkan `GAGALSIMPAN`) |
 | X6 | Kirim baris rusak ke `logger.py` | NAK, baris tidak ditulis |
 | X7 | Lepas genggaman sebelum 3 detik | Kembali ke fase 1, tanpa catatan |
@@ -1211,7 +1213,7 @@ Argumen: alat genggam butuh ukuran kompak, daya rendah, dan pewaktuan yang bisa 
 | A5 | `sensorBaca()` menunggu DT turun sampai ≈ 100 ms tiap baca; tare ≈ 1 s tiap masuk `SIAP` | Tunggu blocking hanya dibenarkan sekali di `setup()`. Satu putaran lambat menggeser semua tugas terjadwal; rubrik praktikum menempatkan blocking di loop utama di pita B/C. S2 (update 100 ms, ±10-20 ms) tidak dapat dijamin bila satu putaran menunggu HX711, termasuk di `RESPON_ISTIRAHAT` | Lihat lama tunggu DT dari `uji_hx711` (U7). Pilihan: tetap blocking dan S2 direvisi, atau baca hanya saat DT sudah rendah (pembacaan 25 pulsa sendiri ≈ 50 µs). **Data 15 Okt. 2026:** 706 sampel dalam 60 s, jadi satu sampel tiap ≈ 85 ms; baca blocking bisa menunggu sampai ≈ 85 ms, lebih panjang dari jendela S2 (±10-20 ms). ✔ **Selesai v5:** baca hanya saat DT sudah rendah (terukur ≈ 0,1 ms) dan tare 10 sampel lintas `loop()`; tanpa library HX711, tidak ada blocking di `loop()` (Bagian 5.7-5.8, 6.4) |
 | A6 | `T_REFRESH_LCD_MS` = 250 ms | Tidak lebih cepat dari dua kali per detik (500 ms) | Hasil E3 dari `uji_lcd_i2c`; bila 250 ms dipertahankan, tulis alasannya. ✔ **Selesai v5:** `T_REFRESH_LCD_MS` = 500 ms, mengikuti aturan modul praktikum; berlaku untuk semua layar termasuk hitung mundur |
 | A7 | Hitung mundur diperbarui tiap 100 ms "tanpa ganti layar" | Layar menampilkan detik bulat dan redraw dibatasi `T_REFRESH_LCD_MS`, jadi update 100 ms tidak tampak | Tetapkan apa yang diukur S2: pembaruan nilai internal, atau pembaruan layar. ✔ **Selesai v5:** sisa waktu dihitung dari `millis()` tiap putaran; layar digambar ulang tiap 500 ms. **S2 diubah** dari 100 ms ±10-20 ms menjadi 500 ms (Bagian 6.2) |
-| A8 | Cadangan: salin nilai dari Serial Monitor saat `GAGALSIMPAN` (§4.8, §9.6, §10.5, X4) | Hanya satu program dapat memegang port; membuka port me-reset ESP32 (karena itu contoh `logger.py` menunggu 2 detik). Membuka Serial Monitor, atau menjalankan ulang `logger.py`, setelah `logger.py` mati akan me-reset alat dan menghapus data sesi di RAM | Tetapkan cadangan yang tidak membuka port: konsol `logger.py` selama masih hidup, atau layar LCD (saat ini `GAGALSIMPAN` hanya menampilkan puncak dan rerata). ✔ **Selesai v5:** `logger.py` mencetak setiap baris non-`HGD` ke konsolnya dan meneruskan tombol (`x`) ke ESP32; bila `logger.py` sudah berhenti, LCD `GAGALSIMPAN` bergantian tiap 3 s menampilkan P1/P2/P3 dan Pk/Av. Serial Monitor tidak dibuka lebih dulu (Bagian 4.8, 5.22, 9.5, 10.2) |
+| A8 | Cadangan: salin nilai dari Serial Monitor saat `GAGALSIMPAN` (§4.8, §9.6, §10.5, X4) | Hanya satu program dapat memegang port; membuka port me-reset ESP32 (karena itu contoh `logger.py` menunggu 2 detik). Membuka Serial Monitor, atau menjalankan ulang `logger.py`, setelah `logger.py` mati akan me-reset alat dan menghapus data sesi di RAM | Tetapkan cadangan yang tidak membuka port: konsol `logger.py` selama masih hidup, atau layar LCD (saat ini `GAGALSIMPAN` hanya menampilkan puncak dan rerata). ✔ **Selesai v5:** `logger.py` mencetak setiap baris non-`HGD` ke konsolnya dan meneruskan tombol (`x`) ke ESP32; bila `logger.py` sudah berhenti, LCD `GAGALSIMPAN` bergantian tiap 3 s menampilkan P1/P2, P3, lalu Mx/Av (dua desimal). Serial Monitor tidak dibuka lebih dulu (Bagian 4.8, 5.22, 9.5, 10.2) |
 | A12 | Debounce ISR 50 ms dari tepi pertama; klasifikasi tap dan tahan dari level pin | Pantulan saat **lepas** setelah tekanan > 50 ms dapat menghasilkan tepi FALLING baru yang diterima ISR. Modul praktikum GPIO mempercayai level hanya setelah stabil 50 ms, dan mencatat debounce perangkat keras lebih tepat bila tepi langsung memicu interrupt | Uji `uji_tombol_led` (U8): bandingkan jumlah tekanan fisik dengan "ISR diterima" dan jumlah TAP. **Sebagian 15-16 Okt. 2026:** 5 tap dan 3 tahan terbaca benar, tanpa TAP tambahan saat dilepas; sampel masih kecil, uji 10/10 belum |
 | A13 | Median sebagai cadangan pencilan (W6) | Tidak ada di PDF White yang dipakai tim; yang ada rolling average dan block average | Cek edisi cetak, atau hapus sitasi |
 
