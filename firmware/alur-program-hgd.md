@@ -6,7 +6,7 @@ title: Alur Program - Hand Grip Dynamometer
 # Alur Program - Hand Grip Dynamometer (v5)
 **Proyek akhir - embedded system**
 
-> **Status: rancangan.** Firmware dan perangkat lunak laptop belum dikode; semua isi di bawah adalah rencana kecuali yang bertanda ✔. Sketsa uji modul (U4, U7, U8) sudah ada di `sketches/` (Bagian 11.3); langkah uji bench ada di [protokol-uji-bench-hgd.md](protokol-uji-bench-hgd.md). Versi v5 (18 Okt. 2026), perubahan:
+> **Status (24 Okt. 2026): firmware langkah 0-10 dan `laptop/logger.py` sudah dikode dan diuji di papan** (`firmware/hgd/`, `laptop/`); bagian yang belum dikode (langkah 10c, 11, `kalibrasi.py`) masih rencana. Bagian yang bertanda ✔ sudah selesai. Sketsa uji modul (U4, U7, U8) sudah ada di `sketches/` (Bagian 11.3); langkah uji bench ada di [protokol-uji-bench-hgd.md](protokol-uji-bench-hgd.md). Versi v5 (18 Okt. 2026), perubahan:
 > - (1) **Aturan LED baru** (menyala selama plateau di `GENGGAM`, tetap menyala sampai genggaman dilepas, kedip 5 detik setelah tiap restart, mati di galat) **menggantikan spesifikasi proposal S5** (LED menyala sepanjang `GENGGAM`), karena LED kini memberi dua sinyal: "genggaman stabil" dan "restart" (Bagian 10.3).
 > - (2) **S2 diubah**: hitung mundur istirahat digambar ulang tiap `T_REFRESH_LCD_MS` = 500 ms, bukan 100 ms ±10-20 ms (aturan modul praktikum; A6 dan A7 selesai).
 > - (3) **Reset total**: tahan tombol 15 detik di state apa pun; nomor sesi naik, baris `E` `FORCE_RESET`; uji X11a-c.

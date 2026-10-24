@@ -441,9 +441,12 @@ static void drawScreen() {
     return;
   }
 
-  // Teks mengikuti Tabel 4 proposal (sama dengan firmware tim lainnya); semua <= 16 karakter.
-  // Angka ditulis dengan lebar tetap (%5.2f dst.) supaya posisi tidak bergeser saat nilai berubah.
-  // Semua kg di LCD dua desimal (perbaikan langkah 10): %5.2f = 5 karakter untuk -9.99 s.d. 80.00.
+  // Teks mengikuti Tabel 4 proposal (sama dengan firmware tim lainnya) dengan perubahan langkah 10:
+  // semua kg dua desimal, RINGKASAN tanpa "kg" (supaya muat), GAGALSIMPAN tiga halaman, dan
+  // "Data tersimpan" setelah semua ACK. Daftar lengkap: alur-program-hgd.md Bagian 10.2 dan
+  // teks-lcd-hgd.md. Semua baris <= 16 karakter.
+  // Angka ditulis dengan lebar tetap (%5.2f = 5 karakter untuk -9.99 s.d. 80.00) supaya posisi
+  // tidak bergeser saat nilai berubah.
   const Trial& tr = session.trials[session.trialNo - 1];
   switch (state) {
     case READY:   // "SIAP - UKUR 1/3" / "Menyesuaikan nol", "Lepas genggaman" atau "Tekan tmbl START"
