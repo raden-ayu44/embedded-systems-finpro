@@ -3,7 +3,7 @@ title: Desain PCB dan Skema - Hand Grip Dynamometer
 
 ---
 
-# Desain PCB dan Skema - Hand Grip Dynamometer (v6)
+# Desain PCB dan Skema - Hand Grip Dynamometer (v7)
 **Proyek akhir - embedded system**
 
 > Skema dan PCB (skema termasuk): komponen, alokasi pin, rantai sinyal, load cell, catu daya, keputusan catu LCD, wiring antarmodul, PCB `hgd-v1` (KiCad), netlist, usulan penempatan, pemeriksaan load cell, dan sisa pekerjaan. Berkas netlist dan daftar komponen: `pcb_netlist.xlsx`; berkas KiCad: [kicad/](kicad/README.md); gambar penempatan: [gambar/penempatan-pcb-hgd.svg](gambar/penempatan-pcb-hgd.svg); log langkah KiCad: [log-kerja-kicad-hgd.md](log-kerja-kicad-hgd.md). Firmware ada di [alur-program-hgd.md](../firmware/alur-program-hgd.md); induk: [catatan-proyek-hgd.md](../catatan-proyek-hgd.md).
@@ -178,7 +178,7 @@ Semua modul dicolok ke **soket betina** di sisi bawah PCB (Bagian 8).
 | Sisi atas | SW1, R1, D1, R2, D2 | Komponen yang harus menembus atau terlihat dari tutup |
 | D2, R2 | LED daya 3 mm `LED_THT:LED_D3.0mm` + R2 220 ohm (footprint sama dengan R1), dari +3V3 ke GND | Indikator daya yang menyala tanpa firmware (Modul 5 Task 2.5); 3V3 dipakai supaya arus sama dengan D1 |
 | SW1 | `Button_Switch_THT:SW_PUSH_6mm_H13mm` | Batang 13 mm mencapai tutup |
-| R1 | **220 ohm**, `R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal` | ≈ 6 mA pada Vf 2,0 V ((3,3 − 2,0) / 220) |
+| R1 | **220 ohm**, `R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal` | ≈ 6 mA pada Vf 2,0 V ((3,3 − 2,0) / 220); terukur 25 Okt. 2026: **4,9 mA** (GPIO27 3,07 V, Vf D1 1,92 V, R1 213 Ω; [hasil-multimeter-hgd.md](../pengukuran/hasil-multimeter-hgd.md)) |
 | Kapasitor | C1, C4: `C_Disc_D7.0mm_W2.5mm_P5.00mm`; C2, C3: `CP_Radial_D5.0mm_P2.50mm` | Komponen lab |
 | Lapisan | Dua lapis; **pour GND di F.Cu dan B.Cu** (clearance 0,5 mm, lebar minimum 0,25 mm, thermal relief 0,5/0,5 mm, pulau dibuang), dijahit **57 via GND** 0,6/0,3 mm (17 Okt. 2026) | Jalur balik GND lebar dan pendek (noise dan jatuh tegangan kecil, penting untuk sinyal mikrovolt HX711); perisai di bawah jalur sinyal; thermal relief supaya kaki THT tetap mudah disolder tangan. Area antena bebas pour di kedua lapis |
 | Antena | Area antena modul bebas tembaga di kedua lapisan; zona 15 mm di samping dan depan antena bebas tembaga, komponen, dan via | Lihat Bagian 8.4 |
@@ -292,7 +292,7 @@ Penyimpanan: kotak kedap udara dengan gelembung plastik (sisi gelembung menghada
 4. ✔ Edge.Cuts 80 x 55 mm; lubang H1-H4 di sudut, pola sama dengan LCD dan DevKit (keputusan 17 Okt. 2026; tidak ada M3 dekat SW1).
 5. ✔ Jalur dan DRC: dua lapis, sinyal 0,3 mm, rail 0,5 mm; pour GND kedua lapis dan 57 via jahit; jalur mengitari zona antena.
 6. ✔ Penanda HV/LV dan label soket di B.Silkscreen; nomor tim dan nama proyek di F.Silkscreen.
-7. Uji U8 penuh (10 tap, 10 tahan) dan U6 (E+, E− modul HX711).
+7. Uji U8 penuh (10 tap, 10 tahan). U6 (E+, E− modul HX711) ✔ 24 Okt. 2026.
 8. Persetujuan PCB v1, lalu unggah ZIP Gerber (batas 27 Okt. 2026, 23:59).
 9. PDF skema dan BOM (kolom sesuai modul; tambahkan 2 soket 1x15 DevKit dan modul yang dicolok).
 10. ✔ Gambar [gambar/penempatan-pcb-hgd.svg](gambar/penempatan-pcb-hgd.svg) diperbarui dari berkas papan final (D2/R2, pour, via; 17 Okt. 2026).
@@ -304,6 +304,7 @@ Penyimpanan: kotak kedap udara dengan gelembung plastik (sisi gelembung menghada
 
 | Versi | Tanggal | Perubahan |
 |---|---|---|
+| v7 | 25 Okt. 2026 | Arus D1 terukur (4,9 mA) di tabel komponen; U6 selesai; tautan ke rangkuman pembacaan multimeter |
 | v6 | 24 Okt. 2026 | Breadboard: C3 dan C4 dipindah dari +3V3 ke +5V sesuai skema (Bagian 5.1, Bagian 6, tabel Bagian 8), dengan hasil cek; gambar wiring di protokol arus rail |
 | v5 | 24 Okt. 2026 | Bagian 5.1: arus tiap rail terukur (uji S3), diam dan puncak, dengan estimasi papan DevKit dan perbandingan terhadap S3 |
 | v4 | 17 Okt. 2026 | **Skema dan PCB v1 selesai (belum disetujui)**; gambar penempatan diperbarui dari papan final (D2/R2, pour GND, via); Gerber diekspor ulang dan dicek di viewer JLCPCB; berkas KiCad, salinan 3D, dan STEP di repo; log kerja KiCad; pembersihan berkas dan sisa pekerjaan diperbarui; pour GND F.Cu dan B.Cu + 57 via jahit; nomor tim dan nama proyek di silkscreen; lubang mounting dipertahankan; KiCad diizinkan sebagai pengganti EasyEDA; LED daya D2 (3 mm) + R2 220 ohm dari +3V3; netlist dan keputusan desain diperbarui; ERC 0 error (no-connect, `PWR_FLAG`); hitungan pull-up I2C terukur (LV 9,86 kΩ, HV 3,17 kΩ gabungan): tanpa pull-up tambahan; tegangan shifter tersolder 3,26 V / 4,98 V |
