@@ -34,7 +34,8 @@ Nama state mengikuti dokumen alur program (Bagian 1.4a): nama dokumen, lalu nama
 | RESPON_ISTIRAHAT (`REST`) | Hasil, genggaman belum dilepas | `Hasil 47.23 kg` | `Lepas>Rest 60s` | 14 / 14 | `"Hasil %5.2f kg"`, `"Lepas>Rest %2lus"` |
 | RESPON_ISTIRAHAT (`REST`) | Sudah dilepas: hitung mundur istirahat (angka berhenti bila digenggam lagi) | `Hasil 47.23 kg` | `Lepas>Rest 58s` | 14 / 14 | |
 | RESPON_ISTIRAHAT (`REST`) | Istirahat selesai, percobaan 1 atau 2 | `Hasil 47.23 kg` | `NEXT > lanjut` | 14 / 13 | |
-| RESPON_ISTIRAHAT (`REST`) | Istirahat selesai, percobaan 3 | `Hasil 46.90 kg` | `NEXT > ringkasan` | 14 / 16 | |
+| RESPON_ISTIRAHAT (`REST`) | Percobaan 3, genggaman belum dilepas (tanpa istirahat setelah percobaan 3) | `Hasil 46.90 kg` | `Lepas>ringkasan` | 14 / 15 | |
+| RESPON_ISTIRAHAT (`REST`) | Percobaan 3, langsung setelah dilepas | `Hasil 46.90 kg` | `NEXT > ringkasan` | 14 / 16 | |
 | RINGKASAN (`SUMMARY`) | Mengirim 4 baris log, menunggu ACK (normal < 0,1 s, sekitar 1 s tanpa `logger.py`) | `Mx47.23 Av44.81` | `Menyimpan...` | 15 / 12 | `"Mx%5.2f Av%5.2f"` (tanpa "kg": dengan "kg" 18 karakter) |
 | RINGKASAN (`SUMMARY`) | Semua baris tersimpan: baris 2 bergantian tiap 2 s (`SUMMARY_PAGE_MS`), mulai dari `Data tersimpan` | `Mx47.23 Av44.81` | `Data tersimpan` / `Tekan: RESTART` | 15 / 14, 14 | |
 | ERROR (`FAULT`) | HX711 tidak menjawab (tanpa sampel selama 1 s) | `ERR:HX711 TMOUT` | `RAW -38650` | 15 / sampai 12 | `"RAW %ld"` (live) |
@@ -50,6 +51,7 @@ Nama state mengikuti dokumen alur program (Bagian 1.4a): nama dokumen, lalu nama
 
 - Langkah 10: dua keadaan SIAP kini punya teks berbeda: `Lepas genggaman` = alat masih ditekan setelah tare; `Nol ulang: lepas` = tare diulang karena nol di luar jendela (juga di GENGGAM fase 1).
 - Perbaikan uji papan langkah 10 (24 Okt. 2026): semua nilai kg dua desimal; target onset di GENGGAM fase 1 `>1.00kg` (dengan satuan, gaya sama dengan `Lepas ok`); RINGKASAN tanpa "kg" supaya muat; RINGKASAN setelah tersimpan bergantian `Data tersimpan` / `Tekan: RESTART` (tanpa penundaan buatan, TAP langsung berlaku); GAGALSIMPAN tiga halaman, bukan dua; puncak diberi label `Mx` di semua layar (tidak ada lagi `Pk`).
+- Tanpa istirahat setelah percobaan 3 (24 Okt. 2026): `Lepas>ringkasan` (gaya sama dengan `Lepas>Rest`) sampai dilepas, lalu langsung `NEXT > ringkasan`. `Lepas genggaman` tidak dipakai karena di SIAP artinya "alat masih ditekan".
 - Teks `ERR:...` ringkas untuk pengawas, bukan peserta; nilai `RAW` live membantu pengawas melihat kapan kabel sudah diperbaiki.
 - GAGALSIMPAN menampilkan dua desimal, nilai yang sama dengan serial (`[GAGAL SIMPAN] ... P1=3.15 ...`).
 - Arti LED (tidak tampil di LCD): menyala = genggaman stabil; tetap menyala setelah keluar 5 s dalam keadaan stabil sampai dilepas; kedip lambat 5 s setelah tiap restart; dipaksa mati di ERROR dan GAGALSIMPAN.

@@ -3,7 +3,7 @@ title: Catatan Proyek - Hand Grip Dynamometer
 
 ---
 
-# Catatan Proyek - Hand Grip Dynamometer (v51)
+# Catatan Proyek - Hand Grip Dynamometer (v52)
 **Proyek akhir - embedded system**
 
 > Catatan kerja proyek akhir mata kuliah embedded system, sekaligus **dokumen induk**: ringkasan, kebutuhan, rumusan masalah, spesifikasi, BOM, risiko, jadwal, anggaran, keselamatan, riwayat keputusan, dan log audit ada di sini; bahan teknis dipecah ke dokumen di peta di bawah. Ditulis supaya bisa dibaca sendiri (offline). Dipakai untuk G2-G4, makalah akhir, dan demo.
@@ -12,7 +12,7 @@ title: Catatan Proyek - Hand Grip Dynamometer
 
 | Dokumen | Isi | Status |
 |---|---|---|
-| [firmware/alur-program-hgd.md](firmware/alur-program-hgd.md) | Seluruh firmware dan perangkat lunak laptop: struktur berkas, struktur data, konstanta, fungsi, state machine, HX711 dan sinyal, kalibrasi (pengolahan data), logging, antarmuka, uji modul, build, constraint, hal terbuka (Bagian 18) | v5; **firmware utama langkah 0-10c sudah dikode dan diuji di papan** (sampai 24 Okt. 2026, `firmware/hgd/`), termasuk `laptop/logger.py` (tiga CSV harian: hasil, galat, rekaman genggaman); berikutnya istirahat dilewati setelah percobaan 3, lalu langkah 11; sketsa uji U4, U7, U8 dan sketsa bench `uji_bench_hgd` ada di `firmware/sketches/`; hasil uji bench 15 Okt. 2026 tercatat |
+| [firmware/alur-program-hgd.md](firmware/alur-program-hgd.md) | Seluruh firmware dan perangkat lunak laptop: struktur berkas, struktur data, konstanta, fungsi, state machine, HX711 dan sinyal, kalibrasi (pengolahan data), logging, antarmuka, uji modul, build, constraint, hal terbuka (Bagian 18) | v5; **firmware utama langkah 0-10c sudah dikode dan diuji di papan** (sampai 24 Okt. 2026, `firmware/hgd/`), termasuk `laptop/logger.py` (tiga CSV harian: hasil, galat, rekaman genggaman); tanpa istirahat setelah percobaan 3 (24 Okt. 2026); berikutnya langkah 11; sketsa uji U4, U7, U8 dan sketsa bench `uji_bench_hgd` ada di `firmware/sketches/`; hasil uji bench 15 Okt. 2026 tercatat |
 | [firmware/teks-lcd-hgd.md](firmware/teks-lcd-hgd.md) | Semua layar LCD persis seperti dicetak firmware (baris 1/2, jumlah karakter, format di kode), untuk ditinjau | v1 (24 Okt. 2026); rujukan utama tetap Bagian 10.2 di alur program |
 | [pcb/desain-pcb-hgd.md](pcb/desain-pcb-hgd.md) | Skema dan PCB: komponen, alokasi pin, rantai sinyal, load cell, catu, keputusan catu LCD, wiring, netlist KiCad `hgd-v1`, usulan penempatan, pemeriksaan komponen, sisa pekerjaan; gambar di `pcb/gambar/` | v4: **skema dan PCB v1 selesai, belum disetujui** (ERC dan DRC 0 error, Gerber dicek di viewer JLCPCB); berkas KiCad dan STEP di `pcb/kicad/proyek/`; log kerja di `pcb/log-kerja-kicad-hgd.md` |
 | [pcb/pcb_netlist.xlsx](pcb/pcb_netlist.xlsx) | Netlist; komponen dengan nama umum, nama part resmi, simbol dan footprint KiCad; modul di luar PCB; asumsi dan sisa | Sesuai skema `hgd-v1` (15 Okt. 2026) |
@@ -435,7 +435,7 @@ Lihat Bagian 4 di [desain-pcb-hgd.md](pcb/desain-pcb-hgd.md). Jangan dibawa lewa
 | Pemeriksaan load cell | ◐ | Dimensi dan resistansi ✔; uji bertegangan dan E1 ✔ (15 Okt. 2026); kalibrasi belum |
 | PCB `hgd-v1` | ✔ | **v1 selesai (17 Okt. 2026), belum disetujui**: DRC 0 error; pour GND dua lapis + 57 via; LED daya D2; silkscreen tim; Gerber diekspor dan dicek di viewer JLCPCB (2 lapis, 80 x 55 mm); belum diunggah |
 | Skema KiCad | ✔ | **v1 selesai (17 Okt. 2026), belum disetujui**: ERC 0 error; D2/R2; pull-up I2C dihitung dari ukuran (tanpa pull-up tambahan); breadboard sama dengan skema. PDF dan BOM belum |
-| Firmware | ◐ | Langkah 0-10c dikode dan diuji di papan (24 Okt. 2026): state machine, tare, onset/plateau, istirahat, galat dan reset total, baris log + ACK dengan nomor boot, rekaman tiap sampel genggaman (`LOG_RAW`) dan penanda per upaya, layar LCD dua desimal. Belum: istirahat dilewati setelah percobaan 3, langkah 11 (watchdog, pengukuran waktu, build akhir Arduino IDE, lima skenario galat) |
+| Firmware | ◐ | Langkah 0-10c dikode dan diuji di papan (24 Okt. 2026): state machine, tare, onset/plateau, istirahat, galat dan reset total, baris log + ACK dengan nomor boot, rekaman tiap sampel genggaman (`LOG_RAW`) dan penanda per upaya, layar LCD dua desimal. Tanpa istirahat setelah percobaan 3 (24 Okt. 2026). Belum: langkah 11 (watchdog, pengukuran waktu, build akhir Arduino IDE, lima skenario galat) |
 | `logger.py` dan `kalibrasi.py` | ◐ | `logger.py` dikode dan diuji (U9, U10) 23 Okt. 2026, tulis-sebelum-ACK dan uji sesi penuh, X4, X14 24 Okt. 2026; langkah 10c: berkas galat dan rekaman genggaman, duplikat dengan nomor boot, penulisan terlambat bila berkas terkunci, uji U11-U14, X15, X16, E7 24 Okt. 2026 ([laptop/logger.py](laptop/logger.py)); `kalibrasi.py` belum dikode |
 | Housing grip | ◐ | Desain dan hitungan ada; menunggu sisa pengukuran load cell dan prototipe kardus |
 | Housing elektronik | ✔ | **Desain v1 selesai (17 Okt. 2026), belum disetujui**: lid, body, bibir, 4 snap-fit, slice uji; STEP di repo. Belum: lubang tombol/LED (termasuk D2), tiang PCB, cetak uji lidah; cetak menunggu PCB |
@@ -471,6 +471,7 @@ Lihat Bagian 4 di [desain-pcb-hgd.md](pcb/desain-pcb-hgd.md). Jangan dibawa lewa
 - Tenggat gerber: konflik panduan (Minggu 7) dan panduan tugas (Minggu 8) belum terkonfirmasi (Bagian 4.1).
 - Media logging: SD card hanya fasilitas opsional lab (satu unit); cloud opsional menurut Panduan; keputusan: CSV lewat USB-Serial sebagai inti (Bagian 5 dan Bagian 15.1 di [alur-program-hgd.md](firmware/alur-program-hgd.md)).
 - Persyaratan format resmi: status per item di Bagian 4.3.
+- v52 (24 Okt. 2026): Tanpa istirahat setelah percobaan 3 (keputusan tim; menyimpang dari proposal, dicatat di daftar perubahan alur program butir 11): `Lepas>ringkasan` sampai dilepas, lalu langsung `NEXT > ringkasan`. Alur program Bagian 6.1-6.3, 9.5, 10.2, 16; teks LCD.
 - v51 (24 Okt. 2026): Langkah 10c selesai dan diuji: nomor boot di semua baris log, berkas `hgd_galat_…` dan `hgd_genggam_…` (rekaman tiap sampel genggaman + penanda per upaya), penulisan terlambat bila berkas genggaman terkunci. Status firmware, `logger.py`, dan pengujian di Bagian 15.1 diperbarui; alur program Bagian 2, 3, 6.2, 9, 11, 12.2, 13.
 - v50 (24 Okt. 2026): Status firmware diperbarui: langkah 0-10 dikode dan diuji di papan, termasuk `logger.py` (peta dokumen, Bagian 7 GAGALSIMPAN selesai, Bagian 15.1 firmware, logger, pengujian, dokumen). Peta dokumen: `firmware/teks-lcd-hgd.md` (v1).
 - v49 (17 Okt. 2026): **Skema, PCB, dan housing elektronik versi 1 selesai, belum disetujui.** Status WIP (Bagian 15.1, 15.2), peta dokumen, dan posisi saat ini diperbarui; gambar `pcb/gambar/penempatan-pcb-hgd.svg` diperbarui dari papan final; desain PCB v4 (status v1 dan bukti di Bagian 8), README KiCad v5, housing elektronik v5 (status v1, sisa pekerjaan disusun ulang).
