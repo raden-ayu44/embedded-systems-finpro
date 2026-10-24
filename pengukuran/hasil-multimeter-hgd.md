@@ -21,7 +21,19 @@ Semua pembacaan multimeter proyek di satu tempat, urut tanggal: tegangan, resist
 | 3V3 | 3,30 V | 3,26 V (LV1/LV2) | 3,25 V (C1, C2, GPIO25) | 3,17 V (VCC HX711, LV1/LV2) |
 | 5 V (VIN) | 5,03 V | 4,98 V (HV1/HV2) | 4,95 V (C3, C4) | 4,91-4,94 V (HV1/HV2, VCC backpack) |
 
-Tegangan turun sedikit seiring beban bertambah, tetap di dalam rentang regulator 3,3 V dan USB 5 V ± 5 %. Selisih ≈ 0,08 V antara sisi ESP32 dan pin modul **bukan** jatuh tegangan kabel: diukur langsung (25 Okt. 2026, 200 mV), pin 3V3 ESP32 ↔ rail 3V3 bawah **7,2 mV** dan rail 3V3 bawah ↔ VCC HX711 **4,2 mV**, total ≈ 11 mV (≈ 1 Ω kabel dan kontak pada 10,4 mA). Sisanya berasal dari pembacaan pada saat berbeda dan ketidakpastian alat (± 0,04 V per pembacaan pada rentang 20 V).
+Tegangan turun sedikit seiring beban bertambah, tetap di dalam rentang regulator 3,3 V dan USB 5 V ± 5 %. Selisih antara sisi ESP32 dan pin modul berasal dari **kontak pin 3V3 DevKit ke breadboard**, bukan dari kabel jumper. Dicek 25 Okt. 2026:
+
+| Titik (20 V DC, berurutan dalam satu menit) | Hasil |
+|---|---|
+| Logam pin 3V3 DevKit (bagian atas header) | 3,26-3,27 V |
+| GPIO25 (pull-up, tanpa arus) | 3,25 V |
+| Rail 3V3 bawah | 3,15 V |
+| VCC HX711 | 3,15 V |
+| Kaki + C1 | 3,15 V |
+| Kolom breadboard pin 3V3 ↔ rail 3V3 bawah (200 mV) | 7,2 mV |
+| Rail 3V3 bawah ↔ VCC HX711 (200 mV) | 4,2 mV |
+
+Kabel dan rail hanya menjatuhkan ≈ 11 mV; ≈ 0,1 V hilang di kontak antara kaki pin 3V3 DevKit dan klip breadboard (≈ 6 Ω pada ≈ 17 mA kedua rail 3V3). Nilainya berubah setelah komponen dicabut-pasang (kaki C1 3,25 V pada 24 Okt. 2026 malam, 3,15 V pada 25 Okt. 2026). Tidak merusak (HX711 bekerja pada 2,6-5,5 V), tetapi kontak yang memburuk bisa membuat HX711 kekurangan catu dan memunculkan `HX711_TIMEOUT`. Perbaikan: cabut USB, tekan DevKit merata ke breadboard, ukur ulang pin dan rail.
 
 ## 3. 10 Okt. 2026: papan DevKit dan load cell
 
@@ -167,4 +179,4 @@ Pembacaan kapasitor pertama memakai rentang yang salah (20 nF untuk keramik, 200
 
 | Versi | Tanggal | Perubahan |
 |---|---|---|
-| v1 | 25 Okt. 2026 | Rangkuman semua pembacaan multimeter 10-25 Okt. 2026, termasuk U6 (E+/E−), tegangan pin modul, komponen lepas, pembacaan dua tangan, dan jatuh tegangan kabel 3V3 (7,2 + 4,2 mV) yang baru |
+| v1 | 25 Okt. 2026 | Rangkuman semua pembacaan multimeter 10-25 Okt. 2026, termasuk U6 (E+/E−), tegangan pin modul, komponen lepas, pembacaan dua tangan, dan penelusuran selisih tegangan 3V3 (kontak pin 3V3 DevKit ke breadboard) yang baru |
