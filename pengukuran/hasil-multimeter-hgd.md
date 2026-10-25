@@ -148,12 +148,12 @@ C3 dan C4 dipindah dari +3V3 ke +5V (VIN) sesuai skema. Asal: Bagian 2.1 [protok
 
 ## 9. 24 Okt. 2026 malam: komponen dilepas dari breadboard
 
-USB dicabut, komponen dicabut supaya rangkaian lain tidak ikut terukur.
+USB dicabut. Kapasitor diukur di soket Cx (dilepas). R1, R2, D1, D2 pada 24 Okt. 2026 masih di breadboard; pada 25 Okt. 2026 diulang dengan komponen dilepas dan baterai baru, supaya rangkaian lain tidak ikut terukur.
 
 | Komponen | Rentang | Hasil | Nominal | Kesimpulan |
 |---|---|---|---|---|
-| R1 | 2 kΩ | **213 Ω** | 220 Ω ± 5 % (209-231) | lolos |
-| R2 | 2 kΩ | **208 Ω** | 220 Ω ± 5 % | lolos dengan ketidakpastian alat (± 4 Ω) |
+| R1 | 2 kΩ | **213 Ω** (24 Okt. 2026 di breadboard; 25 Okt. 2026 dilepas, baterai baru: sama) | 220 Ω ± 5 % (209-231) | lolos |
+| R2 | 2 kΩ | **208 Ω** (24 Okt. 2026 di breadboard; 25 Okt. 2026 dilepas, baterai baru: sama) | 220 Ω ± 5 % | lolos dengan ketidakpastian alat (± 4 Ω) |
 | C1, C4 (keramik `104`) | 200 nF (soket Cx) | **≈ 105 nF** (mula-mula 98-99 dan berkedip, lalu naik perlahan ke 104-106; 105 dipakai sebagai nilai akhir) | 100 nF (± 10-20 % umum) | lolos |
 | C2 (elektrolit 10 µF 16 V) | 20 µF (soket Cx) | **10,9 µF**, stabil | 10 µF (± 20 % umum) | lolos |
 | C3 (elektrolit 10 µF 16 V) | 20 µF (soket Cx) | **10,7 µF**, stabil saat kaki ditekan ke soket | 10 µF (± 20 % umum) | lolos |
