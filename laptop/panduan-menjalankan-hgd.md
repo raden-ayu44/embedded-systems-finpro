@@ -3,7 +3,7 @@ title: Panduan Menjalankan Purwarupa - Hand Grip Dynamometer
 
 ---
 
-# Panduan Menjalankan Purwarupa - Hand Grip Dynamometer (v1)
+# Panduan Menjalankan Purwarupa - Hand Grip Dynamometer (v2)
 **Proyek akhir - embedded system**
 
 Dari nol sampai satu sesi tercatat di CSV, di laptop Windows mana pun: pasang perangkat lunak, flash firmware, jalankan `logger.py`, uji bench satu sesi, dan buka hasilnya. Ditulis dari uji bench resmi v1 (pra-kalibrasi) 24 Okt. 2026 dan masalah yang ditemui saat menyiapkannya. Isi teknis firmware dan logger ada di [alur-program-hgd.md](../firmware/alur-program-hgd.md); di sini hanya cara menjalankannya.
@@ -106,7 +106,9 @@ Yang wajar terjadi:
 - **Tekanan ringan (≈ 1 kg)** mudah turun di bawah ambang 1 kg dan tercatat `EARLY_RELEASE` (dilepas terlalu awal). Itu tangan, bukan firmware: tekan lebih kuat.
 - Kadang 64 byte `\xff` muncul di konsol (gangguan jalur USB) dan satu baris rekaman hilang (`n=59, diterima 58`). Data hasil tetap aman (baris hasil diperiksa checksum dan dikirim ulang).
 
-Hasil uji bench resmi v1 (pra-kalibrasi, 24 Okt. 2026): 3 percobaan 2,89 / 1,76 / 2,75 kg, puncak 2,89, rerata 2,47 kg, semua baris ringkasan ber-ACK, `rekaman hilang: 0`. Nilai gaya memakai skala nominal 53 687 counts/kg (belum terkalibrasi).
+Hasil uji bench resmi v2 (wiring akhir: C3 dan C4 di +5V sesuai skema, pra-kalibrasi, 25 Okt. 2026): 3 percobaan 3,62 / 3,25 / 3,06 kg (semua dilepas), puncak 3,62, rerata 3,31 kg, tanpa galat dalam sesi, semua baris hasil dan ringkasan tercatat, rekaman genggaman lengkap (141 / 120 / 119 baris sama dengan `n` penanda).
+
+Hasil uji bench resmi v1 (pra-kalibrasi, 24 Okt. 2026, sebelum C3/C4 dipindah ke +5V): 3 percobaan 2,89 / 1,76 / 2,75 kg, puncak 2,89, rerata 2,47 kg, semua baris ringkasan ber-ACK, `rekaman hilang: 0`. Nilai gaya memakai skala nominal 53 687 counts/kg (belum terkalibrasi).
 
 ## 8. Membuka CSV
 
