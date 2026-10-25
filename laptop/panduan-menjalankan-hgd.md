@@ -116,3 +116,28 @@ Berkas di folder `data` (satu set per hari): `hgd_YYYYMMDD.csv` (hasil T dan rin
 - **Lihat saja:** buka di VS Code (**File → Open File…**); tidak mengunci berkas.
 - **Excel:** jangan klik dua kali bila Windows memakai pengaturan angka Indonesia (pemisah `;`, desimal `,`): semua kolom masuk satu kolom atau 2.89 terbaca salah. Pakai **Data → From Text/CSV**, delimiter **Comma**, File Origin **65001: Unicode (UTF-8)**; bila angka masih salah: **Transform Data → Change Type → Using Locale… → Decimal, English (United States)**. Simpan salinan sebagai `.xlsx` dengan nama baru; jangan menimpa `.csv`. Tutup Excel sebelum menjalankan logger lagi.
 - Berkas genggaman besar: **Data → Filter** pada kolom `jenis` (`G` = sampel, `M` = penanda per upaya).
+
+## 9. Grafik genggaman (`plot_grip.py`)
+
+Satu gambar PNG per sesi: gaya (kg) terhadap waktu sejak onset untuk tiga percobaan, ambang onset 1 kg, dan jendela stabil terkuat (ref) tiap percobaan sebagai garis tebal. Sumber: `hgd_genggam_YYYYMMDD.csv`. Butuh **pandas** dan **matplotlib**.
+
+**Google Colab** (keduanya sudah terpasang; tidak perlu memasang apa pun):
+1. Buka notebook baru. Sel 1: tempel seluruh isi `laptop/plot_grip.py`, jalankan.
+2. Sel 2:
+   ```python
+   from google.colab import files
+   up = files.upload()                    # pilih hgd_genggam_YYYYMMDD.csv
+   png = plot_session(list(up)[0])        # sesi lengkap terakhir; atau boot="5068", sesi=3
+   files.download(png)
+   ```
+
+**Laptop** (Python dengan pandas dan matplotlib; Python PlatformIO tidak membawanya):
+```powershell
+python laptop\plot_grip.py ..\data\hgd_genggam_20261025.csv
+python laptop\plot_grip.py ..\data\hgd_genggam_20261025.csv --boot 5068 --sesi 3
+```
+PNG ditulis di samping CSV: `grafik_genggam_<boot>_sesi<n>.png`.
+
+- Tanpa boot/sesi: dipakai sesi lengkap (tiga percobaan dengan ref) yang paling akhir di berkas. Boot dan sesi tiap baris ada di kolom `boot` dan `sesi`.
+- Tiap percobaan memakai upaya terakhirnya yang punya ref; upaya yang berakhir galat atau dilepas terlalu awal tidak digambar.
+- Grafik dimulai 1 s sebelum onset; masa menunggu sebelumnya datar di 0.

@@ -25,7 +25,7 @@ Urutan baca untuk memahami purwarupa UTS (firmware, logger, layar), dari nol:
 4. [`firmware/teks-lcd-hgd.md`](firmware/teks-lcd-hgd.md): semua layar LCD persis seperti dicetak firmware.
 5. Kode firmware di [`firmware/hgd/hgd/`](firmware/hgd/hgd/) (mulai dari `hgd.ino`, lalu `config.h`, `types.h`, `fsm.cpp`). Folder ini juga isi ZIP firmware UTS.
 6. [`laptop/logger.py`](laptop/logger.py): pencatat di laptop (CSV, ACK/NAK).
-7. [`laptop/panduan-menjalankan-hgd.md`](laptop/panduan-menjalankan-hgd.md): cara menjalankan dari nol di laptop mana pun (pasang, flash, logger, uji bench satu sesi, buka CSV).
+7. [`laptop/panduan-menjalankan-hgd.md`](laptop/panduan-menjalankan-hgd.md): cara menjalankan dari nol di laptop mana pun (pasang, flash, logger, uji bench satu sesi, buka CSV, grafik genggaman).
 
 **Tidak diperlukan untuk UTS:** `housing-load-cell/`, `housing-elektronik/`, `kalibrasi/` (kalibrasi dipindah ke proyek akhir), `sitasi/`, PDF datasheet di `datasheet/pdf/`, dan sketsa uji lama di `firmware/sketches/` (hanya untuk uji modul awal).
 
@@ -38,7 +38,7 @@ Urutan baca untuk memahami purwarupa UTS (firmware, logger, layar), dari nol:
 | Folder | Contents |
 |---|---|
 | [`firmware/`](firmware/) | `hgd/`: the main ESP32 firmware (PlatformIO project; the sketch folder `hgd/hgd/` also opens in Arduino IDE and is the firmware ZIP); `alur-program-hgd.md`: program flow for the ESP32 firmware and the laptop-side logger (data, constants, functions, state machine, logging, tests, build); `teks-lcd-hgd.md`: every LCD screen exactly as the firmware prints it; `protokol-uji-bench-hgd.md`: bench test procedure and results; `sketches/` holds the early test sketches (pin loopback, LCD, HX711, button and LED, and the combined bench test) |
-| [`laptop/`](laptop/) | `logger.py`: laptop-side logger (Python 3 + pyserial): reads the ESP32 log lines over USB serial, writes the daily CSV files, replies ACK/NAK; `panduan-menjalankan-hgd.md`: step-by-step guide to install, flash, run the logger, do a one-session bench test and open the CSV files on any Windows laptop |
+| [`laptop/`](laptop/) | `logger.py`: laptop-side logger (Python 3 + pyserial): reads the ESP32 log lines over USB serial, writes the daily CSV files, replies ACK/NAK; `plot_grip.py`: force-time graph of one session from the grip CSV (pandas + matplotlib, runs on a laptop or in Google Colab); `panduan-menjalankan-hgd.md`: step-by-step guide to install, flash, run the logger, do a one-session bench test and open the CSV files on any Windows laptop |
 | [`pcb/`](pcb/) | `desain-pcb-hgd.md` (schematic and PCB design), `pcb_netlist.xlsx` (components with official part names, KiCad symbols and footprints, netlist), `gambar/` (placement drawing, SVG), and [`kicad/`](pcb/kicad/README.md), the hub for KiCad files |
 | [`housing-load-cell/`](housing-load-cell/) | Grip housing design, assumptions (`asumsi.md`), drawings in `gambar/` (SVG), Fusion 360 parameters and instructions in `fusion/` |
 | [`housing-elektronik/`](housing-elektronik/) | Electronics housing design (LCD on the lid, shrink compensation, print rules) and Fusion 360 parameters in `fusion/` |
