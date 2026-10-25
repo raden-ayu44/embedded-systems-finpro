@@ -21,6 +21,7 @@ Nilai kg memakai skala firmware; sebelum kalibrasi itu skala nominal.
 
 import argparse
 import os
+import sys
 
 import matplotlib
 matplotlib.use("Agg")  # tanpa jendela: langsung ke berkas PNG (juga aman di Colab)
@@ -53,6 +54,10 @@ def kg2(x):
 def load(path):
     # boot dibaca sebagai teks: "5068" dan "29B9" sama-sama ID heksadesimal.
     df = pd.read_csv(path, dtype={"boot": str})
+    need = {"boot", "sesi", "percobaan", "upaya", "jenis", "ms", "t_onset_s", "kg", "ref_kg"}
+    if not need <= set(df.columns):
+        raise SystemExit(f"{os.path.basename(path)} bukan berkas hgd_genggam_YYYYMMDD.csv "
+                         "(kolom boot/sesi/percobaan/... tidak ada).")
     df = df[df["sesi"].notna()].copy()
     df["sesi"] = df["sesi"].astype(int)
     return df
@@ -146,11 +151,12 @@ def plot_session(path, boot=None, sesi=None, out=None):
     return out
 
 
-if __name__ == "__main__":
+# Di Colab/Jupyter bagian ini dilewati: argumen notebook bukan nama CSV; panggil plot_session() di sel lain.
+if __name__ == "__main__" and "ipykernel" not in sys.modules:
     ap = argparse.ArgumentParser(description="Grafik gaya genggam satu sesi dari hgd_genggam_*.csv")
     ap.add_argument("csv", help="berkas hgd_genggam_YYYYMMDD.csv")
     ap.add_argument("--boot", help="ID boot, mis. 5068 (lihat kolom boot)")
     ap.add_argument("--sesi", type=int, help="nomor sesi di boot itu")
     ap.add_argument("--out", help="nama berkas PNG (bawaan: di samping CSV)")
-    a, _ = ap.parse_known_args()  # parse_known_args: argumen tambahan Colab/Jupyter diabaikan
+    a = ap.parse_args()
     plot_session(a.csv, a.boot, a.sesi, a.out)
