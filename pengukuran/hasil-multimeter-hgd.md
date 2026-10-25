@@ -13,6 +13,7 @@ Semua pembacaan multimeter proyek di satu tempat, urut tanggal: tegangan, resist
 - **Multimeter digital DT9205A.** Rentang, akurasi, dan peringatan alat ada di DS-INS1 [datasheet-library.md](../datasheet/datasheet-library.md). Yang paling sering dipakai: 20 V DC (± (0,5 % + 2 digit), resolusi 10 mV), 200 mV DC (resolusi 0,1 mV), 2 kΩ (± (0,8 % + 2 digit)), 200 mA dan 2 mA lewat jack **mA**.
 - **Kapasitansi diukur lewat soket Cx**, bukan lewat probe (lewat probe alat menampilkan `1`). Kapasitor dikosongkan dulu.
 - `1` di layar = di luar rentang (atau terputus pada mode Ω).
+- **Baterai 9 V diganti 25 Okt. 2026** sebelum sesi hari itu; malam sebelumnya baterai mungkin sudah lemah. Pembacaan tegangan 24 Okt. 2026 malam cocok dengan pembacaan ulang 25 Okt. 2026 (GPIO25 3,25 / 3,25 V; rail 3V3 atas 3,25 / 3,25-3,26 V), dan R2 terkonfirmasi lewat arus seri, jadi tetap dipakai. Yang terdampak adalah mode dioda (Bagian 9), sudah diulang dengan baterai baru.
 
 ## 2. Ringkasan tegangan rail
 
@@ -156,7 +157,9 @@ USB dicabut, komponen dicabut supaya rangkaian lain tidak ikut terukur.
 | C1, C4 (keramik `104`) | 200 nF (soket Cx) | **≈ 105 nF** (mula-mula 98-99 dan berkedip, lalu naik perlahan ke 104-106; 105 dipakai sebagai nilai akhir) | 100 nF (± 10-20 % umum) | lolos |
 | C2 (elektrolit 10 µF 16 V) | 20 µF (soket Cx) | **10,9 µF**, stabil | 10 µF (± 20 % umum) | lolos |
 | C3 (elektrolit 10 µF 16 V) | 20 µF (soket Cx) | **10,7 µF**, stabil saat kaki ditekan ke soket | 10 µF (± 20 % umum) | lolos |
-| D1, D2 (mode dioda) | | tidak stabil (D1 1299; D2 800 sampai > 1000) | ≈ 1600-1800 | **tidak dipakai**; Vf diukur di rangkaian (Bagian 8 dan 10) |
+| D1, D2 (mode dioda), 24 Okt. 2026 | | tidak stabil (D1 1299; D2 800 sampai > 1000) | | **tidak dipakai**: baterai lemah |
+| D2 (mode dioda, baterai baru, 25 Okt. 2026) | →\| | **1,438-1,439 V**, stabil | | lolos; lebih rendah dari 1,78 V di rangkaian karena arus uji kecil (≈ 1 mA lawan 6,8 mA) |
+| D1 (mode dioda, baterai baru, 25 Okt. 2026) | →\| | **1,56 V** (paling lama di angka ini, sesekali berkedip) | | lolos; lebih rendah dari 1,92 V di rangkaian (≈ 1 mA lawan 4,9 mA); D1 > D2 pada kedua cara |
 
 Pembacaan kapasitor pertama memakai rentang yang salah (20 nF untuk keramik, 200 µF untuk elektrolit) dan menunjukkan angka yang sama dengan koma bergeser satu posisi; diulang 25 Okt. 2026 pada rentang yang benar (angka di tabel) dan cocok dengan cetakan. Sebelum diukur, kapasitor dikosongkan dengan menyentuhkan kedua kaki ke logam.
 
@@ -180,7 +183,6 @@ Pembacaan kapasitor pertama memakai rentang yang salah (20 nF untuk keramik, 200
 ## 11. Belum diukur
 
 - Arus papan DevKit sendiri (ESP32, CP2102, regulator): hanya estimasi (Bagian 5.1 desain PCB); butuh pemutusan jalur 5 V USB.
-- Vf D1 dan D2 dengan mode dioda (tidak stabil pada alat ini; nilai di rangkaian dipakai).
 
 ## 12. Riwayat versi
 
