@@ -204,7 +204,7 @@ C3 dan C4 dipindah dari +3V3 ke +5V (VIN) sesuai skema. Asal: Bagian 2.1 [protok
 | Di antara kaki D2 | 1,78 V | Vf LED daya pada 6,8 mA; R2 + D2 = 3,20 V = rail atas |
 | A+ ↔ A− tanpa beban (200 mV) | 0 | sesuai: offset nol ≈ 39 000 counts ≈ 0,05 mV, di bawah resolusi 0,1 mV |
 
-## 9. 24 Okt. 2026 malam: komponen dilepas dari breadboard
+## 9. 24-25 Okt. 2026: komponen satuan (resistor, kapasitor, LED)
 
 USB dicabut. Kapasitor diukur di soket Cx (dilepas). R1, R2, D1, D2 pada 24 Okt. 2026 masih di breadboard; pada 25 Okt. 2026 diulang dengan komponen dilepas dan baterai baru, supaya rangkaian lain tidak ikut terukur.
 
