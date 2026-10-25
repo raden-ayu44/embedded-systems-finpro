@@ -153,7 +153,7 @@ USB dicabut, komponen dicabut supaya rangkaian lain tidak ikut terukur.
 |---|---|---|---|---|
 | R1 | 2 kΩ | **213 Ω** | 220 Ω ± 5 % (209-231) | lolos |
 | R2 | 2 kΩ | **208 Ω** | 220 Ω ± 5 % | lolos dengan ketidakpastian alat (± 4 Ω) |
-| C1, C4 (keramik `104`) | 200 nF (soket Cx) | **98-104 nF** (mula-mula 98-99 dan berkedip, lalu naik perlahan sampai 104, kadang 106) | 100 nF (± 10-20 % umum) | lolos |
+| C1, C4 (keramik `104`) | 200 nF (soket Cx) | **≈ 105 nF** (mula-mula 98-99 dan berkedip, lalu naik perlahan ke 104-106; 105 dipakai sebagai nilai akhir) | 100 nF (± 10-20 % umum) | lolos |
 | C2 (elektrolit 10 µF 16 V) | 20 µF (soket Cx) | **10,9 µF**, stabil | 10 µF (± 20 % umum) | lolos |
 | C3 (elektrolit 10 µF 16 V) | 20 µF (soket Cx) | **10,7 µF**, stabil saat kaki ditekan ke soket | 10 µF (± 20 % umum) | lolos |
 | D1, D2 (mode dioda) | | tidak stabil (D1 1299; D2 800 sampai > 1000) | ≈ 1600-1800 | **tidak dipakai**; Vf diukur di rangkaian (Bagian 8 dan 10) |
