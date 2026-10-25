@@ -6,7 +6,7 @@ title: Hasil Pengukuran Multimeter - Hand Grip Dynamometer
 # Hasil Pengukuran Multimeter - Hand Grip Dynamometer (v1)
 **Proyek akhir - embedded system**
 
-Semua pembacaan multimeter proyek di satu tempat, urut tanggal: tegangan, resistansi, arus, kontinuitas, dan kapasitansi, dari komponen yang baru tiba (10 Okt. 2026) sampai purwarupa breadboard lengkap (25 Okt. 2026). Tiap bagian menyebut kondisi, rentang alat, hasil, batas yang dipakai, dan dokumen asalnya. Dokumen asal tetap memuat pembacaannya; berkas ini rangkumannya.
+Semua pembacaan multimeter proyek di satu tempat, urut tanggal: tegangan, resistansi, arus, kontinuitas, dan kapasitansi, dari komponen yang baru tiba (10 Okt. 2026) sampai purwarupa breadboard lengkap (25 Okt. 2026). Tiap bagian menyebut kondisi, rentang alat, hasil, batas yang dipakai, dan dokumen asalnya; cara mengukur per jenis pembacaan ada di Bagian 1.1-1.7. Dokumen asal tetap memuat pembacaannya; berkas ini rangkumannya.
 
 ## 1. Alat
 
@@ -14,6 +14,64 @@ Semua pembacaan multimeter proyek di satu tempat, urut tanggal: tegangan, resist
 - **Kapasitansi diukur lewat soket Cx**, bukan lewat probe (lewat probe alat menampilkan `1`). Kapasitor dikosongkan dulu.
 - `1` di layar = di luar rentang (atau terputus pada mode Ω).
 - **Baterai 9 V diganti 25 Okt. 2026** sebelum sesi hari itu; malam sebelumnya baterai mungkin sudah lemah. Pembacaan tegangan 24 Okt. 2026 malam cocok dengan pembacaan ulang 25 Okt. 2026 (GPIO25 3,25 / 3,25 V; rail 3V3 atas 3,25 / 3,25-3,26 V), dan R2 terkonfirmasi lewat arus seri, jadi tetap dipakai. Mode dioda 24 Okt. 2026 tidak stabil (Bagian 9): LED masih di breadboard dan baterai mungkin lemah; diulang 25 Okt. 2026 dengan LED dilepas dan baterai baru.
+
+### 1.1 Aturan umum
+
+1. **Pilih fungsi dan rentang dulu**, baru probe menyentuh rangkaian. Bila ragu, mulai dari rentang yang lebih besar.
+2. **Probe hitam di COM.** Probe merah di **VΩ** untuk tegangan, resistansi, kontinuitas, dan dioda; di **mA** hanya untuk arus. Setelah mengukur arus, kembalikan probe merah ke VΩ: probe di jack mA saat mengukur tegangan sama dengan hubung singkat.
+3. **Resistansi, kontinuitas, dioda, dan kapasitansi hanya tanpa catu** (USB dicabut).
+4. **Satu ujung probe, satu titik.** Jangan sampai ujung probe menjembatani dua pin bertetangga: pad E+/E−/A+/A− HX711 berdekatan, dan kolom VIN bersebelahan dengan kolom GND di breadboard (VIN ↔ GND = hubung singkat USB 5 V).
+5. **Kabel perpanjangan di probe** (25 Okt. 2026): pasang saat USB dicabut, lalu colok USB, lalu baca. Tangan tidak perlu memegang probe di dekat rangkaian bertegangan.
+6. **Tegangan rail diukur di lubang yang bersebelahan dengan kabel atau kaki komponen yang membawa arus**, bukan di lubang kosong. Lubang kosong bisa berada pada klip longgar atau di seberang putusan rail (Bagian 2: lubang kosong memberi 3,15 / 3,08 V, lubang berkabel 3,22-3,26 V).
+7. **Angka berkedip:** tunggu 2-3 s, catat angka yang paling lama tampil dan rentang kedipnya.
+8. **Simbol baterai di layar:** ganti baterai 9 V dulu. Baterai lemah paling dulu mengganggu resistansi, dioda, dan kapasitansi.
+
+### 1.2 Tegangan DC (Bagian 3, 4, 5, 7, 8, 10)
+
+1. USB dicolok; alat dalam keadaan yang dicatat (mis. layar `SIAP`, tunggu ≥ 15 s setelah menyala).
+2. Rentang **20 V DC**; **200 mV DC** untuk sinyal jembatan A+ ↔ A− dan jatuh tegangan kabel.
+3. Terhadap GND: probe hitam ke rail GND atau pin GND, probe merah ke titik yang diukur.
+4. Di antara kaki komponen (R1, R2, D1, D2): probe merah ke kaki yang tegangannya lebih tinggi (sisi catu atau GPIO), probe hitam ke kaki lainnya. Arus = tegangan resistor / resistansi terukur (Bagian 9).
+5. Baca setelah 2-3 s. Tanda minus = probe terbalik; pada kapasitor elektrolit, periksa ulang arah pemasangannya.
+6. **Pembacaan saat tombol ditekan atau saat genggaman** (Bagian 10) butuh pembantu: pembantu menekan tombol atau menggenggam load cell, pengukur memegang probe. Satu pembacaan per genggaman; D1 hanya menyala saat genggaman stabil, jadi genggam kuat dan tetap. Untuk A+ ↔ A−, baca kg di LCD pada saat yang sama. Tombol ditahan < 15 s (15 s = reset total).
+
+### 1.3 Resistansi (Bagian 3, 5, 9)
+
+1. USB dicabut.
+2. **Komponen dilepas dari rangkaian.** Di breadboard, arus uji ikut mengalir lewat jalur lain, sehingga angka hanya bisa lebih kecil dari nilai sebenarnya. Load cell diukur sebelum disolder ke HX711; modul shifter dan backpack dilepas dari rangkaian.
+3. Rentang di atas nilai yang diharapkan: **2 kΩ** untuk resistor 220 Ω dan jembatan load cell (≈ 260-400 Ω); **20 kΩ** untuk pull-up 4,7-10 kΩ.
+4. Pegang kaki atau kabel di bagian berinsulasi; jari tidak menyentuh kedua kaki logam (tubuh ikut terukur paralel).
+5. Load cell: jangan ditekan saat diukur; ukur keenam pasangan kabel. Pasangan dengan resistansi terbesar = eksitasi (E+/E−), pasangan berikutnya yang sesuai datasheet = sinyal (A+/A−).
+
+### 1.4 Kontinuitas (Bagian 5, 6, 7)
+
+1. USB dicabut; mode bunyi (beep).
+2. Sentuhkan kedua probe ke dua titik.
+3. **Bunyi** (≈ 0 Ω) = tersambung. **`1`** = terputus. Angka ratusan Ω ke atas atau angka yang naik perlahan = tersambung lewat komponen (pull-up, kapasitor yang terisi), bukan lewat kabel.
+4. **Setiap kali wiring catu diubah, sebelum USB dicolok:** 3V3 ↔ VIN harus 500-1500 Ω dan berubah-ubah (bukan bunyi); VIN ↔ GND dan 3V3 ↔ GND tidak boleh bunyi tetap.
+5. Modul yang baru disolder: cek semua pasangan pin bertetangga (jembatan solder LV1-LV2 dan HV1-HV2 ditemukan dengan cara ini, Bagian 5).
+
+### 1.5 Arus (Bagian 6)
+
+Multimeter dipasang **seri** menggantikan satu kabel catu, jack **mA**, rentang 200 mA (2 mA hanya untuk sisi HV shifter). Langkah lengkap, aturan keselamatan, dan tanda dari alat ada di [protokol-arus-rail-hgd.md](protokol-arus-rail-hgd.md).
+
+### 1.6 Kapasitansi (Bagian 9)
+
+1. USB dicabut; kapasitor dilepas dari breadboard. Catat arah elektrolit (garis = kaki −).
+2. **Kosongkan dulu:** sentuhkan kedua kaki ke satu benda logam yang sama.
+3. Fungsi kapasitansi (F); rentang tepat di atas nilai cetakan: **200n** untuk keramik `104` (100 nF), **20µ** untuk elektrolit 10 µF. Rentang yang salah menampilkan angka yang sama dengan koma bergeser (pembacaan pertama: 10,70 dan 100,x), atau `1`.
+4. Masukkan kaki ke **soket Cx**, bukan ke probe. Tekan kaki supaya kontak stabil.
+5. Tunggu sampai angka tenang. Keramik pada alat ini mulai di 98-99 lalu naik perlahan; catat nilai akhirnya dan rentangnya.
+6. Lepas adaptor (bila dipakai) sebelum ganti fungsi.
+7. Pasang kembali; elektrolit dengan garis (−) ke GND. Cek kontinuitas (1.4 butir 4) sebelum USB dicolok.
+
+### 1.7 Dioda / LED (Bagian 9)
+
+1. USB dicabut. Catat arah LED (kaki panjang = anoda, ke sisi resistor; kaki pendek / sisi datar = katoda, ke GND), lalu **lepas LED** dari breadboard.
+2. Fungsi dioda (→|).
+3. Probe merah ke kaki panjang, hitam ke kaki pendek; tahan 2-3 s. LED kadang menyala redup: arah benar. Terbalik = `1`.
+4. Angka = tegangan maju pada arus uji kecil (≈ 1 mA), lebih rendah dari tegangan di rangkaian (5-7 mA).
+5. Pasang kembali searah. Colok USB: D2 menyala tetap, D1 berkedip 5 s saat menyala; LED yang gelap terpasang terbalik (tidak merusak; balik saja).
 
 ## 2. Ringkasan tegangan rail
 
@@ -188,4 +246,4 @@ Pembacaan kapasitor pertama memakai rentang yang salah (20 nF untuk keramik, 200
 
 | Versi | Tanggal | Perubahan |
 |---|---|---|
-| v1 | 25 Okt. 2026 | Rangkuman semua pembacaan multimeter 10-25 Okt. 2026, termasuk U6 (E+/E−), tegangan pin modul, komponen lepas, pembacaan dua tangan, dan penelusuran selisih tegangan 3V3 (pembacaan lubang kosong salah; rail bawah ≈ 0,04 V di bawah pin) yang baru |
+| v1 | 25 Okt. 2026 | Rangkuman semua pembacaan multimeter 10-25 Okt. 2026, termasuk U6 (E+/E−), tegangan pin modul, komponen lepas, pembacaan dua tangan, cara mengukur per jenis pembacaan (Bagian 1.1-1.7), dan penelusuran selisih tegangan 3V3 (pembacaan lubang kosong salah; rail bawah ≈ 0,04 V di bawah pin) yang baru |
