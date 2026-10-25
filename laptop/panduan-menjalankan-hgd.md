@@ -117,26 +117,35 @@ Berkas di folder `data` (satu set per hari): `hgd_YYYYMMDD.csv` (hasil T dan rin
 - **Excel:** jangan klik dua kali bila Windows memakai pengaturan angka Indonesia (pemisah `;`, desimal `,`): semua kolom masuk satu kolom atau 2.89 terbaca salah. Pakai **Data → From Text/CSV**, delimiter **Comma**, File Origin **65001: Unicode (UTF-8)**; bila angka masih salah: **Transform Data → Change Type → Using Locale… → Decimal, English (United States)**. Simpan salinan sebagai `.xlsx` dengan nama baru; jangan menimpa `.csv`. Tutup Excel sebelum menjalankan logger lagi.
 - Berkas genggaman besar: **Data → Filter** pada kolom `jenis` (`G` = sampel, `M` = penanda per upaya).
 
-## 9. Grafik genggaman (`plot_grip.py`)
+## 9. Grafik genggaman (`plot_grip.py`, `plot_session.py`)
 
-Satu gambar PNG per sesi: gaya (kg) terhadap waktu sejak onset untuk tiga percobaan, ambang onset 1 kg, dan jendela stabil terkuat (ref) tiap percobaan sebagai garis tebal. Sumber: `hgd_genggam_YYYYMMDD.csv`. Butuh **pandas** dan **matplotlib**.
+Sumber: `hgd_genggam_YYYYMMDD.csv`. Butuh **pandas** dan **matplotlib**. Tiap sampel HX711 (≈ 85 ms) digambar sebagai titik; PNG ditulis di samping CSV.
 
-**Google Colab** (keduanya sudah terpasang; tidak perlu memasang apa pun):
-1. Buka notebook baru. Sel 1: tempel seluruh isi `laptop/plot_grip.py`, jalankan.
-2. Sel 2:
+| Skrip | Gambar | Isi |
+|---|---|---|
+| `plot_grip.py` | tiga, satu per percobaan: `grafik_genggam_<boot>_sesi<n>_p<k>.png` | panel atas: seluruh genggaman, onset, akhir upaya, ambang 1 kg, jendela ref, puncak, dan strip LED D1 (menyala = plateau); panel bawah: perbesaran jendela ref dengan nilai kelima sampel, rentang maks - min terhadap batas 0,5 kg, dan ref = rata-rata |
+| `plot_session.py` | dua: `grafik_sesi_<boot>_sesi<n>_berurutan.png` dan `..._bertumpuk.png` | berurutan: tiga genggaman sesuai urutan waktu, jeda istirahat ditulis (jam laptop, ±1 s; tidak sesuai skala); bertumpuk: ketiganya disejajarkan di onset |
+
+Aturan jendela yang digambar sama dengan firmware: jendela = 5 sampel terakhir sesudah onset; plateau = kelima sampel di atas 1 kg dan maks - min ≤ 0,5 kg (LED D1 menyala); ref = rata-rata jendela plateau tertinggi. `plot_grip.py` menghitung ulang jendela ref dari sampel dan memberi peringatan bila berbeda dari catatan firmware. Strip LED dihitung ulang dari CSV (kg dibulatkan 0,01), jadi jendela tepat di batas 0,50 kg bisa berbeda dari LED nyata.
+
+**Google Colab** (pandas dan matplotlib sudah terpasang):
+1. Buka notebook baru. Sel 1: tempel seluruh isi `laptop/plot_grip.py`, jalankan (tidak ada keluaran). Bila perlu juga grafik sesi: sel berikutnya, tempel `laptop/plot_session.py`, jalankan.
+2. Sel berikutnya:
    ```python
    from google.colab import files
-   up = files.upload()                    # pilih hgd_genggam_YYYYMMDD.csv
-   png = plot_session(list(up)[0])        # sesi lengkap terakhir; atau boot="5068", sesi=3
-   files.download(png)
+   up = files.upload()                       # pilih hgd_genggam_YYYYMMDD.csv
+   csv = list(up)[0]
+   pngs = plot_trials(csv)                  # tiga gambar per percobaan (plot_grip.py)
+   pngs += plot_overview(csv)                # dua gambar sesi (plot_session.py)
+   for p in pngs: files.download(p)
    ```
+   Sesi tertentu: `plot_trials(csv, boot="5068", sesi=3)`, sama untuk `plot_overview`.
 
 **Laptop** (Python dengan pandas dan matplotlib; Python PlatformIO tidak membawanya):
 ```powershell
-python laptop\plot_grip.py ..\data\hgd_genggam_20261025.csv
 python laptop\plot_grip.py ..\data\hgd_genggam_20261025.csv --boot 5068 --sesi 3
+python laptop\plot_session.py ..\data\hgd_genggam_20261025.csv --boot 5068 --sesi 3
 ```
-PNG ditulis di samping CSV: `grafik_genggam_<boot>_sesi<n>.png`.
 
 - Tanpa boot/sesi: dipakai sesi lengkap (tiga percobaan dengan ref) yang paling akhir di berkas. Boot dan sesi tiap baris ada di kolom `boot` dan `sesi`.
 - Tiap percobaan memakai upaya terakhirnya yang punya ref; upaya yang berakhir galat atau dilepas terlalu awal tidak digambar.
