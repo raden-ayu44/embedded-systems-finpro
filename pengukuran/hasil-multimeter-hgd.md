@@ -21,19 +21,25 @@ Semua pembacaan multimeter proyek di satu tempat, urut tanggal: tegangan, resist
 | 3V3 | 3,30 V | 3,26 V (LV1/LV2) | 3,25 V (C1, C2, GPIO25) | 3,17 V (VCC HX711, LV1/LV2) |
 | 5 V (VIN) | 5,03 V | 4,98 V (HV1/HV2) | 4,95 V (C3, C4) | 4,91-4,94 V (HV1/HV2, VCC backpack) |
 
-Tegangan turun sedikit seiring beban bertambah, tetap di dalam rentang regulator 3,3 V dan USB 5 V ± 5 %. Selisih antara sisi ESP32 dan pin modul berasal dari **kontak pin 3V3 DevKit ke breadboard**, bukan dari kabel jumper. Dicek 25 Okt. 2026:
+Tegangan turun sedikit seiring beban bertambah, tetap di dalam rentang regulator 3,3 V dan USB 5 V ± 5 %.
 
-| Titik (20 V DC, berurutan dalam satu menit) | Hasil |
+**Penelusuran selisih 3V3 (25 Okt. 2026).** Pembacaan di **lubang rail yang kosong** sempat memberi 3,15 V lalu 3,08 V (setelah DevKit ditekan ke breadboard), padahal logam pin 3V3 DevKit 3,26-3,28 V. Itu **salah cara ukur**, bukan masalah rangkaian: lubang kosong bisa berada pada klip yang longgar atau di seberang putusan rail, sehingga yang terukur adalah lubangnya. Diulang di **lubang tepat di sebelah kabel yang membawa arus**, dengan kabel perpanjangan di probe (kabel dipasang saat USB dicabut, lalu USB dicolok, lalu dibaca), 20 V DC:
+
+| Titik | Hasil |
 |---|---|
-| Logam pin 3V3 DevKit (bagian atas header) | 3,26-3,27 V |
+| Logam pin 3V3 DevKit (bagian atas header) | 3,26-3,28 V |
 | GPIO25 (pull-up, tanpa arus) | 3,25 V |
-| Rail 3V3 bawah | 3,15 V |
-| VCC HX711 | 3,15 V |
-| Kaki + C1 | 3,15 V |
-| Kolom breadboard pin 3V3 ↔ rail 3V3 bawah (200 mV) | 7,2 mV |
-| Rail 3V3 bawah ↔ VCC HX711 (200 mV) | 4,2 mV |
+| Rail 3V3 atas: lubang kabel dari pin 3V3 | 3,25-3,26 V (paling stabil 3,26) |
+| Rail 3V3 atas: R2 | 3,25 V |
+| Rail 3V3 atas: C2 | 3,25-3,26 V |
+| Rail 3V3 bawah: lubang kabel dari pin 3V3 dan kabel ke VCC HX711 | 3,22 V (sekali 3,25) |
+| Rail 3V3 bawah: LV shifter | 3,22 V (sekali 3,18) |
+| Rail 3V3 bawah: C1 | 3,22 V (sekali 3,25, sekali 3,18) |
 
-Kabel dan rail hanya menjatuhkan ≈ 11 mV; ≈ 0,1 V hilang di kontak antara kaki pin 3V3 DevKit dan klip breadboard (≈ 6 Ω pada ≈ 17 mA kedua rail 3V3). Nilainya berubah setelah komponen dicabut-pasang (kaki C1 3,25 V pada 24 Okt. 2026 malam, 3,15 V pada 25 Okt. 2026). Tidak merusak (HX711 bekerja pada 2,6-5,5 V), tetapi kontak yang memburuk bisa membuat HX711 kekurangan catu dan memunculkan `HX711_TIMEOUT`. Perbaikan: cabut USB, tekan DevKit merata ke breadboard, ukur ulang pin dan rail.
+- **Rail atas sama dengan pin** (D2, 6,7 mA): kontak pin 3V3 DevKit ke breadboard baik.
+- **Rail bawah ≈ 0,04 V lebih rendah** (HX711 + LV, 10,4 mA): jatuh tegangan di jumper 2 dan kontaknya (≈ 4 Ω). Tidak berbahaya; HX711 bekerja pada 2,6-5,5 V. Pembacaan sekali-sekali 3,18/3,25 V adalah kontak probe yang berkedip.
+- Dua pembacaan 200 mV sebelumnya (kolom pin 3V3 ↔ rail bawah 7,2 mV; rail bawah ↔ VCC HX711 4,2 mV) diambil sebelum cara ini, dan titik rail-nya mungkin lubang kosong; tidak dipakai untuk kesimpulan.
+- **Pelajaran cara ukur:** ukur tegangan rail di lubang yang bersebelahan dengan kabel atau kaki komponen yang membawa arus, bukan di lubang kosong.
 
 ## 3. 10 Okt. 2026: papan DevKit dan load cell
 
@@ -179,4 +185,4 @@ Pembacaan kapasitor pertama memakai rentang yang salah (20 nF untuk keramik, 200
 
 | Versi | Tanggal | Perubahan |
 |---|---|---|
-| v1 | 25 Okt. 2026 | Rangkuman semua pembacaan multimeter 10-25 Okt. 2026, termasuk U6 (E+/E−), tegangan pin modul, komponen lepas, pembacaan dua tangan, dan penelusuran selisih tegangan 3V3 (kontak pin 3V3 DevKit ke breadboard) yang baru |
+| v1 | 25 Okt. 2026 | Rangkuman semua pembacaan multimeter 10-25 Okt. 2026, termasuk U6 (E+/E−), tegangan pin modul, komponen lepas, pembacaan dua tangan, dan penelusuran selisih tegangan 3V3 (pembacaan lubang kosong salah; rail bawah ≈ 0,04 V di bawah pin) yang baru |
