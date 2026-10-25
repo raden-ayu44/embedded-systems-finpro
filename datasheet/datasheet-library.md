@@ -161,9 +161,9 @@ Ini hitungan dari noise Avia, **bukan** pengukuran; E+ yang sebenarnya pada catu
 |---|---|---|
 | 1 | Foto papan: penanda XFW-HX711 dan pad 10Hz/80Hz | |
 | 2 | Ukur PCB dengan jangka sorong (24 x 16 mm?) | 24 x 15,6 mm; header 4 pin di tengah sisi pendek (15 Okt. 2026) |
-| 3 | Catu modul pada tegangan pilihan; ukur E- terhadap GND (seharusnya sekitar 0 V; cacat bila sekitar 0,6 V) | |
-| 4 | Ukur E+ terhadap GND dengan load cell tersambung (sekitar 4,3 V pada catu 5 V bila baik) | |
-| 5 | Ukur AVDD dan tegangan pada pin VCC | |
+| 3 | Catu modul pada tegangan pilihan; ukur E- terhadap GND (seharusnya sekitar 0 V; cacat bila sekitar 0,6 V) | **0,02 V** pada catu 3,3 V: tidak cacat (24 Okt. 2026) |
+| 4 | Ukur E+ terhadap GND dengan load cell tersambung (sekitar 4,3 V pada catu 5 V bila baik) | **2,98 V** pada VCC modul 3,17 V (24 Okt. 2026) |
+| 5 | Ukur AVDD dan tegangan pada pin VCC | VCC **3,17 V**; AVDD = E+ = 2,98 V (24 Okt. 2026; semua pembacaan di [hasil-multimeter-hgd.md](../pengukuran/hasil-multimeter-hgd.md)) |
 | 6 | Status pad rate (10 SPS bawaan?) | Sekitar 11,8 sampel/s terukur (706 sampel dalam 60 s): mode 10 SPS (15 Okt. 2026) |
 | 7 | Tegangan logika pada DT saat bekerja | |
 | 8 | Polaritas pembacaan dengan kabel sesuai datasheet CZL 601 | |
@@ -249,6 +249,7 @@ Nomor [1]-[3] mengikuti urutan kemunculan di tabel Identitas. Seperti kode lokal
 | 5 | Ujung tetap dan ujung bebas | |
 | 6 | Resistansi: E+/E- (sekitar 400), S+/S- (sekitar 350) | **Diukur 10 Okt. 2026** (DT9205A, rentang 2 kΩ, pembacaan 0,001 kΩ): merah-hitam 306 Ω (sempat berkedip 400 Ω); hijau-putih 260 Ω; merah-hijau 347 Ω; merah-putih 260 Ω; hitam-hijau 306 Ω; hitam-putih 393 Ω. Hasil: **pasangan eksitasi = hitam-putih (393 Ω; datasheet 401 ± 10, lolos)**, **pasangan sinyal = merah-hijau (347 Ω; datasheet 350 ± 5, lolos)**. Empat pasangan silang 260 sampai 306 Ω cocok dengan perkiraan hitungan jembatan (260 sampai 310 Ω). Ketidakpastian alat sekitar ±5 Ω. **Pemetaan warna pada barang ini berbeda dari datasheet** (datasheet: merah/hitam eksitasi, hijau/putih sinyal). Urutan baris pembacaan mengikuti catatan pengguna; polaritas + dan - belum ditentukan (hanya membalik tanda) |
 | 7 | Kawat kelima: kontinuitas ke badan dan perisai | |
+| 6a | Penyolderan ke HX711 yang bekerja | hitam E+, putih E−, hijau A+, merah A− (gaya tekan terbaca positif; 24 Okt. 2026) |
 | 8 | Panjang dan diameter kabel | |
 | 9 | Offset nol tanpa beban | |
 | 10 | Tanda pembacaan dengan hijau = S+, putih = S- | |
@@ -373,7 +374,7 @@ Belum diukur: 3V3 dan 5 V dengan beban (HX711, LCD, LED), arus total.
 | 1 | Cetakan pada pelindung modul: tertulis ESP32-WROOM-32D? | Cetakan terbaca "ESP-32" dan "XXSR69" saja; chip terkonfirmasi D0WD-V3 lewat perangkat lunak (lihat hasil uji di atas). Huruf akhiran modul belum pasti |
 | 1a | Tegangan 3V3 tanpa beban (DT9205A, 20 V DC) | **3,30 V**, 10 Okt. 2026 (lihat hasil ukur multimeter di atas) |
 | 1b | Tegangan VIN tanpa beban | **5,03 V** (terbaca 5,02 - 5,04 V), 10 Okt. 2026 |
-| 2 | Tegangan 3V3 saat beban (HX711 + LCD + LED). Alat DT9205A, rentang 20 V DC, ketidakpastian sekitar ±0,04 V pada 3,3 V (DS-INS1) | *belum diukur* |
+| 2 | Tegangan 3V3 saat beban (HX711 + LCD + LED). Alat DT9205A, rentang 20 V DC, ketidakpastian sekitar ±0,04 V pada 3,3 V (DS-INS1) | **3,25 V** di sisi ESP32, **3,17 V** di pin modul (24 Okt. 2026, [hasil-multimeter-hgd.md](../pengukuran/hasil-multimeter-hgd.md) Bagian 2) |
 | 2a | Arus total dari USB pada 80 MHz dan 240 MHz dengan firmware proyek, Wi-Fi mati; bandingkan dengan Tabel B. Alat DT9205A, rentang 200 mA DC lewat jack mA, dipasang seri di jalur 5 V (langkah dan batas di DS-INS1; sekring alat 200 mA); ketidakpastian sekitar ±(1,4% + 0,2 mA), dan layar hanya diperbarui tiap 2-3 detik sehingga puncak sesaat tidak terbaca | *belum diukur* |
 | 3 | Enam pin proyek terbaca pada tes GPIO sederhana | **Lulus**, 8 Okt. 2026 (loopback 6 dari 6 arah, lihat hasil uji di atas) |
 

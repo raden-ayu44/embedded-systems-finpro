@@ -948,7 +948,7 @@ timestamp,boot,sesi,percobaan,upaya,jenis,ms,t_onset_s,kg,fase,demo,keluar,onset
 | U3 | Resistansi load cell (6 pasangan) | Masukan 401 ±10, keluaran 350 ±5 ohm | ✔ 10 Okt. 2026 (393; 347) |
 | U4 | Pemindai I2C (sketsa `uji_lcd_i2c`) | Alamat LCD terbaca (0x27/0x3F) | ✔ 15 Okt. 2026: 0x27 |
 | U5 | Tegangan SDA/SCL backpack saat diam | Sesuai keputusan Bagian 6 di [desain-pcb-hgd.md](../pcb/desain-pcb-hgd.md) | ✔ 15 Okt. 2026: 4,93 V dengan backpack di VIN → level shifter BSS138; di 3V3 kontras LCD gagal |
-| U6 | E+ dan E− modul HX711; DVDD dari VCC? | E− ke GND, E+ stabil | ▣ modul sudah ada; belum diukur |
+| U6 | E+ dan E− modul HX711; DVDD dari VCC? | E− ke GND, E+ stabil | ✔ 24 Okt. 2026: E+ 2,98 V, E− 0,02 V, VCC modul 3,17 V ([hasil-multimeter-hgd.md](../pengukuran/hasil-multimeter-hgd.md) Bagian 8) |
 | U7 | Baca HX711 (sketsa `uji_hx711`): respons, noise, tare, tanda, lama tunggu DT | Tidak "NO RESPONSE", nilai berubah saat ditekan; lama tunggu DT dicatat (Bagian 18) | ✔ 15 Okt. 2026: DT turun, nilai berubah saat ditekan; ≈ 11,8 sampel/s |
 | U8 | Tombol dan LED: debounce, tap vs tahan. Sketsa `uji_tombol_led` (logika v4) dan **firmware utama langkah 1** (`hgd.ino` + `button.cpp`, logika v5: debounce saat lepas, `sawLow`, abaikan sampai dilepas, hitung mundur reset total). Uji 10/10 dijalankan dengan firmware utama | 10 tap = 10 TAP; 10 tahan = 10 TAHAN tanpa TAP tambahan saat dilepas | ◐ 15-16 Okt. 2026 kumulatif: 5 tap = 5 TAP, 3 tahan = 3 TAHAN, tanpa TAP tambahan; uji 10/10 belum |
 | U9 | ACK: 100 baris, tiap baris berbalas | 100/100 ACK | ✔ 23 Okt. 2026: 4 × 100/100 (perintah `u`, `logger.py` asli), terlama 33,3 ms |
