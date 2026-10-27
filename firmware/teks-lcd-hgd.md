@@ -3,7 +3,7 @@ title: Teks LCD - Hand Grip Dynamometer
 
 ---
 
-# Teks LCD - Hand Grip Dynamometer (v2)
+# Teks LCD - Hand Grip Dynamometer (v3)
 **Proyek akhir - embedded system**
 
 Tabel semua layar LCD 16x2 persis seperti yang dicetak firmware (firmware UTS, langkah 11, dibekukan; v2: layar percobaan 3 tanpa istirahat), untuk ditinjau dan didiskusikan. Desain ulang teks LCD dijadwalkan untuk proyek akhir. Rujukan utama tetap [alur-program-hgd.md](alur-program-hgd.md) Bagian 10.2; bila satu teks diubah, kode (`fsm.cpp` `drawScreen()`, `fault.cpp` `faultDraw()`), Bagian 10.2, dan berkas ini diubah bersama.
@@ -54,4 +54,4 @@ Nama state mengikuti dokumen alur program (Bagian 1.4a): nama dokumen, lalu nama
 - Tanpa istirahat setelah percobaan 3 (24 Okt. 2026): `Lepas>ringkasan` (gaya sama dengan `Lepas>Rest`) sampai dilepas, lalu langsung `NEXT > ringkasan`. `Lepas genggaman` tidak dipakai karena di SIAP artinya "alat masih ditekan".
 - Teks `ERR:...` ringkas untuk pengawas, bukan peserta; nilai `RAW` live membantu pengawas melihat kapan kabel sudah diperbaiki.
 - GAGALSIMPAN menampilkan dua desimal, nilai yang sama dengan serial (`[GAGAL SIMPAN] ... P1=3.15 ...`).
-- Arti LED (tidak tampil di LCD): menyala = genggaman stabil; tetap menyala setelah keluar 5 s dalam keadaan stabil sampai dilepas; kedip lambat 5 s setelah tiap restart; dipaksa mati di ERROR dan GAGALSIMPAN.
+- Arti LED (tidak tampil di LCD): menyala = genggaman stabil; tetap menyala setelah keluar 5 s dalam keadaan stabil sampai dilepas; kedip lambat (2 Hz) 5 s setelah tiap restart; kedip cepat (5 Hz) terus di ERROR dan GAGALSIMPAN sampai TAHAN atau reset total (v3, 27 Okt. 2026; sebelumnya mati).

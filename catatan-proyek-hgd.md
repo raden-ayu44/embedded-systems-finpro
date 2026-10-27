@@ -3,7 +3,7 @@ title: Catatan Proyek - Hand Grip Dynamometer
 
 ---
 
-# Catatan Proyek - Hand Grip Dynamometer (v59)
+# Catatan Proyek - Hand Grip Dynamometer (v60)
 **Proyek akhir - embedded system**
 
 > Catatan kerja proyek akhir mata kuliah embedded system, sekaligus **dokumen induk**: ringkasan, kebutuhan, rumusan masalah, spesifikasi, BOM, risiko, jadwal, anggaran, keselamatan, riwayat keputusan, dan log audit ada di sini; bahan teknis dipecah ke dokumen di peta di bawah. Ditulis supaya bisa dibaca sendiri (offline). Dipakai untuk G2-G4, makalah akhir, dan demo.
@@ -475,6 +475,7 @@ Lihat Bagian 4 di [desain-pcb-hgd.md](pcb/desain-pcb-hgd.md). Jangan dibawa lewa
 - Tenggat gerber: konflik panduan (Minggu 7) dan panduan tugas (Minggu 8) belum terkonfirmasi (Bagian 4.1).
 - Media logging: SD card hanya fasilitas opsional lab (satu unit); cloud opsional menurut Panduan; keputusan: CSV lewat USB-Serial sebagai inti (Bagian 5 dan Bagian 15.1 di [alur-program-hgd.md](firmware/alur-program-hgd.md)).
 - Persyaratan format resmi: status per item di Bagian 4.3.
+- v60 (27 Okt. 2026): LED alarm galat (usulan tim, sesudah firmware dibekukan): di `ERROR` dan `GAGALSIMPAN` LED D1 berkedip cepat 5 Hz terus sampai TAHAN atau reset total, menggantikan "dipaksa mati", karena penggenggam bisa tidak melihat LCD dan alat tidak punya buzzer. Kedip restart 2 Hz / 5 s tetap. Kode: `led.cpp` (`ledAlarmStart()`), `fault.cpp`, `fsm.cpp` (`enterSaveFailed()`), `config.h` (`LED_ALARM_MS`). Alur program v6 (butir 12, Bagian 10.3), teks LCD v3. Perlu uji ulang di papan.
 - v59 (27 Okt. 2026): PCB versi akhir 26 Okt. 2026 dari berkas KiCad tim: judul "Digital Hand Grip Dynamometer" (skema hanya berubah di title block), silkscreen tiga baris di kedua sisi (18-19 Okt.), tiga belokan 45° dan via dijauhkan dari tepi setelah cek JLCDFM (26 Okt.) dengan posisi footprint tetap (56 via GND + 2 sinyal), stackup FR4 1,6 mm; ERC 0 error (7 pengecualian), DRC 0 error (3 pengecualian; pengecualian spoke thermal U2 tidak lagi); Gerber diekspor ulang dan dicek di JLCDFM (di luar repo sampai disetujui). Di repo: `hgd-v1.kicad_pro`, skema dan papan baru, PDF skema `pcb/kicad/pdf/skema-hgd-v1.pdf`, tangkapan ERC/DRC/Assign Footprints dan render di `pcb/gambar/`. Desain PCB v8 (Bagian 8.1a daftar Assign Footprints, Bagian 8.5 setelan KiCad langkah demi langkah), log kerja KiCad v2, README KiCad v6. STEP diganti versi 26 Okt. (dari papan utama, tanpa soket 1x15 DevKit, yang tidak memengaruhi desain housing); salinan `hgd-v1-verbatim.kicad_pcb` dihapus. Gambar penempatan `pcb/gambar/penempatan-pcb-hgd.svg` diganti versi papan akhir 26 Okt. (dicek terhadap berkas papan). Housing elektronik v6.
 - v58 (25 Okt. 2026): Uji bench resmi v2 pada wiring akhir (C3/C4 di +5V), pra-kalibrasi: 3,62 / 3,25 / 3,06 kg, puncak 3,62, rerata 3,31 kg, tanpa galat dalam sesi, rekaman lengkap; panduan menjalankan v2. Rangkuman pembacaan multimeter `pengukuran/hasil-multimeter-hgd.md` (v1) di peta dokumen. Pembacaan baru: U6 (E+ 2,98 V, E− 0,02 V), tegangan pin modul (3,17 V / 4,91-4,94 V), R1/R2 213/208 Ω, C1-C4 sesuai cetakan, arus D1 4,9 mA, sinyal jembatan 0,2-0,3 mV pada ≈ 4 kg. Desain PCB v7.
 - v57 (24 Okt. 2026): Gambar wiring breadboard (Wokwi) di protokol arus rail v2 (Bagian 2.1). Kapasitor breadboard C3 dan C4 dipindah dari +3V3 ke +5V sesuai skema dan dicek (3,25 V / 4,95 V); desain PCB v6.

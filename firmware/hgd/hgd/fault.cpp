@@ -10,7 +10,10 @@ static FaultType active = FAULT_NONE;   // galat yang sedang aktif
 void faultEnter(FaultType type, uint16_t sessionNo, uint8_t trialNo, uint32_t sessionT0Ms) {
   active = type;
   buttonReset();       // tekanan yang sedang berlangsung tidak boleh langsung menjadi TAHAN keluar
-  ledSet(false);       // keadaan aman (R7): LED dipaksa mati, tidak terus mengaktuasi saat galat
+  // Keadaan aman (R7): pengukuran berhenti dan LED tidak lagi mengikuti genggaman. LED dipakai
+  // sebagai tanda galat: kedip cepat 5 Hz terus sampai pengawas menahan tombol (TAHAN) atau
+  // reset total, supaya galat terlihat walau layar tidak sedang dilihat.
+  ledAlarmStart();
   // raw dan kg ikut dicetak supaya penyebabnya bisa diperiksa (mis. kg = 85 pada OUT_OF_RANGE).
   Serial.printf("[FAULT] %s raw=%ld kg=%.2f\n", faultName(type), (long)sensorRaw(), sensorKg());
   faultLogEvent((uint8_t)type, sessionNo, trialNo, sessionT0Ms);

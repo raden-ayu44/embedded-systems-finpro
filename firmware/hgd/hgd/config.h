@@ -81,6 +81,11 @@ const uint32_t SAVE_FAILED_PAGE_MS = 3000;  // ganti halaman layar SAVE_FAILED
 const uint32_t SUMMARY_PAGE_MS     = 2000;  // SUMMARY tersimpan: "Data tersimpan" <-> "Tekan: RESTART"
 const uint32_t LED_BLINK_MS        = 250;   // selang ganti nyala/mati kedip restart (2 Hz)
 const uint32_t LED_BLINK_TOTAL_MS  = 5000;  // lama kedip restart di READY
+// Kedip alarm galat (ERROR, GAGALSIMPAN): ganti nyala/mati tiap 100 ms (5 Hz), terus sampai keluar
+// dari state galat. Lebih cepat dari kedip restart (2 Hz) supaya keduanya bisa dibedakan. Gunanya:
+// penggenggam yang tidak melihat layar "ERR:..." atau "GAGAL SIMPAN" tetap tahu ada masalah
+// (alat tidak punya buzzer).
+const uint32_t LED_ALARM_MS        = 100;
 
 // ---------------- Logging serial ----------------
 // E5: batas tunggu ACK dari logger.py = 10x balasan terlama, tidak kurang dari 500 ms.

@@ -3,7 +3,7 @@
 //
 // Pembagian tugas:
 // - fsm.cpp memutuskan KAPAN masuk FAULT (cek galat sensor, cek rentang) dan kapan keluar (TAHAN).
-// - fault.cpp mengerjakan APA yang terjadi saat galat: LED dipaksa mati, pesan serial, baris E,
+// - fault.cpp mengerjakan APA yang terjadi saat galat: LED kedip alarm 5 Hz, pesan serial, baris E,
 //   dan teks layar "ERR:..." + raw live untuk pengawas.
 // Tidak ada penungguan di modul ini: semua fungsi langsung kembali (non-blocking).
 #pragma once
@@ -13,7 +13,7 @@
 // Kode 1-4 adalah nilai FaultType (HX711_TIMEOUT, ADC_SATURATED, OUT_OF_RANGE, READING_INVALID).
 const uint8_t EVENT_FORCE_RESET = 5;
 
-// Masuk keadaan aman: simpan jenis galat, LED mati, buang tekanan tombol lama, cetak [FAULT] dan
+// Masuk keadaan aman: simpan jenis galat, LED kedip alarm, buang tekanan tombol lama, cetak [FAULT] dan
 // baris E. Dipanggil sekali dari aksi masuk FAULT.
 void faultEnter(FaultType type, uint16_t sessionNo, uint8_t trialNo, uint32_t sessionT0Ms);
 
