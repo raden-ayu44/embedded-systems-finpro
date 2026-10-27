@@ -411,7 +411,7 @@ Penyimpanan: kotak kedap udara dengan gelembung plastik (sisi gelembung menghada
 2. Ukur jarak header HX711 ke tepi modul (asumsi 1,5 mm) dan cocokkan urutan pin J1 dengan silkscreen modul.
 3. ✔ Berkas KiCad dibersihkan (Bagian 8.3).
 4. ✔ Edge.Cuts 80 x 55 mm; lubang H1-H4 di sudut, pola sama dengan LCD dan DevKit (keputusan 17 Okt. 2026; tidak ada M3 dekat SW1).
-5. ✔ Jalur dan DRC: dua lapis, sinyal 0,3 mm, rail 0,5 mm; pour GND kedua lapis dan 57 via jahit; jalur mengitari zona antena.
+5. ✔ Jalur dan DRC: dua lapis, sinyal 0,3 mm, rail 0,5 mm; pour GND kedua lapis dan via jahit GND (56 pada papan akhir 26 Okt. 2026); jalur mengitari zona antena.
 6. ✔ Penanda HV/LV dan label soket di B.Silkscreen; nomor tim dan nama proyek di F.Silkscreen.
 7. Uji U8 penuh (10 tap, 10 tahan). U6 (E+, E− modul HX711) ✔ 24 Okt. 2026.
 8. Persetujuan PCB v1, lalu unggah ZIP Gerber (batas 27 Okt. 2026, 23:59). Gerber diekspor ulang dan dicek di JLCDFM 26 Okt. 2026.
