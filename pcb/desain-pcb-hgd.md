@@ -166,7 +166,7 @@ Semua modul dicolok ke **soket betina** di sisi bawah PCB (Bagian 8).
 | Breadboard = skema | Wiring sesuai skema termasuk D2/R2; LCD bekerja lewat level shifter (17 Okt. 2026). Kapasitor C3/C4 dipindah ke +5V sesuai skema (24 Okt. 2026); gambar wiring di protokol arus rail Bagian 2.1 |
 | Gerber + bor | Diekspor ulang 26 Okt. 2026 20:35 (KiCad 10.0.6), Revision 1, 12 berkas dalam `Gerber_Kelompok-01_hgd-v1.zip`: 2 lapis, 1,6 mm, 80 x 55 mm (job file: 80,05 x 55,05 termasuk tebal garis outline); aturan desain di job file: jalur minimum 0,3 mm, jarak pad/jalur 0,2 mm, jarak ke pour 0,5 mm. Dicek di viewer dan analisis DFM JLCDFM. Belum di repo sampai disetujui |
 | Render | Tampak atas dan bawah, papan saja ([atas](gambar/pcb-atas-hgd-v1.png), [bawah](gambar/pcb-bawah-hgd-v1.png)) dan model 3D ([atas](gambar/pcb-3d-atas-hgd-v1.png), [bawah](gambar/pcb-3d-bawah-hgd-v1.png)) |
-| Berkas | [kicad/proyek/](kicad/proyek/): proyek (`.kicad_pro`), skema, papan, salinan 3D verbatim, STEP; PDF skema [kicad/pdf/skema-hgd-v1.pdf](kicad/pdf/skema-hgd-v1.pdf); langkah kerja di [log-kerja-kicad-hgd.md](log-kerja-kicad-hgd.md) |
+| Berkas | [kicad/proyek/](kicad/proyek/): proyek (`.kicad_pro`), skema, papan, STEP rakitan (26 Okt. 2026, dari papan utama; tanpa soket 1x15 DevKit, tidak memengaruhi desain housing); PDF skema [kicad/pdf/skema-hgd-v1.pdf](kicad/pdf/skema-hgd-v1.pdf); langkah kerja di [log-kerja-kicad-hgd.md](log-kerja-kicad-hgd.md) |
 | Belum | Persetujuan; unggah Gerber; BOM |
 
 ### 8.1 Keputusan desain
@@ -230,7 +230,7 @@ Yang tidak ada di daftar ini (tidak punya simbol di skema) dan harus ditambahkan
 ERC 17 Okt. 2026: **0 error, 0 warning**. Pin tak terpakai diberi tanda no-connect, `PWR_FLAG` di GND (daya masuk lewat USB DevKit, yang tidak ada di skema). Tujuh peringatan `lib_symbol_mismatch` dikecualikan dengan sengaja: simbol J1-J4, C1, C4, SW1 sudah diubah (nama pin), dan memperbarui dari pustaka akan menghapus nama pin itu.
 
 ### 8.3 Pembersihan berkas `hgd-v1.kicad_pcb` sebelum gerber ✔
-- ✔ Dua footprint `REF**` PinSocket_1x15 di pad U2 dihapus dari berkas papan (hanya ada di salinan 3D `hgd-v1-verbatim.kicad_pcb`).
+- ✔ Dua footprint `REF**` PinSocket_1x15 di pad U2 dihapus dari berkas papan (hanya ada di salinan 3D `hgd-v1-verbatim.kicad_pcb`, yang dihapus 27 Okt. 2026).
 - ✔ Empat lubang NPTH 3 mm milik footprint U2 dihapus.
 - ✔ Edge.Cuts final 80 x 55 mm (109,75; 93) sampai (189,75; 148); lubang H1-H4 di sudut.
 
@@ -328,7 +328,7 @@ Penyimpanan: kotak kedap udara dengan gelembung plastik (sisi gelembung menghada
 
 | Versi | Tanggal | Perubahan |
 |---|---|---|
-| v8 | 27 Okt. 2026 | Versi akhir papan 26 Okt. 2026: judul "Digital Hand Grip Dynamometer", jalur ulang (posisi footprint tetap; 56 via GND), silkscreen tiga baris, stackup; ERC dan DRC ulang (DRC 3 pengecualian, spoke thermal U2 tidak lagi); Gerber diekspor ulang dan dicek di JLCDFM; Bagian 8.1a daftar Assign Footprints; PDF skema, `.kicad_pro`, tangkapan dan render di repo; catatan bahwa gambar penempatan masih versi 17 Okt. |
+| v8 | 27 Okt. 2026 | Versi akhir papan 26 Okt. 2026: judul "Digital Hand Grip Dynamometer", jalur ulang (posisi footprint tetap; 56 via GND), silkscreen tiga baris, stackup; ERC dan DRC ulang (DRC 3 pengecualian, spoke thermal U2 tidak lagi); Gerber diekspor ulang dan dicek di JLCDFM; Bagian 8.1a daftar Assign Footprints; PDF skema, `.kicad_pro`, tangkapan dan render di repo; catatan bahwa gambar penempatan masih versi 17 Okt.; STEP diganti versi 26 Okt. (tanpa soket DevKit) dan salinan verbatim dihapus |
 | v7 | 25 Okt. 2026 | Arus D1 terukur (4,9 mA) di tabel komponen; U6 selesai; tautan ke rangkuman pembacaan multimeter |
 | v6 | 24 Okt. 2026 | Breadboard: C3 dan C4 dipindah dari +3V3 ke +5V sesuai skema (Bagian 5.1, Bagian 6, tabel Bagian 8), dengan hasil cek; gambar wiring di protokol arus rail |
 | v5 | 24 Okt. 2026 | Bagian 5.1: arus tiap rail terukur (uji S3), diam dan puncak, dengan estimasi papan DevKit dan perbandingan terhadap S3 |
