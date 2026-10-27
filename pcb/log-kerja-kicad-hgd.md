@@ -26,6 +26,7 @@ title: Log Kerja KiCad - PCB hgd-v1
 | 12 | 26 Okt. 2026 | Plot Gerber dan bor ulang | Setelan sama dengan langkah 5 (KiCad 10.0.6), ZIP `Gerber_Kelompok-01_hgd-v1.zip` | 12 berkas (20:35): 7 Gerber, job file (Revision 1), `PTH.drl`, `NPTH.drl`, 2 peta bor PDF; ukuran di job file 80,05 x 55,05 mm (termasuk tebal garis outline), 2 lapis, 1,6 mm; aturan desain: jalur minimum 0,3 mm, jarak pad/jalur 0,2 mm, jarak ke pour 0,5 mm | Folder keluaran di berkas papan dan proyek menunjuk folder lokal di luar repo; di salinan repo dikembalikan ke `gerber/`. Gerber belum masuk repo (menunggu persetujuan) |
 | 13 | 26 Okt. 2026 | Cek DFM di JLCDFM | ZIP Gerber diunggah ke viewer JLCDFM, analisis DFM dijalankan, laporan PDF diunduh | Terbaca 2 lapis, 80 x 55 mm; 0 sudut tajam; jarak antarjalur minimum 0,2 mm (baik); cincin tembaga lubang 0,25 mm (baik); solder mask dan lubang bor tanpa masalah. Silkscreen: 5 "bahaya" + 2 peringatan jarak tulisan ke pad (minimum 0,09 mm) dan 80 peringatan tebal garis tulisan (0,12 mm), dari garis bawaan footprint pustaka KiCad, bukan tulisan tim; tidak memengaruhi fungsi listrik | Dicek sebelum dan sesudah perbaikan langkah 11. Pratinjau sama dengan papan (outline, H1-H4, soket, silkscreen). Tangkapan dan laporan disimpan di luar repo |
 | 14 | 26 Okt. 2026 | Render papan dan 3D | Tampak atas dan bawah, papan saja dan model 3D | [gambar/pcb-atas-hgd-v1.png](gambar/pcb-atas-hgd-v1.png), [pcb-bawah](gambar/pcb-bawah-hgd-v1.png), [3D atas](gambar/pcb-3d-atas-hgd-v1.png), [3D bawah](gambar/pcb-3d-bawah-hgd-v1.png) | STEP 26 Okt. diekspor dari papan utama, jadi tanpa dua soket 1x15 DevKit; soket tidak memengaruhi desain housing, jadi STEP ini menggantikan `hgd-v1.step` lama dan salinan `hgd-v1-verbatim.kicad_pcb` dihapus (27 Okt. 2026) |
+| 15 | 27 Okt. 2026 | Gambar penempatan diperbarui | Gambar SVG tiga panel (gabungan, F.Cu, B.Cu + silkscreen bawah) dibuat ulang dari berkas papan 26 Okt. oleh alat AI (Claude); keterangan ditulis dalam bahasa Indonesia, istilah teknis dalam bahasa Inggris | [gambar/penempatan-pcb-hgd.svg](gambar/penempatan-pcb-hgd.svg) | Dicek terhadap `hgd-v1.kicad_pcb`: 186 segmen jalur (posisi, lapis, lebar), 58 via, 70 pad, 4 NPTH, dan teks silkscreen kedua sisi sama dengan berkas |
 
 ---
 
@@ -33,5 +34,5 @@ title: Log Kerja KiCad - PCB hgd-v1
 
 | Versi | Tanggal | Perubahan |
 |---|---|---|
-| v2 | 27 Okt. 2026 | Langkah 8-14 (26 Okt. 2026): tangkapan Assign Footprints, judul dan silkscreen baru, ERC ulang dan PDF skema, belokan 45° dan stackup, Gerber ulang, cek JLCDFM, render; STEP baru menggantikan STEP dan salinan verbatim 17 Okt. |
+| v2 | 27 Okt. 2026 | Langkah 8-14 (26 Okt. 2026): tangkapan Assign Footprints, judul dan silkscreen baru, ERC ulang dan PDF skema, belokan 45° dan stackup, Gerber ulang, cek JLCDFM, render; STEP baru menggantikan STEP dan salinan verbatim 17 Okt.; langkah 15 (27 Okt.): gambar penempatan papan akhir |
 | v1 | 17 Okt. 2026 | Log pertama: langkah 1-7 |
