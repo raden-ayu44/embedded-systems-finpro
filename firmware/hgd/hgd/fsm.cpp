@@ -183,8 +183,8 @@ static void fsmNewSession() {
 // FIRMWARE: dari dimulainya baca sampel pemicu (sampel yang membuat genggaman stabil, atau
 // sampel lepas kg < 1) sampai pin LED ditulis. Rantai lengkap untuk brief dihitung terpisah:
 // konversi HX711 (~86 ms) + jendela 5 sampel (~340-430 ms, disengaja) + latensi ini.
-// Hanya perubahan yang dicetak; ledSteadyOn dinolkan setiap LED dipaksa mati di luar fungsi ini
-// (masuk GRIP, galat), supaya tidak ada "LED mati" palsu.
+// Hanya perubahan yang dicetak; ledSteadyOn dinolkan setiap LED diatur di luar fungsi ini
+// (masuk GRIP dengan LED mati, galat dengan kedip alarm), supaya tidak ada "LED mati" palsu.
 static bool ledSteadyOn = false;
 static void ledSteady(bool on) {
   ledSet(on);
@@ -266,13 +266,13 @@ static void enterSummary() {
 }
 
 static void enterFault() {
-  // Keadaan aman (LED mati, pesan, baris E) dikerjakan modul galat (fault.cpp).
+  // Keadaan aman (LED kedip alarm, pesan, baris E) dikerjakan modul galat (fault.cpp).
   faultEnter(pendingFault, session.number, session.trialNo, session.t0Ms);
 }
 
 static void enterSaveFailed() {
   buttonReset();
-  ledSet(false);
+  ledAlarmStart();           // alarm: data belum tersimpan; kedip 5 Hz sampai TAHAN (sesi baru)
   pageStartMs = millis();
   // Nilai juga dicetak sebagai teks biasa supaya bisa disalin dari konsol logger.py (Bagian 4.8).
   Serial.printf("[GAGAL SIMPAN] sesi %u: P1=%.2f P2=%.2f P3=%.2f puncak=%.2f rerata=%.2f kg\n",
@@ -760,7 +760,7 @@ void fsmRun(Press press) {
       // Langkah 10c: galat saat GRIP (atau HITUNG) memutus upaya: penanda dengan keluar = 4 dan
       // kode galat, supaya grafik tidak mencampurnya dengan data nyata.
       gripAttemptEnd(EXIT_FAULT, f, false, 0.0f);
-      ledSteadyOn = false;                  // LED dipaksa mati di faultEnter()
+      ledSteadyOn = false;                  // LED diambil alih kedip alarm di faultEnter()
       changeState(FAULT);
       drawScreen();
       return;

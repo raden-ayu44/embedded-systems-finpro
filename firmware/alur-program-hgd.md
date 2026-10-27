@@ -3,11 +3,11 @@ title: Alur Program - Hand Grip Dynamometer
 
 ---
 
-# Alur Program - Hand Grip Dynamometer (v5)
+# Alur Program - Hand Grip Dynamometer (v6)
 **Proyek akhir - embedded system**
 
-> **Status (24 Okt. 2026): firmware langkah 0-11 dan `laptop/logger.py` sudah dikode dan diuji di papan, termasuk build akhir Arduino IDE core 3.3.11** (`firmware/hgd/`, `laptop/`); firmware dibekukan untuk UTS (hanya perbaikan bug). Bagian yang belum dikode (`kalibrasi.py`, skrip grafik, desain ulang teks LCD untuk proyek akhir) masih rencana. Bagian yang bertanda ✔ sudah selesai. Sketsa uji modul (U4, U7, U8) sudah ada di `sketches/` (Bagian 11.3); langkah uji bench ada di [protokol-uji-bench-hgd.md](protokol-uji-bench-hgd.md). Versi v5 (18 Okt. 2026), perubahan:
-> - (1) **Aturan LED baru** (menyala selama plateau di `GENGGAM`, tetap menyala sampai genggaman dilepas, kedip 5 detik setelah tiap restart, mati di galat) **menggantikan spesifikasi proposal S5** (LED menyala sepanjang `GENGGAM`), karena LED kini memberi dua sinyal: "genggaman stabil" dan "restart" (Bagian 10.3).
+> **Status (24 Okt. 2026): firmware langkah 0-11 dan `laptop/logger.py` sudah dikode dan diuji di papan, termasuk build akhir Arduino IDE core 3.3.11** (`firmware/hgd/`, `laptop/`); firmware dibekukan untuk UTS (hanya perbaikan bug); satu perubahan sesudahnya atas usulan tim: LED alarm galat, butir (12), v6 27 Okt. 2026. Bagian yang belum dikode (`kalibrasi.py`, skrip grafik, desain ulang teks LCD untuk proyek akhir) masih rencana. Bagian yang bertanda ✔ sudah selesai. Sketsa uji modul (U4, U7, U8) sudah ada di `sketches/` (Bagian 11.3); langkah uji bench ada di [protokol-uji-bench-hgd.md](protokol-uji-bench-hgd.md). Versi v5 (18 Okt. 2026), perubahan:
+> - (1) **Aturan LED baru** (menyala selama plateau di `GENGGAM`, tetap menyala sampai genggaman dilepas, kedip 5 detik setelah tiap restart, mati di galat; sejak v6 kedip cepat terus di galat, butir 12) **menggantikan spesifikasi proposal S5** (LED menyala sepanjang `GENGGAM`), karena LED kini memberi dua sinyal: "genggaman stabil" dan "restart" (Bagian 10.3).
 > - (2) **S2 diubah**: hitung mundur istirahat digambar ulang tiap `T_REFRESH_LCD_MS` = 500 ms, bukan 100 ms ±10-20 ms (aturan modul praktikum; A6 dan A7 selesai).
 > - (3) **Reset total**: tahan tombol 15 detik di state apa pun; nomor sesi naik, baris `E` `FORCE_RESET`; uji X11a-c.
 > - (4) **Batas rentang 80 kg** (kapasitas CZL 601, sebelumnya 100 kg) dengan **cek live di `GENGGAM`**, selain cek `ref` di `HITUNG`.
@@ -18,6 +18,7 @@ title: Alur Program - Hand Grip Dynamometer
 > - (9) **`logger.py`** meneruskan tombol (`x`) ke ESP32 dan mencetak baris non-`HGD` ke konsolnya; **layar `GAGALSIMPAN`** bergantian tiap 3 detik menampilkan semua nilai (A8 selesai); X4 diperluas.
 > - (11) **Tanpa istirahat setelah percobaan 3** (keputusan tim, 24 Okt. 2026) **menyimpang dari proposal** (istirahat ≈ 1 menit setelah tiap percobaan): istirahat ada untuk pemulihan otot sebelum genggaman berikutnya, dan setelah percobaan 3 tidak ada genggaman lagi. Hasil percobaan 3 tetap tampil (`Lepas>ringkasan` sampai dilepas, lalu langsung `NEXT > ringkasan`); pengawas tetap yang memulai penyimpanan dengan TAP (Bagian 6.2, 10.2).
 > - (10) **Uji galat diperbarui:** X1 dipecah (X1a DT → `HX711_TIMEOUT`; X1b SCK direncanakan → `READING_INVALID`, hasil uji 24 Okt. 2026 dua kali `HX711_TIMEOUT`, lihat baris X1b di Bagian 11); X2 tanpa eksitasi berlebih (cabut satu kabel sinyal); X3 lewat `x`; X5 = catu hilang (bukan `GAGALSIMPAN`); X11a-c reset total.
+> - (12) **LED alarm galat** (27 Okt. 2026, usulan tim, sesudah firmware dibekukan): di `ERROR` dan `GAGALSIMPAN` LED D1 berkedip cepat 5 Hz (`LED_ALARM_MS` 100 ms) terus sampai keluar (TAHAN 1,5 s atau reset total), menggantikan "dipaksa mati". Alasan: penggenggam yang tidak melihat layar `ERR:...` atau `GAGAL SIMPAN` tetap tahu ada masalah, karena alat tidak punya buzzer. Kedip restart (2 Hz, 5 s) tetap ada, jadi kedua tanda dibedakan dari kecepatannya. LED tetap tidak mengikuti genggaman selama galat (pengukuran berhenti). Perlu uji ulang di papan (Bagian 10.3).
 >
 > Versi v4 (16 Okt. 2026): E1 resmi setelah pemanasan (σ 35,0 counts), uji arah tekan, U8 kumulatif. Versi v3 (16 Okt. 2026): hasil uji bench 15 Okt. 2026 (U4, U5, U7, U8 sebagian, E1) dicatat; `THRESHOLD_ONSET_KG` = 1,0 kg terkonfirmasi E1; data untuk A5 dan A12 di Bagian 18. Versi v2 (15 Okt. 2026): sitasi dan rujukan silang dikoreksi terhadap modul praktikum dan buku, hal terbuka dicatat di Bagian 18; keputusan desain tidak berubah. Versi v1 (13 Okt. 2026) disusun dari alur proyek WIP-0.1 (10 Okt. 2026) dan Bagian 6-8 catatan lama. Tanda (✔ ▣ ◐ `[sitasi]`) dijelaskan di [catatan-proyek-hgd.md](../catatan-proyek-hgd.md); sumber `[sitasi]` ada di [sitasi-hgd.md](../sitasi/sitasi-hgd.md).
 
@@ -308,7 +309,7 @@ Perpanjangan debounce: ISR menandai awal tekanan, `loop()` membaca level pin tia
 - **A12:** ditangani di kode (`button.cpp`, langkah 1); menunggu uji papan U8 (10 tap = 10 TAP, 10 tahan = 10 TAHAN tanpa TAP tambahan).
 
 ### 4.6 Modul penanganan galat bersama (`fault.cpp`)
-`ERROR` dan `GAGALSIMPAN` memakai satu modul `galatTahan` (`faultEnter()` / `faultUpdate()`), **non-blocking (v5)**: `faultEnter(jenis)` dipanggil sekali saat masuk state (LED mati, layar galat, pesan Serial, baris `E`); `faultUpdate()` dipanggil tiap putaran `loop()`, memperbarui `raw` live (atau halaman `GAGALSIMPAN`) dengan `millis()`, lalu langsung kembali; state berikut dipilih `mesinJalan()` saat `tombolUpdate()` melaporkan TAHAN. Tidak ada penungguan di dalam modul, jadi reset total dan watchdog tetap bekerja. Satu tempat untuk mengubah kebijakan galat `[sitasi]`. Keduanya tetap dua state FSM karena tujuan keluarnya berbeda.
+`ERROR` dan `GAGALSIMPAN` memakai satu modul `galatTahan` (`faultEnter()` / `faultUpdate()`), **non-blocking (v5)**: `faultEnter(jenis)` dipanggil sekali saat masuk state (LED kedip alarm 5 Hz, layar galat, pesan Serial, baris `E`); `faultUpdate()` dipanggil tiap putaran `loop()`, memperbarui `raw` live (atau halaman `GAGALSIMPAN`) dengan `millis()`, lalu langsung kembali; state berikut dipilih `mesinJalan()` saat `tombolUpdate()` melaporkan TAHAN. Tidak ada penungguan di dalam modul, jadi reset total dan watchdog tetap bekerja. Satu tempat untuk mengubah kebijakan galat `[sitasi]`. Keduanya tetap dua state FSM karena tujuan keluarnya berbeda.
 
 **Langkah 8 (kode):** `fault.cpp` berisi `faultEnter()` (LED mati, `buttonReset()`, pesan `[FAULT] <jenis> raw=… kg=…`, baris `E`), `faultDraw()` ("ERR:…" + `RAW` live), `faultClear()` dan `faultLogEvent()` (juga dipakai reset total, kode 5). **Kapan** masuk dan keluar `ERROR` tetap diputuskan `fsm.cpp` (cek galat sensor, cek rentang live di `GENGGAM`, cek `ref` di `HITUNG`, TAHAN). Halaman `GAGALSIMPAN` tetap digambar di `fsm.cpp` karena memerlukan data sesi. Sampai langkah 9 baris `E` dicetak sebagai teks `[E] kode=… sesi=… percobaan=… t=… s`; langkah 9 menggantinya dengan baris `HGD,E,…*checksum` + ACK.
 
@@ -455,7 +456,7 @@ SESI (3 percobaan)
    │    ├─ Fase 1  MENUNGGU_MULAI: LCD "Menunggu genggam"; baca kg; kg > THRESHOLD_ONSET → Fase 2
    │    ├─ Fase 2  MENGHITUNG: timer mulai; LCD "Tahan 3-5 detik";
    │    │          baca kg → bufTambah → bufPlateau → LED = bufPlateau()
-   │    ├─ Tiap sampel (fase 1 dan 2): kg > 80 kg → pengecualian → ERROR (DI_LUAR_RENTANG), LED mati
+   │    ├─ Tiap sampel (fase 1 dan 2): kg > 80 kg → pengecualian → ERROR (DI_LUAR_RENTANG), LED kedip alarm
    │    ├─ Keluar 1: kg < onset sebelum 3000 ms → kembali ke Fase 1 (tanpa pesan, tanpa catatan)
    │    ├─ Keluar 2: kg < onset pada 3000-5000 ms → HITUNG (pengguna memilih lepas; langkah 6d)
    │    └─ Keluar 3: masih digenggam pada 5000 ms → HITUNG (batas paksa)
@@ -477,7 +478,7 @@ SESI (3 percobaan)
 
 [Transisi pengecualian dari batas SiklusPercobaan]
    HX711_TIMEOUT / READING_INVALID / ADC_SATURASI / DI_LUAR_RENTANG ──► [ERROR]
-   [ERROR]: faultEnter() (LED mati, layar galat, catat galat ke CSV); faultUpdate() tiap putaran;
+   [ERROR]: faultEnter() (LED kedip alarm, layar galat, catat galat ke CSV); faultUpdate() tiap putaran;
             TAHAN → SIAP dengan kedip (percobaanKe tidak berubah)
 
 [Reset total, dicek di mesinJalan() sebelum cek galat dan sebelum state aktif]
@@ -515,7 +516,7 @@ SESI (3 percobaan)
 - *Serial (langkah 6):* `[GRIP] exit=EARLY_RELEASE t=…`, `[GRIP] exit=PLATEAU t=… sebaran=…`, `[GRIP] exit=TIMEOUT t=… jendela terkuat rata=…`.
 - Tidak ada kondisi "gaya turun ke ambang" generik untuk mengakhiri genggaman: akhir ditentukan plateau atau batas 5 detik. Threshold hanya menentukan kapan timer mulai dan kapan percobaan di-reset.
 - *Upaya dan rekaman (langkah 10c):* satu **upaya** = dari masuk `GENGGAM` (atau sesudah dilepas terlalu awal) sampai `GENGGAM` berakhir dengan cara apa pun; satu percobaan bisa punya beberapa upaya. Selama upaya terbuka, tiap sampel baru dikirim sebagai baris `G` (bila `LOG_RAW` = 1); saat upaya berakhir dikirim satu penanda `M` dengan jalur keluarnya (Bagian 9.2): dilepas awal, dilepas, batas 5 s (dari `HITUNG`, setelah ref dan cek rentang), galat (transisi pengecualian), reset total, atau penjaga nol. Sampel baru dicatat **sebelum** cek galat di `fsmRun()`, supaya sampel yang memicu galat (> 80 kg, saturasi) ikut terekam; galat tetap terpicu pada putaran yang sama. `HX711_TIMEOUT` tidak punya sampel, jadi tidak menambah baris `G`. Puncak upaya yang diputus galat hanya untuk rekaman: tidak pernah menjadi hasil percobaan dan tidak ikut Mx/Av.
-- *Cek rentang live (v5):* pada tiap sampel di kedua fase, kg > `REF_MAX_KG` (80 kg) → langsung `ERROR` (`DI_LUAR_RENTANG`), LED mati, tanpa menunggu percobaan selesai. Batas 80 kg = kapasitas nominal load cell CZL 601.
+- *Cek rentang live (v5):* pada tiap sampel di kedua fase, kg > `REF_MAX_KG` (80 kg) → langsung `ERROR` (`DI_LUAR_RENTANG`), LED kedip alarm, tanpa menunggu percobaan selesai. Batas 80 kg = kapasitas nominal load cell CZL 601.
 
 **[HITUNG]**
 - One-shot. Tidak ada tampilan LCD (murni komputasi internal).
@@ -537,7 +538,7 @@ SESI (3 percobaan)
 - Audiens: pengawas (bukan partisipan); larangan menampilkan angka mentah dikecualikan di sini.
 - Dicatat otomatis ke CSV (jenis + `T+mm:ss`). Percobaan yang error tidak dihitung.
 
-**[ERROR] dan [GAGALSIMPAN]: LED dipaksa mati** (tidak terus mengaktuasi saat galat).
+**[ERROR] dan [GAGALSIMPAN]: LED kedip alarm 5 Hz terus** (v6, 27 Okt. 2026; sebelumnya dipaksa mati). LED tidak lagi mengikuti genggaman; kedipnya hanya tanda galat sampai TAHAN 1,5 s atau reset total.
 
 **[GAGALSIMPAN]**
 - Pola sama dengan `ERROR` (modul `galatTahan`). Menampilkan data yang tidak terkonfirmasi tersimpan: layar berganti otomatis tiap `SAVE_FAILED_PAGE_MS` (3 detik) antara tiga halaman (P1/P2, P3, lalu Mx/Av; Bagian 10.2), memakai `millis()` (non-blocking, tetap dalam aturan `T_REFRESH_LCD_MS`), sehingga semua nilai bisa disalin dari LCD bila `logger.py` sudah berhenti. Keluar lewat TAHAN langsung ke akhir sesi (datanya benar, hanya tidak tersimpan; setelah diselamatkan manual tidak perlu mengulang sesi).
@@ -917,9 +918,9 @@ timestamp,boot,sesi,percobaan,upaya,jenis,ms,t_onset_s,kg,fase,demo,keluar,onset
 | Keluar `GENGGAM` pada batas 5 s saat genggaman masih stabil (langkah 6d; sebelumnya "keluar lewat plateau") | Tetap menyala sampai genggaman dilepas (kg < `THRESHOLD_ONSET_KG`) di `RESPON_ISTIRAHAT` sub-fase 1, lalu mati. Keluar karena dilepas (3-5 s): mati |
 | Keluar lewat batas 5 detik atau dilepas sebelum 3 detik | Mati |
 | `HITUNG` (one-shot), `RESPON_ISTIRAHAT` setelah lepas, `RINGKASAN` | Mengikuti baris di atas / mati |
-| `ERROR`, `GAGALSIMPAN`, reset total | **Dipaksa mati** (tidak terus mengaktuasi saat galat) |
+| `ERROR`, `GAGALSIMPAN` | **Kedip alarm 5 Hz terus** (`LED_ALARM_MS` 100 ms, `ledAlarmStart()`) sampai TAHAN 1,5 s atau reset total, lalu `SIAP` dengan kedip restart. Tidak mengikuti genggaman. Sebelum v6 (27 Okt. 2026): dipaksa mati |
 
-**Alasan:** LED kini memberi dua sinyal yang mudah diikuti mata tanpa membaca LCD (yang sengaja lambat): **"genggaman stabil"** (plateau tercapai: nilai yang dihitung sudah layak) dan **"restart"** (alat baru mulai ulang dan siap). Aturan ini juga menutup loop R4 secara langsung: LED dikendalikan oleh nilai terukur (kestabilan gaya), bukan oleh tombol. **Menggantikan S5** di [catatan-proyek-hgd.md](../catatan-proyek-hgd.md) ("menyala sepanjang genggaman"); uji S5 di catatan proyek perlu disesuaikan (waktu nyala terhadap plateau, bukan terhadap masuk/keluar `GENGGAM`).
+**Alasan:** LED kini memberi dua sinyal yang mudah diikuti mata tanpa membaca LCD (yang sengaja lambat): **"genggaman stabil"** (plateau tercapai: nilai yang dihitung sudah layak) dan **"restart"** (alat baru mulai ulang dan siap). Sejak v6 ada tanda ketiga, **"galat"**: kedip cepat 5 Hz terus di `ERROR` dan `GAGALSIMPAN`, karena alat tidak punya buzzer dan penggenggam belum tentu melihat LCD. Aturan ini juga menutup loop R4 secara langsung: LED dikendalikan oleh nilai terukur (kestabilan gaya), bukan oleh tombol. **Menggantikan S5** di [catatan-proyek-hgd.md](../catatan-proyek-hgd.md) ("menyala sepanjang genggaman"); uji S5 di catatan proyek perlu disesuaikan (waktu nyala terhadap plateau, bukan terhadap masuk/keluar `GENGGAM`).
 
 ### 10.4 Narasi satu sesi
 1. Persiapan: ESP32 tersambung USB ke laptop, `logger.py` berjalan; pengguna duduk, siku 90°, bahu netral `[sitasi]`.
@@ -1029,13 +1030,13 @@ Langkah 10c: antrean log 8 × (96 + 2) byte (baris diperpanjang dari 64 untuk pe
 |------------------------|--------|--------|
 | Dilepas sebelum 3 detik | `GENGGAM` | Human error: auto-reset ke fase 1, tidak dicatat |
 | 5 detik tanpa plateau | `GENGGAM` | Force-stop; `HITUNG` memakai nilai buffer terbaik |
-| kg > 80 kg pada sampel mana pun | `GENGGAM` (cek live, v5) | Kegagalan sensor → `ERROR` seketika, LED mati; 80 kg = kapasitas nominal CZL 601 |
+| kg > 80 kg pada sampel mana pun | `GENGGAM` (cek live, v5) | Kegagalan sensor → `ERROR` seketika, LED kedip alarm; 80 kg = kapasitas nominal CZL 601 |
 | `ref ≤ 0` atau `ref > 80 kg` | Titik masuk `RESPON_ISTIRAHAT` | Kegagalan sensor → `ERROR` (v4: 100 kg) |
 | Tidak ada sampel baru dalam `T_TUNGGU_HX711_MS` | `sensorCek` | `ERROR: HX711_TIMEOUT` |
 | 3 sampel berturut-turut datang < 40 ms (`SAMPLE_MIN_GAP_MS`, `SHORT_GAP_N`), atau cadangan `T_SAMA_N` (10) nilai `raw` identik | `sensorCek` | `ERROR: READING_INVALID` (v5; mis. SCK tercabut) |
 | \|raw\| ≥ 0,95 × skala penuh | `sensorCek` | `ERROR: ADC_SATURASI` |
 | Percobaan yang error | `ERROR` | Tidak dihitung sebagai satu dari 3 |
-| `ERROR`, `GAGALSIMPAN`, reset total | Semua | LED dipaksa mati (tidak terus mengaktuasi) |
+| `ERROR`, `GAGALSIMPAN` | Semua | LED kedip alarm 5 Hz terus sampai TAHAN / reset total (tanda galat, tidak mengikuti genggaman) |
 | ACK tidak datang / NAK dua kali | `RINGKASAN` | Data belum aman → `GAGALSIMPAN`; nilai di konsol `logger.py` dan bergantian di LCD tiap 3 s |
 | `logger.py` berhenti | `GAGALSIMPAN` | Salin dari LCD; jangan membuka Serial Monitor lebih dulu (me-reset ESP32, A8) |
 | Tombol ditahan 15 s | State apa pun (v5) | Reset total: sesi dibuang, `nomorSesi` +1, `E` `FORCE_RESET`, tare ulang, `SIAP` dengan kedip. Hanya selama `loop()` berjalan; macet total ditangani watchdog |
@@ -1129,7 +1130,7 @@ Tidak ada kondisi "gaya turun ke ambang" generik lagi seperti draf sangat awal -
 
 Refresh rate LCD tetap dipisah dari sample rate sensor via timer terpisah (`millis()`). Metodologi penentuan angka: eksperimen E3 (angka berubah di LCD, coba 50-500 ms; tantangan Walking Light di modul praktikum GPIO adalah bar LED per tekanan tombol, bukan uji refresh LCD) + ~20ms buffer kompensasi I2C (**estimasi teknis kami sendiri**). Batas dari modul praktikum ADC dan serial: tidak lebih cepat dari dua kali per detik. **Angka final masih menunggu hasil eksperimen.**
 
-**Rasional LED v5 (berlaku, keputusan kami sendiri, bukan sitasi eksternal; menggantikan S5):** LED menyala tetap selama genggaman stabil (plateau) di fase 2 `GENGGAM`, tetap menyala bila percobaan selesai lewat plateau sampai genggaman dilepas, berkedip 5 detik di `SIAP` setelah tiap restart, dan dipaksa mati di `ERROR`, `GAGALSIMPAN`, dan reset total. Alasan: LED memberi dua sinyal yang mudah diikuti mata tanpa membaca LCD yang sengaja lambat (500 ms): "genggaman stabil" dan "restart". Rincian di Bagian 10.3.
+**Rasional LED v5 (berlaku, keputusan kami sendiri, bukan sitasi eksternal; menggantikan S5):** LED menyala tetap selama genggaman stabil (plateau) di fase 2 `GENGGAM`, tetap menyala bila percobaan selesai lewat plateau sampai genggaman dilepas, berkedip 5 detik di `SIAP` setelah tiap restart, dan (sejak v6, 27 Okt. 2026) berkedip cepat 5 Hz terus di `ERROR` dan `GAGALSIMPAN`. Alasan: LED memberi dua sinyal yang mudah diikuti mata tanpa membaca LCD yang sengaja lambat (500 ms): "genggaman stabil" dan "restart". Rincian di Bagian 10.3.
 
 ~~**Rasional LED lama (v4, tidak berlaku):** LED menyala sepanjang GENGGAM (kedua fase) sampai keluar (ke HITUNG atau ERROR). Alasannya murni aksesibilitas - refresh LCD **sengaja dilambatkan** (angka pasti belum ditentukan; kisaran uji 50-500 ms, lihat paragraf refresh rate di atas) supaya mata manusia bisa mengikuti angka yang berubah, tapi ini berarti pengguna belum tentu bisa "keep up" secara visual dengan LCD saat itu juga. LED jadi sinyal biner sederhana ("sedang aktif direkam") yang jauh lebih mudah diikuti mata dibanding membaca angka fluktuatif - pelengkap LCD, bukan pengganti.~~
 

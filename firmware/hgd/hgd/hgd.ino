@@ -26,7 +26,8 @@
     sampai dilepas, lalu langsung "NEXT > ringkasan". Setelah 3 -> SUMMARY
     ("Mx.. Av.." tanpa kg / "Menyimpan...", lalu "Data tersimpan" dan "Tekan: RESTART" bergantian
     tiap 2 s); TAP -> sesi baru (kedip).
-  - Galat sensor di READY/GRIP/COMPUTE/REST -> FAULT (LED mati, ERR + raw); TAHAN 1,5 s -> READY.
+  - Galat sensor di READY/GRIP/COMPUTE/REST -> FAULT (LED kedip alarm 5 Hz terus, ERR + raw);
+    TAHAN 1,5 s -> READY. GAGAL SIMPAN memakai kedip alarm yang sama.
   - Tahan 15 s di state apa pun = reset total (hitung mundur di LCD mulai detik ke-3).
   - Langkah 8: kg > 80 kg live di GRIP, atau ref <= 0 / > 80 kg di COMPUTE -> FAULT OUT_OF_RANGE
     ("ERR:DI LUAR RNTG"). Keadaan aman, layar galat dan baris [E] di fault.cpp.
@@ -148,7 +149,7 @@ void loop() {
   sensorPoll();                   // baca HX711 bila data siap (tidak menunggu)
   serialCmd(logPoll());           // ACK/NAK + kirim ulang baris log; perintah t / p / x / s
   fsmRun(press);                  // reset total -> cek galat -> handler state -> layar
-  ledUpdate();                    // kedip restart (millis)
+  ledUpdate();                    // kedip restart / kedip alarm galat (millis)
   displayUpdate();                // kirim perubahan LCD, paling banyak satu baris
 
   // Uji: putaran loop() terlama tiap 5 s (harus < 50 ms supaya tap >= 50 ms pasti terbaca).
