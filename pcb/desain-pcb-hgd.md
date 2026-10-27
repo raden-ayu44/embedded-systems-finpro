@@ -21,7 +21,7 @@ title: Desain PCB dan Skema - Hand Grip Dynamometer
 | Indikator | LED 5 mm + R1 **220 ohm** | Sinyal "sedang direkam" | ▣ dari komponen tim |
 | Indikator daya | LED merah 3 mm (D2) + R2 **220 ohm** dari +3V3 | Menyala selama papan berdaya, tidak bergantung firmware | ✔ di skema dan PCB; diuji di breadboard (17 Okt. 2026) |
 | Input | Tactile push button 6 x 6 mm, batang 13 mm, 1 buah | START, NEXT, RESTART | ▣ dari komponen tim |
-| PCB | `hgd-v1` (KiCad), dua lapis, 80 x 55 mm | Dudukan DevKit, modul, tombol, LED | ✔ **v1 selesai, belum disetujui**; versi akhir 26 Okt. 2026 (jalur ulang, judul "Digital Hand Grip Dynamometer"): ERC 0 error, DRC 0 error, breadboard sama dengan skema, Gerber dicek di JLCDFM (Bagian 8) |
+| PCB | `hgd-v1` (KiCad), dua lapis, 80 x 55 mm | Dudukan DevKit, modul, tombol, LED | ✔ **v1 selesai, belum disetujui**; versi akhir 26 Okt. 2026 (judul "Digital Hand Grip Dynamometer", belokan 45°, via dijauhkan dari tepi): ERC 0 error, DRC 0 error, breadboard sama dengan skema, Gerber dicek di JLCDFM (Bagian 8) |
 | Housing grip | 2 pelat Al 170 x 30 x 10 mm + spacer PLA + M6 x 25 | Mekanik | ◐ desain; sisa pengukuran load cell |
 
 Daya hanya dari USB; **tanpa baterai** (keputusan 15 Okt. 2026).
@@ -157,14 +157,14 @@ Semua modul dicolok ke **soket betina** di sisi bawah PCB (Bagian 8).
 
 ## 8. PCB `hgd-v1` (KiCad) ✔ v1 selesai, belum disetujui
 
-**Status v1 (17 Okt. 2026; versi akhir 26 Okt. 2026).** Skema dan PCB versi 1 selesai dan diverifikasi; menunggu persetujuan sebelum Gerber diunggah dan dipesan. Perubahan 26 Okt. 2026: judul skema dan papan menjadi "Digital Hand Grip Dynamometer" (skema hanya berubah di title block; rangkaian dan netlist sama), jalur sinyal digambar ulang dengan posisi semua footprint tetap (segmen jalur 200 → 186, via 59 → 58: 56 GND + 2 sinyal), teks silkscreen tiga baris, stackup papan diisi (FR4 1,6 mm, inti 1,51 mm, tembaga 35 µm, solder mask 10 µm).
+**Status v1 (17 Okt. 2026; versi akhir 26 Okt. 2026).** Skema dan PCB versi 1 selesai dan diverifikasi; menunggu persetujuan sebelum Gerber diunggah dan dipesan. Perubahan sesudah 17 Okt.: **18-19 Okt. 2026** teks silkscreen tim (sisi atas dan bawah) menjadi "Kelompok 01 / Digital Hand Grip / Dynamometer" (sama dengan judul proposal) dan judul skema dan papan menjadi "Digital Hand Grip Dynamometer" (skema hanya berubah di title block; rangkaian dan netlist sama). **26 Okt. 2026** tiga belokan siku (90°) di tengah jalur dibuat 45° dan beberapa via digeser menjauhi tepi papan setelah dicek di JLCDFM, DRC diulang, Gerber diekspor; stackup papan diisi (FR4 1,6 mm, inti 1,51 mm, tembaga 35 µm, solder mask 10 µm). Posisi semua footprint tetap; dibanding berkas 17 Okt.: segmen jalur 200 → 186, via 59 → 58 (56 GND + 2 sinyal). **Setelan KiCad langkah demi langkah: Bagian 8.5.**
 
 | Bukti | Hasil |
 |---|---|
 | ERC skema | 0 error, 0 warning; 7 `lib_symbol_mismatch` dikecualikan dengan alasan (26 Okt. 2026; [gambar/erc-skema-hgd-v1.png](gambar/erc-skema-hgd-v1.png)) |
 | DRC papan | 0 error, 0 warning, 0 tak tersambung, 0 beda skema; 3 pengecualian beralasan: footprint U2, C2, C3 berbeda dari salinan pustaka (footprint sudah disunting di papan). 5 uji diabaikan: courtyard footprint, ujung jalur tidak di tengah via, geometri profil tuning, filter footprint simbol, tipe komponen footprint (26 Okt. 2026; [gambar/drc-pcb-hgd-v1.png](gambar/drc-pcb-hgd-v1.png), [gambar/drc-uji-diabaikan-hgd-v1.png](gambar/drc-uji-diabaikan-hgd-v1.png)) |
 | Breadboard = skema | Wiring sesuai skema termasuk D2/R2; LCD bekerja lewat level shifter (17 Okt. 2026). Kapasitor C3/C4 dipindah ke +5V sesuai skema (24 Okt. 2026); gambar wiring di protokol arus rail Bagian 2.1 |
-| Gerber + bor | Diekspor ulang 26 Okt. 2026 20:35 (KiCad 10.0.6), Revision 1, 12 berkas dalam `Gerber_Kelompok-01_hgd-v1.zip`: 2 lapis, 1,6 mm, 80 x 55 mm (job file: 80,05 x 55,05 termasuk tebal garis outline); aturan desain di job file: jalur minimum 0,3 mm, jarak pad/jalur 0,2 mm, jarak ke pour 0,5 mm. Dicek di viewer dan analisis DFM JLCDFM. Belum di repo sampai disetujui |
+| Gerber + bor | Diekspor ulang 26 Okt. 2026 20:35 (KiCad 10.0.6), Revision 1, 12 berkas dalam `Gerber_Kelompok-01_hgd-v1.zip`: 2 lapis, 1,6 mm, 80 x 55 mm (job file: 80,05 x 55,05 termasuk tebal garis outline); aturan desain di job file: jalur minimum 0,3 mm, jarak pad/jalur 0,2 mm, jarak ke pour 0,5 mm. Dicek di JLCDFM: 0 sudut tajam, jarak antarjalur minimum 0,2 mm, cincin tembaga 0,25 mm, solder mask dan bor tanpa masalah; temuan silkscreen dari garis footprint pustaka (Bagian 8.5.8). Belum di repo sampai disetujui |
 | Render | Tampak atas dan bawah, papan saja ([atas](gambar/pcb-atas-hgd-v1.png), [bawah](gambar/pcb-bawah-hgd-v1.png)) dan model 3D ([atas](gambar/pcb-3d-atas-hgd-v1.png), [bawah](gambar/pcb-3d-bawah-hgd-v1.png)) |
 | Berkas | [kicad/proyek/](kicad/proyek/): proyek (`.kicad_pro`), skema, papan, STEP rakitan (26 Okt. 2026, dari papan utama; tanpa soket 1x15 DevKit, tidak memengaruhi desain housing); PDF skema [kicad/pdf/skema-hgd-v1.pdf](kicad/pdf/skema-hgd-v1.pdf); langkah kerja di [log-kerja-kicad-hgd.md](log-kerja-kicad-hgd.md) |
 | Belum | Persetujuan; unggah Gerber; BOM |
@@ -181,7 +181,7 @@ Semua modul dicolok ke **soket betina** di sisi bawah PCB (Bagian 8).
 | SW1 | `Button_Switch_THT:SW_PUSH_6mm_H13mm` | Batang 13 mm mencapai tutup |
 | R1 | **220 ohm**, `R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal` | ≈ 6 mA pada Vf 2,0 V ((3,3 − 2,0) / 220); terukur 25 Okt. 2026: **4,9 mA** (GPIO27 3,07 V, Vf D1 1,92 V, R1 213 Ω; [hasil-multimeter-hgd.md](../pengukuran/hasil-multimeter-hgd.md)) |
 | Kapasitor | C1, C4: `C_Disc_D7.0mm_W2.5mm_P5.00mm`; C2, C3: `CP_Radial_D5.0mm_P2.50mm` | Komponen lab |
-| Lapisan | Dua lapis; **pour GND di F.Cu dan B.Cu** (clearance 0,5 mm, lebar minimum 0,25 mm, thermal relief 0,5/0,5 mm, pulau dibuang), dijahit **56 via GND** 0,6/0,3 mm (57 pada 17 Okt. 2026; 56 setelah jalur ulang 26 Okt. 2026) | Jalur balik GND lebar dan pendek (noise dan jatuh tegangan kecil, penting untuk sinyal mikrovolt HX711); perisai di bawah jalur sinyal; thermal relief supaya kaki THT tetap mudah disolder tangan. Area antena bebas pour di kedua lapis |
+| Lapisan | Dua lapis; **pour GND di F.Cu dan B.Cu** (clearance 0,5 mm, lebar minimum 0,25 mm, thermal relief 0,5/0,5 mm, pulau dibuang), dijahit **56 via GND** 0,6/0,3 mm (57 pada 17 Okt. 2026; 56 pada papan akhir 26 Okt. 2026; setelan pour di Bagian 8.5.4) | Jalur balik GND lebar dan pendek (noise dan jatuh tegangan kecil, penting untuk sinyal mikrovolt HX711); perisai di bawah jalur sinyal; thermal relief supaya kaki THT tetap mudah disolder tangan. Area antena bebas pour di kedua lapis |
 | Antena | Area antena modul bebas tembaga di kedua lapisan; zona 15 mm di samping dan depan antena bebas tembaga, komponen, dan via | Lihat Bagian 8.4 |
 
 Kredit footprint U2: SnapEDA, "ESP32-DEVKIT-V1" oleh "Do it" (diunduh dari snapeda.com). Diperiksa terhadap papan: pitch, jarak baris, dan posisi pad 1/16 cocok.
@@ -241,9 +241,9 @@ ERC 17 Okt. 2026: **0 error, 0 warning**. Pin tak terpakai diberi tanda no-conne
 
 **Lubang mounting (keputusan 17 Okt. 2026):** H1-H4 tetap Ø3,0 dengan pusat 2,5 mm dari tepi, pola 75 x 50 mm, sampai ada arahan lain. Alasan: mengikuti pola lubang yang sama dengan PCB LCD dan DevKit, jadi ketiganya memakai ukuran dan jarak lubang yang seragam. Berbeda dari arahan modul (M3 3,2 mm, ≥ 5 mm dari tepi); sisa papan antara lubang dan tepi 1,0 mm, jadi baut jangan dikencangkan berlebihan. Ukuran baut PCB belum dipastikan: Ø3,0 cukup untuk M2,5, terlalu sempit untuk M3.
 
-**Silkscreen identitas (17 Okt. 2026, diubah 26 Okt. 2026):** teks F.Silkscreen di bawah SW1, bebas pad; DRC bersih. Sejak 26 Okt. 2026 tiga baris: "Kelompok 01 / Digital Hand Grip / Dynamometer" (sebelumnya dua baris "Kelompok 01 / Hand Grip Dynamometer").
+**Silkscreen (17 Okt. 2026, teks tim diubah 18 Okt. 2026):** teks tim di sisi atas (di bawah SW1, bebas pad) dan sisi bawah, sejak 18 Okt. tiga baris "Kelompok 01 / Digital Hand Grip / Dynamometer" (sebelumnya dua baris "Kelompok 01 / Hand Grip Dynamometer"); DRC bersih. Sisi atas juga: SW1, R1, D1, R2, "D2 PWR". Sisi bawah: label soket J1 "HX711 / GND DT SCK 3V3", J2 "GND 5V SDA SCL", J4 "HV 5V (VIN)", J3 "LV 3V3", dan "GND". Pin 1 ditandai pad persegi; LED punya sisi datar (katoda), elektrolit punya tanda +. Label HV/LV mencegah level shifter dicolok terbalik (5 V ke pin ESP32).
 
-**Pour GND (17 Okt. 2026):** F.Cu 2852 mm² (3 bagian), B.Cu 2610 mm² (5 bagian, terpotong jalur); setiap bagian di kedua lapis kena minimal satu via jahit; tidak ada tembaga di area antena. Pada 17 Okt. 2026 satu error DRC dikecualikan: pad 2 U2 (GND) hanya mendapat 1 spoke thermal di B.Cu karena jalur 3V3 lewat 0,55 mm di atasnya serta pad 1 dan 3 di kiri-kanan; pad itu tetap tersambung lewat jalur GND F.Cu ke pad 29 dan pour F.Cu. Setelah jalur ulang 26 Okt. 2026 pengecualian ini tidak ada lagi di daftar DRC. Skema ada di [kicad/proyek/hgd-v1.kicad_sch](kicad/proyek/hgd-v1.kicad_sch). Tabel dan batasan di bawah adalah usulan penempatan v2 yang lama; posisi final ada di gambar. Koordinat usulan v2: KiCad (mm, Y ke bawah), relatif terhadap U2 di (131,73; 109,475; rotasi 180; B.Cu). Diturunkan dari tata letak di Fusion (±1 mm). Arah: +Y menuju antena; +X menuju tepi PCB LCD di tutup.
+**Pour GND (17 Okt. 2026):** F.Cu 2852 mm² (3 bagian), B.Cu 2610 mm² (5 bagian, terpotong jalur); setiap bagian di kedua lapis kena minimal satu via jahit; tidak ada tembaga di area antena. Pada 17 Okt. 2026 satu error DRC dikecualikan: pad 2 U2 (GND) hanya mendapat 1 spoke thermal di B.Cu karena jalur 3V3 lewat 0,55 mm di atasnya serta pad 1 dan 3 di kiri-kanan; pad itu tetap tersambung lewat jalur GND F.Cu ke pad 29 dan pour F.Cu. Pada papan akhir 26 Okt. 2026 pengecualian ini tidak ada lagi di daftar DRC. Skema ada di [kicad/proyek/hgd-v1.kicad_sch](kicad/proyek/hgd-v1.kicad_sch). Tabel dan batasan di bawah adalah usulan penempatan v2 yang lama; posisi final ada di gambar. Koordinat usulan v2: KiCad (mm, Y ke bawah), relatif terhadap U2 di (131,73; 109,475; rotasi 180; B.Cu). Diturunkan dari tata letak di Fusion (±1 mm). Arah: +Y menuju antena; +X menuju tepi PCB LCD di tutup.
 
 | Ref | Sisi | Posisi | Catatan |
 |---|---|---|---|
@@ -273,6 +273,103 @@ Batasan penempatan:
 4. Elektrolit berpolaritas (+ ke rail); keramik tidak.
 5. Pin 1 dan sisi HV/LV ditandai di B.Silkscreen.
 6. Tanpa proteksi polaritas, sekering, atau ESD; cukup untuk perangkat berdaya USB.
+
+### 8.5 Setelan KiCad langkah demi langkah (papan akhir 26 Okt. 2026)
+
+Setelan yang dipakai untuk `hgd-v1`, diambil dari berkas [kicad/proyek/hgd-v1.kicad_pcb](kicad/proyek/hgd-v1.kicad_pcb) dan [hgd-v1.kicad_pro](kicad/proyek/hgd-v1.kicad_pro) serta tangkapan dialog Plot dan Generate Drill Files 26 Okt. 2026 (tangkapan itu tidak di repo karena memuat jalur folder lokal). KiCad 10.0. Semua angka dalam mm kecuali disebut lain. Ulangi urutan ini untuk revisi berikutnya. ☑ = dicentang, ☐ = tidak.
+
+#### 8.5.1 Board Setup (File > Board Setup)
+
+1. **Board Stackup > Physical Stackup:** 2 lapis tembaga; tebal papan 1,6; inti FR4 1,51 (εr 4,5, loss tangent 0,02); tembaga F.Cu dan B.Cu 0,035 (35 µm); solder mask 0,01 per sisi; copper finish "None" (finishing dipilih saat memesan, bukan di KiCad).
+2. **Design Rules > Constraints** (dari panduan aturan desain JLCPCB, jlcpcb.com/blog/pcb-design-rules-best-practices):
+
+| Setelan | Nilai |
+|---|---|
+| Minimum clearance | 0 (jarak antartembaga diatur net class, langkah 3) |
+| Minimum track width | 0,2 |
+| Minimum annular width (via) | 0,1 |
+| Minimum via diameter | 0,5 |
+| Minimum through hole | 0,3 |
+| Hole clearance | 0,25 |
+| Hole to hole clearance | 0,25 |
+| Copper to edge clearance | 0,5 |
+| Minimum thermal relief spoke count | 2 |
+| Minimum text height / thickness | 0,8 / 0,08 |
+
+3. **Design Rules > Net Classes:** hanya kelas `Default`: clearance 0,2; track width 0,2; via diameter 0,6; via hole 0,3. Tidak ada kelas khusus daya; lebar jalur daya diketik saat routing (8.5.2).
+4. **Design Rules > Pre-defined Sizes:** kosong (lebar jalur dan ukuran via diketik langsung).
+5. **Solder Mask/Paste:** pad-to-mask clearance 0; via ditutup solder mask (tenting) di kedua sisi (bawaan).
+
+#### 8.5.2 Routing (manual, tanpa autorouter)
+
+1. Pakai belokan 45° sejak awal (pelajaran 26 Okt.: tiga sudut 90° di tengah jalur baru ketahuan di akhir dan harus diperbaiki). Sudut 90° hanya boleh tepat di pad; empat yang tersisa ada di pad.
+2. Lebar jalur:
+
+| Jalur | Net | Lebar |
+|---|---|---|
+| Sinyal | HX_DT, HX_SCK, SDA/SCL sisi 3V3 dan 5V, BTN, LED_DRV, LED_A, PWR_LED_A | 0,3 |
+| Daya | +3V3, +5V | 0,5 |
+| GND (jalur di luar pour) | GND | 0,5 |
+
+3. Via: sinyal 0,8 / bor 0,3 (2 buah: SDA_5V dan LED_DRV); jahit GND 0,6 / bor 0,3 (56 buah, 8.5.4).
+4. Aturan rute: SDA/SCL, +5V, tombol, dan LED memutari area antena (8.5.3); tidak ada jalur di bawah kepala baut H1-H4; jalur 5 V dari DevKit pendek ke level shifter, lalu ke J2 memutari antena. Hasil: 103 segmen di F.Cu, 83 di B.Cu.
+5. Kemampuan arus (rumus IPC-2221, tembaga 35 µm, lapis luar): 0,5 mm ≈ 1,4 A, 0,3 mm ≈ 1,0 A. Arus terbesar di papan ≈ 27 mA (LCD, Bagian 5.1), jadi lebar dipilih supaya kuat dan mudah dibuat, bukan karena arus.
+
+#### 8.5.3 Area antena (Place > Add Rule Area)
+
+1. Gambar persegi di atas ujung antena DevKit, x 155,2 sampai 170,3, y 104,7 sampai 149,0 (koordinat papan).
+2. Nama `ESP32 Antenae`; lapis F.Cu dan B.Cu.
+3. Larangan: tracks, vias, copper pour (☑ tidak diizinkan); pads dan footprints diizinkan.
+
+#### 8.5.4 Pour GND (Place > Add Filled Zone), satu zona per lapis
+
+1. Gambar outline zona mengikuti tepi papan (Edge.Cuts) di F.Cu; ulangi di B.Cu.
+2. Dialog Copper Zone Properties:
+
+| Setelan | F.Cu | B.Cu |
+|---|---|---|
+| Net | GND | GND |
+| Zone name | `GND_1` | `GND` |
+| Zone priority | 1 | 0 |
+| Clearance | 0,5 | 0,5 |
+| Minimum width | 0,25 | 0,25 |
+| Pad connections | Thermal reliefs | Thermal reliefs |
+| Thermal relief gap | 0,5 | 0,5 |
+| Thermal spoke width | 0,5 | 0,5 |
+| Fill | Solid | Solid |
+| Remove islands | Always | Always |
+| Outline display | Hatched, 0,5 (hanya tampilan) | Hatched, 0,5 |
+
+3. Edit > Fill All Zones (tombol `B`). Area antena (8.5.3) otomatis kosong di kedua lapis.
+4. Via jahit: tambah via 0,6 / 0,3 dengan net GND sampai setiap potongan pour di kedua lapis kena minimal satu via; jauhkan dari tepi papan (beberapa via digeser setelah cek JLCDFM, 26 Okt.). Lalu Fill All Zones lagi.
+5. Gunanya: arus balik GND punya jalan lebar dan pendek (noise dan jatuh tegangan kecil), jalur sinyal terlindungi, dan via menyatukan potongan pour menjadi satu GND.
+
+#### 8.5.5 DRC (Inspect > Design Rules Checker)
+
+1. ☑ Refill all zones before performing DRC; ☑ Test for parity between PCB and schematic.
+2. Run DRC. Hasil 26 Okt.: 0 error, 0 warning, 0 unconnected, 0 schematic parity. 3 exclusions (footprint U2, C2, C3 berbeda dari salinan pustaka, karena sengaja disunting). 5 ignored tests: footprint tanpa courtyard, ujung jalur tidak di tengah via, geometri profil tuning, filter footprint simbol, tipe komponen footprint.
+
+#### 8.5.6 Plot Gerber (File > Fabrication Outputs > Gerbers)
+
+1. Plot format **Gerber**; Design variant `<Default>`; Output directory `gerber/` (relatif ke folder proyek).
+2. **Include Layers:** ☑ F.Cu, B.Cu, F.Silkscreen, B.Silkscreen, F.Mask, B.Mask, Edge.Cuts; lapis lain ☐. **Plot on All Layers:** semua ☐.
+3. **General Options:** ☐ Plot drawing sheet; ☑ Subtract soldermask from silkscreen; ☑ Indicate DNP on fabrication layers, pilihan **Cross-out**; ☐ Sketch pads on fabrication layers; Drill marks **None**; Scaling **1:1**; ☐ Use drill/place file origin; ☐ Mirrored plot; ☐ Negative plot; ☑ Check zone fills before plotting.
+4. **Gerber Options:** ☑ Use Protel filename extensions; ☑ Generate Gerber job file; Coordinate format **4.6, unit mm**; ☑ Use extended X2 format; ☑ Include netlist attributes; ☐ Disable aperture macros.
+5. Klik **Plot**. Output Messages: 0 errors, 0 warnings; bar bawah: "0 known DRC violations; 3 exclusions".
+
+#### 8.5.7 Berkas bor (Generate Drill Files, dari dialog Plot)
+
+1. Output folder sama dengan Gerber.
+2. Format **Excellon**: ☐ Mirror Y axis; ☐ Minimal header; ☐ PTH and NPTH in single file (jadi `PTH.drl` dan `NPTH.drl` terpisah); ☐ Use alternate drill mode for oval holes.
+3. ☑ Generate map: **PDF**.
+4. Options: Origin **Absolute**; Units **Millimeters**; Zeros **Decimal format (recommended)**; Precision 3:3.
+5. Klik **Generate**. Berkas posisi komponen (pick-and-place) tidak dibuat: semua komponen THT dan disolder sendiri.
+
+#### 8.5.8 ZIP dan cek pabrik
+
+1. Kompres ke-12 berkas (7 Gerber, job file, `PTH.drl`, `NPTH.drl`, 2 peta bor PDF) menjadi `Gerber_Kelompok-01_hgd-v1.zip`. Isi bor: 128 lubang berlapis (70 kaki komponen + 58 via) dan 4 lubang baut Ø3,0 tak berlapis.
+2. Unggah ke JLCDFM (viewer dan DFM check JLCPCB). Hasil 26 Okt.: terbaca 2 lapis, 80 x 55 mm; 0 sudut tajam; jarak antarjalur minimum 0,2 mm (baik); cincin tembaga lubang 0,25 mm (baik); solder mask dan lubang bor tanpa masalah. Temuan silkscreen: 5 "bahaya" + 2 peringatan jarak tulisan ke pad (minimum 0,09 mm) dan 80 peringatan tebal garis tulisan (0,12 mm), berasal dari garis bawaan footprint pustaka KiCad, bukan tulisan tim; tidak memengaruhi fungsi listrik (dicatat untuk revisi v2, Bagian 10).
+3. Setiap perubahan papan sesudah ekspor berarti DRC dan ekspor ulang: Gerber adalah "foto" papan saat diekspor.
 
 ---
 
@@ -319,8 +416,9 @@ Penyimpanan: kotak kedap udara dengan gelembung plastik (sisi gelembung menghada
 7. Uji U8 penuh (10 tap, 10 tahan). U6 (E+, E− modul HX711) ✔ 24 Okt. 2026.
 8. Persetujuan PCB v1, lalu unggah ZIP Gerber (batas 27 Okt. 2026, 23:59). Gerber diekspor ulang dan dicek di JLCDFM 26 Okt. 2026.
 9. ◐ PDF skema ✔ 26 Okt. 2026 ([kicad/pdf/skema-hgd-v1.pdf](kicad/pdf/skema-hgd-v1.pdf)); BOM belum (kolom sesuai modul; tambahkan 2 soket 1x15 DevKit dan modul yang dicolok, Bagian 8.1a).
-10. Gambar [gambar/penempatan-pcb-hgd.svg](gambar/penempatan-pcb-hgd.svg) diperbarui dari berkas papan 17 Okt. 2026 (D2/R2, pour, via); belum memuat jalur ulang dan silkscreen 26 Okt. 2026.
-11. ◐ Bahan laporan: tangkapan ERC, DRC, Assign Footprints, dan render papan/3D ✔ 26 Okt. 2026 (`gambar/`); belum: perhitungan lebar jalur 5V, data papan, review papan tim lain.
+10. Gambar [gambar/penempatan-pcb-hgd.svg](gambar/penempatan-pcb-hgd.svg) diperbarui dari berkas papan 17 Okt. 2026 (D2/R2, pour, via); belum memuat silkscreen 18 Okt. dan perbaikan jalur 26 Okt. 2026.
+11. ◐ Bahan laporan: tangkapan ERC, DRC, Assign Footprints, dan render papan/3D ✔ 26 Okt. 2026 (`gambar/`); lebar jalur dan kemampuan arus ✔ (Bagian 8.5.2); belum: data papan, review papan tim lain.
+12. Revisi v2 (bila ada): beri label nama jalur (net label) di skema (HX_DT, HX_SCK, SDA_3V3, SCL_3V3, SDA_5V, SCL_5V, BTN, LED) dan simbol daya +3V3/+5V/GND (sekarang semua sambungan masih garis kabel; ERC tetap bersih); rapikan garis silkscreen footprint pustaka yang terlalu dekat pad atau terlalu tipis (temuan JLCDFM, Bagian 8.5.8).
 
 ---
 
@@ -328,7 +426,7 @@ Penyimpanan: kotak kedap udara dengan gelembung plastik (sisi gelembung menghada
 
 | Versi | Tanggal | Perubahan |
 |---|---|---|
-| v8 | 27 Okt. 2026 | Versi akhir papan 26 Okt. 2026: judul "Digital Hand Grip Dynamometer", jalur ulang (posisi footprint tetap; 56 via GND), silkscreen tiga baris, stackup; ERC dan DRC ulang (DRC 3 pengecualian, spoke thermal U2 tidak lagi); Gerber diekspor ulang dan dicek di JLCDFM; Bagian 8.1a daftar Assign Footprints; PDF skema, `.kicad_pro`, tangkapan dan render di repo; catatan bahwa gambar penempatan masih versi 17 Okt.; STEP diganti versi 26 Okt. (tanpa soket DevKit) dan salinan verbatim dihapus |
+| v8 | 27 Okt. 2026 | Versi akhir papan 26 Okt. 2026: judul "Digital Hand Grip Dynamometer", silkscreen tiga baris di kedua sisi (18 Okt.), tiga belokan 45° dan via dijauhkan dari tepi (posisi footprint tetap; 56 via GND), stackup; ERC dan DRC ulang (DRC 3 pengecualian, spoke thermal U2 tidak lagi); Gerber diekspor ulang dan dicek di JLCDFM; Bagian 8.1a daftar Assign Footprints; Bagian 8.5 setelan KiCad langkah demi langkah (Board Setup, routing, area antena, pour GND, DRC, Plot, bor, ZIP); hasil JLCDFM; kemampuan arus jalur (IPC-2221); daftar silkscreen; revisi v2 di Bagian 10; PDF skema, `.kicad_pro`, tangkapan dan render di repo; catatan bahwa gambar penempatan masih versi 17 Okt.; STEP diganti versi 26 Okt. (tanpa soket DevKit) dan salinan verbatim dihapus |
 | v7 | 25 Okt. 2026 | Arus D1 terukur (4,9 mA) di tabel komponen; U6 selesai; tautan ke rangkuman pembacaan multimeter |
 | v6 | 24 Okt. 2026 | Breadboard: C3 dan C4 dipindah dari +3V3 ke +5V sesuai skema (Bagian 5.1, Bagian 6, tabel Bagian 8), dengan hasil cek; gambar wiring di protokol arus rail |
 | v5 | 24 Okt. 2026 | Bagian 5.1: arus tiap rail terukur (uji S3), diam dan puncak, dengan estimasi papan DevKit dan perbandingan terhadap S3 |
