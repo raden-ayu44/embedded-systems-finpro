@@ -100,7 +100,9 @@ const uint32_t ACK_TIMEOUT_MS = 500;
 const size_t SERIAL_TX_BUF = 1024;
 
 // ---------------- Saklar build ----------------
-// 1 = perintah serial t/k/p/x aktif (kalibrasi dan demo galat X3). Lihat Bagian 5.21.
+// 1 = perintah serial satu huruf aktif: t (tare), p (cetak nilai), x (skala demo), s (simulasi
+// saturasi), u (uji ACK), r (baris rusak), w (uji watchdog); lihat serialCmd() di hgd.ino.
+// 0 = semua perintah itu diabaikan.
 #define DEBUG_CMD 1
 // 1 = tiap sampel HX711 selama GRIP dikirim sebagai baris G tanpa ACK (rekaman genggaman, langkah
 // 10c). 0 = hanya penanda M per upaya (tetap dengan ACK). Beban serial ~400 byte/s (~3,5 % dari

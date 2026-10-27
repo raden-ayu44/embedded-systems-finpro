@@ -1,6 +1,6 @@
 // display.h - LCD 16x2 lewat backpack I2C (PCF8574T, alamat 0x27).
 // Alur dan alasan: alur-program-hgd.md Bagian 5.3, 5.18 dan 10.1-10.2.
-// Langkah 2 berisi fungsi dasar saja; layar per state (displayShow) ditambahkan di langkah 5.
+// Modul ini hanya fungsi dasar LCD; teks layar tiap state disusun di drawScreen() (fsm.cpp).
 //
 // Cara kerja singkat:
 // - lcdLine() TIDAK menulis ke LCD; ia hanya mengisi buffer "isi yang diinginkan".
