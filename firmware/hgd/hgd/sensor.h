@@ -48,6 +48,7 @@ uint32_t sensorLastSampleUs();   // micros() saat baca sampel terakhir dimulai (
 // kali dipanggil, jadi kembali FAULT_NONE sendiri setelah kabel dibetulkan. Urutan prioritas:
 // HX711_TIMEOUT (tanpa sampel 1 s) > READING_INVALID (SHORT_GAP_N sampel berturut-turut datang
 // < SAMPLE_MIN_GAP_MS setelah sebelumnya) > ADC_SATURATED (|raw| >= 0,95 x ADC_MAX) >
+// READING_INVALID (offset tare di luar jendela terus-menerus OFFSET_BAD_MS) >
 // READING_INVALID cadangan (SAME_RAW_N raw identik). OUT_OF_RANGE bukan di sini: dicek state
 // machine (live di GRIP dan saat COMPUTE), karena bergantung pada kg dan state.
 FaultType sensorCheck();

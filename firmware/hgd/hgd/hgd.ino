@@ -8,7 +8,7 @@
             Wire (bawaan core Arduino-ESP32)
             HX711 tidak memakai library (bit-bang sendiri, sensor.cpp).
 
-  Langkah 5 (kerangka state machine + LED):
+  Ringkasan perilaku (langkah 5 sampai 11):
   - Boot: READY, LED kedip 5 s, "Menyesuaikan nol" lalu "Tekan tmbl START". TAP = START
     (dan hentikan kedip). TAHAN 1,5 s = tare ulang manual. Langkah 5c: setelah tare, kg > +1 ->
     "Lepas genggaman" (START diabaikan); kg < -1 -> tare ulang otomatis (nol diambil saat dibebani).
@@ -19,7 +19,8 @@
     (atau terkuat bila tidak pernah stabil); plateau hanya dihitung bila semua sampel > 1 kg;
     TAHAN 1,5 s di "Menunggu genggam" = tare ulang di tempat ("Menyesuaikan nol" ~1 s, langkah 6c);
     LED menyala selama genggaman stabil (tanda boleh lepas setelah 3 s) -> COMPUTE -> REST
-    ("Hasil xx.xx kg" / "Lepas>Rest 60s", LED tetap menyala sampai dilepas).
+    ("Hasil xx.xx kg" / "Lepas>Rest 60s"; LED tetap menyala sampai dilepas hanya bila percobaan
+    berhenti di 5 s saat genggaman stabil, bila dilepas sendiri LED sudah mati).
   - REST: setelah dilepas hitung mundur "Lepas>Rest 60s" ... " 1s" (langkah 7, TAP diabaikan;
     digenggam lagi = hitung mundur dijeda sampai dilepas), lalu
     "NEXT > lanjut"; TAP -> percobaan berikutnya. Percobaan 3 tanpa istirahat: "Lepas>ringkasan"

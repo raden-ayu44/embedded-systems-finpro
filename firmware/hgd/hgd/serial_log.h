@@ -41,7 +41,8 @@ const char* logBootId();
 
 // Panggil sekali per loop(). Membaca masukan serial tanpa menunggu:
 // - baris "ACK,<n>" / "NAK,<n>" dipakai untuk antrean;
-// - satu huruf kecil perintah debug (t, p, x, s, u, r) dikembalikan ke pemanggil;
+// - satu huruf kecil dikembalikan ke pemanggil (perintah debug t, p, x, s, u, r, w; huruf lain
+//   diabaikan oleh serialCmd() di hgd.ino);
 // lalu mengurus kirim / tunggu / kirim ulang baris di kepala antrean.
 // Mengembalikan huruf perintah, atau 0 bila tidak ada.
 char logPoll();

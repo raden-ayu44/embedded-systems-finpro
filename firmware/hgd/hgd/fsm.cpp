@@ -1,7 +1,7 @@
 // fsm.cpp - lihat fsm.h.
 //
-// Langkah 5 (kerangka): semua state, aksi masuk, layar (Bagian 10.2), aturan LED (Bagian 10.3),
-// transisi pengecualian galat sensor, dan reset total. Transisi masih sederhana:
+// Isi berkas: semua state, aksi masuk, layar (Bagian 10.2), aturan LED (Bagian 10.3),
+// transisi pengecualian galat sensor, dan reset total. Ringkasan per langkah:
 // - GRIP (langkah 6, 6d): onset -> fase 2; dilepas sebelum 3 s -> fase 1; dilepas antara 3 dan 5 s
 //   -> COMPUTE (pengguna yang memutuskan); masih digenggam pada 5 s -> COMPUTE. ref = jendela stabil
 //   terkuat, atau jendela terkuat bila tidak pernah stabil.
