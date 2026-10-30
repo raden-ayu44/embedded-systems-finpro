@@ -7,7 +7,7 @@
 <marker id="arK" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#555"/></marker>
 </defs>
 <rect width="1180" height="930" fill="#ffffff"/>
-<text x="30" y="40" font-size="22" font-weight="600" fill="#222">Housing elektronik: slot-U + lidah untuk kabel load cell (usulan)</text>
+<text x="30" y="40" font-size="22" font-weight="600" fill="#222">Housing elektronik: slot-U + lidah untuk kabel load cell (dimodelkan 30 Okt. 2026)</text>
 <text x="30" y="64" font-size="13.5" fill="#555">Hanya lid dan body (tanpa PCB, LCD, HX711). Ukuran housing dari STEP 30 Okt. 2026; satuan mm; z = 0 di muka bawah PCB, sambungan lid-body di z = -22.</text>
 <text x="40" y="108" font-size="15" font-weight="600" fill="#222">A. Tampak dinding sisi kabel (+x) dari luar</text>
 <path d="M75.00,282.00 L75.00,150.00 L495.00,150.00 L495.00,282.00 L460.20,282.00 L460.20,244.00 L441.80,244.00 L441.80,282.00 Z" fill="#DCD8CC" stroke="#333" stroke-width="1.3"/>
