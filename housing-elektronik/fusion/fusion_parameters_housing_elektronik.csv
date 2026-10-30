@@ -55,3 +55,34 @@ slot_H,mm,bump_flat + 2 * bump_d + comp_z,4.3 mm,"tinggi slot (alas tonjolan + k
 pillar_w,mm,0.8 mm,0.8 mm,"lebar tiang korban (detail minimum 0.8); dipotong setelah cetak",false
 pillar1_x,mm,snap_x_root + 9.6 mm,24.6 mm,"tepi tiang korban 1 dari x = 0 (jembatan 9.6)",false
 pillar2_x,mm,snap_x_root + snap_l - pillar_w,34.2 mm,"tepi tiang korban 2 dari x = 0 (di bawah ujung lidah; jembatan 8.8)",false
+cable_d,mm,4 mm,4 mm,"diameter kabel load cell (terukur 11 Okt. 2026, asumsi.md; cocok dokumen distributor)",true
+cable_zc,mm,7 mm,7 mm,"pusat kabel di atas sambungan lid-body (z -15); 2 mm di atas puncak bibir (z -19)",false
+cslot_back,mm,11 mm,11 mm,"jarak pusat slot kabel ke muka luar dinding belakang, di dinding kanan lid (y 11.25)",false
+cslot_w,mm,cable_d + comp_xy,4.6 mm,"lebar slot-U kabel di dinding lid, dari tepi bawah lid; tercetak kira-kira 4.0 (pas kabel)",false
+cslot_h,mm,cable_zc + cable_d / 2 + comp_z / 2,9.5 mm,"tinggi slot-U dari sambungan; hanya tepi atas yang tercetak, jadi setengah comp_z",false
+c_squeeze,mm,0.3 mm,0.3 mm,"jepitan lidah pada kabel (angka awal; sesuaikan setelah cetak uji)",true
+ctongue_w,mm,cable_d - 2 * lip_cl,3.5 mm,"lebar lidah body yang menutup slot; celah 0.25 per sisi ke slot tercetak; menyatu dengan bibir",false
+ctongue_h,mm,cable_zc - cable_d / 2 + c_squeeze,5.3 mm,"tinggi lidah di atas sambungan; menekan kabel sebesar c_squeeze",false
+housing_L,mm,105 mm,105 mm,"panjang luar housing arah x (lid dan body sama); terukur dari STEP 30 Okt. 2026",false
+housing_W,mm,105 mm,105 mm,"lebar luar housing arah y (y -82.75 sampai 22.25)",false
+wall_t,mm,2 mm,2 mm,"tebal dinding lid dan body",false
+top_t,mm,2 mm,2 mm,"tebal pelat atas lid (z 9 sampai 11)",false
+floor_t,mm,2 mm,2 mm,"tebal lantai body (z -34 sampai -32)",false
+lid_H,mm,33 mm,33 mm,"tinggi lid dari sambungan (z -22) ke muka atas (z 11)",false
+body_H,mm,12 mm,12 mm,"tinggi body tanpa bibir (z -34 sampai -22); bibir menambah lip_h",false
+lid_gap,mm,0.5 mm,0.5 mm,"celah muka bawah pelat atas lid (z 9) ke muka bingkai LCD (z 8.5)",false
+pcb_wall_gap,mm,2.25 mm,2.25 mm,"celah tepi PCB LCD (y 18) dan tepi PCB utama (y -78.5) ke muka dalam dinding",false
+lcd_win_L,mm,view_L + 0.8 mm,65.3 mm,"panjang jendela layar di pelat atas (0.4 per sisi di luar area tampilan); pusat x 0",false
+lcd_win_W,mm,view_W + 0.8 mm,14.8 mm,"lebar jendela layar (y -8.4 sampai 6.4; pusat sama dengan layar, y -1)",false
+usb_win_W,mm,15 mm,15 mm,"lebar jendela USB di dinding kiri lid (y -66.5 sampai -51.5; pusat y -59 = USB DevKit)",false
+usb_win_H,mm,9 mm,9 mm,"tinggi jendela USB (z -18.21 sampai -9.21)",false
+usb_win_z0,mm,3.79 mm,3.79 mm,"tepi bawah jendela USB di atas sambungan (z -18.21)",false
+mnt_hole_d,mm,PCB_hole_d + 1 mm + comp_hole,5 mm,"8 lubang baut dari atas di pelat lid (lubang PCB + 1 mm kelonggaran + comp_hole), di atas lubang pasang: 4 LCD (x +-37.5, y +-15.5) dan 4 PCB (x +-37.5, y -26 dan -76); PCB LCD dan PCB utama sama-sama 3 mm",false
+btn_d,mm,4.3 mm,4.3 mm,"diameter tombol SW1 yang menembus lid",false
+btn_hole_d,mm,btn_d + comp_hole,5.3 mm,"lubang tombol SW1 di pelat atas (pusat x -15.1, y -29.5)",false
+led1_d,mm,5.9 mm,5.9 mm,"diameter LED status D1 5 mm (bibir)",false
+led1_hole_d,mm,led1_d + comp_hole,6.9 mm,"lubang LED D1 (pusat x 15, y -29.5)",false
+led2_d,mm,4 mm,4 mm,"diameter LED daya D2 3 mm (bibir)",false
+led2_hole_d,mm,led2_d + comp_hole,5 mm,"lubang LED D2 (pusat x -15.52, y -75.5)",false
+enboot_d,mm,4.9 mm,4.9 mm,"diameter akses tombol EN dan BOOT DevKit dari bawah",false
+floor_hole_d,mm,enboot_d + comp_hole,5.9 mm,"2 lubang di lantai body untuk menekan tombol EN dan BOOT DevKit (x -36.4; y -51.25 dan -66.75)",false
