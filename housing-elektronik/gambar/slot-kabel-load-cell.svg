@@ -1,0 +1,132 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="930" viewBox="0 0 1180 930" font-family="Segoe UI, Arial, sans-serif">
+<defs>
+<pattern id="hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="6" height="6" fill="#d9d4c6"/><line x1="0" y1="0" x2="0" y2="6" stroke="#8a826e" stroke-width="1.2"/></pattern>
+<pattern id="hatchB" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(-45)"><rect width="6" height="6" fill="#bdb6a3"/><line x1="0" y1="0" x2="0" y2="6" stroke="#6f6754" stroke-width="1.2"/></pattern>
+<pattern id="hatchT" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(-45)"><rect width="6" height="6" fill="#E39B2D"/><line x1="0" y1="0" x2="0" y2="6" stroke="#9c6211" stroke-width="1.2"/></pattern>
+<marker id="ar" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1f5fa8"/></marker>
+<marker id="arK" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#555"/></marker>
+</defs>
+<rect width="1180" height="930" fill="#ffffff"/>
+<text x="30" y="40" font-size="22" font-weight="600" fill="#222">Housing elektronik: slot-U + lidah untuk kabel load cell (usulan)</text>
+<text x="30" y="64" font-size="13.5" fill="#555">Hanya lid dan body (tanpa PCB, LCD, HX711). Ukuran housing dari STEP 30 Okt. 2026; satuan mm; z = 0 di muka bawah PCB, sambungan lid-body di z = -22.</text>
+<text x="40" y="108" font-size="15" font-weight="600" fill="#222">A. Tampak dinding sisi kabel (+x) dari luar</text>
+<path d="M75.00,282.00 L75.00,150.00 L495.00,150.00 L495.00,282.00 L460.20,282.00 L460.20,244.00 L441.80,244.00 L441.80,282.00 Z" fill="#DCD8CC" stroke="#333" stroke-width="1.3"/>
+<rect x="75.00" y="282.00" width="420.00" height="48.00" fill="#BDB6A3" stroke="#333" stroke-width="1.3"/>
+<rect x="444.00" y="260.80" width="14.00" height="21.20" fill="#E39B2D" stroke="#333" stroke-width="1"/>
+<circle cx="451.00" cy="254.00" r="8.00" fill="#1d1d1d"/>
+<text x="286.00" y="206.00" font-size="14" fill="#6b6553" text-anchor="middle">LID</text>
+<text x="286.00" y="310.00" font-size="14" fill="#5a5444" text-anchor="middle">BODY</text>
+<text x="69.00" y="286.00" font-size="11" fill="#555" text-anchor="end">z -22</text>
+<line x1="75.00" y1="136.00" x2="495.00" y2="136.00" stroke="#1f5fa8" stroke-width="1.1" marker-start="url(#ar)" marker-end="url(#ar)"/>
+<text x="285.00" y="130.00" font-size="12.5" fill="#1f5fa8" text-anchor="middle">105</text>
+<line x1="45.00" y1="150.00" x2="45.00" y2="330.00" stroke="#1f5fa8" stroke-width="1.1" marker-start="url(#ar)" marker-end="url(#ar)"/>
+<text x="39.00" y="244.00" font-size="12.5" fill="#1f5fa8" text-anchor="end">45</text>
+<line x1="451.00" y1="352.00" x2="495.00" y2="352.00" stroke="#1f5fa8" stroke-width="1.1" marker-start="url(#ar)" marker-end="url(#ar)"/>
+<text x="473.00" y="367.00" font-size="12.5" fill="#1f5fa8" text-anchor="middle">11 (pusat sketsa pintu)</text>
+<line x1="451.00" y1="254.00" x2="451.00" y2="349.00" stroke="#1f5fa8" stroke-width="0.7" stroke-dasharray="3 2"/>
+<line x1="495.00" y1="330.00" x2="495.00" y2="349.00" stroke="#1f5fa8" stroke-width="0.7" stroke-dasharray="3 2"/>
+<rect x="418.00" y="230.00" width="68.00" height="64.00" fill="none" stroke="#1f5fa8" stroke-width="1.2" stroke-dasharray="5 3"/>
+<text x="418.00" y="225.00" font-size="12" fill="#1f5fa8">detail B</text>
+<line x1="451.00" y1="152.00" x2="451.00" y2="328.00" stroke="#a33" stroke-width="1" stroke-dasharray="8 3 2 3"/>
+<text x="455.00" y="164.00" font-size="12" fill="#a33">A-A</text>
+<text x="40" y="388.00" font-size="12.5" fill="#555">Bukaan sketsa 18 × 15 dan pintu geser dihapus.</text>
+<text x="40" y="406.00" font-size="12.5" fill="#555">Satu potongan-U dari tepi bawah lid; lidah oranye menyatu dengan body.</text>
+<text x="660" y="108" font-size="15" font-weight="600" fill="#222">B. Detail slot (tampak luar, skala 15:4 dari A)</text>
+<clipPath id="cb"><rect x="700.00" y="150.00" width="255.00" height="240.00"/></clipPath>
+<g clip-path="url(#cb)">
+<path d="M625.00,345.00 L625.00,-150.00 L988.75,-150.00 L988.75,345.00 L858.25,345.00 L858.25,202.50 L789.25,202.50 L789.25,345.00 Z" fill="#DCD8CC" stroke="#333" stroke-width="1.4"/>
+<rect x="625.00" y="345.00" width="363.75" height="180.00" fill="#BDB6A3" stroke="#333" stroke-width="1.4"/>
+<rect x="797.50" y="265.50" width="52.50" height="79.50" fill="#E39B2D" stroke="#333" stroke-width="1.2"/>
+<circle cx="823.75" cy="240.00" r="30.00" fill="#1d1d1d"/>
+<line x1="958.75" y1="150.00" x2="958.75" y2="390.00" stroke="#777" stroke-width="1" stroke-dasharray="4 3"/>
+</g>
+<rect x="700.00" y="150.00" width="255.00" height="240.00" fill="none" stroke="#1f5fa8" stroke-width="1.2" stroke-dasharray="5 3"/>
+<text x="954.75" y="165.00" font-size="11" fill="#666" text-anchor="end">muka dalam dinding belakang</text>
+<line x1="789.25" y1="184.50" x2="858.25" y2="184.50" stroke="#1f5fa8" stroke-width="1.1" marker-start="url(#ar)" marker-end="url(#ar)"/>
+<text x="823.75" y="178.50" font-size="12.5" fill="#1f5fa8" text-anchor="middle">4.6 = 4 + comp_xy</text>
+<line x1="789.25" y1="202.50" x2="789.25" y2="187.50" stroke="#1f5fa8" stroke-width="0.7" stroke-dasharray="3 2"/>
+<line x1="858.25" y1="202.50" x2="858.25" y2="187.50" stroke="#1f5fa8" stroke-width="0.7" stroke-dasharray="3 2"/>
+<line x1="797.50" y1="375.00" x2="850.00" y2="375.00" stroke="#1f5fa8" stroke-width="1.1" marker-start="url(#ar)" marker-end="url(#ar)"/>
+<text x="823.75" y="390.00" font-size="12.5" fill="#1f5fa8" text-anchor="middle">lidah 3.5</text>
+<line x1="797.50" y1="345.00" x2="797.50" y2="372.00" stroke="#1f5fa8" stroke-width="0.7" stroke-dasharray="3 2"/>
+<line x1="850.00" y1="345.00" x2="850.00" y2="372.00" stroke="#1f5fa8" stroke-width="0.7" stroke-dasharray="3 2"/>
+<line x1="719.25" y1="345.00" x2="719.25" y2="202.50" stroke="#1f5fa8" stroke-width="1.1" marker-start="url(#ar)" marker-end="url(#ar)"/>
+<text x="713.25" y="277.75" font-size="12.5" fill="#1f5fa8" text-anchor="end">9.5</text>
+<line x1="789.25" y1="345.00" x2="722.25" y2="345.00" stroke="#1f5fa8" stroke-width="0.7" stroke-dasharray="3 2"/>
+<line x1="789.25" y1="202.50" x2="722.25" y2="202.50" stroke="#1f5fa8" stroke-width="0.7" stroke-dasharray="3 2"/>
+<line x1="920.00" y1="345.00" x2="920.00" y2="265.50" stroke="#1f5fa8" stroke-width="1.1" marker-start="url(#ar)" marker-end="url(#ar)"/>
+<text x="926.00" y="309.25" font-size="12.5" fill="#1f5fa8" text-anchor="start">5.3</text>
+<line x1="850.00" y1="345.00" x2="917.00" y2="345.00" stroke="#1f5fa8" stroke-width="0.7" stroke-dasharray="3 2"/>
+<line x1="850.00" y1="265.50" x2="917.00" y2="265.50" stroke="#1f5fa8" stroke-width="0.7" stroke-dasharray="3 2"/>
+<text x="823.75" y="244.00" font-size="11.5" fill="#fff" text-anchor="middle">Ø4</text>
+<line x1="934.00" y1="275.00" x2="846.00" y2="267.50" stroke="#555" stroke-width="0.9" marker-end="url(#arK)"/>
+<text x="934.00" y="279.00" font-size="12" fill="#333" text-anchor="start">lidah menekan kabel</text>
+<text x="934.00" y="294.00" font-size="12" fill="#333" text-anchor="start">0,3 mm (jepit)</text>
+<text x="660" y="498" font-size="15" font-weight="600" fill="#222">C. Potongan A-A (melintang dinding, lewat pusat kabel)</text>
+<clipPath id="cc"><rect x="700.00" y="520.00" width="225.00" height="285.00"/></clipPath>
+<g clip-path="url(#cc)">
+<rect x="827.50" y="490.00" width="30.00" height="82.50" fill="url(#hatch)" stroke="#333" stroke-width="1.3"/>
+<path d="M857.50,835.00 L857.50,715.00 L827.50,715.00 L823.75,715.00 L823.75,670.00 L799.75,670.00 L799.75,748.75 L827.50,776.50 L827.50,835.00 Z" fill="url(#hatchB)" stroke="#333" stroke-width="1.3"/>
+<rect x="823.75" y="635.50" width="33.75" height="79.50" fill="url(#hatchT)" stroke="#333" stroke-width="1.2"/>
+<rect x="685.00" y="580.00" width="255.00" height="60.00" fill="#1d1d1d"/>
+</g>
+<rect x="700.00" y="520.00" width="225.00" height="285.00" fill="none" stroke="#999" stroke-width="1"/>
+<text x="708.00" y="614.00" font-size="12" fill="#fff">← ke HX711</text>
+<text x="917.00" y="614.00" font-size="12" fill="#fff" text-anchor="end">ke load cell →</text>
+<text x="842.50" y="538.00" font-size="12" fill="#333" text-anchor="middle">lid</text>
+<text x="868.00" y="767.50" font-size="12" fill="#333">body</text>
+<line x1="704.50" y1="705.00" x2="805.75" y2="692.50" stroke="#555" stroke-width="0.9" marker-end="url(#arK)"/>
+<text x="704.50" y="709.00" font-size="12" fill="#333" text-anchor="start">bibir body</text>
+<text x="704.50" y="724.00" font-size="12" fill="#333" text-anchor="start">(sudah ada)</text>
+<line x1="866.50" y1="684.00" x2="853.00" y2="667.00" stroke="#555" stroke-width="0.9" marker-end="url(#arK)"/>
+<text x="866.50" y="688.00" font-size="12" fill="#333" text-anchor="start">lidah</text>
+<line x1="907.00" y1="670.00" x2="907.00" y2="640.00" stroke="#1f5fa8" stroke-width="1.1" marker-start="url(#ar)" marker-end="url(#ar)"/>
+<text x="901.00" y="659.00" font-size="12.5" fill="#1f5fa8" text-anchor="end">2</text>
+<line x1="799.75" y1="670.00" x2="904.00" y2="670.00" stroke="#1f5fa8" stroke-width="0.7" stroke-dasharray="3 2"/>
+<line x1="857.50" y1="640.00" x2="904.00" y2="640.00" stroke="#1f5fa8" stroke-width="0.7" stroke-dasharray="3 2"/>
+<line x1="700.00" y1="715.00" x2="925.00" y2="715.00" stroke="#a33" stroke-width="0.8" stroke-dasharray="6 3"/>
+<text x="921.00" y="710.00" text-anchor="end" font-size="11" fill="#a33">z -22</text>
+<text x="40" y="440" font-size="15" font-weight="600" fill="#222">Cara rakit</text>
+<circle cx="50" cy="462" r="10" fill="#E39B2D"/>
+<text x="50" y="466" font-size="12" font-weight="600" fill="#fff" text-anchor="middle">1</text>
+<text x="68" y="466" font-size="13" fill="#333">Lid dibalik (sisi terbuka di atas); PCB sudah di dalam lid.</text>
+<circle cx="50" cy="490" r="10" fill="#E39B2D"/>
+<text x="50" y="494" font-size="12" font-weight="600" fill="#fff" text-anchor="middle">2</text>
+<text x="68" y="494" font-size="13" fill="#333">Kabel hitam diletakkan ke slot dari sisi terbuka, lalu HX711 ditancapkan ke J1.</text>
+<circle cx="50" cy="518" r="10" fill="#E39B2D"/>
+<text x="50" y="522" font-size="12" font-weight="600" fill="#fff" text-anchor="middle">3</text>
+<text x="68" y="522" font-size="13" fill="#333">Body dipasang: lidah masuk ke slot dan menjepit kabel 0,3 mm; snap terkunci.</text>
+<circle cx="50" cy="546" r="10" fill="#E39B2D"/>
+<text x="50" y="550" font-size="12" font-weight="600" fill="#fff" text-anchor="middle">4</text>
+<text x="68" y="550" font-size="13" fill="#333">Bongkar: lepas body, kabel lepas dari slot; tidak ada lem.</text>
+<text x="40" y="590" font-size="15" font-weight="600" fill="#222">Parameter (usulan, untuk CSV housing elektronik)</text>
+<text x="40" y="614" font-size="12.5" font-family="Consolas, monospace" fill="#1f5fa8">cable_d</text>
+<text x="132" y="614" font-size="12.5" font-family="Consolas, monospace" fill="#222">4 mm</text>
+<text x="132" y="614" font-size="12.5" fill="#222"></text>
+<text x="410" y="614" font-size="12" fill="#555">diameter kabel (asumsi.md, 11 Okt.)</text>
+<text x="40" y="635" font-size="12.5" font-family="Consolas, monospace" fill="#1f5fa8">cable_zc</text>
+<text x="132" y="635" font-size="12.5" font-family="Consolas, monospace" fill="#222">7 mm</text>
+<text x="132" y="635" font-size="12.5" fill="#222"></text>
+<text x="410" y="635" font-size="12" fill="#555">pusat kabel di atas sambungan (z -15)</text>
+<text x="40" y="656" font-size="12.5" font-family="Consolas, monospace" fill="#1f5fa8">cslot_w</text>
+<text x="132" y="656" font-size="12.5" font-family="Consolas, monospace" fill="#222">cable_d + comp_xy = 4,6</text>
+<text x="132" y="656" font-size="12.5" fill="#222"></text>
+<text x="410" y="656" font-size="12" fill="#555">tercetak ≈ 4,0 (pas kabel)</text>
+<text x="40" y="677" font-size="12.5" font-family="Consolas, monospace" fill="#1f5fa8">cslot_h</text>
+<text x="132" y="677" font-size="12.5" font-family="Consolas, monospace" fill="#222">cable_zc + cable_d/2 + comp_z/2 = 9,5</text>
+<text x="132" y="677" font-size="12.5" fill="#222"></text>
+<text x="410" y="677" font-size="12" fill="#555">hanya tepi atas tercetak: ½ comp_z</text>
+<text x="40" y="698" font-size="12.5" font-family="Consolas, monospace" fill="#1f5fa8">ctongue_w</text>
+<text x="132" y="698" font-size="12.5" font-family="Consolas, monospace" fill="#222">cable_d − 2·lip_cl = 3,5</text>
+<text x="132" y="698" font-size="12.5" fill="#222"></text>
+<text x="410" y="698" font-size="12" fill="#555">celah 0,25 per sisi ke slot tercetak</text>
+<text x="40" y="719" font-size="12.5" font-family="Consolas, monospace" fill="#1f5fa8">ctongue_h</text>
+<text x="132" y="719" font-size="12.5" font-family="Consolas, monospace" fill="#222">cable_zc − cable_d/2 + squeeze = 5,3</text>
+<text x="132" y="719" font-size="12.5" fill="#222"></text>
+<text x="410" y="719" font-size="12" fill="#555">squeeze 0,3: angka awal, sesuaikan setelah cetak</text>
+<text x="40" y="754" font-size="15" font-weight="600" fill="#222">Dibanding pintu geser dovetail</text>
+<text x="40" y="776" font-size="13" fill="#333">✓ Kerja Fusion: 1 extrude-cut di lid + 1 extrude di body (pintu: rel, muka miring, pintu, ruang geser 18 mm).</text>
+<text x="40" y="796" font-size="13" fill="#333">✓ Tanpa uji pas dovetail di PLA; comp_xy dan comp_z sudah terukur.</text>
+<text x="40" y="816" font-size="13" fill="#333">✓ Menahan tarikan kabel (pintu Ø6 longgar ±1 mm per sisi, tidak menjepit).</text>
+<text x="40" y="836" font-size="13" fill="#333">✓ Bisa dibongkar lagi bila sambungan solder atau kabel hitam bermasalah.</text>
+</svg>

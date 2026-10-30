@@ -55,3 +55,11 @@ slot_H,mm,bump_flat + 2 * bump_d + comp_z,4.3 mm,"tinggi slot (alas tonjolan + k
 pillar_w,mm,0.8 mm,0.8 mm,"lebar tiang korban (detail minimum 0.8); dipotong setelah cetak",false
 pillar1_x,mm,snap_x_root + 9.6 mm,24.6 mm,"tepi tiang korban 1 dari x = 0 (jembatan 9.6)",false
 pillar2_x,mm,snap_x_root + snap_l - pillar_w,34.2 mm,"tepi tiang korban 2 dari x = 0 (di bawah ujung lidah; jembatan 8.8)",false
+cable_d,mm,4 mm,4 mm,"diameter kabel load cell (terukur 11 Okt. 2026, asumsi.md; cocok dokumen distributor)",true
+cable_zc,mm,7 mm,7 mm,"pusat kabel di atas sambungan lid-body (z -15); 2 mm di atas puncak bibir (z -19)",false
+cslot_back,mm,11 mm,11 mm,"jarak pusat slot kabel ke muka luar dinding belakang, di dinding kanan lid (y 11.25)",false
+cslot_w,mm,cable_d + comp_xy,4.6 mm,"lebar slot-U kabel di dinding lid, dari tepi bawah lid; tercetak kira-kira 4.0 (pas kabel)",false
+cslot_h,mm,cable_zc + cable_d / 2 + comp_z / 2,9.5 mm,"tinggi slot-U dari sambungan; hanya tepi atas yang tercetak, jadi setengah comp_z",false
+c_squeeze,mm,0.3 mm,0.3 mm,"jepitan lidah pada kabel (angka awal; sesuaikan setelah cetak uji)",true
+ctongue_w,mm,cable_d - 2 * lip_cl,3.5 mm,"lebar lidah body yang menutup slot; celah 0.25 per sisi ke slot tercetak; menyatu dengan bibir",false
+ctongue_h,mm,cable_zc - cable_d / 2 + c_squeeze,5.3 mm,"tinggi lidah di atas sambungan; menekan kabel sebesar c_squeeze",false

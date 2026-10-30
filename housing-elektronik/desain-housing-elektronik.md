@@ -3,7 +3,7 @@ title: Desain Housing Elektronik - Hand Grip Dynamometer
 
 ---
 
-# Desain Housing Elektronik - Hand Grip Dynamometer (v6)
+# Desain Housing Elektronik - Hand Grip Dynamometer (v7)
 **Proyek akhir - embedded system**
 
 > Housing elektronik: wadah PCB, ESP32, modul HX711, level shifter, LCD, tombol, dan LED. Housing grip (load cell) ada di [desain-housing-load-cell.md](../housing-load-cell/desain-housing-load-cell.md); ukuran komponen di [tabel-pengukuran-hgd.xlsx](../pengukuran/tabel-pengukuran-hgd.xlsx); PCB di [desain-pcb-hgd.md](../pcb/desain-pcb-hgd.md); parameter Fusion di [fusion/](fusion/); model 3D terbaru (lid + body dengan bibir dan snap-fit, ekspor Fusion 17 Okt. 2026): [fusion/electronics_housing_lipped.step](fusion/electronics_housing_lipped.step); model PCB untuk cek pas: [../pcb/kicad/proyek/hgd-v1.step](../pcb/kicad/proyek/hgd-v1.step); induk: [catatan-proyek-hgd.md](../catatan-proyek-hgd.md).
@@ -42,7 +42,7 @@ Desain pemilik (dari STEP):
 - Lid berdinding: pelat z 9-11, dinding 2,0 sampai z −22; luar 105 x 105.
 - Body: baki 105 x 105 x 12 (z −34 sampai −22), dinding dan lantai 2,0.
 - Jendela USB di dinding kiri lid: 15,0 x 9,0, y −66,5 sampai −51,5, z −18,2 sampai −9,2 (pusat cocok dengan USB DevKit di PCB v1, y −59,0).
-- Jendela kabel load cell di dinding kanan lid: 15,0 x 9,0, y 3,5 sampai 18,5.
+- Jendela kabel load cell di dinding kanan lid: 15,0 x 9,0, y 3,5 sampai 18,5. **Diganti slot-U (Bagian 1.4, 30 Okt. 2026).**
 
 Usulan bibir (Claude; dimodelkan di Fusion 17 Okt. 2026):
 
@@ -82,6 +82,24 @@ Aturan FDM: Hubs (celah 0,5, lebar ≥ 5, lentur di XY, tidak ada tegangan saat 
 
 ---
 
+### 1.4 Slot-U kabel load cell (usulan Claude, 30 Okt. 2026; belum dimodelkan)
+Gambar: [gambar/slot-kabel-load-cell.svg](gambar/slot-kabel-load-cell.svg) (tampak dinding kanan, detail slot, potongan A-A; ukuran housing dari STEP 30 Okt. 2026).
+
+**Masalah.** Kabel load cell menyatu dengan load cell dan disolder ke HX711, jadi HX711 (15,6 x 24) tidak bisa dimasukkan lewat jendela kabel 15 x 9. Sketsa pintu geser dovetail (30 Okt. 2026) diganti usulan di bawah.
+
+| Bagian | Usulan | Alasan |
+|---|---|---|
+| Slot-U | Potongan di dinding kanan lid dari tepi bawah (z −22) ke atas, lebar `cslot_w` 4,6, tinggi `cslot_h` 9,5; pusat 11 mm dari muka luar dinding belakang (y 11,25) | Lid terbuka di bawah, jadi kabel dimasukkan dari sisi itu; HX711 tidak perlu lewat dinding |
+| Lidah | Di tepi atas dinding body, `ctongue_w` 3,5 x `ctongue_h` 5,3, menyatu dengan bibir | Menutup slot dan menjepit kabel 0,3 mm (`c_squeeze`): tarikan kabel dari luar tidak sampai ke sambungan solder HX711 |
+| Tinggi kabel | Pusat 7 mm di atas sambungan (`cable_zc`, z −15) | 2 mm di atas puncak bibir (z −19) |
+| Cetak | Tepi atas slot menjadi jembatan 4,6 | Memenuhi aturan jembatan ≤ 10 mm (jendela 15 x 9 lama: 15 mm) |
+
+Cara rakit: (1) lid dibalik, PCB sudah di dalam; (2) kabel diletakkan ke slot dari sisi terbuka, HX711 ditancapkan ke J1; (3) body dipasang, lidah masuk ke slot dan menjepit kabel. Bongkar cukup dengan melepas body; tanpa lem dan tanpa bagian geser.
+
+Asumsi: hanya bukaan yang menyusut saat dicetak (`comp_xy`, `comp_z`); lidah tercetak sesuai ukuran. Bila lidah macet, kikir sampai ≈ 3,3. `c_squeeze` diatur setelah cetak uji.
+
+---
+
 ## 2. Ukuran LCD (terukur 15 Okt. 2026)
 Model LCD disederhanakan dari ukuran ini; nilainya ada di berkas parameter.
 
@@ -102,7 +120,7 @@ Model LCD disederhanakan dari ukuran ini; nilainya ada di berkas parameter.
 | Berkas | Isi |
 |---|---|
 | [fusion/fusion_parameters_lcd.csv](fusion/fusion_parameters_lcd.csv) | Parameter LCD saja (PCB, bingkai, trapesium, tinggi, backpack, kabel) |
-| [fusion/fusion_parameters_housing_elektronik.csv](fusion/fusion_parameters_housing_elektronik.csv) | Parameter global housing elektronik: semua parameter LCD, kompensasi susut, jendela layar, bibir dan snap-fit (`lip_cl` sampai `pillar2_x`) |
+| [fusion/fusion_parameters_housing_elektronik.csv](fusion/fusion_parameters_housing_elektronik.csv) | Parameter global housing elektronik: semua parameter LCD, kompensasi susut, jendela layar, bibir dan snap-fit (`lip_cl` sampai `pillar2_x`), slot-U kabel load cell (`cable_d` sampai `ctongue_h`) |
 | [fusion/work_instructions_fusion_housing_elektronik.md](fusion/work_instructions_fusion_housing_elektronik.md) | Langkah Fusion untuk bibir, lidah snap, tiang korban, dan slot; cek; cetak uji satu lidah |
 
 Format: `Name,Unit,Expression,Value,Comments,Favorite` (sama dengan berkas housing grip). Parameter baru ditambahkan di baris paling bawah.
@@ -140,6 +158,7 @@ Celah lid terhadap bingkai LCD memakai parameter tersendiri (mis. `lid_gap` 0,5 
 7. Cetak uji satu lidah dan slot (Fase 7 instruksi kerja Fusion) sebelum mencetak lid dan body.
 8. Selisih margin layar 1 mm (Bagian 2).
 9. Cek pas dengan model PCB [../pcb/kicad/proyek/hgd-v1.step](../pcb/kicad/proyek/hgd-v1.step) (DevKit dan modul di sisi bawah). Sejak 27 Okt. 2026 STEP ini diekspor dari papan utama 26 Okt. dan tidak memuat dua soket 1x15 DevKit; soket tidak memengaruhi desain housing.
+10. Slot-U kabel dan lidah (Bagian 1.4) dimodelkan di Fusion; jendela kabel 15 x 9 dan sketsa pintu geser dihapus; cek dari STEP.
 
 ---
 
@@ -152,6 +171,7 @@ Celah lid terhadap bingkai LCD memakai parameter tersendiri (mis. `lid_gap` 0,5 
 ## 8. Perubahan
 | Versi | Tanggal | Perubahan |
 |---|---|---|
+| v7 | 30 Okt. 2026 | Bagian 1.4: slot-U kabel load cell + lidah body (menggantikan jendela 15 x 9; HX711 tidak muat lewat jendela); parameter `cable_d` sampai `ctongue_h` di CSV; gambar `gambar/slot-kabel-load-cell.svg`; sisa pekerjaan butir 10 |
 | v6 | 27 Okt. 2026 | Sisa pekerjaan butir 9: model PCB `hgd-v1.step` kini versi 26 Okt. 2026, tanpa soket 1x15 DevKit |
 | v5 | 17 Okt. 2026 | **Desain v1 selesai (belum disetujui)**: status di Bagian 1; STEP model terbaru di `fusion/`; sisa pekerjaan disusun ulang (lubang tombol/LED termasuk D2, tiang PCB, cetak uji, cek pas dengan STEP PCB) |
 | v4 | 17 Okt. 2026 | Bagian 1.3: usulan snap-fit (4 lidah, perhitungan Covestro, data PLA Basic); celah bawah lidah 2,0 dan tiang korban (jembatan ≤ 10); slot dengan kompensasi susut; parameter snap di CSV; instruksi kerja Fusion; gambar v2 bergaya gambar housing load cell; STEP model terbaru disimpan di `fusion/` |
