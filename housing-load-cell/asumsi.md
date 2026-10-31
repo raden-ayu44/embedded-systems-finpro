@@ -10,6 +10,8 @@ Berkas v4 tidak ditimpa. Semua gambar **tidak berskala**, dan celah 2,5 mm digam
 
 **Pembaruan 11 Okt. 2026 (hanya teks dokumen ini):** hasil ukur load cell (130 × 28 × 21,5 mm), ulir lubang pasang (M6, tembus, bibir kisi Ø8 mm), dan diameter kabel (4 mm) sudah dimasukkan. Ringkasan di Bagian 8. **Gambar SVG v5 belum digambar ulang** dan masih memuat label lama (misalnya kabel Ø5, tinggi load cell 22).
 
+**Pembaruan 31 Okt. 2026:** pola lubang pasang terukur dan cocok dengan gambar penjual (12 / 106 / 15 mm, Bagian 8.1). Lubang spacer di model menjadi Ø7,6 mm (`hole_d` + `comp_hole`) supaya tercetak sekitar Ø6,6 mm (Bagian 2.4).
+
 **Pembaruan 12 Okt. 2026 (hanya teks dokumen ini):** gambar yang berlaku sekarang bukan lagi v5, melainkan:
 - `potongan_memanjang.svg` dan `kalibrasi_setup.svg`;
 - `exploded_isometrik.svg` (panah stiker beban menunjuk ke arah B; lihat 4.1);
@@ -27,7 +29,7 @@ Berkas v5 di tabel di bawah hanya riwayat. Dokumen ini adalah gabungan: isi asum
 ## 1. Perubahan dari v4
 
 1. **Load cell diganti** dengan CZL601. Ukuran di gambar penjual 130 × 28 × 22 mm; **terukur 130 × 28 × 21,5 mm (10 Okt. 2026, jangka sorong)**. Ukuran lama 147 × 30 × 22 mm dari load cell 180 kg tidak dipakai lagi. Load cell ditaruh di tengah pelat 170 mm, jadi sisa pelat 20 mm di tiap ujung.
-2. **Lubang pasang:** 4 × M6, dua per ujung. Pusat lubang 12 mm dari ujung load cell, 106 mm antar pasangan, dan 15 mm melintang (angka dari gambar penjual, belum diukur). Lubang pelat dan spacer sejajar dengan lubang load cell. Diameter lubang: **Ø6,6 mm di pelat** dan **Ø7,0 mm di spacer PLA** (keputusan 11 Okt. 2026; gambar SVG v5 belum memuat angka ini). **Ulir lubang di load cell terukur M6** (diameter dalam 5,0 dan 5,2 mm; bibir kisi Ø8 mm; tembus lurus), lihat Bagian 8.
+2. **Lubang pasang:** 4 × M6, dua per ujung. Pusat lubang 12 mm dari ujung load cell, 106 mm antar pasangan, dan 15 mm melintang (gambar penjual; terukur 31 Okt. 2026 dan cocok, Bagian 8.1). Lubang pelat dan spacer sejajar dengan lubang load cell. Diameter lubang: **Ø6,6 mm di pelat** dan **Ø7,0 mm di spacer PLA** (keputusan 11 Okt. 2026; diganti 31 Okt. 2026: Ø7,6 di model, tercetak ≈Ø6,6, Bagian 2.4; gambar SVG v5 belum memuat angka ini). **Ulir lubang di load cell terukur M6** (diameter dalam 5,0 dan 5,2 mm; bibir kisi Ø8 mm; tembus lurus), lihat Bagian 8.
 3. **Tonjolan dihapus**, dan pelat A/B menjadi **pelat aluminium 10 mm polos** (sudah diputuskan; paduan **6061-T6**, alternatif 5052-H32, keputusan 11 Okt. 2026). Counterbore v4 juga dihapus, karena pelat polos tidak difrais.
 4. **Spacer PLA terpisah:**
    - Spacer A dan Spacer B, masing-masing 28 × 28 × 2,5 mm, menutup kedua lubang di ujungnya.
@@ -101,7 +103,7 @@ Semua sel lain berselisih ≤ 1,4%. Tabel lama di `koreksi_v3.md` (a = 43,5, x =
 | **Sisa dari celah 2,5 mm** | **≈0,46 mm** (boss 24: lenturan 0,30, sisa ≈0,40 mm) |
 
 ### 2.4 Catatan Ø lubang
-Keputusan 11 Okt. 2026: **lubang pelat Ø6,6 mm** (lubang lewat M6 seri sedang, ISO 273) dan **lubang spacer Ø7,0 mm** (Ø pelat + 0,4). Kasus Ø5,5 dihitung sesuai instruksi awal, tetapi **tidak mungkin dipakai sebagai lubang lewat baut M6**, karena diameter nominal ulir M6 = 6 mm. Kasus Ø6,5 lebih realistis. Sebagai pembanding, lubang lewat M6 menurut ISO 273 biasanya 6,4 / 6,6 / 7,0 mm. Dengan Ø6,6, σ_net Al 10 / boss 28 ≈ 91 MPa (Al 8 / boss 28 ≈ 142 MPa; Al 10 / boss 24 ≈ 101 MPa; Al 8 / boss 24 ≈ 157 MPa). Paduan 6061-T6 punya luluh minimum ≈240 MPa, jadi faktor keamanan ≈2,6 (91 MPa) dan ≈2,4 (101 MPa). Ø lubang pelat **6,6 mm**, ulir load cell terukur M6.
+Keputusan 11 Okt. 2026: **lubang pelat Ø6,6 mm** (lubang lewat M6 seri sedang, ISO 273) dan **lubang spacer Ø7,0 mm** (Ø pelat + 0,4). **Diganti 31 Okt. 2026:** lubang spacer di model = `hole_d` + `comp_hole` = 6,6 + 1 = **Ø7,6 mm**, mengikuti aturan housing elektronik. Lubang bulat kecil hasil cetak tim menyusut sekitar 1 mm (laporan modul 3D: M3 3,4 → 2,4), jadi hasil cetaknya sekitar Ø6,6 mm, sama dengan lubang pelat. Kasus Ø5,5 dihitung sesuai instruksi awal, tetapi **tidak mungkin dipakai sebagai lubang lewat baut M6**, karena diameter nominal ulir M6 = 6 mm. Kasus Ø6,5 lebih realistis. Sebagai pembanding, lubang lewat M6 menurut ISO 273 biasanya 6,4 / 6,6 / 7,0 mm. Dengan Ø6,6, σ_net Al 10 / boss 28 ≈ 91 MPa (Al 8 / boss 28 ≈ 142 MPa; Al 10 / boss 24 ≈ 101 MPa; Al 8 / boss 24 ≈ 157 MPa). Paduan 6061-T6 punya luluh minimum ≈240 MPa, jadi faktor keamanan ≈2,6 (91 MPa) dan ≈2,4 (101 MPa). Ø lubang pelat **6,6 mm**, ulir load cell terukur M6.
 
 ## 3. Pemeriksaan spacer PLA dan baut
 
@@ -183,7 +185,7 @@ Aturan: ikuti instruksi yang lebih spesifik.
 
 ## 6. Keputusan terbuka dan nilai yang masih asumsi
 Tidak ada lagi butir yang belum ditentukan. Nilai yang **diukur**: lebar 28 mm, tinggi 21,5 mm, ulir M6 tembus dari kedua sisi, minor 5,0–5,2 mm, Ø kabel 4 mm. Nilai dari **standar atau datasheet**: lubang lewat M6 6,6 mm (ISO 273), washer 1,6 mm (ISO 7089), overload 96/120 kgf (DS-LC1). Nilai **asumsi desain** (11–12 Okt. 2026) yang perlu dicek pada benda nyata:
-- jarak lubang 12 / 106 / 15 mm (masih dari gambar penjual);
+- ~~jarak lubang 12 / 106 / 15 mm~~: terukur 31 Okt. 2026, cocok (Bagian 8.1);
 - panjang kabel ≈28 cm, lubang kabel Ø5 mm di muka samping (terukur), **kedalaman lubang Ø5 ≈14 mm (asumsi, belum terukur)**, radius tekuk 10 mm, klip menyatu dengan Spacer A (rak ≈16 × 10 mm, blok 8,2 × 8 × ≈17,4 mm, Ø4,1 mm, kabel dilem tembak; tanpa lem ke aluminium);
 - arah panah stiker beban pada benda nyata (digambar menunjuk ke arah B, dikoreksi pengguna 12 Okt. 2026);
 - anggaran celah: load cell 0,5 mm, penutup 1,0 mm, margin 0,3 mm;
@@ -213,7 +215,20 @@ Tidak ada lagi butir yang belum ditentukan. Nilai yang **diukur**: lebar 28 mm, 
 | Panah beban | Belum diketahui (C5) | **Di muka ujung bebas, menunjuk ke arah B** (searah tebal 21,5). Semula tercatat "ke bawah"; arah dikoreksi pengguna 12 Okt. 2026, lihat 4.1 | Sketsa pengguna, 11 Okt. 2026; koreksi 12 Okt. 2026 |
 | Baut M6 × 25 untuk grup | Tercantum di daftar kebutuhan komponen kelompok | Cocok dengan ulir M6 | — |
 
-Dampak pada dokumen ini: 1 (butir 1, 2, 12), 3.3, 3.4, 4.1, dan 6. Jarak antar lubang dan jarak dari ujung (106 / 15 / 12 mm) belum diukur. Ulir M6 dengan tembus lurus berarti baut M6 × 25 tidak mentok di dasar lubang.
+Dampak pada dokumen ini: 1 (butir 1, 2, 12), 3.3, 3.4, 4.1, dan 6. Jarak antar lubang dan jarak dari ujung (106 / 15 / 12 mm) diukur kemudian, lihat 8.1. Ulir M6 dengan tembus lurus berarti baut M6 × 25 tidak mentok di dasar lubang.
+
+### 8.1 Pola lubang pasang (terukur 31 Okt. 2026)
+
+Cara ukur: jangka sorong digital. Celah dalam g (rahang luar dijepitkan ke logam di antara dua lubang) dan bentang luar S (rahang dalam dibuka ke tepi jauh kedua lubang), keduanya ke tepi yang sama. Jarak pusat = (S + g) / 2, jadi diameter lubang tidak ikut masuk hitungan.
+
+| Ukuran | Pembacaan | Hasil | Gambar penjual |
+|---|---|---|---|
+| Pasangan melintang | g 9,5–10; S 20–20,5 | **15 ± 0,25** | 15 |
+| Pasangan memanjang | g 100,5–101; S 110,5–111 | **105,75 ± 0,25** | 106 |
+| Tepi lubang ke muka ujung | 9,5 di keempat lubang | pusat ≈ **12,1** (tepi + ≈2,6) | 12 |
+| Tepi lubang ke muka samping | 3,5 di keempat lubang | pola di tengah lebar | di tengah |
+
+Cek: (S − g) / 2 ≈ 5 mm di kedua pasangan, yaitu tepi ulir (minor M6), jadi semua pembacaan menyentuh tepi yang sama. Panjang: 12,1 + 105,75 + 12,1 ≈ 130 (cocok dengan panjang terukur). Lebar: 3,5 + 20,25 + 3,5 ≈ 27,3, kurang ≈0,7 dari 28; diduga rahang duduk di tepi load cell yang membulat. Karena keempat lubang sama, pola dianggap di tengah lebar, dan bengkel mengukur dari garis tengah, bukan dari tepi. Selisih 105,75 terhadap 106 masih di dalam kelonggaran lubang pelat Ø6,6 (0,3 per sisi), jadi CSV tetap 106. Ring Ø12 berjarak pusat 15 menyisakan celah 3 mm.
 
 ## 9. Riwayat versi sebelumnya (dipadatkan dari asumsi v2, v3, dan v4)
 Berkas lama itu dihapus pada 12 Okt. 2026. Angka di tabel ini milik rancangan lama dan **tidak berlaku**; yang disimpan hanya keputusan dan alasannya.

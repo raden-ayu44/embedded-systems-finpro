@@ -2,11 +2,12 @@ Name,Unit,Expression,Value,Comments,Favorite
 LC_L,mm,130 mm,130 mm,panjang load cell CZL 601 80 kg,false
 LC_W,mm,28 mm,28 mm,terukur; beda 28 vs 30 mm selesai,false
 LC_H,mm,21.5 mm,21.5 mm,terukur 10 Okt. 2026,true
-hole_pitch,mm,106 mm,106 mm,"jarak antar pasangan lubang M6; dari gambar penjual, ukur ulang",false
-hole_cross,mm,15 mm,15 mm,"jarak melintang dua lubang M6; dari gambar penjual, ukur ulang",false
-hole_edge,mm,12 mm,12 mm,"pusat lubang dari ujung load cell; dari gambar penjual, ukur ulang",false
+hole_pitch,mm,106 mm,106 mm,"jarak antar pasangan lubang M6; terukur 105.75 +- 0.25 (31 Okt. 2026), cocok gambar penjual",false
+hole_cross,mm,15 mm,15 mm,"jarak melintang dua lubang M6; terukur 15 +- 0.25 (31 Okt. 2026), pola di tengah lebar",false
+hole_edge,mm,12 mm,12 mm,"pusat lubang dari ujung load cell; terukur kira-kira 12.1 (31 Okt. 2026)",false
 hole_d,mm,6.6 mm,6.6 mm,"lubang lewat M6, ISO 273 seri sedang",false
-hole_sp_d,mm,hole_d + 0.4 mm,7 mm,"lubang spacer PLA (7,0 mm)",false
+comp_hole,mm,1 mm,1 mm,"kompensasi susut lubang bulat kecil (diameter), sama dengan housing elektronik; dari laporan modul 3D: M3 3.4->2.4",true
+hole_sp_d,mm,hole_d + comp_hole,7.6 mm,"lubang spacer PLA di model; tercetak kira-kira 6.6 (= hole_d)",false
 bar_L,mm,170 mm,170 mm,"pelat A/B aluminium 6061-T6, polos",false
 bar_W,mm,30 mm,30 mm,lebar pelat A/B,false
 bar_t,mm,10 mm,10 mm,tebal pelat A/B,true
