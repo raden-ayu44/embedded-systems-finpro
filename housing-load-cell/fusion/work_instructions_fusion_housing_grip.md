@@ -126,7 +126,7 @@ Hasil akhir yang dituju:
 
 ## Gerbang keputusan
 
-1. Sebelum mencetak klem: karet kabel di badan load cell dicek apakah menonjol (`cable_x` sudah terukur 1 Nov. 2026).
+1. Sebelum mencetak klem: posisi kabel dan pangkal kabel sudah dicek 1 Nov. 2026 (`cable_x` 5,3; tanpa karet yang menonjol, kabel keluar dari lubang berchamfer). Tinggal cetak uji Fase 10.
 2. Sebelum mengebor pelat: pola lubang dari CSV (12 / 106 / 15, terukur 31 Okt. 2026) dan STEP sudah dicek.
 3. Sebelum mencetak: cetak uji klem lolos dan slice review disetujui.
 4. Sebelum kalibrasi: ikuti protokol kalibrasi; beban menekan pelat B ke arah pelat A.
