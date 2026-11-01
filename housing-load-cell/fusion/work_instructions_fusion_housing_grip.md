@@ -21,11 +21,11 @@ Hasil akhir yang dituju:
 
 | Bagian | Ukuran |
 |---|---|
-| Load cell acuan | 130 x 28 x 21,5; 4 lubang di (±53, ±7,5); lubang kabel Ø5 di sisi −y, x −60, z 10,75 |
+| Load cell acuan | 130 x 28 x 21,5; 4 lubang di (±53, ±7,5); lubang kabel Ø5 di sisi −y, x −59,7, z 10,75 |
 | Spacer A (atas, ujung tetap) | pelat 27 x 34 x 2,5 di z 21,5 sampai 24, x −68 sampai −41; bidang kontak 24 x 28 |
 | Bibir Spacer A | 2,5 x 2,5 di muka ujung dan sisi +y, turun ke z 19; lebar dalam 29; bibir ujung 0,5 dari muka ujung load cell |
 | Dinding klem Spacer A | sisi −y, tebal 2,5, sepanjang spacer, turun ke z 2,5 |
-| Slot jepit kabel | lubang Ø5 di x −60, z 10,75; mulut 3,8 dari tepi bawah dinding ke lubang |
+| Slot jepit kabel | lubang Ø5 di x −59,7, z 10,75; mulut 3,8 dari tepi bawah dinding ke lubang |
 | Lubang Spacer A | Ø7,6 di (−53, ±7,5) |
 | Spacer B (bawah, ujung bebas) | pelat 27 x 34 x 2,5 di z −2,5 sampai 0, x 41 sampai 68; bibir di muka ujung dan kedua sisi, naik ke z 2,5; lubang Ø7,6 di (53, ±7,5) |
 | Pelat A | 170 x 30 x 10 di z 24 sampai 34; lubang Ø6,6 hanya di (−53, ±7,5) |
@@ -65,7 +65,7 @@ Hasil akhir yang dituju:
 ## Fase 4: slot jepit kabel (dinding klem Spacer A)
 
 - [ ] **Sketch** pada muka luar dinding klem (y −17):
-  - lingkaran Ø`clamp_hole_d` dengan pusat di x = `-LC_L / 2 + cable_x` (−60), z = `cable_z` (10,75);
+  - lingkaran Ø`clamp_hole_d` dengan pusat di x = `-LC_L / 2 + cable_x` (−59,7), z = `cable_z` (10,75);
   - persegi panjang selebar `clamp_mouth_w`, berpusat di x yang sama, dari tepi bawah dinding (z 2,5) sampai pusat lingkaran.
 - [ ] **Trim** garis di dalam lingkaran supaya lubang dan mulut menjadi satu profil.
 - [ ] **Extrude** profil itu menembus dinding (**Through All** ke arah +y, atau jarak `clamp_wall_t`), **Cut**, Objects = `Spacer_A` saja.
@@ -102,7 +102,7 @@ Hasil akhir yang dituju:
   - jarak `Spacer_A` ke `Bar_B` dan `Spacer_B` ke `Bar_A` ≥ `ab_min_cl`;
   - tebal total dari muka atas `Bar_A` ke dasar ridge = `total_t`.
 - [ ] **Inspect > Section Analysis** pada bidang x = −53 dan x = 53: lubang pelat, spacer, dan load cell segaris; bandingkan dengan gambar Spacer A potongan c.
-- [ ] Uji parameter: ubah `cable_x` ke 4,8, pastikan slot ikut bergeser; ubah `fit_cl` ke 0,3, pastikan lebar dalam spacer menjadi 29,2; lalu kembalikan.
+- [ ] Uji parameter: ubah `cable_x` ke 5,0, pastikan slot ikut bergeser; ubah `fit_cl` ke 0,3, pastikan lebar dalam spacer menjadi 29,2; lalu kembalikan.
 - [ ] Simpan versi dengan deskripsi.
 
 ## Fase 9: ekspor
@@ -126,7 +126,7 @@ Hasil akhir yang dituju:
 
 ## Gerbang keputusan
 
-1. Sebelum mencetak klem: `cable_x` dikonfirmasi dengan satu bacaan lagi, dan karet kabel di badan load cell dicek apakah menonjol.
+1. Sebelum mencetak klem: karet kabel di badan load cell dicek apakah menonjol (`cable_x` sudah terukur 1 Nov. 2026).
 2. Sebelum mengebor pelat: pola lubang dari CSV (12 / 106 / 15, terukur 31 Okt. 2026) dan STEP sudah dicek.
 3. Sebelum mencetak: cetak uji klem lolos dan slice review disetujui.
 4. Sebelum kalibrasi: ikuti protokol kalibrasi; beban menekan pelat B ke arah pelat A.

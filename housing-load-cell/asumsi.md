@@ -230,6 +230,10 @@ Cara ukur: jangka sorong digital. Celah dalam g (rahang luar dijepitkan ke logam
 
 Cek: (S − g) / 2 ≈ 5 mm di kedua pasangan, yaitu tepi ulir (minor M6), jadi semua pembacaan menyentuh tepi yang sama. Panjang: 12,1 + 105,75 + 12,1 ≈ 130 (cocok dengan panjang terukur). Lebar: 3,5 + 20,25 + 3,5 ≈ 27,3, kurang ≈0,7 dari 28; diduga rahang duduk di tepi load cell yang membulat. Karena keempat lubang sama, pola dianggap di tengah lebar, dan bengkel mengukur dari garis tengah, bukan dari tepi. Selisih 105,75 terhadap 106 masih di dalam kelonggaran lubang pelat Ø6,6 (0,3 per sisi), jadi CSV tetap 106. Ring Ø12 berjarak pusat 15 menyisakan celah 3 mm.
 
+### 8.2 Posisi kabel (terukur 1 Nov. 2026)
+
+Jangka sorong menjepit dari muka ujung load cell ke sisi kabel yang menghadap tengah load cell. Kabel didorong ke arah ujung: 6,7; ke arah tengah: 8,0; menggantung bebas: 6,7–7. Jadi tepi jauh lubang di 8,0 dan tepi dekat di 6,7 − 4 = 2,7: lubang ≈ Ø5,3 (Ø5 terukur ditambah kabel karet yang tertekan), **pusat 5,35 dari muka ujung**. Catatan 11 Okt. (pusat 4,2 dengan anggapan 6,7 = tepi lubang) diganti angka ini. Arah tinggi: pusat ≈ 10,2–10,5 dari muka bawah, dekat `LC_H` / 2. Klem kabel memakai `cable_x` = 5,3 (pusat lubang), sehingga kabel punya ruang ±0,65 di dalam lubang load cell dan tidak ditekuk di pangkalnya.
+
 ## 9. Riwayat versi sebelumnya (dipadatkan dari asumsi v2, v3, dan v4)
 Berkas lama itu dihapus pada 12 Okt. 2026. Angka di tabel ini milik rancangan lama dan **tidak berlaku**; yang disimpan hanya keputusan dan alasannya.
 

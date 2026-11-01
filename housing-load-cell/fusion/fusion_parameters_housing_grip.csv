@@ -25,7 +25,7 @@ spA_c,mm,-(LC_L / 2 - boss_L / 2),-53 mm,"pusat bidang kontak Spacer A dari teng
 spB_c,mm,LC_L / 2 - boss_L / 2,53 mm,"pusat bidang kontak Spacer B dari tengah load cell (ujung bebas, sisi bawah)",false
 lever_arm,mm,LC_L / 2 - boss_L,41 mm,"lengan tuas a dari tepi dalam spacer ke tengah load cell (kasus boss_L 24 di asumsi.md, lolos)",false
 cable_d,mm,4 mm,4 mm,"diameter kabel load cell; terukur 11 Okt. 2026",false
-cable_x,mm,5 mm,5 mm,"WAJIB, KONFIRMASI: pusat kabel dari muka ujung load cell (ujung tetap); ukur 31 Okt. 2026 kira-kira 4.8-5.1, satu bacaan lagi diperlukan",true
+cable_x,mm,5.3 mm,5.3 mm,"WAJIB: pusat kabel = pusat lubang kabel load cell dari muka ujung (ujung tetap); terukur 1 Nov. 2026: tepi jauh kabel 6.7 (didorong ke ujung) dan 8.0 (ke tengah), jadi lubang 2.7-8.0, pusat 5.35; kabel menggantung bebas 4.7-5.0",true
 cable_z,mm,LC_H / 2,10.75 mm,"pusat kabel dari muka bawah load cell; ukur 31 Okt. 2026 kira-kira 10.2-10.5, masih di dalam kelonggaran slot",false
 cable_hole_d,mm,5 mm,5 mm,"lubang kabel di muka samping panjang load cell (sisi -y); terukur",false
 clamp_wall_t,mm,2.5 mm,2.5 mm,"tebal dinding klem di sisi kabel Spacer A (sisi -y), sepanjang spacer",false
