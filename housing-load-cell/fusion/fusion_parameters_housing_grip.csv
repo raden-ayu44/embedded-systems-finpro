@@ -30,8 +30,16 @@ cable_z,mm,LC_H / 2,10.75 mm,"pusat kabel dari muka bawah load cell; ukur 31 Okt
 cable_hole_d,mm,5 mm,5 mm,"lubang kabel di muka samping panjang load cell (sisi -y); terukur",false
 clamp_wall_t,mm,2.5 mm,2.5 mm,"tebal dinding klem di sisi kabel Spacer A (sisi -y), sepanjang spacer",false
 wall_bottom_z,mm,2.5 mm,2.5 mm,"WAJIB: tepi bawah dinding klem di atas muka bawah load cell; jarak ke pelat B = wall_bottom_z + gap = 5",true
-clamp_hole_d,mm,cable_d + comp_hole,5 mm,"WAJIB: lubang jepit kabel di dinding klem (model); tercetak kira-kira 4 = pas kabel",true
-clamp_mouth_w,mm,cable_d - 0.8 mm + comp_xy,3.8 mm,"WAJIB: lebar mulut slot dari tepi bawah dinding ke lubang jepit (model); tercetak kira-kira 3.2, kabel ditekan masuk dan tertahan",true
+notch_w,mm,cable_d + comp_xy,4.6 mm,"WAJIB: lebar takik kabel di dinding klem, terbuka ke bawah (ke arah pelat B); tercetak kira-kira 4 = pas kabel",true
+notch_top_z,mm,cable_z + cable_d / 2 + comp_z / 2,13.25 mm,"WAJIB: puncak takik (bulat, jari-jari notch_w / 2) dari muka bawah load cell; kabel duduk di puncak takik",true
+pad_L,mm,12 mm,12 mm,"panjang bantalan zip tie di muka luar dinding klem (arah x), berpusat di cable_x",false
+pad_t,mm,6 mm,6 mm,"bantalan menjorok keluar dari muka luar dinding klem (arah -y); lebar total di ujung tetap = spacer_W + pad_t",false
+tie_w,mm,2.5 mm,2.5 mm,"lebar zip tie (ukuran umum 2.5 x 100 mm)",false
+tie_t,mm,1 mm,1 mm,"tebal pita zip tie",false
+tun_w,mm,tie_w + comp_xy + 0.4 mm,3.5 mm,"lebar terowongan zip tie di bantalan (arah y); terowongan tembus sepanjang pad_L (arah x)",false
+tun_h,mm,tie_t + comp_z + 0.4 mm,2.4 mm,"tinggi terowongan zip tie (arah z)",false
+tun_floor,mm,1.5 mm,1.5 mm,"tebal lantai terowongan di atas kabel; terowongan mulai di notch_top_z + tun_floor",false
+tun_y,mm,pad_t / 2,3 mm,"pusat terowongan dari muka luar dinding klem (arah -y)",false
 ab_min_cl,mm,2 mm,2 mm,"WAJIB: jarak minimum bagian mana pun di sisi A ke bagian mana pun di sisi B (aturan satu jalur gaya); asumsi desain",true
 bar_L,mm,170 mm,170 mm,"pelat A dan B aluminium 6061-T6, polos",false
 bar_W,mm,30 mm,30 mm,lebar pelat A dan B,false
