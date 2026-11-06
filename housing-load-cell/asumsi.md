@@ -10,6 +10,8 @@ Berkas v4 tidak ditimpa. Semua gambar **tidak berskala**, dan celah 2,5 mm digam
 
 **Pembaruan 11 Okt. 2026 (hanya teks dokumen ini):** hasil ukur load cell (130 × 28 × 21,5 mm), ulir lubang pasang (M6, tembus, bibir kisi Ø8 mm), dan diameter kabel (4 mm) sudah dimasukkan. Ringkasan di Bagian 8. **Gambar SVG v5 belum digambar ulang** dan masih memuat label lama (misalnya kabel Ø5, tinggi load cell 22).
 
+**Pembaruan 6 Nov. 2026:** Bagian 2 dan 3 dihitung ulang dengan ukuran load cell terukur, `boss_L` 24 dari CSV, dan baut yang dibeli (flange A2-70); rincian di `desain-housing-load-cell.md` HL9.
+
 **Pembaruan 31 Okt. 2026:** pola lubang pasang terukur dan cocok dengan gambar penjual (12 / 106 / 15 mm, Bagian 8.1). Lubang spacer di model menjadi Ø7,6 mm (`hole_d` + `comp_hole`) supaya tercetak sekitar Ø6,6 mm (Bagian 2.4).
 
 **Pembaruan 12 Okt. 2026 (hanya teks dokumen ini):** gambar yang berlaku sekarang bukan lagi v5, melainkan:
@@ -50,96 +52,64 @@ Berkas v5 di tabel di bawah hanya riwayat. Dokumen ini adalah gabungan: isi asum
 
 ## 2. Hitungan kekakuan
 
+**Dihitung ulang 6 Nov. 2026** dengan ukuran load cell terukur (Bagian 8, 8.1) dan geometri CSV v13 (`boss_L` 24): a = 41 mm, x = 106 mm, bentang bebas 82 mm. Metode, diagram V dan M, dan semua tabel ada di [desain-housing-load-cell.md, HL9](desain-housing-load-cell.md#hl9-temuan-kekakuan-batang-dan-usulan-bahan); bagian ini hanya ringkasan supaya tidak ada dua versi angka.
+
 ### Model
-- **Model:** sama dengan model v4 (lihat Bagian 9). Kantilever, F = 686 N (70 kgf), lebar pelat b = 30 mm, I = b·h³/12, E aluminium 70 GPa.
-- **Beban:** terpusat di tengah load cell.
-- **Geometri:** a = 130/2 − boss_L, x = 130 − boss_L.
-- **Rumus:**
-  - δ(a) = F·a³ / (3EI)
-  - δ(x) = F·a²(3x − a) / (6EI)
-  - σ = F·a·(h/2) / I
-  - σ_net = σ·b / (b − 2d)
-- **Keterbatasan:**
-  - Spacer dan baut dianggap kaku.
-  - Lenturan load cell sendiri, tinggi penutup, dan margin rakit tidak termasuk.
-  - σ_net konservatif, karena lubang berada 16 mm di dalam spacer (12 mm dari ujung), bukan di tepi dalam spacer tempat momen terbesar.
-  - Ini hitungan kasar untuk arah desain, bukan verifikasi.
+- Urutan Beer, Johnston, dan DeWolf Bab 5: diagram benda bebas, reaksi, diagram V dan M, σ = M/S, S_min = M_maks/σ_izin.
+- F = 686 N (70 kgf). Pelat Al 6061-T6 30 x 10 mm, I = 2 500 mm⁴, S = 500 mm³, S_bersih (2 lubang Ø6,6) = 280 mm³, E 70 GPa, luluh 240 MPa.
+- Lenturan: kantilever dijepit di tepi dalam spacer; tiga kasus beban (terpusat di tengah, merata di zona genggam 85 mm, resultan bergeser 10 mm). Kasus merata dipakai.
+- Keterbatasan: spacer dan baut dianggap kaku; lenturan load cell, tinggi penutup, dan margin rakit masih asumsi; hitungan kasar untuk arah desain, bukan verifikasi.
 
-### 2.1 Hasil (dihitung ulang) dan perbandingan dengan tabel `koreksi_v4.md` bagian E
+### 2.1 Hasil (Al 10 mm, `boss_L` 24)
 
-| Pelat | boss_L | a / x | δ titik beban | δ ujung jauh | Sisa celah 2,5* | σ pangkal | σ_net Ø5,5 / Ø6,5 |
-|---|---|---|---|---|---|---|---|
-| **Al 10 mm (digambar)** | **28** | **37 / 102** | **0,066 mm** | **0,241 mm** | **≥ 2,26 mm** | **50,8 MPa** | **80 / 90 MPa** |
-| Al 8 mm (pembanding) | 28 | 37 / 102 | 0,129 mm | 0,470 mm | ≥ 2,03 mm | 79,3 MPa | 125 / 140 MPa |
-| Al 10 mm | 24 | 41 / 106 | 0,090 mm | 0,304 mm | ≥ 2,20 mm | 56,3 MPa | 89 / 99 MPa |
-| Al 8 mm (pembanding) | 24 | 41 / 106 | 0,176 mm | 0,594 mm | ≥ 1,91 mm | 87,9 MPa | 139 / 155 MPa |
+| Besaran | Nilai |
+|---|---|
+| M_maks di tepi dalam spacer | 28 126 N·mm (terpusat); 28 135 N·mm (merata) |
+| σ penampang pejal / berlubang (batas atas) | 56,3 MPa (faktor aman 4,3) / 100,5 MPa (faktor aman 2,4) |
+| S_min (faktor aman 2) | 234 mm³; tebal minimum 6,9 mm pejal, 9,2 mm berlubang |
+| Lenturan ujung jauh: terpusat / merata / bergeser 10 mm | 0,304 / **0,381** / 0,454 mm |
 
-\* Sisa celah = 2,5 mm dikurangi lenturan ujung jauh saja.
-
-Aluminium 8 mm hanya pembanding dan tidak digambar.
-
-**Selisih lebih dari 2% terhadap tabel acuan:**
-
-| Sel | Acuan | Hitungan ini | Selisih | Sebab |
-|---|---|---|---|---|
-| Al 10 / boss 28, δ titik beban | 0,07 mm | 0,066 mm | −5,4% | **Pembulatan.** 0,0662 dibulatkan ke 2 desimal menjadi 0,07. Dengan 3 desimal nilainya 0,066. Tidak ada beda model. |
-| Al 8 / boss 24, δ titik beban | 0,16 mm | 0,176 mm | +9,9% | **Nilai acuan tidak konsisten**, bukan pembulatan. Dengan a dan E yang sama, rasio Al 8 terhadap Al 10 harus (10/8)³ = 1,95. Hitungannya 0,090 × 1,95 = 0,176. Nilai 0,16 hanya keluar bila a ≈ 39,7 mm. Kemungkinan salah hitung atau salah ketik di acuan. Kolom lain di baris yang sama (δ ujung jauh 0,59, σ 88) cocok dengan a = 41. |
-
-Semua sel lain berselisih ≤ 1,4%. Tabel lama di `koreksi_v3.md` (a = 43,5, x = 117) sudah digantikan dan tidak dipakai.
+Hitungan lama (spacer 28, a = 37, x = 102, beban terpusat: 0,241 mm, 50,8 MPa, σ_net Ø6,6 91 MPa) diganti. Catatan lama bahwa beban terpusat "konservatif" hanya benar untuk momen, tidak untuk lenturan ujung jauh.
 
 ### 2.2 Apakah celah 2,5 mm terlampaui di bawah beban?
-- **Al 10 mm (digambar):** lenturan ujung jauh 0,24 mm (boss 28) sampai 0,30 mm (boss 24). **Celah tidak terlampaui** oleh lenturan pelat. Setelah anggaran celah 2.3, sisa celah ≈0,46 mm (boss 28) dan ≈0,40 mm (boss 24).
-- **Dibanding v4:** lenturan ujung jauh turun dari 0,80 mm menjadi 0,24 mm. Penyebabnya, a turun dari 60 ke 37 mm berkat spacer 28 mm, padahal v4 memakai tonjolan ≈13,5 mm dengan load cell 147 mm.
+Tidak. Lenturan ujung jauh 0,38 mm (beban merata), jadi sisa celah 2,12 mm sebelum anggaran dan ≈0,32 mm setelah anggaran 2.3. Bila posisi jari meleset 10 mm ke ujung jauh, sisa ≈0,25 mm.
 
-### 2.3 Anggaran celah (Al 10, boss 28)
+### 2.3 Anggaran celah (Al 10, `boss_L` 24, beban merata)
 
 | Komponen | Nilai |
 |---|---|
-| Lenturan ujung jauh pelat | 0,24 mm |
+| Lenturan ujung jauh pelat | 0,38 mm |
 | Lenturan load cell sendiri pada 70 kgf | 0,5 mm (asumsi desain; belum diukur) |
-| Tinggi penutup/area tengah di atas permukaan | 1,0 mm (asumsi desain) |
+| Tinggi penutup/area tengah di atas permukaan | 1,0 mm (asumsi desain; **ukur sebelum pelat dibor**, angka terbesar di anggaran) |
 | Margin rakit (kerataan pelat, spacer, baut) | 0,3 mm (asumsi desain) |
-| **Total terpakai** | **2,04 mm** |
-| **Sisa dari celah 2,5 mm** | **≈0,46 mm** (boss 24: lenturan 0,30, sisa ≈0,40 mm) |
+| **Total terpakai** | **2,18 mm** |
+| **Sisa dari celah 2,5 mm** | **≈0,32 mm** |
 
 ### 2.4 Catatan Ø lubang
-Keputusan 11 Okt. 2026: **lubang pelat Ø6,6 mm** (lubang lewat M6 seri sedang, ISO 273) dan **lubang spacer Ø7,0 mm** (Ø pelat + 0,4). **Diganti 31 Okt. 2026:** lubang spacer di model = `hole_d` + `comp_hole` = 6,6 + 1 = **Ø7,6 mm**, mengikuti aturan housing elektronik. Lubang bulat kecil hasil cetak tim menyusut sekitar 1 mm (laporan modul 3D: M3 3,4 → 2,4), jadi hasil cetaknya sekitar Ø6,6 mm, sama dengan lubang pelat. Kasus Ø5,5 dihitung sesuai instruksi awal, tetapi **tidak mungkin dipakai sebagai lubang lewat baut M6**, karena diameter nominal ulir M6 = 6 mm. Kasus Ø6,5 lebih realistis. Sebagai pembanding, lubang lewat M6 menurut ISO 273 biasanya 6,4 / 6,6 / 7,0 mm. Dengan Ø6,6, σ_net Al 10 / boss 28 ≈ 91 MPa (Al 8 / boss 28 ≈ 142 MPa; Al 10 / boss 24 ≈ 101 MPa; Al 8 / boss 24 ≈ 157 MPa). Paduan 6061-T6 punya luluh minimum ≈240 MPa, jadi faktor keamanan ≈2,6 (91 MPa) dan ≈2,4 (101 MPa). Ø lubang pelat **6,6 mm**, ulir load cell terukur M6.
+Keputusan 11 Okt. 2026: **lubang pelat Ø6,6 mm** (lubang lewat M6 seri sedang, ISO 273) dan **lubang spacer Ø7,0 mm** (Ø pelat + 0,4). **Diganti 31 Okt. 2026:** lubang spacer di model = `hole_d` + `comp_hole` = 6,6 + 1 = **Ø7,6 mm**, mengikuti aturan housing elektronik. Lubang bulat kecil hasil cetak tim menyusut sekitar 1 mm (laporan modul 3D: M3 3,4 → 2,4), jadi hasil cetaknya sekitar Ø6,6 mm, sama dengan lubang pelat. Ø5,5 tidak mungkin dipakai sebagai lubang lewat baut M6. Dengan Ø6,6, σ penampang berlubang (batas atas) ≈100,5 MPa, faktor aman ≈2,4 terhadap luluh 6061-T6 ≈240 MPa.
 
 ## 3. Pemeriksaan spacer PLA dan baut
 
+Dihitung ulang 6 Nov. 2026 untuk bidang kontak 24 x 28 dan baut yang dibeli (flange bolt M6 x 25 stainless A2-70, luluh ≥ 450 MPa); rincian di HL9.7.
+
 ### 3.1 Kompresi spacer (E PLA ≈3 GPa, F = 686 N, tebal 2,5 mm)
+Luas bersih 24 x 28 − 2 lubang Ø6,6 = 603,6 mm²; tekanan rata-rata 1,14 MPa; kompresi ≈0,001 mm. Dapat diabaikan terhadap celah. (Lama: 28 x 28, 0,0008 mm.)
 
-| Kasus | Luas bersih | Kompresi | Tekanan rata-rata |
-|---|---|---|---|
-| Geometri v5: 28 × 28, **2 lubang** Ø6,5 per spacer | 717,6 mm² | 0,0008 mm | 0,96 MPa |
-| Sesuai teks instruksi: 28 × 28, 4 lubang Ø6,5 | 651,3 mm² | 0,0009 mm | 1,05 MPa |
-| Lama (`koreksi_v3.md`): 30 × 30, 4 lubang | 767 mm² | 0,0007 mm (dibulatkan "≈0,001") | — |
+### 3.2 Tekanan tepi spacer dan gaya ungkit
+- Seluruh momen ditahan kontak spacer (perlu preload cukup): S = 28 x 24²/6 = 2 688 mm³, M/S = 10,5 MPa, ditambah 1,14 MPa = **11,6 MPa**.
+- Tanpa preload, pelat berungkit di tepi dalam bidang kontak. Baut 12 mm dari ujung dan 12 mm dari tepi dalam (sebelumnya 16 mm dengan spacer 28): gaya kontak di tepi 686 x 53 / 12 = **3 030 N**, tarik baut 2 344 N = **1 172 N per baut**; tekanan lokal (lebar kontak 5 mm, asumsi) ≈21,6 MPa.
+- Torsi baut **3 N·m** (asumsi desain): preload F_i = T/(K·d) = 2,5 kN (K 0,2) atau 1,67 kN (K 0,3, umum untuk stainless kering), yaitu 2,1 atau 1,4 kali tarik ungkit. Pelat tidak berungkit, tetapi margin tipis bila K 0,3. Cadangan: 4 N·m (2,2 sampai 3,3 kN).
+- Tekanan spacer akibat preload 5,5 sampai 8,3 MPa; dengan tekanan tepi ≈17 sampai 20 MPa, di bawah kisaran tekan PLA ≈50 MPa tetapi rawan creep.
+- **Risiko PLA:** creep/relaksasi preload. Kencangkan ulang 3 N·m sebelum tiap sesi kalibrasi dan setelah 10 sesi; beri tanda cat pada kepala baut untuk melihat bila longgar.
 
-Kompresi spacer dapat diabaikan terhadap celah 2,5 mm di semua kasus. Tiap spacer hanya menutup dua lubang (lihat Pertentangan 4).
-
-### 3.2 Tekanan tepi spacer
-- **Metode lama** (seluruh momen ditahan kontak spacer, penampang utuh, tanpa preload):
-  - M = F·a = 686 × 37 = 25 382 N·mm.
-  - S = 28·28²/6 = 3 659 mm³.
-  - **M/S ≈ 6,9 MPa** (lama 6,6 MPa dengan a = 43,5 dan spacer 30 × 30).
-  - Ditambah tekanan rata-rata ≈1 MPa, tekanan tepi maksimum **≈7,9 MPa**.
-- ⚠ **Keterbatasan metode itu:** baut hanya ada 12 mm dari ujung, yaitu 16 mm dari tepi dalam spacer. Tanpa preload yang cukup, pelat cenderung berungkit di tepi dalam spacer:
-  - tarik baut per ujung ≈ F·a / 16 ≈ 1,6 kN (≈0,8 kN per baut);
-  - gaya kontak di tepi dalam ≈ F·(a + 16) / 16 ≈ 2,3 kN, terpusat di dekat tepi;
-  - tekanan lokalnya bergantung pada lebar kontak (asumsi kerja ≈5 mm, jadi ≈2,3 kN / (28 × 5) ≈ 16 MPa) dan bisa jauh di atas 7,9 MPa. Preload baut menahan ini (lihat di bawah).
-- **Kesimpulan 3.2:** angka 6,9–7,9 MPa hanya berlaku bila preload baut cukup untuk menjaga seluruh permukaan spacer tetap tertekan. Torsi baut **3 N·m** (asumsi desain, di bawah batas baut kelas 8.8) → preload T = K·d·F dengan K = 0,2, jadi F ≈ 3 / (0,2 × 0,006) ≈ **2,5 kN per baut**. Tekanan rata-rata spacer ≈7 MPa dan tepi ≈14 MPa, di bawah kisaran tekan PLA ≈50 MPa tetapi rawan creep.
-- **Risiko PLA:** creep/relaksasi preload. Washer logam di bawah kepala baut mengurangi tekanan di bawah kepala. Washer tidak mencegah creep spacer itu sendiri, jadi perlu cek ulang torsi setelah beberapa kali pakai (prosedur: kencangkan ulang 3 N·m sebelum tiap sesi kalibrasi dan setelah 10 sesi; beri tanda cat pada kepala baut untuk melihat bila longgar).
-
-### 3.3 Panjang baut M6 × 25
-- **Panjang ulir masuk:** 25 − washer (1,6 mm, ISO 7089 untuk M6) − pelat 10 − spacer 2,5 ≈ **10,9 mm**.
-- **Ujung baut tidak menembus** permukaan seberang load cell (tinggi terukur 21,5 mm).
-- **Lubang tembus** (diukur 11 Okt. 2026: berulir, tembus lurus), jadi baut tidak mentok di dasar lubang. Kedalaman ulir efektif sama dengan tinggi load cell.
-- **Kecukupan ulir:** ≈10,9 mm ≈ 1,8 × d. Ulir ada sepanjang 21,5 mm, jadi masuk 10,9 mm masih jauh di bawah panjang ulir yang tersedia.
-- **Kepala baut dan washer** menonjol di luar pelat A (ujung tetap) dan pelat B (ujung bebas), 32 mm dari ujung pelat. Posisinya **di luar zona genggam** (42,5–127,5 mm). Ketebalan lokal di ujung bertambah setinggi washer + kepala (baut kepala segi enam ISO 4017 M6 × 25 kelas 8.8 dengan washer ISO 7089; tonjolan ≈5,6 mm). Tebal total pelat–load cell = 10 + 2,5 + 21,5 + 2,5 + 10 + ridge 5 = 51,5 mm (Al 8 mm ≈ 47,5 mm); kepala baut belum termasuk.
+### 3.3 Panjang dan kekuatan baut M6 x 25
+- **Panjang ulir masuk:** 25 − ring (1,6 mm) − pelat 10 − spacer 2,5 ≈ **10,9 mm** (tanpa ring 12,5 mm), ≈1,8 x d. Lubang berulir tembus lurus (terukur), jadi baut tidak mentok; ujung baut 10,6 mm dari muka seberang load cell.
+- **Tegangan baut:** (preload 2,5 kN + tarik ungkit 1,17 kN) / luas tegangan 20,1 mm² ≤ 183 MPa, faktor aman ≥ 2,5 terhadap luluh A2-70 450 MPa.
+- **Kepala baut:** flange bolt, tinggi kepala belum diukur (sekitar 6 mm untuk ukuran umum; rencana lama ISO 4017 + washer = 5,6 mm). Tonjolan di luar pelat A dan B, 32 mm dari ujung pelat, di luar zona genggam (42,5–127,5 mm). Tebal total pelat–load cell = 10 + 2,5 + 21,5 + 2,5 + 10 + ridge 5 = 51,5 mm; kepala baut belum termasuk.
 
 ### 3.4 Lebar dan panjang spacer
-- **Lebar:** spacer 28 mm. Lebar load cell terukur 28 mm (10 Okt. 2026), jadi spacer selaras dengan lebar load cell. (Sebelumnya, bila load cell 30 mm, spacer lebih sempit 1 mm per sisi, tetapi tetap menutup kedua lubang: pusat ±7,5 mm + jari-jari 3,3 mm = 10,8 mm < 14 mm.)
-- **Panjang:** spacer 28 mm tidak boleh melewati blok ujung ke area tengah. Panjang blok ujung ≈27–28 mm hanya taksiran dari skala gambar penjual, jadi **ukur**. Bila blok hanya 27 mm, spacer 28 mm menumpang 1 mm di area tengah. Kasus boss_L = 24 mm sudah dihitung dan tetap lolos (2.1).
+- **Lebar:** bidang kontak 28 mm, sama dengan lebar load cell terukur; spacer luar 34 mm dengan bibir samping (CSV `spacer_W`).
+- **Panjang:** bidang kontak `boss_L` 24 mm supaya tidak masuk area strain gauge (panjang blok ujung ≈27–28 mm hanya taksiran dari gambar penjual). Spacer luar 27 mm termasuk bibir ujung (CSV `spacer_L`).
 
 ## 4. Catatan lain
 - **Kapasitas load cell:** judul `koreksi_v4.md` menyebut CZL601 **80 kg**, sehingga 70 kgf (batas atas S1) = **87,5% dari kapasitas**.
@@ -188,8 +158,8 @@ Tidak ada lagi butir yang belum ditentukan. Nilai yang **diukur**: lebar 28 mm, 
 - ~~jarak lubang 12 / 106 / 15 mm~~: terukur 31 Okt. 2026, cocok (Bagian 8.1);
 - panjang kabel ≈28 cm, lubang kabel Ø5 mm di muka samping (terukur), **kedalaman lubang Ø5 ≈14 mm (asumsi, belum terukur)**, radius tekuk 10 mm, klip menyatu dengan Spacer A (rak ≈16 × 10 mm, blok 8,2 × 8 × ≈17,4 mm, Ø4,1 mm, kabel dilem tembak; tanpa lem ke aluminium);
 - arah panah stiker beban pada benda nyata (digambar menunjuk ke arah B, dikoreksi pengguna 12 Okt. 2026);
-- anggaran celah: load cell 0,5 mm, penutup 1,0 mm, margin 0,3 mm;
-- torsi 3 N·m dan prosedur kencang ulang;
+- anggaran celah: load cell 0,5 mm, penutup 1,0 mm, margin 0,3 mm (sisa ≈0,32 mm sejak 6 Nov. 2026);
+- torsi 3 N·m, koefisien torsi K 0,2 sampai 0,3 untuk baut stainless, dan prosedur kencang ulang;
 - ridge PLA 30 × 3 × 5 mm, dua buah, jarak 22 mm, ditempel; alas karet 6 mm dengan satu slot 29 × 14 mm di bawah kedua kepala baut;
 - uji baut M6 dengan tangan (tanpa dipaksa) belum dilakukan.
 
