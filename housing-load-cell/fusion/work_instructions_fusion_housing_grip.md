@@ -134,7 +134,7 @@ Kabel duduk di takik yang terbuka ke arah pelat B, lalu diikat zip tie lewat ter
 
 ## Gerbang keputusan
 
-1. Sebelum mencetak klem: posisi kabel dan pangkal kabel sudah dicek 1 Nov. 2026 (`cable_x` 5,3; tanpa karet yang menonjol, kabel keluar dari lubang berchamfer). Klem memakai zip tie 2,5 x 100 (dibeli bersama baut); tinggal cetak uji Fase 10.
+1. Sebelum mencetak klem: posisi kabel dan pangkal kabel sudah dicek 1 Nov. 2026 (`cable_x` 5,3; tanpa karet yang menonjol, kabel keluar dari lubang berchamfer). Klem memakai zip tie 2,5 x 100 (belum dibeli; tidak ada di pesanan baut 31 Okt. 2026); tinggal cetak uji Fase 10.
 2. Sebelum mengebor pelat: pola lubang dari CSV (12 / 106 / 15, terukur 31 Okt. 2026) dan STEP sudah dicek.
 3. Sebelum mencetak: cetak uji klem lolos dan slice review disetujui.
 4. Sebelum kalibrasi: ikuti protokol kalibrasi; beban menekan pelat B ke arah pelat A.

@@ -376,9 +376,11 @@ Housing: ukur LC → prototipe kardus → pesan pelat → cetak → rakit ──
 | 8a | Modul level shifter 4 kanal BSS138 | 1 | Dicatat dari bukti beli | Sudah tiba |
 | 9 | Kapasitor 100 nF dan 10 µF | 2 + 2 | Komponen lab | Decoupling 3V3 dan 5V |
 | 10 | Pelat aluminium 170 x 30 x 10 mm (+ jasa potong/bor) | 2 + 1 | Belum dicatat | Belum dibeli |
-| 11 | Baut M6 x 25 + washer | 4 + cadangan | Belum dicatat | Belum dibeli |
+| 11 | Flange bolt M6 x 25 stainless A2-70 + ring plat M6 (bautnusantara) | 8 + 10 | Rp27.810 (termasuk biaya layanan) | ✔ dibeli 31 Okt. 2026 |
+| 11a | Baut M2,5 x 14 + mur + ring plat M2,5 (pemasangan PCB dan LCD; Ada Hardware) | 10 + 10 + 10 | Rp33.640 (termasuk biaya layanan) | ✔ dibeli 31 Okt. 2026 |
 | 12 | Filamen PLA (spacer, penjepit kabel) | - | Printer lab | - |
 | 13 | Kabel sambungan load cell (shielded 4 inti) | bila perlu | Belum dicatat | - |
+| 14 | Zip tie 2,5 x 100 (klem kabel housing grip) | 1 paket | Belum dicatat | Belum dibeli |
 
 - **Batas:** Rp300.000 per tim, dengan bukti pembelian.
 - Pembelian yang tercatat (baris 3-6) Rp60.500. Sisa anggaran untuk load cell, pelat, baut, kabel, dan ongkir ≈ Rp239.500 (harga load cell dan total aktual dihitung ulang dari bukti beli).
@@ -434,7 +436,7 @@ Lihat Bagian 4 di [desain-pcb-hgd.md](pcb/desain-pcb-hgd.md). Jangan dibawa lewa
 ### 15.1 Kemajuan per bagian (17 Okt. 2026; firmware, logger, kalibrasi, pengujian, dokumen: 24 Okt. 2026)
 | Bagian | Status | Keterangan |
 |--------|--------|------------|
-| Pengadaan | ◐ | Semua modul elektronik ada (load cell, LCD + backpack, HX711, level shifter); pelat dan baut belum dibeli |
+| Pengadaan | ◐ | Semua modul elektronik ada (load cell, LCD + backpack, HX711, level shifter); baut dibeli 31 Okt. 2026; pelat dan zip tie belum dibeli |
 | Pemeriksaan load cell | ◐ | Dimensi dan resistansi ✔; uji bertegangan dan E1 ✔ (15 Okt. 2026); kalibrasi belum |
 | PCB `hgd-v1` | ✔ | **v1 selesai (17 Okt. 2026), belum disetujui**; versi akhir 26 Okt. 2026: tiga belokan 45° dan via dijauhkan dari tepi (posisi footprint tetap), DRC 0 error (3 pengecualian); pour GND dua lapis + 56 via; LED daya D2; silkscreen "Kelompok 01 / Digital Hand Grip / Dynamometer"; Gerber diekspor ulang dan dicek di JLCDFM (2 lapis, 80 x 55 mm); belum diunggah |
 | Skema KiCad | ✔ | **v1 selesai (17 Okt. 2026), belum disetujui**: ERC 0 error; D2/R2; pull-up I2C dihitung dari ukuran (tanpa pull-up tambahan); breadboard sama dengan skema; judul "Digital Hand Grip Dynamometer" (19 Okt. 2026). PDF skema ✔ 26 Okt. 2026 (`pcb/kicad/pdf/skema-hgd-v1.pdf`); BOM belum |

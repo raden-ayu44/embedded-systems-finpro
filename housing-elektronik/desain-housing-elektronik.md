@@ -156,7 +156,7 @@ Celah lid terhadap bingkai LCD memakai parameter tersendiri (mis. `lid_gap` 0,5 
 3. ✔ Bibir dan 4 snap-fit dimodelkan; sketsa tonjolan, slot, dan lidah dibuat parametrik dan lolos uji parameter `snap_y`.
 4. ✔ Slice uji (X1 Carbon, Textured PEI, PLA Basic, 0,20 mm, 3 dinding, infill 15 %, lid dibalik): 90,2 g, 1 j 55 m, tanpa support. Tepi atas jendela USB dan kabel tercetak sebagai overhang 15 mm (> aturan jembatan 10 mm); support di jendela diputuskan laboran. Ukuran 105 mm, 90 g, dan 1 j 55 m melebihi batas modul: perlu izin lab/dosen.
 5. Lubang tombol dan LED di lid dari posisi SW1, D1, dan **D2 (LED daya 3 mm, ditambahkan di PCB 17 Okt. 2026)**; ukur tombol B3-B4 dan LED L1-L3 di tabel pengukuran. Di model 30 Okt. 2026 sudah ada lubang tombol Ø5,3, LED D1 Ø6,9, dan LED D2 Ø5,0 (`btn_hole_d`, `led1_hole_d`, `led2_hole_d`), masing-masing ukuran bagian + `comp_hole`. Lantai body punya 2 lubang Ø5,9 untuk menekan tombol EN dan BOOT DevKit (`floor_hole_d`). Lubang baut dari atas Ø5 (`mnt_hole_d`) = lubang PCB Ø3 + 1 mm kelonggaran + `comp_hole`.
-6. Tiang PCB di lid sesuai pola H1-H4 (Ø3,0; ukuran baut belum dipastikan, M2,5 atau M3). Belum ada di model v1.
+6. Tiang PCB di lid sesuai pola H1-H4 (Ø3,0; baut M2,5 x 14, dibeli 31 Okt. 2026). Belum ada di model v1.
 7. Cetak uji satu lidah dan slot (Fase 7 instruksi kerja Fusion) sebelum mencetak lid dan body.
 8. Selisih margin layar 1 mm (Bagian 2).
 9. Cek pas dengan model PCB [../pcb/kicad/proyek/hgd-v1.step](../pcb/kicad/proyek/hgd-v1.step) (DevKit dan modul di sisi bawah). Sejak 27 Okt. 2026 STEP ini diekspor dari papan utama 26 Okt. dan tidak memuat dua soket 1x15 DevKit; soket tidak memengaruhi desain housing.
