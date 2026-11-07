@@ -13,7 +13,7 @@ hole_x,mm,LC_L / 2 - hole_edge,53 mm,"WAJIB: pusat lubang dari tengah load cell 
 hole_y,mm,hole_cross / 2,7.5 mm,"WAJIB: pusat lubang dari garis tengah lebar (y = +-7.5)",true
 hole_d,mm,6.6 mm,6.6 mm,"lubang lewat M6 di pelat aluminium (dibor, tanpa kompensasi), ISO 273 seri sedang",false
 hole_sp_d,mm,hole_d + comp_hole,7.6 mm,"WAJIB: lubang baut di spacer PLA (model); tercetak kira-kira 6.6",true
-gap,mm,2.5 mm,2.5 mm,"WAJIB: tebal spacer = celah pelat ke load cell; celah bebas-sentuh, bukan stop beban",true
+gap,mm,3 mm,3 mm,"WAJIB: tebal spacer = celah pelat ke load cell; celah bebas-sentuh, bukan stop beban; 3.0 sejak v15 karena pelat 8 mm melentur 0.64 (HL9.6)",true
 boss_L,mm,24 mm,24 mm,"WAJIB: panjang kontak spacer di atas blok ujung load cell (dari muka ujung ke dalam); jangan lebih dari 24 supaya tidak masuk area strain gauge",true
 sp_lip_t,mm,2.5 mm,2.5 mm,tebal bibir spacer yang memegang tepi load cell,false
 sp_lip_h,mm,2.5 mm,2.5 mm,tinggi bibir spacer turun di sisi load cell (dari muka load cell),false
@@ -23,13 +23,13 @@ spacer_L,mm,boss_L + sp_end_cl + sp_lip_t,27 mm,"panjang luar spacer (arah x)",f
 spacer_W,mm,sp_in_W + 2 * sp_lip_t,34 mm,"lebar luar spacer (arah y)",false
 spA_c,mm,-(LC_L / 2 - boss_L / 2),-53 mm,"pusat bidang kontak Spacer A dari tengah load cell (ujung tetap, sisi atas)",false
 spB_c,mm,LC_L / 2 - boss_L / 2,53 mm,"pusat bidang kontak Spacer B dari tengah load cell (ujung bebas, sisi bawah)",false
-lever_arm,mm,LC_L / 2 - boss_L,41 mm,"lengan tuas a dari tepi dalam spacer ke tengah load cell; hitungan gaya v14 di desain-housing-load-cell.md HL9 (lolos)",false
+lever_arm,mm,LC_L / 2 - boss_L,41 mm,"lengan tuas a dari tepi dalam spacer ke tengah load cell; hitungan gaya v15 di desain-housing-load-cell.md HL9 (lolos)",false
 cable_d,mm,4 mm,4 mm,"diameter kabel load cell; terukur 11 Okt. 2026",false
 cable_x,mm,5.3 mm,5.3 mm,"WAJIB: pusat kabel = pusat lubang kabel load cell dari muka ujung (ujung tetap); terukur 1 Nov. 2026: tepi jauh kabel 6.7 (didorong ke ujung) dan 8.0 (ke tengah), jadi lubang 2.7-8.0, pusat 5.35; kabel menggantung bebas 4.7-5.0",true
 cable_z,mm,LC_H / 2,10.75 mm,"pusat kabel dari muka bawah load cell; ukur 31 Okt. 2026 kira-kira 10.2-10.5, masih di dalam kelonggaran slot",false
 cable_hole_d,mm,5 mm,5 mm,"lubang kabel di muka samping panjang load cell (sisi -y); terukur",false
 clamp_wall_t,mm,2.5 mm,2.5 mm,"tebal dinding klem di sisi kabel Spacer A (sisi -y), sepanjang spacer",false
-wall_bottom_z,mm,2.5 mm,2.5 mm,"WAJIB: tepi bawah dinding klem di atas muka bawah load cell; jarak ke pelat B = wall_bottom_z + gap = 5",true
+wall_bottom_z,mm,2.5 mm,2.5 mm,"WAJIB: tepi bawah dinding klem di atas muka bawah load cell; jarak ke pelat B = wall_bottom_z + gap = 5.5",true
 notch_w,mm,cable_d + comp_xy,4.6 mm,"WAJIB: lebar takik kabel di dinding klem, terbuka ke bawah (ke arah pelat B); tercetak kira-kira 4 = pas kabel",true
 notch_top_z,mm,cable_z + cable_d / 2 + comp_z / 2,13.25 mm,"WAJIB: puncak takik (bulat, jari-jari notch_w / 2) dari muka bawah load cell; kabel duduk di puncak takik",true
 pad_L,mm,12 mm,12 mm,"panjang bantalan zip tie di muka luar dinding klem (arah x), berpusat di cable_x",false
@@ -41,20 +41,20 @@ tun_h,mm,tie_t + comp_z + 0.4 mm,2.4 mm,"tinggi terowongan zip tie (arah z)",fal
 tun_floor,mm,1.5 mm,1.5 mm,"tebal lantai terowongan di atas kabel; terowongan mulai di notch_top_z + tun_floor",false
 tun_y,mm,pad_t / 2,3 mm,"pusat terowongan dari muka luar dinding klem (arah -y)",false
 ab_min_cl,mm,2 mm,2 mm,"WAJIB: jarak minimum bagian mana pun di sisi A ke bagian mana pun di sisi B (aturan satu jalur gaya); asumsi desain",true
-bar_L,mm,170 mm,170 mm,"pelat A dan B aluminium 6061-T6, polos",false
-bar_W,mm,30 mm,30 mm,lebar pelat A dan B,false
-bar_t,mm,10 mm,10 mm,tebal pelat A dan B,true
-bar_hole_edge,mm,bar_L / 2 - hole_x,32 mm,"WAJIB: pusat lubang pelat dari ujung pelat; pelat A hanya dibor di ujung tetap, pelat B hanya di ujung bebas",true
-bolt_L,mm,25 mm,25 mm,"flange bolt M6 x 25 stainless A2-70 (dibeli 1 Nov. 2026); masuk ulir 10.9 dengan ring",false
-bolt_max_L,mm,35 mm,35 mm,"batas panjang baut: M6 x 35 tinggal 0.6 dari muka seberang load cell; jangan lebih panjang",false
+bar_L,mm,140 mm,140 mm,"pelat A dan B aluminium 6061-T6, polos; 140 sejak v15 (menutup spacer; panjang pelat tidak masuk hitungan gaya)",false
+bar_W,mm,35 mm,35 mm,"lebar pelat A dan B; 35 sejak v15, mengikuti lebar spacer 34; minimal 29.2 untuk flange baut Ø14.2",false
+bar_t,mm,8 mm,8 mm,"WAJIB: tebal pelat A dan B; 8 = tebal minimum 6061-T6 menurut HL9.5 (v15); jangan lebih tipis, paduan 6061 atau 5052 saja",true
+bar_hole_edge,mm,bar_L / 2 - hole_x,17 mm,"WAJIB: pusat lubang pelat dari ujung pelat; pelat A hanya dibor di ujung tetap, pelat B hanya di ujung bebas",true
+bolt_L,mm,25 mm,25 mm,"flange bolt M6 x 25 stainless A2-70 (dibeli 31 Okt. 2026); masuk ulir 12.4 dengan ring (pelat 8, spacer 3)",false
+bolt_max_L,mm,30 mm,30 mm,"batas panjang baut: M6 x 30 tinggal 4.1 dari muka seberang load cell; M6 x 35 menembus 0.9; jangan lebih panjang",false
 washer_t,mm,1.6 mm,1.6 mm,washer ISO 7089,false
-head_protrusion,mm,5.6 mm,5.6 mm,tonjolan kepala baut + washer di luar pelat,false
-grip_zone,mm,85 mm,85 mm,"zona genggam 42.5-127.5 mm dari ujung pelat",false
+head_protrusion,mm,7.6 mm,7.6 mm,"tonjolan kepala flange bolt + ring di luar pelat: kepala DIN 6921 M6 sekitar 6 (belum diukur) + ring 1.6",false
+grip_zone,mm,85 mm,85 mm,"zona genggam 27.5-112.5 mm dari ujung pelat (x -42.5 sampai 42.5); tepi flange baut 3.4 di luar zona",false
 ridge_L,mm,30 mm,30 mm,"ridge PLA, panjang (melintang pelat); BEBAS: bentuk dan cara pasang diserahkan ke tim",false
 ridge_w,mm,3 mm,3 mm,"ridge PLA, lebar; BEBAS",false
 ridge_h,mm,5 mm,5 mm,"ridge PLA, tinggi; BEBAS (ikut total_t)",false
 ridge_sp,mm,22 mm,22 mm,"jarak antar dua ridge = bidang tumpu kalibrasi; BEBAS",false
-total_t,mm,2 * bar_t + 2 * gap + LC_H + ridge_h,51.5 mm,should read 51.5 mm (tanpa kepala baut),true
-mat_t,mm,6 mm,6 mm,"alas karet kalibrasi, tebal",false
-mat_slot_L,mm,29 mm,29 mm,"slot alas karet di bawah kedua kepala baut A, panjang",false
-mat_slot_W,mm,14 mm,14 mm,"slot alas karet, lebar",false
+total_t,mm,2 * bar_t + 2 * gap + LC_H + ridge_h,48.5 mm,should read 48.5 mm (tanpa kepala baut),true
+mat_t,mm,6 mm,6 mm,"alas karet kalibrasi, tebal; harus lebih tebal dari head_protrusion: tetapkan setelah kepala baut diukur",false
+mat_slot_L,mm,29 mm,29 mm,"slot alas karet di bawah kedua kepala baut A, panjang; terlalu pendek untuk dua flange Ø14.2 (butuh > 29.2), tetapkan setelah kepala diukur",false
+mat_slot_W,mm,14 mm,14 mm,"slot alas karet, lebar; terlalu sempit untuk flange Ø14.2, tetapkan setelah kepala diukur",false
