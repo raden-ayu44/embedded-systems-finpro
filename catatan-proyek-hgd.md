@@ -269,7 +269,7 @@ Desain housing dipisah ke dokumen sendiri supaya catatan ini tidak melebar:
 Ringkasan status (rinci di dokumen housing grip):
 - Dua housing terpisah: grip hanya berisi load cell, elektronik di housing sendiri ([HL1](housing-load-cell/desain-housing-load-cell.md#hl1-keputusan-dua-housing-terpisah)).
 - Layout grip: batang A (telapak, tetap) dan batang B (jari, bergerak) dengan load cell di antaranya ([HL4](housing-load-cell/desain-housing-load-cell.md#hl4-tata-letak-terpilih-dua-batang-dengan-load-cell-di-antaranya)).
-- Pelat PLA 7 mm terbukti terlalu lentur. Diputuskan: pelat polos aluminium 10 mm (tebal total 51,5 mm tanpa kepala baut, dengan tinggi load cell terukur 21,5 mm) dengan celah 2,5 mm dan spacer PLA terpisah 28 x 28 x 2,5 mm untuk load cell CZL 601; lenturan ujung jauh 0,24 mm pada 70 kgf, sisa celah ≈0,46 mm setelah anggaran celah (lenturan load cell 0,5, penutup 1,0, margin 0,3 mm; asumsi desain) ([HL9](housing-load-cell/desain-housing-load-cell.md#hl9-temuan-kekakuan-batang-dan-usulan-bahan)). Diputuskan 11 Okt. 2026: 6061-T6, lebar load cell 28 mm, lubang Ø6,6 mm, ulir M6 tembus, kabel Ø4 mm.
+- Pelat PLA 7 mm terbukti terlalu lentur. Diputuskan: pelat polos aluminium 10 mm (tebal total 51,5 mm tanpa kepala baut, dengan tinggi load cell terukur 21,5 mm) dengan celah 2,5 mm dan spacer PLA terpisah 28 x 28 x 2,5 mm untuk load cell CZL 601; lenturan ujung jauh 0,24 mm pada 70 kgf, sisa celah ≈0,46 mm setelah anggaran celah (lenturan load cell 0,5, penutup 1,0, margin 0,3 mm; asumsi desain); dihitung ulang 6 Nov. 2026 dengan bidang kontak spacer 24 mm dan beban merata: 0,38 mm, sisa ≈0,32 mm ([HL9](housing-load-cell/desain-housing-load-cell.md#hl9-temuan-kekakuan-batang-dan-usulan-bahan)). Diputuskan 11 Okt. 2026: 6061-T6, lebar load cell 28 mm, lubang Ø6,6 mm, ulir M6 tembus, kabel Ø4 mm.
 - Load cell sudah diukur sebagian (130 x 28 x 21,5 mm; dokumen [tabel-pengukuran-hgd.xlsx](pengukuran/tabel-pengukuran-hgd.xlsx) dan Bagian 9.1 di [desain-pcb-hgd.md](pcb/desain-pcb-hgd.md)). Menunggu: sisa pengukuran load cell (dokumen [tabel-pengukuran-hgd.xlsx](pengukuran/tabel-pengukuran-hgd.xlsx)), jawaban dosen atau TA dan konsultasi teknik mesin ([HL20](housing-load-cell/desain-housing-load-cell.md#hl20-pertanyaan-terbuka-untuk-dosen-atau-ta-dan-konsultasi-teknik-mesin)), serta prototipe kardus ([HL14](housing-load-cell/desain-housing-load-cell.md#hl14-urutan-prototipe-kardus-sampai-cetak)).
 - Kalibrasi memakai protokol dumbbell sampai 42 kg ([protokol-kalibrasi-hgd.md](kalibrasi/protokol-kalibrasi-hgd.md), [HL10](housing-load-cell/desain-housing-load-cell.md#hl10-kalibrasi-dan-arah-beban)); 42 sampai 70 kgf adalah ekstrapolasi, dan protokol belum diuji.
 
@@ -311,7 +311,7 @@ Tiap risiko: tanda peringatan dini, mitigasi, dan fallback.
 | R5 | Timing firmware meleset (tare dan baca blocking; S2 menuntut 100 ms) | Hitung mundur tersendat | Pewaktuan `millis()`; blocking dibatasi ke dua titik | Turunkan beban LCD; refresh dipisah |
 | R6 | Jalur logging bergantung laptop | Baris tidak tertulis | Protokol ACK + checksum; Serial Monitor sebagai cadangan | Salin manual dari Serial Monitor |
 | R7 | Housing melentur/patah atau dua bagian bersentuhan | Pembacaan tidak linier; bunyi gesek | Aluminium 10 mm; celah 2,5 mm; uji beban bertahap | Pelat lebih tebal atau bracket logam |
-| R8 | Lubang baut melemahkan penampang pelat di pangkal | Retak halus di sekitar lubang | σ_net dihitung (≈ 91 MPa untuk Ø6,6); counterbore tidak dipakai | Pelat lebih tebal |
+| R8 | Lubang baut melemahkan penampang pelat di pangkal | Retak halus di sekitar lubang | σ penampang berlubang dihitung (batas atas ≈100,5 MPa untuk Ø6,6 dan `boss_L` 24, faktor aman 2,4; HL9); counterbore tidak dipakai | Pelat lebih tebal |
 | R9 | Kabel load cell tertarik terbaca sebagai gaya | Pembacaan bergeser saat kabel disentuh | Penjepit kabel di A; uji tarik kabel (E6) | Rute kabel diubah; tambah penahan |
 | R10 | Pelat logam butuh akses bengkel dan anggaran | Tidak ada jasa potong | Pesan potong dan bor sekaligus; cadangan 1 pelat | Gunakan bengkel kampus atau jasa luar |
 | R11 | Tegangan 5 V dari backpack LCD masuk ke pin ESP32 | SDA/SCL terukur 4,93 V (✔ 15 Okt. 2026) | Level shifter BSS138; GPIO 21/22 hanya ke sisi LV; uji VIN langsung di bench dibatasi singkat | Lepas pull-up backpack |
@@ -376,9 +376,11 @@ Housing: ukur LC → prototipe kardus → pesan pelat → cetak → rakit ──
 | 8a | Modul level shifter 4 kanal BSS138 | 1 | Dicatat dari bukti beli | Sudah tiba |
 | 9 | Kapasitor 100 nF dan 10 µF | 2 + 2 | Komponen lab | Decoupling 3V3 dan 5V |
 | 10 | Pelat aluminium 170 x 30 x 10 mm (+ jasa potong/bor) | 2 + 1 | Belum dicatat | Belum dibeli |
-| 11 | Baut M6 x 25 + washer | 4 + cadangan | Belum dicatat | Belum dibeli |
+| 11 | Flange bolt M6 x 25 stainless A2-70 + ring plat M6 (bautnusantara) | 8 + 10 | Rp27.810 (termasuk biaya layanan) | ✔ dibeli 31 Okt. 2026 |
+| 11a | Baut M2,5 x 14 + mur + ring plat M2,5 (pemasangan PCB dan LCD; Ada Hardware) | 10 + 10 + 10 | Rp33.640 (termasuk biaya layanan) | ✔ dibeli 31 Okt. 2026 |
 | 12 | Filamen PLA (spacer, penjepit kabel) | - | Printer lab | - |
 | 13 | Kabel sambungan load cell (shielded 4 inti) | bila perlu | Belum dicatat | - |
+| 14 | Zip tie 2,5 x 100 (klem kabel housing grip) | 1 paket | Belum dicatat | Belum dibeli |
 
 - **Batas:** Rp300.000 per tim, dengan bukti pembelian.
 - Pembelian yang tercatat (baris 3-6) Rp60.500. Sisa anggaran untuk load cell, pelat, baut, kabel, dan ongkir ≈ Rp239.500 (harga load cell dan total aktual dihitung ulang dari bukti beli).
@@ -434,7 +436,7 @@ Lihat Bagian 4 di [desain-pcb-hgd.md](pcb/desain-pcb-hgd.md). Jangan dibawa lewa
 ### 15.1 Kemajuan per bagian (17 Okt. 2026; firmware, logger, kalibrasi, pengujian, dokumen: 24 Okt. 2026)
 | Bagian | Status | Keterangan |
 |--------|--------|------------|
-| Pengadaan | ◐ | Semua modul elektronik ada (load cell, LCD + backpack, HX711, level shifter); pelat dan baut belum dibeli |
+| Pengadaan | ◐ | Semua modul elektronik ada (load cell, LCD + backpack, HX711, level shifter); baut dibeli 31 Okt. 2026; pelat dan zip tie belum dibeli |
 | Pemeriksaan load cell | ◐ | Dimensi dan resistansi ✔; uji bertegangan dan E1 ✔ (15 Okt. 2026); kalibrasi belum |
 | PCB `hgd-v1` | ✔ | **v1 selesai (17 Okt. 2026), belum disetujui**; versi akhir 26 Okt. 2026: tiga belokan 45° dan via dijauhkan dari tepi (posisi footprint tetap), DRC 0 error (3 pengecualian); pour GND dua lapis + 56 via; LED daya D2; silkscreen "Kelompok 01 / Digital Hand Grip / Dynamometer"; Gerber diekspor ulang dan dicek di JLCDFM (2 lapis, 80 x 55 mm); belum diunggah |
 | Skema KiCad | ✔ | **v1 selesai (17 Okt. 2026), belum disetujui**: ERC 0 error; D2/R2; pull-up I2C dihitung dari ukuran (tanpa pull-up tambahan); breadboard sama dengan skema; judul "Digital Hand Grip Dynamometer" (19 Okt. 2026). PDF skema ✔ 26 Okt. 2026 (`pcb/kicad/pdf/skema-hgd-v1.pdf`); BOM belum |

@@ -23,7 +23,7 @@ spacer_L,mm,boss_L + sp_end_cl + sp_lip_t,27 mm,"panjang luar spacer (arah x)",f
 spacer_W,mm,sp_in_W + 2 * sp_lip_t,34 mm,"lebar luar spacer (arah y)",false
 spA_c,mm,-(LC_L / 2 - boss_L / 2),-53 mm,"pusat bidang kontak Spacer A dari tengah load cell (ujung tetap, sisi atas)",false
 spB_c,mm,LC_L / 2 - boss_L / 2,53 mm,"pusat bidang kontak Spacer B dari tengah load cell (ujung bebas, sisi bawah)",false
-lever_arm,mm,LC_L / 2 - boss_L,41 mm,"lengan tuas a dari tepi dalam spacer ke tengah load cell (kasus boss_L 24 di asumsi.md, lolos)",false
+lever_arm,mm,LC_L / 2 - boss_L,41 mm,"lengan tuas a dari tepi dalam spacer ke tengah load cell; hitungan gaya v14 di desain-housing-load-cell.md HL9 (lolos)",false
 cable_d,mm,4 mm,4 mm,"diameter kabel load cell; terukur 11 Okt. 2026",false
 cable_x,mm,5.3 mm,5.3 mm,"WAJIB: pusat kabel = pusat lubang kabel load cell dari muka ujung (ujung tetap); terukur 1 Nov. 2026: tepi jauh kabel 6.7 (didorong ke ujung) dan 8.0 (ke tengah), jadi lubang 2.7-8.0, pusat 5.35; kabel menggantung bebas 4.7-5.0",true
 cable_z,mm,LC_H / 2,10.75 mm,"pusat kabel dari muka bawah load cell; ukur 31 Okt. 2026 kira-kira 10.2-10.5, masih di dalam kelonggaran slot",false
@@ -45,7 +45,7 @@ bar_L,mm,170 mm,170 mm,"pelat A dan B aluminium 6061-T6, polos",false
 bar_W,mm,30 mm,30 mm,lebar pelat A dan B,false
 bar_t,mm,10 mm,10 mm,tebal pelat A dan B,true
 bar_hole_edge,mm,bar_L / 2 - hole_x,32 mm,"WAJIB: pusat lubang pelat dari ujung pelat; pelat A hanya dibor di ujung tetap, pelat B hanya di ujung bebas",true
-bolt_L,mm,25 mm,25 mm,"ISO 4017 M6 x 25, kelas 8.8, kepala segi enam; masuk ulir 10.9",false
+bolt_L,mm,25 mm,25 mm,"flange bolt M6 x 25 stainless A2-70 (dibeli 1 Nov. 2026); masuk ulir 10.9 dengan ring",false
 bolt_max_L,mm,35 mm,35 mm,"batas panjang baut: M6 x 35 tinggal 0.6 dari muka seberang load cell; jangan lebih panjang",false
 washer_t,mm,1.6 mm,1.6 mm,washer ISO 7089,false
 head_protrusion,mm,5.6 mm,5.6 mm,tonjolan kepala baut + washer di luar pelat,false

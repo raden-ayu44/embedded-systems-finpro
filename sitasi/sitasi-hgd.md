@@ -92,7 +92,7 @@ Rujukan desain housing grip (dokumentasi alat komersial KG1, GA1, VN1, BP1, PP1,
 
 ### 1.10 Daftar pustaka (gaya IEEE)
 
-Daftar ini melengkapi sitasi lokal di atas: kode lokal (M, W, V, R, G, B, C, RU) tetap dipakai di badan teks, dan tabel di bawah memetakan tiap kelompok kode ke entri IEEE. Datasheet komponen (DS-*) memakai daftar IEEE sendiri di `datasheets/datasheet-library.md` ([1] sampai [16]); sumber desain housing (KG1 dan seterusnya) ada di `desain-housing-load-cell.md`, HL18.
+Daftar ini melengkapi sitasi lokal di atas: kode lokal (M, W, V, R, G, B, C, RU, BJ) tetap dipakai di badan teks, dan tabel di bawah memetakan tiap kelompok kode ke entri IEEE. Datasheet komponen (DS-*) memakai daftar IEEE sendiri di `datasheets/datasheet-library.md` ([1] sampai [16]); sumber desain housing (KG1 dan seterusnya) ada di `desain-housing-load-cell.md`, HL18.
 
 | Kode lokal | Entri IEEE |
 |---|---|
@@ -104,6 +104,7 @@ Daftar ini melengkapi sitasi lokal di atas: kode lokal (M, W, V, R, G, B, C, RU)
 | B1 dan seterusnya | [6] |
 | C1 dan C2 | [7] |
 | RU1 dan RU2 | [8] |
+| BJ1 sampai BJ4 | [9] |
 
 **Daftar pustaka**
 
@@ -123,7 +124,20 @@ Daftar ini melengkapi sitasi lokal di atas: kode lokal (M, W, V, R, G, B, C, RU)
 
 [8] D. J. Russell, *Introduction to Embedded Systems: Using ANSI C and the Arduino Development Environment*, Synthesis Lectures on Digital Circuits and Systems. San Rafael, CA, USA: Morgan & Claypool, 2010.
 
+[9] F. P. Beer, E. R. Johnston, Jr., and J. T. DeWolf, *Mechanics of Materials*, 3rd ed. New York, NY, USA: McGraw-Hill, 2002, ch. 5, "Analysis and Design of Beams for Bending." Slide kuliah pendamping oleh J. W. Oler.
+
 *Catatan: entri [4] memakai tahun dan bulan yang tercetak pada PDF artikel (Vol. 1, No. 2, November 2019). Entri [8] (penerbit dan kota) ditulis dari pengetahuan umum, belum dicocokkan dengan salinan buku; cek halaman judul bukunya.*
+
+### 1.11 Beer, Johnston, dan DeWolf, *Mechanics of Materials* (ed. 3, 2002), Bab 5
+
+Dipakai untuk hitungan gaya housing grip ([desain-housing-load-cell.md, HL9](../housing-load-cell/desain-housing-load-cell.md#hl9-temuan-kekakuan-batang-dan-usulan-bahan)).
+
+| Kode | Isi (parafrase) | Asal |
+|---|---|---|
+| BJ1 | Analisis balok dimulai dengan memperlakukan seluruh balok sebagai benda tegar untuk mencari gaya reaksi tumpuan (ΣF = 0, ΣM = 0), lalu memotong balok di dekat tumpuan dan titik beban untuk mencari gaya geser V dan momen lentur M di tiap potongan. | Bab 5, Sample Problem 5.1 dan 5.2 |
+| BJ2 | Hubungan beban, geser, dan momen: dV/dx = −w dan dM/dx = V. Perubahan momen antara dua titik sama dengan luas di bawah diagram geser; momen berubah linear di antara beban terpusat dan kuadratik di bawah beban merata. | Bab 5, "Relations Among Load, Shear, and Bending Moment", Sample Problem 5.3 |
+| BJ3 | Tegangan normal akibat lentur terbesar di permukaan, di penampang dengan momen terbesar: σ_m = M/S, dengan S = I/c; untuk penampang persegi panjang S = b·h²/6. | Bab 5, "Introduction", Sample Problem 5.1 |
+| BJ4 | Desain aman mensyaratkan σ_m di bawah tegangan izin, sehingga modulus penampang minimum S_min = M_maks/σ_izin; dari pilihan yang memenuhi S_min, pilih yang paling ringan. | Bab 5, "Design of Prismatic Beams for Bending", Sample Problem 5.8 |
 
 ---
 
