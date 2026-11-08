@@ -1,4 +1,4 @@
-# Instruksi kerja: housing load cell di Fusion (v8)
+# Instruksi kerja: housing load cell di Fusion (v9)
 
 Lingkup: memodelkan load cell acuan, Spacer A dengan dinding klem kabel, Spacer B, serta pelat A dan B. Ridge, balok kalibrasi, dan bentuk tambahan lain dirancang bebas oleh tim. Desain dan alasan: [../desain-housing-load-cell.md](../desain-housing-load-cell.md) dan [../asumsi.md](../asumsi.md); parameter: [fusion_parameters_housing_grip.csv](fusion_parameters_housing_grip.csv) (parameter bertanda WAJIB di kolom keterangan tidak boleh diubah tanpa ukur ulang).
 
@@ -28,8 +28,8 @@ Hasil akhir yang dituju:
 | Klem kabel | takik 4,6 terbuka ke bawah di x −59,7, puncak bulat di z 13,25; bantalan 12 x 6 di muka luar dinding, z 13,25 sampai 24,5; terowongan zip tie 3,5 x 2,4 tembus arah x, lantai 1,5 |
 | Lubang Spacer A | Ø7,6 di (−53, ±7,5) |
 | Spacer B (bawah, ujung bebas) | pelat 27 x 34 x 3 di z −3 sampai 0, x 41 sampai 68; bibir di muka ujung dan kedua sisi, naik ke z 2,5; lubang Ø7,6 di (53, ±7,5) |
-| Pelat A | 140 x 35 x 8 di z 24,5 sampai 32,5; lubang Ø6,6 hanya di (−53, ±7,5) |
-| Pelat B | 140 x 35 x 8 di z −11 sampai −3; lubang Ø6,6 hanya di (53, ±7,5) |
+| Pelat A | 140 x 40 x 8 di z 24,5 sampai 32,5; lubang Ø6,6 hanya di (−53, ±7,5) |
+| Pelat B | 140 x 40 x 8 di z −11 sampai −3; lubang Ø6,6 hanya di (53, ±7,5) |
 
 ## Fase 1: persiapan
 
@@ -90,7 +90,7 @@ Kabel duduk di takik yang terbuka ke arah pelat B, lalu diikat zip tie lewat ter
 - [ ] **Sketch** pada muka atas `Bar_A`: dua titik **hanya** di (`-hole_x`, ±`hole_y`). **Hole** `hole_d`, **All**.
 - [ ] Komponen baru `Bar_B`. **Sketch** pada `B_TOP`: **Center Rectangle** `bar_L` x `bar_W`. **Extrude** ke bawah `bar_t`.
 - [ ] **Sketch** pada muka bawah `Bar_B`: dua titik **hanya** di (`hole_x`, ±`hole_y`). **Hole** `hole_d`, **All**.
-- [ ] Beri material aluminium. Cek massa (klik kanan komponen > **Properties**): tiap pelat sekitar 104 g. Selisih besar berarti ada parameter yang salah.
+- [ ] Beri material aluminium. Cek massa (klik kanan komponen > **Properties**): tiap pelat sekitar 120 g. Selisih besar berarti ada parameter yang salah.
 
 ## Fase 7: ridge dan bagian bebas
 

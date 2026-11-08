@@ -1,11 +1,11 @@
-# Desain Housing Load Cell (v15)
+# Desain Housing Load Cell (v16)
 **Final Project - Embedded Systems Course**
 
 > Dokumen ini memuat seluruh desain housing grip yang berisi load cell: layout dua batang, dampak ke pembacaan gaya, temuan kekakuan batang, kalibrasi, pengadaan pelat, rujukan, dan asumsi gambar skematik (ringkasan di Lampiran A; rinci di [asumsi.md](asumsi.md)). Dipisah dari [catatan proyek](../catatan-proyek-hgd.md) (v39) supaya catatan proyek tidak melebar. Housing elektronik (ESP32, LCD, HX711, tombol, LED) akan ada di dokumen terpisah: [desain-housing-elektronik.md](../housing-elektronik/desain-housing-elektronik.md) (rencana, belum dibuat).
 
 Tautan balik: [catatan proyek](../catatan-proyek-hgd.md) · tabel pengukuran jangka sorong: [tabel pengukuran](../pengukuran/tabel-pengukuran-hgd.xlsx) · spesifikasi S1-S5: [Bagian 2.4 di catatan proyek](../catatan-proyek-hgd.md)
 
-Penomoran: bagian di dokumen ini memakai awalan HL (HL1 sampai HL20) dan Lampiran A, supaya tidak tertukar dengan nomor bagian di catatan proyek. Gambar ada di folder `gambar/`. Ukuran yang berlaku hanya ada di CSV dan `tampak_atas_housing_grip.svg` (v15, berskala). Gambar Cowork (potongan v11, exploded v12, setup kalibrasi v11, dua tampak klem v1) masih menunjukkan pelat 10 mm, spacer 28 x 28 x 2,5, dan klem blok lama, jadi hanya dipakai untuk bentuk dan urutan rakit. Lihat HL12.
+Penomoran: bagian di dokumen ini memakai awalan HL (HL1 sampai HL20) dan Lampiran A, supaya tidak tertukar dengan nomor bagian di catatan proyek. Gambar ada di folder `gambar/`. Ukuran yang berlaku hanya ada di CSV dan `tampak_atas_housing_grip.svg` (v16, berskala). Gambar Cowork (potongan v11, exploded v12, setup kalibrasi v11, dua tampak klem v1) masih menunjukkan pelat 10 mm, spacer 28 x 28 x 2,5, dan klem blok lama, jadi hanya dipakai untuk bentuk dan urutan rakit. Lihat HL12.
 
 ## Daftar isi
 
@@ -31,7 +31,7 @@ Penomoran: bagian di dokumen ini memakai awalan HL (HL1 sampai HL20) dan Lampira
 - [HL20. Pertanyaan terbuka untuk dosen atau TA dan konsultasi teknik mesin](#hl20-pertanyaan-terbuka-untuk-dosen-atau-ta-dan-konsultasi-teknik-mesin)
 - [Lampiran A. Asumsi gambar skematik housing grip (pointer)](#lampiran-a-asumsi-gambar-skematik-housing-grip)
 
-*Status (v15, 7 Nov. 2026): pelat aluminium polos 6061-T6 140 x 35 x 8 mm, spacer PLA tebal 3,0 mm (bidang kontak 24 x 28) di tiap ujung load cell, flange bolt M6 x 25 A2-70 + ring plat M6 (dibeli 31 Okt. 2026). Pelat PLA 7 mm terbukti terlalu lentur (HL9). Load cell adalah CZL 601 80 kg (130 x 28 x 21,5 mm terukur 10 Okt. 2026; gambar penjual 130 x 28 x 22 mm; lihat DS-LC1 di `datasheets/datasheet-library.md`); ukuran ini menggantikan load cell 180 kg (147 x 30 x 22 mm) pada rencana lama. Metode kalibrasi mengikuti protokol dumbbell (HL10). Hasil ukur 10-11 Okt. 2026: 130 x 28 x 21,5 mm, ulir M6 tembus dari kedua muka (diameter dalam 5,0 sampai 5,2 mm, bibir kisi Ø8 mm), kabel Ø4 mm; sisa pengukuran ada di ([tabel pengukuran](../pengukuran/tabel-pengukuran-hgd.xlsx)). Proposal 3.6 hanya menjelaskan housing elektronik; housing grip di bawah ini adalah pengembangan setelah proposal.*
+*Status (v16, 8 Nov. 2026): pelat aluminium polos 6061-T6 140 x 40 x 8 mm, spacer PLA tebal 3,0 mm (bidang kontak 24 x 28) di tiap ujung load cell, flange bolt M6 x 25 A2-70 + ring plat M6 (dibeli 31 Okt. 2026). Pelat PLA 7 mm terbukti terlalu lentur (HL9). Load cell adalah CZL 601 80 kg (130 x 28 x 21,5 mm terukur 10 Okt. 2026; gambar penjual 130 x 28 x 22 mm; lihat DS-LC1 di `datasheets/datasheet-library.md`); ukuran ini menggantikan load cell 180 kg (147 x 30 x 22 mm) pada rencana lama. Metode kalibrasi mengikuti protokol dumbbell (HL10). Hasil ukur 10-11 Okt. 2026: 130 x 28 x 21,5 mm, ulir M6 tembus dari kedua muka (diameter dalam 5,0 sampai 5,2 mm, bibir kisi Ø8 mm), kabel Ø4 mm; sisa pengukuran ada di ([tabel pengukuran](../pengukuran/tabel-pengukuran-hgd.xlsx)). Proposal 3.6 hanya menjelaskan housing elektronik; housing grip di bawah ini adalah pengembangan setelah proposal.*
 
 ## HL1. Keputusan: dua housing terpisah
 
@@ -72,10 +72,10 @@ Gambar skematik dari Cowork (ukurannya dari v8 sampai v10 dan sudah usang; yang 
 
 Telapak menekan A dari satu sisi dan jari menekan B dari sisi berlawanan. Satu-satunya jalur gaya dari A ke B adalah load cell (callout 16).
 
-Ukuran kunci (gambar penjual CZL 601 80 kg): load cell 130 x 28 x 21,5 mm (terukur), empat lubang M6 berulir tembus lurus dari kedua muka, dua per ujung, pusat lubang 12 mm dari ujung, 106 mm antar pasangan, 15 mm melintang (terukur 31 Okt. 2026 dan cocok, [asumsi.md](asumsi.md) Bagian 8.1). Pelat 140 x 35 x 8 mm dengan load cell di tengah, jadi pelat menjorok 5 mm melewati tiap ujung load cell dan menutup spacer (sampai 3 mm di luar ujung load cell). Bidang kontak spacer 24 mm (`boss_L`), bentang bebas antar spacer 82 mm, lengan tuas a = 41 mm, ujung jauh x = 106 mm, zona genggam sekitar 85 mm.
+Ukuran kunci (gambar penjual CZL 601 80 kg): load cell 130 x 28 x 21,5 mm (terukur), empat lubang M6 berulir tembus lurus dari kedua muka, dua per ujung, pusat lubang 12 mm dari ujung, 106 mm antar pasangan, 15 mm melintang (terukur 31 Okt. 2026 dan cocok, [asumsi.md](asumsi.md) Bagian 8.1). Pelat 140 x 40 x 8 mm dengan load cell di tengah, jadi pelat menjorok 5 mm melewati tiap ujung load cell dan menutup spacer (sampai 3 mm di luar ujung load cell). Bidang kontak spacer 24 mm (`boss_L`), bentang bebas antar spacer 82 mm, lengan tuas a = 41 mm, ujung jauh x = 106 mm, zona genggam sekitar 85 mm.
 
 1. (callout 4, 6, 18) Ujung tetap load cell dibaut ke pelat A lewat Spacer A (PLA, bidang kontak 24 x 28, tebal 3,0 mm, terpisah dari pelat). Dua flange bolt M6 x 25 + ring plat M6 menembus pelat dan spacer langsung ke ulir load cell, tanpa mur. Spacer menutup kedua lubang di ujungnya dan membuat celah 3,0 mm di atas sisi bebas.
-2. (callout 8 dan 15) Celah antara tiap pelat dan badan load cell harus tetap terbuka pada beban penuh. Pelat melentur 0,64 mm di ujung jauh pada 70 kgf dengan beban merata di zona genggam (HL9.6), jadi sisa celah 2,36 mm sebelum anggaran lenturan load cell (0,5 mm), tinggi penutup strain gauge (1,0 mm), dan margin rakit (0,3 mm) dikurangkan; sisa setelah anggaran sekitar 0,56 mm (HL9.6). Celah ini bukan stop overload; stop overload belum dirancang.
+2. (callout 8 dan 15) Celah antara tiap pelat dan badan load cell harus tetap terbuka pada beban penuh. Pelat melentur 0,56 mm di ujung jauh pada 70 kgf dengan beban merata di zona genggam (HL9.6), jadi sisa celah 2,44 mm sebelum anggaran lenturan load cell (0,5 mm), tinggi penutup strain gauge (1,0 mm), dan margin rakit (0,3 mm) dikurangkan; sisa setelah anggaran sekitar 0,64 mm (HL9.6). Celah ini bukan stop overload; stop overload belum dirancang.
 3. (callout 5 dan 7) Ujung bebas dibaut ke pelat B dari sisi berlawanan lewat Spacer B (sama dengan A). Di ujung tetap, B tidak boleh menyentuh badan load cell.
 4. (callout 10 dan 11) Ridge penahan jari dan bidang tumpu kalibrasi (permukaan datar selebar sekitar 22 mm di antara dua ridge) berada di pusat jari di sisi luar B. Kalibrasi memakai balok PLA dengan lidah yang masuk di antara dua ridge (HL10). Titik gantung (eyelet) tidak dipakai karena beban gantung menarik B menjauhi A, kebalikan remasan.
 5. (callout 12 sampai 14) Kabel load cell Ø4 mm (terukur 11 Okt. 2026). Ø4 lebih besar daripada celah 3,0 mm, jadi kabel tidak boleh lewat celah. Kabel keluar **menyamping** dari muka samping panjang load cell (130 x 21,5 mm) di dekat ujung berkabel, lewat lubang Ø5 di tengah tinggi, pusat 5,35 mm dari muka ujung (terukur 1 Nov. 2026, [asumsi.md](asumsi.md) 8.2). Ujung berkabel menjadi ujung tetap. Kabel duduk di takik 4,6 mm di dinding klem Spacer A yang terbuka ke arah pelat B, lalu diikat zip tie 2,5 x 100 lewat terowongan di bantalan dinding (sejak v13; langkah di instruksi kerja Fusion Fase 4). Dari klem, kabel menuju housing elektronik ke arah pelat B, menjauhi telapak. Panjang kabel diasumsikan 28 cm.
@@ -93,7 +93,7 @@ Tebal total grip = 2 x tebal batang + 2 x tebal spacer (celah) + sisi load cell 
 | Posisi tekan jari bergeser antar remasan | Galat acak (rasio berubah) | Ridge atau alur penahan jari; uji dengan beban di beberapa posisi; tidak dikoreksi di firmware karena posisi jari tidak diketahui sensor |
 | Jalur gaya paralel (A dan B bersentuhan atau bergesek, kabel tertarik, baut mengenai bagian lain) | Bacaan terlalu kecil dan histeresis | Celah di semua titik selain spacer; kabel diikat di sisi tetap (Ø4 mm tidak lewat celah 3,0 mm) |
 | Kelenturan batang (dan creep bila PLA) di jalur beban | Batang yang melentur menyentuh load cell (gaya lewat jalur selain elemen ukur, bacaan terlalu kecil) atau patah; creep PLA menambah drift saat tahan 3-5 detik | Batang kaku, usulan pelat aluminium (HL9); cek residual kalibrasi. PETG bukan solusi: modulusnya sebanding dengan PLA |
-| Massa bagian bergerak di ujung bebas | Offset berubah bila orientasi berubah setelah tare. Perkiraan kasar: batang PLA 170 x 30 x 7 mm berbobot sekitar 20-45 g; pelat aluminium 140 x 35 x 8 mm sekitar 104 g (rencana lama 170 x 30 x 10: 136 g); baja 8 mm sekitar 320 g. Semuanya sebanding atau jauh di atas tolerance ±36 g di S1 | Tare dan remas di orientasi yang sama; batang B seringan mungkin yang masih kaku |
+| Massa bagian bergerak di ujung bebas | Offset berubah bila orientasi berubah setelah tare. Perkiraan kasar: batang PLA 170 x 30 x 7 mm berbobot sekitar 20-45 g; pelat aluminium 140 x 40 x 8 mm sekitar 120 g (rencana lama 170 x 30 x 10: 136 g); baja 8 mm sekitar 320 g. Semuanya sebanding atau jauh di atas tolerance ±36 g di S1 | Tare dan remas di orientasi yang sama; batang B seringan mungkin yang masih kaku |
 | Spacer PLA di bawah baut: relaksasi preload (creep) | Baut mengendur, sambungan bergeser, bacaan drift (kompresi spacer saat remasan hanya sekitar 0,001 mm, jadi bukan masalah kekakuan) | Washer logam di bawah kepala baut; cek kekencangan berkala; alternatif shim aluminium 3 mm |
 | Kekakuan rangka mengubah sensitivitas sistem | `calibration_factor` tidak bisa diambil dari nilai generik atau datasheet | Kalibrasi ulang setelah rakit (FP1) |
 
@@ -101,7 +101,7 @@ Tebal total grip = 2 x tebal batang + 2 x tebal spacer (celah) + sisi load cell 
 
 ## HL6. Setup parametrik di Fusion 360
 
-1. Buka Change Parameters (Design > Solid > Modify), lalu tambah user parameter lewat Add User Parameter (satu dialog per parameter). Cara cepat: impor [`fusion_parameters_housing_grip.csv`](fusion/fusion_parameters_housing_grip.csv) lewat Import Parameters; format kolom Name, Unit, Expression, Value, Comments, Favorite (contoh format ada di halaman bantuan "Parameters in Fusion"). Tulis satuan di dalam ekspresi (misalnya `130 mm`), pilih satuan mm sejak awal (mengganti satuan parameter yang sudah dipakai bisa bermasalah), dan cek kolom Value setelah memasukkan angka desimal karena pemisah desimal mengikuti pengaturan regional. Parameter (v7, sesuai gambar penjual dan v5): `LC_L` = 130, `LC_W` = 28, `LC_H` = 21,5, `bar_L` = 140, `bar_W` = 35, `bar_t` = 8 (pelat aluminium, v15), `gap` = 3, `boss_L` = 24 (panjang bidang kontak spacer; sejak v12), `lever_arm` = `LC_L / 2 - boss_L` (41 mm), `spA_c` = `-( LC_L / 2 ) + ( boss_L / 2 )` dan `spB_c` = `( LC_L / 2 ) - ( boss_L / 2 )` (posisi pusat bidang kontak, -53 dan +53 mm), `grip_zone` = 85, `hole_edge` = 12 (pusat lubang dari ujung load cell), `hole_pitch` = 106 (antar pasangan lubang, memanjang), `hole_cross` = 15 (antar dua lubang melintang), dan `hole_d` = 6,6 (Ø lubang lewat di pelat; lubang spacer PLA memakai `hole_sp_d` = `hole_d` + `comp_hole` = 7,6 mm).
+1. Buka Change Parameters (Design > Solid > Modify), lalu tambah user parameter lewat Add User Parameter (satu dialog per parameter). Cara cepat: impor [`fusion_parameters_housing_grip.csv`](fusion/fusion_parameters_housing_grip.csv) lewat Import Parameters; format kolom Name, Unit, Expression, Value, Comments, Favorite (contoh format ada di halaman bantuan "Parameters in Fusion"). Tulis satuan di dalam ekspresi (misalnya `130 mm`), pilih satuan mm sejak awal (mengganti satuan parameter yang sudah dipakai bisa bermasalah), dan cek kolom Value setelah memasukkan angka desimal karena pemisah desimal mengikuti pengaturan regional. Parameter (v7, sesuai gambar penjual dan v5): `LC_L` = 130, `LC_W` = 28, `LC_H` = 21,5, `bar_L` = 140, `bar_W` = 40, `bar_t` = 8 (pelat aluminium, v16), `gap` = 3, `boss_L` = 24 (panjang bidang kontak spacer; sejak v12), `lever_arm` = `LC_L / 2 - boss_L` (41 mm), `spA_c` = `-( LC_L / 2 ) + ( boss_L / 2 )` dan `spB_c` = `( LC_L / 2 ) - ( boss_L / 2 )` (posisi pusat bidang kontak, -53 dan +53 mm), `grip_zone` = 85, `hole_edge` = 12 (pusat lubang dari ujung load cell), `hole_pitch` = 106 (antar pasangan lubang, memanjang), `hole_cross` = 15 (antar dua lubang melintang), dan `hole_d` = 6,6 (Ø lubang lewat di pelat; lubang spacer PLA memakai `hole_sp_d` = `hole_d` + `comp_hole` = 7,6 mm).
 2. Component `LoadCell_ref`: kotak 130 x 28 x 21,5 mm dengan dua lubang M6 di tiap ujung (pola 2 x 2) memakai parameter di langkah 1. Hanya acuan, tidak dicetak.
 3. Component `Bar_A` dan `Bar_B` berupa pelat polos `bar_L` x `bar_W` x `bar_t` (tanpa tonjolan). Component `Spacer_A` dan `Spacer_B` (PLA) terpisah, masing-masing `boss_L` x `LC_W` x `gap`: spacer A di ujung tetap load cell (di atasnya, di bawah pelat A) dan spacer B di ujung bebas (di bawahnya, di atas pelat B).
 4. Rakit dengan joint, lalu Inspect > Interference: A dan B tidak boleh bersentuhan satu sama lain, dan tidak boleh menyentuh badan load cell selain lewat spacer.
@@ -124,7 +124,7 @@ Lebar (terukur 28 mm, selesai; gambar penjual 28, GJ Impex 30), panjang blok uju
 
 ## HL9. Temuan kekakuan batang dan usulan bahan
 
-*Status (v15, 7 Nov. 2026): dihitung ulang untuk pelat 140 x 35 x 8 mm dan celah (tebal spacer) 3,0 mm (alasan di HL9.10), memakai urutan analisis balok dari Beer, Johnston, dan DeWolf, Bab 5 (BJ1 sampai BJ4 di [sitasi](../sitasi/sitasi-hgd.md#111-beer-johnston-dan-dewolf-mechanics-of-materials-ed-3-2002-bab-5)): (1) diagram benda bebas dan reaksi, (2) diagram gaya geser V dan momen lentur M, (3) tegangan σ = M/S, (4) modulus penampang minimum S_min = M_maks/σ_izin. Pelat 8 mm (6061-T6) lolos tepat di faktor aman 2 menurut batas atas dan menjadi tebal minimum. Hitungan v14 (170 x 30 x 10) ada di riwayat. Hitungan ini untuk arah desain, bukan verifikasi; skrip hitungnya tidak disimpan di repo, semua angka bisa diulang dari rumus di bawah.*
+*Status (v16, 8 Nov. 2026): dihitung ulang untuk pelat 140 x 40 x 8 mm dan celah (tebal spacer) 3,0 mm (alasan di HL9.10), memakai urutan analisis balok dari Beer, Johnston, dan DeWolf, Bab 5 (BJ1 sampai BJ4 di [sitasi](../sitasi/sitasi-hgd.md#111-beer-johnston-dan-dewolf-mechanics-of-materials-ed-3-2002-bab-5)): (1) diagram benda bebas dan reaksi, (2) diagram gaya geser V dan momen lentur M, (3) tegangan σ = M/S, (4) modulus penampang minimum S_min = M_maks/σ_izin. Pelat 8 mm selebar 40 (6061-T6) lolos dengan faktor aman 2,4 menurut batas atas (tebal minimum 7,3 mm). Hitungan v14 (170 x 30 x 10) dan v15 (140 x 35 x 8) ada di riwayat. Hitungan ini untuk arah desain, bukan verifikasi; skrip hitungnya tidak disimpan di repo, semua angka bisa diulang dari rumus di bawah.*
 
 Masalah: tiap batang bekerja sebagai kantilever dari spacernya. Batang A hanya ditopang di ujung tetap load cell dan batang B hanya di ujung bebas, jadi beban genggam melenturkan batang sepanjang lengan tuas. Dua akibat yang harus dicegah: (1) batang menyentuh badan load cell, sehingga sebagian gaya lewat jalur selain elemen ukur dan bacaan terlalu rendah; (2) batang patah atau meluluh.
 
@@ -137,11 +137,11 @@ Masalah: tiap batang bekerja sebagai kantilever dari spacernya. Batang A hanya d
 | Panjang kontak spacer `boss_L` | 24 mm (bidang kontak 24 x 28) | CSV |
 | Tepi dalam spacer A, baut, tengah load cell | x = −41, −53, 0 mm (asal di tengah load cell) | CSV: `lever_arm`, `hole_x` |
 | Lengan tuas a, titik jauh x | a = 41 mm (tepi dalam spacer ke tengah load cell); x = 106 mm (tepi dalam spacer ke ujung seberang load cell) | turunan |
-| Pelat | aluminium 6061-T6, 140 x 35 x 8 mm; I = b·h³/12 = 1 493 mm⁴; S = b·h²/6 = 373 mm³ | CSV v15 |
-| Lubang pelat | 2 x Ø6,6 melintang; S_bersih = (35 − 2 x 6,6)·8²/6 = 232,5 mm³ | CSV |
+| Pelat | aluminium 6061-T6, 140 x 40 x 8 mm; I = b·h³/12 = 1 707 mm⁴; S = b·h²/6 = 427 mm³ | CSV v16 |
+| Lubang pelat | 2 x Ø6,6 melintang; S_bersih = (40 − 2 x 6,6)·8²/6 = 285,9 mm³ | CSV |
 | Bahan pelat | E = 70 GPa, luluh 240 MPa | nilai umum 6061-T6; grade dari penjual belum dikonfirmasi |
 | Baut | flange bolt M6 x 25 stainless A2-70 (dibeli 31 Okt. 2026) + ring plat M6; luluh ≥ 450 MPa, luas tegangan 20,1 mm² | pesanan; ISO 3506-1 (nilai umum) |
-| Spacer | PLA, tebal (`gap`) 3,0 mm, E ≈ 3 GPa; lubang tercetak ≈Ø6,6 | CSV v15 |
+| Spacer | PLA, tebal (`gap`) 3,0 mm, E ≈ 3 GPa; lubang tercetak ≈Ø6,6 | CSV v16 |
 
 Pelat B identik dengan pelat A, dicerminkan (ditopang di ujung bebas, ditekan jari), jadi semua angka di bawah berlaku untuk keduanya. Panjang pelat tidak masuk hitungan selama beban berada di zona genggam: bagian pelat di luar ujung load cell tidak dibebani dan tidak bisa menyentuh apa pun.
 
@@ -180,25 +180,25 @@ Momen di penampang lubang. Tanpa preload, M di ruas baut sampai tepi naik linear
 
 | Penampang | Rumus | Tegangan | Faktor aman terhadap luluh 240 MPa |
 |---|---|---|---|
-| Pejal di tepi spacer (x = −41) | σ = M/S = 28 126 / 373 | **75,3 MPa** | 3,2 |
-| Berlubang, batas atas (M_maks di lubang) | σ = M/S_bersih = 28 126 / 232,5 | **121,0 MPa** | 2,0 (1,98) |
-| Berlubang, tanpa preload (M di tepi lubang) | 7 735 / 232,5 | 33,3 MPa | 7,2 |
-| Kasus 3: pejal; berlubang batas atas | 34 986 / 373; 34 986 / 232,5 | 93,7 MPa; 150,5 MPa | 2,6; 1,6 |
-| Geser bentang bebas | τ = 1,5·V/A = 1,5 x 686 / 280 | 3,7 MPa | jauh di bawah luluh geser ≈140 MPa |
-| Geser baut sampai tepi (tanpa preload) | τ = 1,5 x 2 344 / 280; bersih 1,5 x 2 344 / 174,4 | 12,6 MPa; 20,2 MPa | jauh di bawah |
+| Pejal di tepi spacer (x = −41) | σ = M/S = 28 126 / 427 | **65,9 MPa** | 3,6 |
+| Berlubang, batas atas (M_maks di lubang) | σ = M/S_bersih = 28 126 / 285,9 | **98,4 MPa** | 2,4 |
+| Berlubang, tanpa preload (M di tepi lubang) | 7 735 / 285,9 | 27,1 MPa | 8,9 |
+| Kasus 3: pejal; berlubang batas atas | 34 986 / 427; 34 986 / 285,9 | 82,0 MPa; 122,4 MPa | 2,9; 2,0 |
+| Geser bentang bebas | τ = 1,5·V/A = 1,5 x 686 / 320 | 3,2 MPa | jauh di bawah luluh geser ≈140 MPa |
+| Geser baut sampai tepi (tanpa preload) | τ = 1,5 x 2 344 / 320; bersih 1,5 x 2 344 / 214,4 | 11,0 MPa; 16,4 MPa | jauh di bawah |
 
-Tegangan sebenarnya di penampang lubang berada di antara 33 dan 121 MPa. Batas atas tepat di faktor aman 2; nilai sebenarnya lebih rendah karena lubang 12 mm lebih jauh dari beban daripada tepi spacer.
+Tegangan sebenarnya di penampang lubang berada di antara 27 dan 98 MPa; batas atas pun lolos dengan faktor aman 2,4. Nilai sebenarnya lebih rendah karena lubang 12 mm lebih jauh dari beban daripada tepi spacer. Pelat selebar 35 (v15) memberi 121 MPa, tepat di faktor aman 2.
 
 ### HL9.5 Langkah 4: modulus penampang minimum (cara desain BJ4)
 
 Dengan faktor aman 2 (σ_izin = 240 / 2 = 120 MPa, asumsi desain): S_min = M_maks / σ_izin = 28 135 / 120 = **234 mm³**.
 
-| Penampang | S tersedia | Tebal minimum untuk S_min (lebar 35) | Hasil |
+| Penampang | S tersedia | Tebal minimum untuk S_min (lebar 40) | Hasil |
 |---|---|---|---|
-| Pejal | 373 mm³ | h = √(6·S_min/b) = **6,3 mm** | lolos, 1,6 x S_min |
-| Berlubang (batas atas) | 232,5 mm³ | h = √(6·S_min/21,8) = **8,0 mm** | 0,99 x S_min: tepat di batas |
+| Pejal | 427 mm³ | h = √(6·S_min/b) = **5,9 mm** | lolos, 1,8 x S_min |
+| Berlubang (batas atas) | 285,9 mm³ | h = √(6·S_min/26,8) = **7,3 mm** | lolos, 1,2 x S_min |
 
-Jadi **8 mm adalah tebal minimum** pelat 6061-T6 selebar 35 mm menurut kriteria batas atas. Pelat lebih tipis dari 8 mm tidak dipakai, counterbore di pangkal pelat dilarang (HL11), dan pelat dari paduan yang lebih lunak dari 5052 (misalnya 1100) tidak boleh dipakai.
+Jadi pelat 8 mm selebar 40 lolos dengan sisa 20% terhadap kriteria batas atas (tebal minimum 7,3 mm). Pelat selebar 35 tepat di batas (8,0 mm); itu alasan lebar dinaikkan ke 40 di v16. Jangan memakai pelat lebih tipis dari 8 mm, jangan membuat counterbore di pangkal pelat (HL11), dan jangan memakai paduan yang lebih lunak dari 5052 (misalnya 1100).
 
 ### HL9.6 Langkah 5: lenturan dan sisa celah
 
@@ -206,15 +206,15 @@ Pelat dianggap kantilever yang dijepit di tepi dalam spacer (spacer dan baut kak
 
 | Kasus beban (F = 686 N) | Lenturan di tengah load cell | Lenturan ujung jauh (x = 106) | Sisa celah 3,0 setelah anggaran* | Sisa bila celah 2,5 |
 |---|---|---|---|---|
-| 1. Terpusat di tengah load cell | 0,151 mm | 0,509 mm | 0,69 mm | 0,19 mm |
-| **2. Merata di zona genggam 85 mm (dipakai)** | 0,161 mm | **0,638 mm** | **0,56 mm** | 0,06 mm |
-| 3. Resultan bergeser 10 mm ke ujung jauh | — | 0,760 mm | 0,44 mm | −0,06 mm (menyentuh) |
+| 1. Terpusat di tengah load cell | 0,132 mm | 0,446 mm | 0,75 mm | 0,25 mm |
+| **2. Merata di zona genggam 85 mm (dipakai)** | 0,141 mm | **0,558 mm** | **0,64 mm** | 0,14 mm |
+| 3. Resultan bergeser 10 mm ke ujung jauh | — | 0,665 mm | 0,54 mm | 0,04 mm |
 
 *Sisa = celah − lenturan ujung jauh − lenturan load cell 0,5 − tinggi penutup strain gauge 1,0 − margin rakit 0,3 (tiga angka terakhir masih asumsi desain, belum diukur).
 
-Pelat 8 mm melentur hampir dua kali pelat 10 mm, jadi celah 2,5 tidak cukup. **Celah (tebal spacer) dinaikkan menjadi 3,0 mm**; sisa celahnya lebih besar daripada desain v14 (0,32 mm). Angka terbesar di anggaran tetap tinggi penutup strain gauge (1,0 mm, asumsi), jadi **ukur tinggi penutup** sebelum spacer dicetak; bila lebih dari 1,4 mm, naikkan `gap` ke 3,5.
+Pelat 8 mm lebih lentur daripada pelat 10 mm: dengan celah 2,5 sisa celah hanya 0,14 mm (0,04 bila jari meleset). **Celah (tebal spacer) dinaikkan menjadi 3,0 mm** (sejak v15); sisa celahnya lebih besar daripada desain v14 (0,32 mm). Angka terbesar di anggaran tetap tinggi penutup strain gauge (1,0 mm, asumsi), jadi **ukur tinggi penutup** sebelum spacer dicetak; bila lebih dari 1,4 mm, naikkan `gap` ke 3,5.
 
-Jarak dinding klem kabel (sisi A) ke pelat B: 5,5 mm tanpa beban (`wall_bottom_z` + `gap`). Pada 70 kgf ujung pelat B naik 0,64 mm dan ujung bebas load cell sekitar 0,5 mm (asumsi), jadi tersisa ≈4,4 mm, masih di atas `ab_min_cl` 2 mm.
+Jarak dinding klem kabel (sisi A) ke pelat B: 5,5 mm tanpa beban (`wall_bottom_z` + `gap`). Pada 70 kgf ujung pelat B naik 0,56 mm dan ujung bebas load cell sekitar 0,5 mm (asumsi), jadi tersisa ≈4,4 mm, masih di atas `ab_min_cl` 2 mm.
 
 ### HL9.7 Langkah 6: spacer PLA dan baut
 
@@ -234,39 +234,42 @@ Torsi 3 N·m dipertahankan sebagai nilai desain. Bila hasil cek kekencangan menu
 
 ### HL9.8 Load cell
 
-Load cell menerima gaya F di bidang Spacer B dan meneruskannya ke Spacer A. Pada 70 kgf bebannya 87,5% kapasitas 80 kg, di bawah overload aman 120% (96 kgf) dan overload merusak 150% (120 kgf) dari dokumen pabrikan (DS-LC1). Celah 3,0 mm bukan stop overload, karena pelat sudah melentur 0,64 mm ke arah load cell pada 70 kgf; stop overload membutuhkan fitur terpisah yang belum dirancang.
+Load cell menerima gaya F di bidang Spacer B dan meneruskannya ke Spacer A. Pada 70 kgf bebannya 87,5% kapasitas 80 kg, di bawah overload aman 120% (96 kgf) dan overload merusak 150% (120 kgf) dari dokumen pabrikan (DS-LC1). Celah 3,0 mm bukan stop overload, karena pelat sudah melentur 0,56 mm ke arah load cell pada 70 kgf; stop overload membutuhkan fitur terpisah yang belum dirancang.
 
 Yang belum diketahui dan mengurangi margin: tinggi penutup strain gauge, lenturan load cell sendiri pada 70 kgf, kekakuan spacer dan sambungan baut, koefisien torsi K baut stainless, dan grade aluminium yang benar-benar dikirim.
 
 ### HL9.9 Bahan alternatif
 
-Tebal minimum agar lenturan ujung jauh tidak lebih dari 1 mm pada 686 N (kasus 2, lebar 35: a = 41, x = 106, beban merata; lenturan sebanding dengan 1/(E·h³); modulus nilai umum; kekuatan bahan non-logam tidak diperiksa):
+Tebal minimum agar lenturan ujung jauh tidak lebih dari 1 mm pada 686 N (kasus 2, lebar 40: a = 41, x = 106, beban merata; lenturan sebanding dengan 1/(E·h³); modulus nilai umum; kekuatan bahan non-logam tidak diperiksa):
 
 | Bahan | Modulus (kira-kira) | Tebal minimum | Cocok? |
 |---|---|---|---|
-| PLA | 3 GPa | sekitar 19,7 mm | Tidak |
-| Multipleks/kayu | 6-12 GPa | sekitar 12,4-15,6 mm | Tidak (juga lembap dan creep) |
-| Fiberglass epoksi (FR4/G10) | 18-24 GPa | sekitar 9,8-10,8 mm | Kekakuan mendekati, tetapi tidak lebih tipis dari aluminium, lebih mahal, dan debu bor berbahaya |
-| Aluminium | 70 GPa | sekitar 6,9 mm (kekuatan: 8,0 mm, HL9.5) | Ya, 8 mm (dipilih v15) |
-| Baja | 200 GPa | sekitar 4,9 mm | Ya, tetapi margin tegangan penampang berlubang tipis pada baja lunak |
+| PLA | 3 GPa | sekitar 18,8 mm | Tidak |
+| Multipleks/kayu | 6-12 GPa | sekitar 11,9-14,9 mm | Tidak (juga lembap dan creep) |
+| Fiberglass epoksi (FR4/G10) | 18-24 GPa | sekitar 9,4-10,4 mm | Kekakuan mendekati, tetapi tidak lebih tipis dari aluminium, lebih mahal, dan debu bor berbahaya |
+| Aluminium | 70 GPa | sekitar 6,6 mm (kekuatan: 7,3 mm, HL9.5) | Ya, 8 mm (dipilih v15, lebar 40 sejak v16) |
+| Baja | 200 GPa | sekitar 4,6 mm | Ya, tetapi margin tegangan penampang berlubang tipis pada baja lunak |
 
 Kesimpulan: bahan non-logam tidak lebih baik dari aluminium pada tebal yang tersedia. Pilihan yang tidak disarankan: PLA dengan inti logam di dalam (beban dan momen di pangkal harus lewat PLA di sekitar baut), dan menurunkan beban desain S1 (mengubah spesifikasi di proposal). PETG tidak menyelesaikan masalah karena modulusnya sebanding dengan PLA. Validasi model lentur dengan uji sederhana tetap berlaku: pelat PLA 30 x 7 mm dijepit satu ujung, beban 5 kg di jarak 120 mm; prediksi sekitar 11 mm.
 
-### HL9.10 Mengapa 140 x 35 x 8 (v15)
+### HL9.10 Mengapa 140 x 40 x 8 (v15, v16)
 
 | Pelat (6061-T6) | Massa dua pelat | Lenturan ujung jauh | Tegangan pejal / berlubang (batas atas) | Celah | Harga (penjual per cm², sebelum ongkir) |
 |---|---|---|---|---|---|
 | 170 x 30 x 10 (v8 sampai v14) | 272 g | 0,381 mm | 56,3 / 100,5 MPa | 2,5 | tidak ditanyakan |
 | 140 x 35 x 10 | 261 g | 0,327 mm | 48,2 / 77,4 MPa | 2,5 | 3 lembar: Rp68.061; 2 lembar (minimum 100 cm²) ≈Rp46.300 |
-| **140 x 35 x 8 (dipilih)** | **209 g** | **0,638 mm** | **75,3 / 121,0 MPa** | **3,0** | **2 lembar (minimum 100 cm²): Rp36.500** |
+| 140 x 35 x 8 (v15) | 209 g | 0,638 mm | 75,3 / 121,0 MPa | 3,0 | 2 lembar (minimum 100 cm²): Rp36.500 |
+| **140 x 40 x 8 (dipilih, v16)** | **239 g** | **0,558 mm** | **65,9 / 98,4 MPa** | **3,0** | **2 lembar 112 cm²: ≈Rp40.880** |
 
 - **Panjang 140:** panjang pelat tidak masuk hitungan gaya (HL9.1). Pelat 140 menutup spacer (sampai 68 mm dari tengah) dan menyisakan 17 mm dari pusat lubang ke ujung pelat. Zona genggam 85 mm dibatasi kepala baut, bukan panjang pelat (tepi flange Ø14,2 berada 3,4 mm di luar zona genggam di kedua ujung, `gambar/tampak_atas_housing_grip.svg`).
-- **Lebar 35:** mengikuti lebar spacer (34) supaya rata dan tampak rapi; lebih kaku dan tegangannya lebih rendah daripada 30. Pelat paling sempit untuk flange bolt: 2 x (7,5 + 7,1) = 29,2 mm.
-- **Tebal 8:** sisa anggaran Rp27.331 tidak cukup untuk pelat 10 mm; 8 mm adalah tebal minimum menurut HL9.5, dan celah 3,0 mengganti kekakuan yang hilang.
+- **Lebar 40 (v16):** v15 memakai 35 supaya rata dengan spacer (34). Di v16 dinaikkan ke 40: faktor aman penampang berlubang naik dari 1,98 ke 2,4 (8 mm tidak lagi tepat di batas), lenturan turun, spacer tertutup penuh oleh pelat (pelat 3 mm lebih lebar per sisi), dan tambahannya hanya ≈Rp4.400 dan 30 g. Lebar 40 tidak membuat potongan lebih rata: tepi pelat tetap dikikir dan lubang ditandai dari garis tengah hasil ukur (HL11). Pelat paling sempit untuk flange bolt: 2 x (7,5 + 7,1) = 29,2 mm.
+- **Tebal 8:** sisa anggaran Rp27.331 tidak cukup untuk pelat 10 mm; dengan lebar 40, pelat 8 mm lolos (tebal minimum 7,3 mm, HL9.5), dan celah 3,0 mengganti kekakuan yang hilang.
 
 ### Riwayat hitungan (tidak berlaku untuk desain terbaru)
 
 Blok di bawah dipertahankan sebagai riwayat dan penjelasan metode.
+
+**v15 (pelat 140 x 35 x 8, celah 3,0):** tegangan 75,3 MPa pejal (faktor aman 3,2) dan 121,0 MPa berlubang batas atas (1,98, tepat di batas; tebal minimum 8,0 mm untuk lebar 35); lenturan ujung jauh 0,509 / 0,638 / 0,760 mm, sisa celah ≈0,56 mm; massa dua pelat 209 g.
 
 **v14 (pelat 170 x 30 x 10, celah 2,5, `boss_L` 24; beban merata dipakai):** M_maks 28 135 N·mm; tegangan 56,3 MPa pejal (faktor aman 4,3) dan 100,5 MPa berlubang batas atas (2,4); S_min 234 mm³, pelat berlubang 280 mm³ (tebal minimum 9,2 mm untuk lebar 30); lenturan ujung jauh 0,304 / 0,381 / 0,454 mm (terpusat / merata / bergeser 10 mm), sisa celah ≈0,32 mm; ulir masuk 10,9 mm, baut maksimal M6 x 35.
 
@@ -311,19 +314,19 @@ Blok di bawah dipertahankan sebagai riwayat dan penjelasan metode.
 | 70 kgf | diuji langsung | ekstrapolasi dari 42 kg |
 
 **Keterbatasan dan hal yang belum terjawab:**
-1. Kalibrasi hanya sampai 42 kg (60% dari 70 kgf). Nilai di atas itu adalah ekstrapolasi, dan bagian yang paling kritis secara mekanis (lenturan pelat sekitar 0,64 mm, kemungkinan kontak celah) tidak teruji. Catat di laporan; cara menguji sampai 70 kgf (misalnya pembanding dengan timbangan referensi, FP1) belum dirancang. 42 kg adalah sekitar 52% kapasitas load cell 80 kg, di dalam batas overload.
+1. Kalibrasi hanya sampai 42 kg (60% dari 70 kgf). Nilai di atas itu adalah ekstrapolasi, dan bagian yang paling kritis secara mekanis (lenturan pelat sekitar 0,56 mm, kemungkinan kontak celah) tidak teruji. Catat di laporan; cara menguji sampai 70 kgf (misalnya pembanding dengan timbangan referensi, FP1) belum dirancang. 42 kg adalah sekitar 52% kapasitas load cell 80 kg, di dalam batas overload.
 2. Kepala flange bolt dan ring menonjol di sisi luar pelat A (17 mm dari ujung pelat; tinggi belum diukur, sekitar 6 mm kepala DIN 6921 M6 + ring 1,6 = sekitar 7,6 mm; flange Ø14,2). Dengan A di bawah, A bertumpu pada kepala baut di ujung tetap dan tidak rata terhadap alas. Rencana lama (alas karet 6 mm, slot 29 x 14 untuk baut ISO 4017 + washer Ø12, tonjolan 5,6 mm) terlalu kecil untuk flange bolt: dua flange Ø14,2 berjarak 15 butuh slot lebih dari 29,2 x 14,2, dan alas harus lebih tebal dari tonjolan kepala. Ukur kepala baut, lalu tetapkan tebal alas dan slot (misalnya 32 x 17). Ini inferensi, bukan hasil pengukuran.
 3. A bertumpu pada alas, sehingga lenturan A saat digenggam tidak teruji; yang teruji hanya jalur beban lewat load cell.
 4. Tumpukan penuh 42 kg tingginya sekitar 25 sampai 28 cm di atas papan dengan tumpuan lidah sekitar 21 mm, jadi goyah (peringatan di protokol). Langkah keselamatan protokol berlaku: turunkan pelan, jangan taruh tangan di bawah tumpukan, berhenti bila tumpukan miring.
-5. Soal orientasi: kemiringan faktor skala (slope) tidak bergantung orientasi pada pendekatan pertama, sedangkan offset berubah sekitar massa B (sekitar 104 g untuk pelat 140 x 35 x 8). Karena auto-tare terjadi di SIAP pada tiap percobaan, kalibrasi dalam orientasi terbalik tetap berlaku untuk slope; yang perlu dijaga adalah orientasi alat antara tare dan remasan.
+5. Soal orientasi: kemiringan faktor skala (slope) tidak bergantung orientasi pada pendekatan pertama, sedangkan offset berubah sekitar massa B (sekitar 120 g untuk pelat 140 x 40 x 8). Karena auto-tare terjadi di SIAP pada tiap percobaan, kalibrasi dalam orientasi terbalik tetap berlaku untuk slope; yang perlu dijaga adalah orientasi alat antara tare dan remasan.
 6. Kalibrasi memakai beban statis di titik tengah, sedangkan genggaman nyata memberi beban di empat jari dengan posisi sedikit berbeda (HL5).
 
 ## HL11. Pengadaan pelat logam
 
-- **Pesanan (v15, 7 Nov. 2026):** penjual plat aluminium yang memotong sesuai ukuran dan menghitung harga per cm² (minimum 100 cm²). Pesan 2 lembar 14 x 3,5 cm tebal 8 mm, isi jumlah 100 dengan catatan "2 lembar 14 x 3,5 cm, tebal 8 mm": Rp36.500 sebelum ongkir (Rp365/cm²). Tebal 10 mm Rp463/cm² (3 lembar Rp68.061). Tanpa pelat cadangan: 3 lembar melewati anggaran.
+- **Pesanan (v15, 7 Nov. 2026):** penjual plat aluminium yang memotong sesuai ukuran dan menghitung harga per cm² (minimum 100 cm²). Pesan 2 lembar 14 x 4 cm tebal 8 mm, isi jumlah 112 dengan catatan "2 lembar 14 x 4 cm, tebal 8 mm": ≈Rp40.880 sebelum ongkir (Rp365/cm²; lebar 3,5 cm di v15: 100 cm², Rp36.500). Tebal 10 mm Rp463/cm² (3 lembar Rp68.061). Tanpa pelat cadangan: 3 lembar melewati anggaran.
 - **Grade:** tanyakan ke penjual sebelum membayar. 6061 atau 5052 boleh (HL9.4); 1100 terlalu lunak untuk pelat 8 mm. Bila penjual tidak bisa menyebutkan grade, anggap lunak dan cari penjual lain.
-- **Anggaran:** terpakai Rp272.669 (reimbursement pertama Rp211.219, baut Rp61.450), sisa Rp27.331 dari batas Rp300.000. Pelat melewati sisa itu sekitar Rp9.200 + ongkir; selisih ditanggung tim kecuali dosen atau TA memutuskan lain (HL20).
-- **Pengeboran:** dua lubang Ø6,6 per pelat, hanya di satu ujung: pusat 17 mm dari ujung pelat (`bar_hole_edge`), 15 mm melintang, di tengah lebar. Pelat A dibor di ujung tetap, pelat B di ujung bebas. Karena tanpa cadangan: tandai posisi dari spacer PLA tercetak atau gambar 1:1, center punch, bor pilot kecil dulu, lalu Ø6,6, sebaiknya dengan bor duduk. Jangan membuat counterbore (pelat 8 mm sudah di tebal minimum) dan jangan mengebor menembus lubang berulir load cell.
+- **Anggaran:** terpakai Rp272.669 (reimbursement pertama Rp211.219, baut Rp61.450), sisa Rp27.331 dari batas Rp300.000. Pelat melewati sisa itu sekitar Rp13.600 + ongkir; selisih ditanggung tim kecuali dosen atau TA memutuskan lain (HL20).
+- **Pengeboran:** dua lubang Ø6,6 per pelat, hanya di satu ujung: pusat 17 mm dari ujung pelat (`bar_hole_edge`), 15 mm melintang, di tengah lebar. Ukur lebar tiap pelat yang datang dan tandai lubang dari garis tengah hasil ukur, bukan dari satu tepi (potongan bisa meleset beberapa persepuluh mm). Kikir tepi dan sudut pelat sampai tidak tajam; tepi itu yang terasa di tangan. Pelat A dibor di ujung tetap, pelat B di ujung bebas. Karena tanpa cadangan: tandai posisi dari spacer PLA tercetak atau gambar 1:1, center punch, bor pilot kecil dulu, lalu Ø6,6, sebaiknya dengan bor duduk. Jangan membuat counterbore (pelat 8 mm sudah di tebal minimum) dan jangan mengebor menembus lubang berulir load cell.
 - **Tempat bor:** bengkel bubut atau jasa bor (kata kunci `bengkel bubut`, `jasa bor plat aluminium`), bengkel atau lab kampus dengan bor duduk, atau bor sendiri dengan templat. Jasa CNC atau laser kemungkinan melewati anggaran.
 - Spacer dicetak (bidang kontak 24 x 28, tebal 3,0 mm, dua per rakitan). Pelat polos tanpa tonjolan, jadi tidak perlu frais.
 
@@ -343,7 +346,7 @@ Blok di bawah dipertahankan sebagai riwayat dan penjelasan metode.
 - **Tonjolan menyatu dengan pelat** (sekitar 13,5 mm): diganti spacer PLA terpisah. Alasan: tonjolan 2,5 mm pada pelat aluminium sulit dibuat tanpa frais, dan tonjolan 13,5 mm terlalu pendek untuk menutup lubang yang pusatnya 12 mm dari ujung load cell. Ukuran spacer berubah dari 30 x 30 x 2,5 mm (load cell 147 mm lama) menjadi 28 x 28 x 2,5 mm (CZL 601), lalu bidang kontak 24 x 28 (v12) dan tebal 3,0 mm (v15).
 - **Setup kalibrasi dibalik dengan beban acuan 20/45/70 kg dan A dijepit ke meja** (`kalibrasi_setup_v4.svg`): digantikan protokol dumbbell sampai 42 kg (HL10). Alasan: tumpukan 70 kg tidak stabil di atas bidang tumpu sekitar 22 mm, beban acuan 70 kg tidak tersedia, dan tepi meja lab tidak boleh dijepit.
 - **Load cell generik 180 kg (147 x 30 x 22 mm, kabel 110 cm)**: diganti CZL 601 80 kg (DS-LC1 di `datasheets/datasheet-library.md`). Semua ukuran dan angka kekakuan di dokumen ini sudah dihitung ulang untuk load cell baru.
-- **Pelat aluminium 170 x 30 x 10** (v8 sampai v14): diganti 140 x 35 x 8 di v15 karena harga dan berat (HL9.10); hitungannya tinggal di riwayat HL9.
+- **Pelat aluminium 170 x 30 x 10** (v8 sampai v14): diganti 140 x 35 x 8 di v15 karena harga dan berat, lalu 140 x 40 x 8 di v16 (HL9.10); hitungannya tinggal di riwayat HL9.
 - **Sabuk PLA yang membungkus batang** sebagai pengganti celah: tidak dilanjutkan. Risikonya jalur gaya paralel yang memintas load cell (PLA kaku). Sabuk longgar yang tidak menahan beban mungkin berguna sebagai pelindung jepit jari atau penahan saat dibawa, belum dirancang.
 
 ## HL14. Urutan prototipe: kardus sampai cetak
@@ -395,6 +398,7 @@ Blok di bawah dipertahankan sebagai riwayat dan penjelasan metode.
 
 ## HL19. Riwayat koreksi dan audit
 
+- v16 (8 Nov. 2026): lebar pelat 35 menjadi **40** (140 x 40 x 8). Faktor aman penampang berlubang (batas atas) naik dari 1,98 ke 2,4, lenturan ujung jauh 0,638 menjadi 0,558 mm, sisa celah ≈0,64 mm; pelat menutup spacer penuh. Harga ≈Rp40.880 (112 cm²) dan massa 239 g untuk dua pelat. HL11 menambahkan cara menandai lubang dari garis tengah hasil ukur dan mengikir tepi. CSV `bar_W` 40; instruksi kerja v9; gambar tampak atas digambar ulang.
 - v15 (7 Nov. 2026): pelat diganti dari 170 x 30 x 10 menjadi **140 x 35 x 8** (alasan di HL9.10: harga dari penjual per cm², berat, lebar mengikuti spacer) dan celah (tebal spacer) dari 2,5 menjadi **3,0 mm**, karena pelat 8 mm melentur 0,64 mm di ujung jauh dan celah 2,5 hanya menyisakan 0,06 mm. HL9 dihitung ulang: tegangan berlubang batas atas 121 MPa (faktor aman 2,0), jadi 8 mm adalah tebal minimum; sisa celah ≈0,56 mm; ulir masuk 12,4 mm dan baut maksimal M6 x 30. HL4 butir 5 diganti uraian klem zip tie (v13); HL10 butir 2 mencatat bahwa alas dan slot kalibrasi terlalu kecil untuk flange bolt; HL11 ditulis ulang untuk pesanan pelat. Gambar baru `gambar/tampak_atas_housing_grip.svg` (berskala). CSV dan instruksi kerja Fusion v8 menyesuaikan.
 - v14 (6 Nov. 2026): HL9 dihitung ulang seluruhnya dengan ukuran load cell terukur dan geometri CSV (`boss_L` 24, a = 41, x = 106), mengikuti urutan analisis balok Beer, Johnston, dan DeWolf Bab 5 (diagram benda bebas, reaksi, diagram V dan M, σ = M/S, S_min). Temuan: (1) beban terpusat di tengah tidak konservatif untuk lenturan ujung jauh; beban merata di zona genggam memberi 0,381 mm (bukan 0,304), sisa celah setelah anggaran ≈0,32 mm (bukan 0,46); (2) dengan spacer 24 jarak baut ke tepi kontak hanya 12 mm, jadi tarik ungkit naik ke 1 172 N per baut; preload 3 N·m pada baut stainless A2-70 (K ≈ 0,3) masih 1,4 kali di atasnya; (3) S_min dengan faktor aman 2 = 234 mm³, pelat 10 mm berlubang 280 mm³ lolos; (4) gaya yang lewat load cell sama dengan gaya genggam (ΣF = 0), jadi baris rasio tuas di HL5 diperbaiki. Baut yang dibeli (flange A2-70) dicatat di HL4. HL20 disesuaikan.
 - v13 (1 Nov. 2026): klem kabel diganti dari slot jepit snap-fit menjadi takik terbuka + zip tie. Dari tata letak HGD.step, kabel keluar dari load cell lalu ditarik ke arah pelat B menuju housing elektronik, tepat ke arah mulut slot snap-fit, jadi tarikan bisa melepasnya; mulut snap-fit juga peka toleransi cetak. Takik `notch_w` 4,6 terbuka ke arah pelat B (kabel masuk searah jalurnya, juga setelah semua baut terpasang), bantalan `pad_L` 12 x `pad_t` 6 di muka luar dinding klem dengan terowongan zip tie 2,5 x 100 (`tun_w` 3,5, `tun_h` 2,4). Zip tie menahan kabel ke segala arah dan bisa dipotong untuk membongkar. Lebar total di ujung tetap menjadi 40 (di luar zona genggam). `clamp_hole_d` dan `clamp_mouth_w` dihapus; instruksi kerja Fusion v7.
@@ -433,14 +437,14 @@ Keputusan bahan batang menunggu jawaban dosen atau TA, atau konsultasi dengan ma
 
 Untuk dosen atau TA:
 1. Apakah grip hibrida (pelat logam dan bagian cetak PLA) memenuhi syarat bagian cetak dan enclosure cetak 3D di tahap akhir?
-2. Apakah pelat logam dan jasa bor masuk anggaran Rp300.000 dengan bukti beli? Pelat 8 mm Rp36.500 + ongkir, sedangkan sisa anggaran Rp27.331; apakah selisihnya boleh di luar anggaran?
+2. Apakah pelat logam dan jasa bor masuk anggaran Rp300.000 dengan bukti beli? Pelat 8 mm ≈Rp40.880 + ongkir, sedangkan sisa anggaran Rp27.331; apakah selisihnya boleh di luar anggaran?
 3. Apakah bengkel kampus atau bor duduk boleh dipakai mahasiswa, dan apakah ada biayanya?
 4. Apakah perubahan housing (grip terpisah, batang logam) perlu dicatat sebagai revisi proposal di luar 3.6?
 5. Apakah lab punya anak timbang atau cara aman untuk beban kalibrasi sampai 70 kgf, atau cukup kalibrasi dumbbell sampai 42 kg dengan ekstrapolasi (HL10)?
 6. Tenggat gerber: Minggu 7 (panduan mata kuliah) atau Minggu 8 (panduan tugas); lihat konflik di catatan proyek.
 
 Untuk konsultasi teknik mesin:
-1. Cek hitungan lentur (HL9): kantilever, beban 686 N merata di zona genggam 85 mm, tepi spacer 41 mm dari tengah load cell, pelat aluminium 140 x 35 x 8 mm (E ≈ 70 GPa), celah 3,0 mm. Apakah sisa celah ≈0,56 mm cukup, dan apakah tegangan 75 MPa (pejal) sampai 121 MPa (penampang berlubang, batas atas, faktor aman 2,0) wajar untuk 6061-T6?
+1. Cek hitungan lentur (HL9): kantilever, beban 686 N merata di zona genggam 85 mm, tepi spacer 41 mm dari tengah load cell, pelat aluminium 140 x 40 x 8 mm (E ≈ 70 GPa), celah 3,0 mm. Apakah sisa celah ≈0,64 mm cukup, dan apakah tegangan 66 MPa (pejal) sampai 98 MPa (penampang berlubang, batas atas, faktor aman 2,4) wajar untuk 6061-T6?
 2. Apakah ada cara menyalurkan beban ke load cell yang lebih kaku dalam tebal total sekitar 48,5 mm?
 3. Grade aluminium strip apa yang umum dijual di sini (6061 atau 5052), dan bagaimana cara mengeceknya?
 4. Cara mengebor lubang baut yang akurat dengan alat sederhana (templat bor, mata bor, toleransi diameter).
@@ -453,4 +457,4 @@ Bahan yang dibawa: tampak atas (`gambar/tampak_atas_housing_grip.svg`) dan hitun
 
 Isi lengkap (asumsi, hitungan kekakuan, spacer dan baut, anggaran celah, nilai keputusan 11 Okt. 2026, klem kabel, arah kabel dan panah stiker, pertentangan instruksi dan penyelesaiannya, riwayat v2 sampai v4) ada di [asumsi.md](asumsi.md). Lampiran ini dulunya menyalin isi dokumen itu; salinannya dihapus supaya tidak ada dua versi yang berbeda.
 
-Nilai kunci (rincian di `asumsi.md`): pelat Al 6061-T6 140 x 35 x 8, spacer PLA bidang kontak 24 x 28 (`boss_L` 24), tebal 3,0 (luar 27 x 34 dengan bibir), load cell CZL 601 130 x 28 x 21,5, celah 3,0, tebal total 48,5, a = 41, x = 106, bentang bebas 82, zona genggam ≈85; lenturan ujung jauh 0,64 mm pada 70 kgf (beban merata), sisa celah ≈0,56 mm; tegangan 75 / 121 MPa (pejal / berlubang batas atas); flange bolt M6 x 25 A2-70 dengan torsi 3 N·m (asumsi), ulir masuk 12,4, maksimal M6 x 30; hitungan gaya v15 di HL9; kabel Ø4, lubang Ø5 dengan pusat 5,35 dari ujung, klem takik + zip tie di dinding Spacer A.
+Nilai kunci (rincian di `asumsi.md`): pelat Al 6061-T6 140 x 40 x 8, spacer PLA bidang kontak 24 x 28 (`boss_L` 24), tebal 3,0 (luar 27 x 34 dengan bibir), load cell CZL 601 130 x 28 x 21,5, celah 3,0, tebal total 48,5, a = 41, x = 106, bentang bebas 82, zona genggam ≈85; lenturan ujung jauh 0,56 mm pada 70 kgf (beban merata), sisa celah ≈0,64 mm; tegangan 66 / 98 MPa (pejal / berlubang batas atas); flange bolt M6 x 25 A2-70 dengan torsi 3 N·m (asumsi), ulir masuk 12,4, maksimal M6 x 30; hitungan gaya v16 di HL9; kabel Ø4, lubang Ø5 dengan pusat 5,35 dari ujung, klem takik + zip tie di dinding Spacer A.
