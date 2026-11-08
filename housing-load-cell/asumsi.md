@@ -10,7 +10,7 @@ Berkas v4 tidak ditimpa. Semua gambar **tidak berskala**, dan celah 2,5 mm digam
 
 **Pembaruan 11 Okt. 2026 (hanya teks dokumen ini):** hasil ukur load cell (130 × 28 × 21,5 mm), ulir lubang pasang (M6, tembus, bibir kisi Ø8 mm), dan diameter kabel (4 mm) sudah dimasukkan. Ringkasan di Bagian 8. **Gambar SVG v5 belum digambar ulang** dan masih memuat label lama (misalnya kabel Ø5, tinggi load cell 22).
 
-**Pembaruan 8 Nov. 2026 (desain v16):** lebar pelat menjadi 40 mm (140 x 40 x 8); angka Bagian 2 diperbarui.
+**Pembaruan 8 Nov. 2026 (desain v16):** lebar pelat menjadi 40 mm (140 x 40 x 8); angka Bagian 2 diperbarui. Gambar di `gambar/` dan `kalibrasi_setup.svg` digambar ulang dari CSV (berskala); potongan A-A klem sekarang di sumbu kabel (x = −59,7). Daftar gambar dan rincian klem di bawah (12 Okt. 2026, Bagian 4.1) adalah riwayat.
 
 **Pembaruan 7 Nov. 2026 (desain v15):** pelat menjadi 140 x 35 x 8 mm dan celah (tebal spacer) 3,0 mm; Bagian 2 dan 3 diperbarui. Angka v5 di Bagian 1 adalah riwayat.
 
