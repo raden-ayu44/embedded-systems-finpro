@@ -22,7 +22,7 @@ title: Desain PCB dan Skema - Hand Grip Dynamometer
 | Indikator daya | LED merah 3 mm (D2) + R2 **220 ohm** dari +3V3 | Menyala selama papan berdaya, tidak bergantung firmware | ✔ di skema dan PCB; diuji di breadboard (17 Okt. 2026) |
 | Input | Tactile push button 6 x 6 mm, batang 13 mm, 1 buah | START, NEXT, RESTART | ▣ dari komponen tim |
 | PCB | `hgd-v1` (KiCad), dua lapis, 80 x 55 mm | Dudukan DevKit, modul, tombol, LED | ✔ **v1 selesai, belum disetujui**; versi akhir 26 Okt. 2026 (judul "Digital Hand Grip Dynamometer", belokan 45°, via dijauhkan dari tepi): ERC 0 error, DRC 0 error, breadboard sama dengan skema, Gerber dicek di JLCDFM (Bagian 8) |
-| Housing grip | 2 pelat Al 170 x 30 x 10 mm + spacer PLA + M6 x 25 | Mekanik | ◐ desain; sisa pengukuran load cell |
+| Housing grip | 2 pelat Al 140 x 35 x 8 mm + spacer PLA + flange bolt M6 x 25 | Mekanik | ◐ desain; sisa pengukuran load cell |
 
 Daya hanya dari USB; **tanpa baterai** (keputusan 15 Okt. 2026).
 

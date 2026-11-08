@@ -1059,7 +1059,7 @@ Langkah 10c: antrean log 8 × (96 + 2) byte (baris diperpanjang dari 64 untuk pe
 | Antena modul bebas tembaga | PCB | Tembaga di bawah antena melemahkan radio |
 | Elektrolit + ke rail (3V3 atau 5V) | PCB | Polaritas kapasitor |
 | Hanya 6 pin proyek dipakai; GPIO 16/17 dihindari | Pin | PSRAM pada WROVER |
-| Lenturan Al 10 mm 0,24 mm < celah 2,5 mm | Housing | A dan B tidak boleh bersentuh |
+| Lenturan Al 8 mm 0,64 mm < celah 3,0 mm (desain housing v15) | Housing | A dan B tidak boleh bersentuh |
 | Lenturan A saat digenggam tidak teruji di kalibrasi | Kalibrasi | A bertumpu pada meja |
 | Bidang tumpu ≈ 22 mm antar ridge | Kalibrasi | Alas beban harus muat; tumpukan tinggi goyah |
 | Jangan menekan papan dengan tangan saat membaca | Kalibrasi | Tangan menambah gaya |

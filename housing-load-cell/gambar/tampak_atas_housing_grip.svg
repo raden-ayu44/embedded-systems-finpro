@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="640" viewBox="0 0 1000 640" font-family="Segoe UI, Arial, sans-serif" font-size="13">
+<defs><pattern id="grip" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="8" height="8" fill="#e6f2e3"/><line x1="0" y1="0" x2="0" y2="8" stroke="#9ccc94" stroke-width="2"/></pattern><marker id="ar" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#333"/></marker></defs>
+<rect width="1000" height="640" fill="#ffffff"/>
+<text x="500" y="30" text-anchor="middle" font-size="18" font-weight="bold">Tampak atas housing grip v15 (pelat A di atas) · skala 1 mm = 5 px</text>
+<text x="500" y="50" text-anchor="middle" fill="#555">Ukuran dari CSV v15; kepala flange bolt M6 diasumsikan DIN 6921 (flange Ø14,2, kunci 10, tinggi ≈6), belum diukur</text>
+<rect x="705.0" y="215.0" width="135.0" height="170.0" fill="none" stroke="#8a6d3b" stroke-width="1.2" stroke-dasharray="5 4"/>
+<rect x="160.0" y="215.0" width="135.0" height="170.0" fill="#f3e3c3" stroke="#8a6d3b" stroke-width="1.5"/>
+<rect x="171.5" y="385.0" width="60.0" height="30.0" fill="#f3e3c3" stroke="#8a6d3b" stroke-width="1.5"/>
+<path d="M 201.5 370.0 L 201.5 465.0" stroke="#222" stroke-width="20.0" stroke-linecap="round" opacity="0.85"/>
+<rect x="192.8" y="397.0" width="17.5" height="6.0" fill="#777"/>
+<rect x="150.0" y="212.5" width="700.0" height="175.0" fill="#dfe3e8" stroke="#4a5562" stroke-width="2"/>
+<rect x="287.5" y="212.5" width="425.0" height="175.0" fill="url(#grip)" stroke="#3d8b37" stroke-width="1.5" opacity="0.85"/>
+<rect x="175.0" y="230.0" width="650.0" height="140.0" fill="none" stroke="#c0392b" stroke-width="1.2" stroke-dasharray="8 5"/>
+<rect x="200.0" y="227.5" width="70.0" height="145.0" fill="none" stroke="#d35400" stroke-width="1.6" stroke-dasharray="2 3"/>
+<circle cx="235.0" cy="262.5" r="35.5" fill="#c9ced4" stroke="#2c3e50" stroke-width="1.5"/>
+<polygon points="260.0,248.1 235.0,233.6 210.0,248.1 210.0,276.9 235.0,291.4 260.0,276.9" fill="#aeb5bd" stroke="#2c3e50" stroke-width="1.5"/>
+<text x="235.0" y="266.5" text-anchor="middle" font-size="10" fill="#2c3e50">A2-70</text>
+<circle cx="765.0" cy="262.5" r="35.5" fill="none" stroke="#555" stroke-width="1.2" stroke-dasharray="4 3"/>
+<circle cx="765.0" cy="262.5" r="16.5" fill="none" stroke="#555" stroke-width="1" stroke-dasharray="3 3"/>
+<circle cx="235.0" cy="337.5" r="35.5" fill="#c9ced4" stroke="#2c3e50" stroke-width="1.5"/>
+<polygon points="260.0,323.1 235.0,308.6 210.0,323.1 210.0,351.9 235.0,366.4 260.0,351.9" fill="#aeb5bd" stroke="#2c3e50" stroke-width="1.5"/>
+<text x="235.0" y="341.5" text-anchor="middle" font-size="10" fill="#2c3e50">A2-70</text>
+<circle cx="765.0" cy="337.5" r="35.5" fill="none" stroke="#555" stroke-width="1.2" stroke-dasharray="4 3"/>
+<circle cx="765.0" cy="337.5" r="16.5" fill="none" stroke="#555" stroke-width="1" stroke-dasharray="3 3"/>
+<line x1="150.0" y1="208.5" x2="150.0" y2="88.0" stroke="#999" stroke-width="0.8"/>
+<line x1="850.0" y1="208.5" x2="850.0" y2="88.0" stroke="#999" stroke-width="0.8"/>
+<line x1="150.0" y1="92.0" x2="850.0" y2="92.0" stroke="#333" stroke-width="1" marker-start="url(#ar)" marker-end="url(#ar)"/>
+<text x="500.0" y="87.0" text-anchor="middle" fill="#333">pelat A dan B 140 x 35 x 8 (aluminium 6061-T6)</text>
+<line x1="175.0" y1="226.0" x2="175.0" y2="116.0" stroke="#999" stroke-width="0.8"/>
+<line x1="825.0" y1="226.0" x2="825.0" y2="116.0" stroke="#999" stroke-width="0.8"/>
+<line x1="175.0" y1="120.0" x2="825.0" y2="120.0" stroke="#c0392b" stroke-width="1" marker-start="url(#ar)" marker-end="url(#ar)"/>
+<text x="500.0" y="115.0" text-anchor="middle" fill="#c0392b">load cell 130 (di bawah pelat, garis putus merah)</text>
+<line x1="287.5" y1="208.5" x2="287.5" y2="144.0" stroke="#999" stroke-width="0.8"/>
+<line x1="712.5" y1="208.5" x2="712.5" y2="144.0" stroke="#999" stroke-width="0.8"/>
+<line x1="287.5" y1="148.0" x2="712.5" y2="148.0" stroke="#3d8b37" stroke-width="1" marker-start="url(#ar)" marker-end="url(#ar)"/>
+<text x="500.0" y="143.0" text-anchor="middle" fill="#3d8b37">zona genggam 85</text>
+<line x1="150.0" y1="391.5" x2="150.0" y2="465.0" stroke="#999" stroke-width="0.8"/>
+<line x1="235.0" y1="337.5" x2="235.0" y2="465.0" stroke="#999" stroke-width="0.8"/>
+<line x1="150.0" y1="461.0" x2="235.0" y2="461.0" stroke="#333" stroke-width="1" marker-start="url(#ar)" marker-end="url(#ar)"/>
+<text x="170.0" y="456.0" text-anchor="middle" fill="#333">17</text>
+<line x1="270.5" y1="341.5" x2="270.5" y2="489.0" stroke="#999" stroke-width="0.8"/>
+<line x1="287.5" y1="391.5" x2="287.5" y2="489.0" stroke="#999" stroke-width="0.8"/>
+<line x1="270.5" y1="485.0" x2="287.5" y2="485.0" stroke="#3d8b37" stroke-width="1" marker-start="url(#ar)" marker-end="url(#ar)"/>
+<text x="279.0" y="480.0" text-anchor="middle" fill="#3d8b37">3,4</text>
+<line x1="765.0" y1="337.5" x2="765.0" y2="465.0" stroke="#999" stroke-width="0.8"/>
+<line x1="850.0" y1="391.5" x2="850.0" y2="465.0" stroke="#999" stroke-width="0.8"/>
+<line x1="765.0" y1="461.0" x2="850.0" y2="461.0" stroke="#333" stroke-width="1" marker-start="url(#ar)" marker-end="url(#ar)"/>
+<text x="807.5" y="456.0" text-anchor="middle" fill="#333">17</text>
+<line x1="729.5" y1="341.5" x2="729.5" y2="489.0" stroke="#999" stroke-width="0.8"/>
+<line x1="712.5" y1="391.5" x2="712.5" y2="489.0" stroke="#999" stroke-width="0.8"/>
+<line x1="712.5" y1="485.0" x2="729.5" y2="485.0" stroke="#3d8b37" stroke-width="1" marker-start="url(#ar)" marker-end="url(#ar)"/>
+<text x="721.0" y="480.0" text-anchor="middle" fill="#3d8b37">3,4</text>
+<line x1="116.0" y1="262.5" x2="235.0" y2="262.5" stroke="#999" stroke-width="0.8"/>
+<line x1="116.0" y1="337.5" x2="235.0" y2="337.5" stroke="#999" stroke-width="0.8"/>
+<line x1="120.0" y1="262.5" x2="120.0" y2="337.5" stroke="#333" stroke-width="1" marker-start="url(#ar)" marker-end="url(#ar)"/>
+<text x="114.0" y="304.0" text-anchor="end" fill="#333">15</text>
+<line x1="850.0" y1="212.5" x2="876.0" y2="212.5" stroke="#999" stroke-width="0.8"/>
+<line x1="850.0" y1="387.5" x2="876.0" y2="387.5" stroke="#999" stroke-width="0.8"/>
+<line x1="872.0" y1="212.5" x2="872.0" y2="387.5" stroke="#333" stroke-width="1" marker-start="url(#ar)" marker-end="url(#ar)"/>
+<text x="878.0" y="304.0" text-anchor="start" fill="#333">35</text>
+<text x="500.0" y="305.0" fill="#2d6a27" text-anchor="middle" font-size="14" font-weight="bold">telapak / jari menekan di sini</text>
+<text x="235.0" y="204.5" fill="#8a6d3b" text-anchor="middle" font-size="13">Spacer A + baut flange A (kepala di atas)</text>
+<text x="765.0" y="204.5" fill="#555" text-anchor="middle" font-size="13">Spacer B + baut B (kepala di bawah pelat B)</text>
+<text x="217.5" y="450.0" fill="#222" text-anchor="start" font-size="13">kabel load cell + zip tie</text>
+<text x="150.0" y="515.0" fill="#555" text-anchor="start" font-size="13">ujung tetap (sisi kabel)</text>
+<text x="850.0" y="515.0" fill="#555" text-anchor="end" font-size="13">ujung bebas</text>
+<rect x="40" y="542" width="920" height="72" fill="#fdf2e9" stroke="#d35400" stroke-width="1"/>
+<text x="52.0" y="560.0" fill="#a04000" text-anchor="start" font-size="13">Slot alas kalibrasi di CSV (oranye titik-titik, 29 x 14) lebih kecil dari dua flange: 15 + 14,2 = 29,2 panjang, 14,2 lebar.</text>
+<text x="52.0" y="580.0" fill="#a04000" text-anchor="start" font-size="13">Perbesar slot sesudah kepala baut diukur, misalnya 32 x 17. Dua flange A berjarak 0,8 mm satu sama lain (15 - 14,2), tidak bersentuhan.</text>
+<text x="52.0" y="600.0" fill="#a04000" text-anchor="start" font-size="13">Tepi flange 3,4 mm di luar zona genggam di kedua ujung. Spacer 34 (0,5 di dalam tepi pelat 35); hanya bantalan klem yang menonjol. Ridge belum digambar.</text>
+</svg>
