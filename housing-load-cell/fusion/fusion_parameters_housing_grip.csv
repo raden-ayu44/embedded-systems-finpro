@@ -13,7 +13,7 @@ hole_x,mm,LC_L / 2 - hole_edge,53 mm,"WAJIB: pusat lubang dari tengah load cell 
 hole_y,mm,hole_cross / 2,7.5 mm,"WAJIB: pusat lubang dari garis tengah lebar (y = +-7.5)",true
 hole_d,mm,6.6 mm,6.6 mm,"lubang lewat M6 di pelat aluminium (dibor, tanpa kompensasi), ISO 273 seri sedang",false
 hole_sp_d,mm,hole_d + comp_hole,7.6 mm,"WAJIB: lubang baut di spacer PLA (model); tercetak kira-kira 6.6",true
-gap,mm,3 mm,3 mm,"WAJIB: tebal spacer = celah pelat ke load cell; celah bebas-sentuh, bukan stop beban; 3.0 sejak v15 karena pelat 8 mm melentur 0.64 (HL9.6)",true
+gap,mm,3 mm,3 mm,"WAJIB: tebal spacer = celah pelat ke load cell; celah bebas-sentuh, bukan stop beban; 3.0 sejak v15 karena pelat 8 mm melentur 0.56 (HL9.6)",true
 boss_L,mm,24 mm,24 mm,"WAJIB: panjang kontak spacer di atas blok ujung load cell (dari muka ujung ke dalam); jangan lebih dari 24 supaya tidak masuk area strain gauge",true
 sp_lip_t,mm,2.5 mm,2.5 mm,tebal bibir spacer yang memegang tepi load cell,false
 sp_lip_h,mm,2.5 mm,2.5 mm,tinggi bibir spacer turun di sisi load cell (dari muka load cell),false
@@ -42,8 +42,8 @@ tun_floor,mm,1.5 mm,1.5 mm,"tebal lantai terowongan di atas kabel; terowongan mu
 tun_y,mm,pad_t / 2,3 mm,"pusat terowongan dari muka luar dinding klem (arah -y)",false
 ab_min_cl,mm,2 mm,2 mm,"WAJIB: jarak minimum bagian mana pun di sisi A ke bagian mana pun di sisi B (aturan satu jalur gaya); asumsi desain",true
 bar_L,mm,140 mm,140 mm,"pelat A dan B aluminium 6061-T6, polos; 140 sejak v15 (menutup spacer; panjang pelat tidak masuk hitungan gaya)",false
-bar_W,mm,35 mm,35 mm,"lebar pelat A dan B; 35 sejak v15, mengikuti lebar spacer 34; minimal 29.2 untuk flange baut Ø14.2",false
-bar_t,mm,8 mm,8 mm,"WAJIB: tebal pelat A dan B; 8 = tebal minimum 6061-T6 menurut HL9.5 (v15); jangan lebih tipis, paduan 6061 atau 5052 saja",true
+bar_W,mm,40 mm,40 mm,"lebar pelat A dan B; 40 sejak v16 (faktor aman penampang berlubang 2.4; menutup spacer 34); minimal 29.2 untuk flange baut Ø14.2",false
+bar_t,mm,8 mm,8 mm,"WAJIB: tebal pelat A dan B; 8 sejak v15, lolos dengan lebar 40 (tebal minimum 7.3, HL9.5); jangan lebih tipis, paduan 6061 atau 5052 saja",true
 bar_hole_edge,mm,bar_L / 2 - hole_x,17 mm,"WAJIB: pusat lubang pelat dari ujung pelat; pelat A hanya dibor di ujung tetap, pelat B hanya di ujung bebas",true
 bolt_L,mm,25 mm,25 mm,"flange bolt M6 x 25 stainless A2-70 (dibeli 31 Okt. 2026); masuk ulir 12.4 dengan ring (pelat 8, spacer 3)",false
 bolt_max_L,mm,30 mm,30 mm,"batas panjang baut: M6 x 30 tinggal 4.1 dari muka seberang load cell; M6 x 35 menembus 0.9; jangan lebih panjang",false
