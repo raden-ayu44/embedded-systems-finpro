@@ -4,7 +4,7 @@ Design and documentation for a hand grip strength meter, made for an embedded sy
 
 - Target range: 20 to 70 kgf.
 - Parts: ESP32 DevKit V1, HX711 module, CZL 601 80 kg bending-beam load cell, 16×2 I2C LCD (5 V) with a BSS138 4-channel level shifter, push button, LED. Powered from USB only.
-- Housing: two plain Al 6061-T6 plates (170 × 30 × 10 mm) with PLA spacers (28 × 28 × 2.5 mm), joined to the load cell with M6 × 25 bolts. The cable clamp is printed as one piece with spacer A.
+- Housing: two plain Al 6061-T6 plates (140 × 40 × 8 mm) with 3 mm PLA spacers, joined to the load cell with M6 × 25 stainless flange bolts. The cable sits in a notch in spacer A and is held by a zip tie. Drawings are generated from the parameter CSV (`housing-load-cell/gambar/generate_drawings.py`).
 - Budget: maximum Rp300.000.
 
 **Status (24 Oct. 2026):** breadboard prototype working.
