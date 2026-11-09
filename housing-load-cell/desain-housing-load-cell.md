@@ -139,7 +139,7 @@ Masalah: tiap batang bekerja sebagai kantilever dari spacernya. Batang A hanya d
 | Lengan tuas a, titik jauh x | a = 41 mm (tepi dalam spacer ke tengah load cell); x = 106 mm (tepi dalam spacer ke ujung seberang load cell) | turunan |
 | Pelat | aluminium 6061-T6, 140 x 40 x 8 mm; I = b·h³/12 = 1 707 mm⁴; S = b·h²/6 = 427 mm³ | CSV v16 |
 | Lubang pelat | 2 x Ø6,6 melintang; S_bersih = (40 − 2 x 6,6)·8²/6 = 285,9 mm³ | CSV |
-| Bahan pelat | E = 70 GPa, luluh 240 MPa | nilai umum 6061-T6; grade dari penjual belum dikonfirmasi |
+| Bahan pelat | E = 70 GPa, luluh 240 MPa | nilai umum 6061-T6; paduan dan temper dikonfirmasi penjual 8 Nov. 2026 |
 | Baut | flange bolt M6 x 25 stainless A2-70 (dibeli 31 Okt. 2026) + ring plat M6; luluh ≥ 450 MPa, luas tegangan 20,1 mm² | pesanan; ISO 3506-1 (nilai umum) |
 | Spacer | PLA, tebal (`gap`) 3,0 mm, E ≈ 3 GPa; lubang tercetak ≈Ø6,6 | CSV v16 |
 
@@ -324,7 +324,7 @@ Blok di bawah dipertahankan sebagai riwayat dan penjelasan metode.
 ## HL11. Pengadaan pelat logam
 
 - **Pesanan (v15, 7 Nov. 2026):** penjual plat aluminium yang memotong sesuai ukuran dan menghitung harga per cm² (minimum 100 cm²). Pesan 2 lembar 14 x 4 cm tebal 8 mm, isi jumlah 112 dengan catatan "2 lembar 14 x 4 cm, tebal 8 mm": ≈Rp40.880 sebelum ongkir (Rp365/cm²; lebar 3,5 cm di v15: 100 cm², Rp36.500). Tebal 10 mm Rp463/cm² (3 lembar Rp68.061). Tanpa pelat cadangan: 3 lembar melewati anggaran.
-- **Grade:** tanyakan ke penjual sebelum membayar. 6061 atau 5052 boleh (HL9.4); 1100 terlalu lunak untuk pelat 8 mm. Bila penjual tidak bisa menyebutkan grade, anggap lunak dan cari penjual lain.
+- **Grade:** **6061-T6, dikonfirmasi penjual (8 Nov. 2026)**, sama dengan nilai di hitungan (luluh ≈240 MPa, HL9.4). Temper ikut menentukan: 6061-T4 (≈110 MPa) hampir tidak lolos dan 6061-O (≈55 MPa) gagal, jadi pelat pengganti dari penjual lain juga harus T6 atau T651. 5052 masih boleh; 1100 terlalu lunak.
 - **Anggaran:** terpakai Rp272.669 (reimbursement pertama Rp211.219, baut Rp61.450), sisa Rp27.331 dari batas Rp300.000. Pelat melewati sisa itu sekitar Rp13.600 + ongkir; selisih ditanggung tim kecuali dosen atau TA memutuskan lain (HL20).
 - **Pengeboran:** dua lubang Ø6,6 per pelat, hanya di satu ujung: pusat 17 mm dari ujung pelat (`bar_hole_edge`), 15 mm melintang, di tengah lebar. Ukur lebar tiap pelat yang datang dan tandai lubang dari garis tengah hasil ukur, bukan dari satu tepi (potongan bisa meleset beberapa persepuluh mm). Kikir tepi dan sudut pelat sampai tidak tajam; tepi itu yang terasa di tangan. Pelat A dibor di ujung tetap, pelat B di ujung bebas. Karena tanpa cadangan: tandai posisi dari spacer PLA tercetak atau gambar 1:1, center punch, bor pilot kecil dulu, lalu Ø6,6, sebaiknya dengan bor duduk. Jangan membuat counterbore (pelat 8 mm sudah di tebal minimum) dan jangan mengebor menembus lubang berulir load cell.
 - **Tempat bor:** bengkel bubut atau jasa bor (kata kunci `bengkel bubut`, `jasa bor plat aluminium`), bengkel atau lab kampus dengan bor duduk, atau bor sendiri dengan templat. Jasa CNC atau laser kemungkinan melewati anggaran.
