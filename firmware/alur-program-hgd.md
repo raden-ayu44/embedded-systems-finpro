@@ -694,7 +694,7 @@ Rakitan **dibalik**: batang A di bawah (dijepit ke alas karet antiselip di meja)
 
 | Komponen setup | Spesifikasi rencana |
 |----------------|--------------------|
-| Alas A | Alas karet antiselip berlubang untuk kepala baut di bawah A (tebal 6 mm, lebih besar dari tinggi washer + kepala baut ≈5,6 mm; satu slot 29 x 14 mm di bawah kedua kepala baut) |
+| Alas A | Alas karet antiselip berlubang untuk kepala baut di bawah A (rencana 6 mm dengan satu slot 29 x 14 mm untuk baut ISO 4017; baut yang dibeli flange bolt dengan tonjolan kepala + ring ≈7,6 mm, jadi tebal alas dan slot ditetapkan ulang setelah kepala baut diukur, lihat HL10 di desain housing) |
 | Balok PLA | Dengan lidah masuk di antara dua ridge; selisih 1 mm dari puncak ridge |
 | Papan kayu | 480 x 350 x 12 mm |
 | Pemandu kayu | Berdiri di meja, jarak ≈ 1 cm dari papan, tidak menyentuh; pengaman jika tumpukan miring |

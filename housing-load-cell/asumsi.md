@@ -160,7 +160,7 @@ Aturan: ikuti instruksi yang lebih spesifik.
 ## 6. Keputusan terbuka dan nilai yang masih asumsi
 Tidak ada lagi butir yang belum ditentukan. Nilai yang **diukur**: lebar 28 mm, tinggi 21,5 mm, ulir M6 tembus dari kedua sisi, minor 5,0–5,2 mm, Ø kabel 4 mm. Nilai dari **standar atau datasheet**: lubang lewat M6 6,6 mm (ISO 273), washer 1,6 mm (ISO 7089), overload 96/120 kgf (DS-LC1). Nilai **asumsi desain** (11–12 Okt. 2026) yang perlu dicek pada benda nyata:
 - ~~jarak lubang 12 / 106 / 15 mm~~: terukur 31 Okt. 2026, cocok (Bagian 8.1);
-- panjang kabel ≈28 cm, lubang kabel Ø5 mm di muka samping (terukur), **kedalaman lubang Ø5 ≈14 mm (asumsi, belum terukur)**, radius tekuk 10 mm, klip menyatu dengan Spacer A (rak ≈16 × 10 mm, blok 8,2 × 8 × ≈17,4 mm, Ø4,1 mm, kabel dilem tembak; tanpa lem ke aluminium);
+- panjang kabel ≈28 cm, lubang kabel Ø5 mm di muka samping (terukur), **kedalaman lubang Ø5 ≈14 mm (asumsi, belum terukur)**, radius tekuk 10 mm, klem kabel takik 4,6 + zip tie 2,5 × 100 di dinding Spacer A (sejak 1 Nov. 2026; klip blok berlem tembak dari 11 Okt. 2026 dibatalkan);
 - arah panah stiker beban pada benda nyata (digambar menunjuk ke arah B, dikoreksi pengguna 12 Okt. 2026);
 - anggaran celah: load cell 0,5 mm, penutup 1,0 mm, margin 0,3 mm (sisa ≈0,64 mm dengan pelat 140 x 40 x 8 dan celah 3,0, sejak 8 Nov. 2026);
 - torsi 3 N·m, koefisien torsi K 0,2 sampai 0,3 untuk baut stainless, dan prosedur kencang ulang;
