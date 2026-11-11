@@ -50,7 +50,7 @@ const uint8_t  BOOT_SKIP_SAMPLES   = 5;
 const int32_t  OFFSET_EXPECTED     = -39000;
 const int32_t  OFFSET_WINDOW       = 20000;
 // Langkah 8d: offset di luar jendela mula-mula diperlakukan seperti tare terganggu (tangan di load
-// cell: tare diulang, layar "Lepas genggaman"). Baru bila di luar jendela TERUS-MENERUS selama ini
+// cell: tare diulang, layar "Nol ulang: lepas"). Baru bila di luar jendela TERUS-MENERUS selama ini
 // -> READING_INVALID (E- terputus tetap ~+500 di setiap ulangan, jadi tetap tertangkap). Berbasis
 // waktu: 3 tare hanya ~1,7 s, terlalu singkat untuk tangan yang bertumpu sebentar.
 const uint32_t OFFSET_BAD_MS       = 10000;
