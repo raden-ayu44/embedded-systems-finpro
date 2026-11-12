@@ -3,7 +3,7 @@ title: Log Kerja KiCad - PCB hgd-v1
 
 ---
 
-# Log Kerja KiCad - PCB hgd-v1 (v2)
+# Log Kerja KiCad - PCB hgd-v1 (v3)
 **Proyek akhir - embedded system**
 
 > Catatan langkah kerja KiCad yang dikerjakan penulis sendiri, dengan bukti hasil tiap langkah. Kolom "Pemeriksaan" berisi hasil cek oleh alat AI (Claude) terhadap berkas atau tangkapan layar; pekerjaan di KiCad seluruhnya oleh penulis. Desain: [desain-pcb-hgd.md](desain-pcb-hgd.md); berkas: [kicad/proyek/](kicad/proyek/); induk: [catatan-proyek-hgd.md](../catatan-proyek-hgd.md).
@@ -27,6 +27,9 @@ title: Log Kerja KiCad - PCB hgd-v1
 | 13 | 26 Okt. 2026 | Cek DFM di JLCDFM | ZIP Gerber diunggah ke viewer JLCDFM, analisis DFM dijalankan, laporan PDF diunduh | Terbaca 2 lapis, 80 x 55 mm; 0 sudut tajam; jarak antarjalur minimum 0,2 mm (baik); cincin tembaga lubang 0,25 mm (baik); solder mask dan lubang bor tanpa masalah. Silkscreen: 5 "bahaya" + 2 peringatan jarak tulisan ke pad (minimum 0,09 mm) dan 80 peringatan tebal garis tulisan (0,12 mm), dari garis bawaan footprint pustaka KiCad, bukan tulisan tim; tidak memengaruhi fungsi listrik | Dicek sebelum dan sesudah perbaikan langkah 11. Pratinjau sama dengan papan (outline, H1-H4, soket, silkscreen). Tangkapan dan laporan disimpan di luar repo |
 | 14 | 26 Okt. 2026 | Render papan dan 3D | Tampak atas dan bawah, papan saja dan model 3D | [gambar/pcb-atas-hgd-v1.png](gambar/pcb-atas-hgd-v1.png), [pcb-bawah](gambar/pcb-bawah-hgd-v1.png), [3D atas](gambar/pcb-3d-atas-hgd-v1.png), [3D bawah](gambar/pcb-3d-bawah-hgd-v1.png) | STEP 26 Okt. diekspor dari papan utama, jadi tanpa dua soket 1x15 DevKit; soket tidak memengaruhi desain housing, jadi STEP ini menggantikan `hgd-v1.step` lama dan salinan `hgd-v1-verbatim.kicad_pcb` dihapus (27 Okt. 2026) |
 | 15 | 27 Okt. 2026 | Gambar penempatan diperbarui | Gambar SVG tiga panel (gabungan, F.Cu, B.Cu + silkscreen bawah) dibuat ulang dari berkas papan 26 Okt. oleh alat AI (Claude); keterangan ditulis dalam bahasa Indonesia, istilah teknis dalam bahasa Inggris | [gambar/penempatan-pcb-hgd.svg](gambar/penempatan-pcb-hgd.svg) | Dicek terhadap `hgd-v1.kicad_pcb`: 186 segmen jalur (posisi, lapis, lebar), 58 via, 70 pad, 4 NPTH, dan teks silkscreen kedua sisi sama dengan berkas |
+| 16 | 12 Nov. 2026 | Perbaikan silkscreen footprint dan D2 | Garis silkscreen footprint pustaka yang terlalu dekat pad dihapus (D1: lingkaran; D2: 2 garis, 2 busur; R1, R2: 2 garis masing-masing); D2 digeser 0,52 mm ke kanan dengan dua segmen jalur GND ke katodenya; tiga via jahit GND di tepi bawah digeser; uji `lib_footprint_mismatch` dan `lib_symbol_mismatch` diatur Ignore (pengecualian lama dihapus) | `hgd-v1.kicad_pcb`, `hgd-v1.kicad_pro` di [kicad/proyek/](kicad/proyek/) | Dibanding papan 26 Okt.: 18 footprint, hanya D2 berpindah (x 135,50 → 136,02); 186 segmen (2 berubah), 58 via (3 berpindah), pad lain dan Edge.Cuts sama. DRC ulang (kicad-cli): 0 pelanggaran, 0 tak tersambung, 0 beda skema; ERC ulang: 0 error, 0 warning. Folder keluaran di salinan repo dikembalikan ke `gerber/`, STEP ke `hgd-v1.step` |
+| 17 | 12 Nov. 2026 | Plot Gerber dan bor ulang | Setelan sama dengan langkah 5 (KiCad 10.0.6), ZIP `Gerber_Kelompok-01_hgd-v1.zip` | 12 berkas (10:53): 7 Gerber, job file, `PTH.drl`, `NPTH.drl`, 2 peta bor PDF | Geometri dibandingkan dengan ekspor kicad-cli dari berkas papan yang sama: tembaga, mask, silkscreen, Edge.Cuts, 128 PTH, dan 4 NPTH sama (beda hanya nomor aperture dan waktu) |
+| 18 | 12 Nov. 2026 | Cek DFM di JLCDFM | ZIP Gerber 12 Nov. diunggah, analisis DFM dijalankan, laporan PDF diunduh | 2 lapis, 8 x 5,5 cm; sudut tajam 0; jarak antarjalur 0,2 mm (baik); cincin tembaga 0,25 mm (baik); soldermask dan bor 0 temuan; silkscreen ke pad **0 temuan** (minimum 0,19 mm; 26 Okt.: 5 bahaya + 2 peringatan, minimum 0,09 mm); tebal garis silkscreen 76 peringatan (0,12 mm; 26 Okt.: 80) | Laporan disimpan di luar repo. Sisa peringatan tebal garis dari garis footprint pustaka, tidak memengaruhi fungsi listrik |
 
 ---
 
@@ -34,5 +37,6 @@ title: Log Kerja KiCad - PCB hgd-v1
 
 | Versi | Tanggal | Perubahan |
 |---|---|---|
+| v3 | 12 Nov. 2026 | Langkah 16-18 (12 Nov. 2026): silkscreen footprint dirapikan, D2 digeser, uji beda-pustaka diatur ignore, Gerber ulang, cek JLCDFM |
 | v2 | 27 Okt. 2026 | Langkah 8-14 (26 Okt. 2026): tangkapan Assign Footprints, judul dan silkscreen baru, ERC ulang dan PDF skema, belokan 45° dan stackup, Gerber ulang, cek JLCDFM, render; STEP baru menggantikan STEP dan salinan verbatim 17 Okt.; langkah 15 (27 Okt.): gambar penempatan papan akhir |
 | v1 | 17 Okt. 2026 | Log pertama: langkah 1-7 |

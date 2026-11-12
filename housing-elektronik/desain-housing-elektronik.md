@@ -3,7 +3,7 @@ title: Desain Housing Elektronik - Hand Grip Dynamometer
 
 ---
 
-# Desain Housing Elektronik - Hand Grip Dynamometer (v7)
+# Desain Housing Elektronik - Hand Grip Dynamometer (v8)
 **Proyek akhir - embedded system**
 
 > Housing elektronik: wadah PCB, ESP32, modul HX711, level shifter, LCD, tombol, dan LED. Housing grip (load cell) ada di [desain-housing-load-cell.md](../housing-load-cell/desain-housing-load-cell.md); ukuran komponen di [tabel-pengukuran-hgd.xlsx](../pengukuran/tabel-pengukuran-hgd.xlsx); PCB di [desain-pcb-hgd.md](../pcb/desain-pcb-hgd.md); parameter Fusion di [fusion/](fusion/); model 3D terbaru (lid + body dengan bibir, snap-fit, dan slot-U kabel, ekspor Fusion 30 Okt. 2026): [fusion/electronics_housing_lipped.step](fusion/electronics_housing_lipped.step); model PCB untuk cek pas: [../pcb/kicad/proyek/hgd-v1.step](../pcb/kicad/proyek/hgd-v1.step); induk: [catatan-proyek-hgd.md](../catatan-proyek-hgd.md).
@@ -155,7 +155,7 @@ Celah lid terhadap bingkai LCD memakai parameter tersendiri (mis. `lid_gap` 0,5 
 2. ✔ Jendela USB dan kabel load cell 15 x 9 di dinding lid (Bagian 1.2).
 3. ✔ Bibir dan 4 snap-fit dimodelkan; sketsa tonjolan, slot, dan lidah dibuat parametrik dan lolos uji parameter `snap_y`.
 4. ✔ Slice uji (X1 Carbon, Textured PEI, PLA Basic, 0,20 mm, 3 dinding, infill 15 %, lid dibalik): 90,2 g, 1 j 55 m, tanpa support. Tepi atas jendela USB dan kabel tercetak sebagai overhang 15 mm (> aturan jembatan 10 mm); support di jendela diputuskan laboran. Ukuran 105 mm, 90 g, dan 1 j 55 m melebihi batas modul: perlu izin lab/dosen.
-5. Lubang tombol dan LED di lid dari posisi SW1, D1, dan **D2 (LED daya 3 mm, ditambahkan di PCB 17 Okt. 2026)**; ukur tombol B3-B4 dan LED L1-L3 di tabel pengukuran. Di model 30 Okt. 2026 sudah ada lubang tombol Ø5,3, LED D1 Ø6,9, dan LED D2 Ø5,0 (`btn_hole_d`, `led1_hole_d`, `led2_hole_d`), masing-masing ukuran bagian + `comp_hole`. Lantai body punya 2 lubang Ø5,9 untuk menekan tombol EN dan BOOT DevKit (`floor_hole_d`). Lubang baut dari atas Ø5 (`mnt_hole_d`) = lubang PCB Ø3 + 1 mm kelonggaran + `comp_hole`.
+5. Lubang tombol dan LED di lid dari posisi SW1, D1, dan **D2 (LED daya 3 mm, ditambahkan di PCB 17 Okt. 2026)**; ukur tombol B3-B4 dan LED L1-L3 di tabel pengukuran. Di model 30 Okt. 2026 sudah ada lubang tombol Ø5,3, LED D1 Ø6,9, dan LED D2 Ø5,0 (`btn_hole_d`, `led1_hole_d`, `led2_hole_d`), masing-masing ukuran bagian + `comp_hole`. Lantai body punya 2 lubang Ø5,9 untuk menekan tombol EN dan BOOT DevKit (`floor_hole_d`). Lubang baut dari atas Ø5 (`mnt_hole_d`) = lubang PCB Ø3 + 1 mm kelonggaran + `comp_hole`. **12 Nov. 2026: D2 di PCB digeser 0,52 mm**, jadi pusat badan LED D2 sekarang x −15,0 (segaris SW1), bukan −15,52. Lubang D2 di model 30 Okt. 2026 masih di −15,52: bibir LED Ø4 di lubang Ø5 akan menyentuh tepi lubang (2 + 0,52 > 2,5 mm), jadi pindahkan lubang ke x −15,0 di Fusion sebelum dicetak.
 6. Tiang PCB di lid sesuai pola H1-H4 (Ø3,0; baut M2,5 x 14, dibeli 31 Okt. 2026). Belum ada di model v1.
 7. Cetak uji satu lidah dan slot (Fase 7 instruksi kerja Fusion) sebelum mencetak lid dan body.
 8. Selisih margin layar 1 mm (Bagian 2).
@@ -173,6 +173,7 @@ Celah lid terhadap bingkai LCD memakai parameter tersendiri (mis. `lid_gap` 0,5 
 ## 8. Perubahan
 | Versi | Tanggal | Perubahan |
 |---|---|---|
+| v8 | 12 Nov. 2026 | Butir 5: D2 di PCB digeser 0,52 mm (12 Nov. 2026); lubang LED D2 di lid harus dipindah ke x −15,0 |
 | v7 | 30 Okt. 2026 | Bagian 1.4: slot-U kabel load cell + lidah body (menggantikan jendela 15 x 9; HX711 tidak muat lewat jendela); parameter `cable_d` sampai `ctongue_h` di CSV; dimodelkan dan dicek dari STEP 30 Okt. 2026 (STEP di `fusion/` diperbarui); parameter ukuran housing, jendela, dan lubang (`housing_L` sampai `floor_hole_d`) diukur dari STEP; gambar `gambar/slot-kabel-load-cell.svg`; sisa pekerjaan butir 5 dan 10 |
 | v6 | 27 Okt. 2026 | Sisa pekerjaan butir 9: model PCB `hgd-v1.step` kini versi 26 Okt. 2026, tanpa soket 1x15 DevKit |
 | v5 | 17 Okt. 2026 | **Desain v1 selesai (belum disetujui)**: status di Bagian 1; STEP model terbaru di `fusion/`; sisa pekerjaan disusun ulang (lubang tombol/LED termasuk D2, tiang PCB, cetak uji, cek pas dengan STEP PCB) |

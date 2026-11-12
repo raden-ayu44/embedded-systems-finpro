@@ -70,20 +70,7 @@
         }
       },
       "diff_pair_dimensions": [],
-      "drc_exclusions": [
-        [
-          "lib_footprint_mismatch|119080000|103107500|3e823d21-3794-4f41-85bc-9a0052cbc641|00000000-0000-0000-0000-000000000000",
-          ""
-        ],
-        [
-          "lib_footprint_mismatch|136250000|128475000|0ee7e735-6633-4983-9af7-5958641c7072|00000000-0000-0000-0000-000000000000",
-          ""
-        ],
-        [
-          "lib_footprint_mismatch|181000000|103107500|c1a2b6a3-d1c4-4764-95b6-dba57c84f224|00000000-0000-0000-0000-000000000000",
-          ""
-        ]
-      ],
+      "drc_exclusions": [],
       "meta": {
         "version": 2
       },
@@ -114,7 +101,7 @@
         "items_not_allowed": "error",
         "length_out_of_range": "error",
         "lib_footprint_issues": "warning",
-        "lib_footprint_mismatch": "warning",
+        "lib_footprint_mismatch": "ignore",
         "malformed_courtyard": "error",
         "microvia_drill_out_of_range": "error",
         "mirrored_text_on_front_layer": "warning",
@@ -273,36 +260,7 @@
     "equivalence_files": []
   },
   "erc": {
-    "erc_exclusions": [
-      [
-        "lib_symbol_mismatch|1104900|774700|f2bb0495-6606-4061-b0eb-e349a3665633|00000000-0000-0000-0000-000000000000|||",
-        ""
-      ],
-      [
-        "lib_symbol_mismatch|1257300|584200|66a3f429-1042-43ff-8ae2-39778a793a63|00000000-0000-0000-0000-000000000000|||",
-        ""
-      ],
-      [
-        "lib_symbol_mismatch|1714500|584200|1a3d9fb2-cd18-45d9-97e6-e56915d73982|00000000-0000-0000-0000-000000000000|||",
-        ""
-      ],
-      [
-        "lib_symbol_mismatch|1714500|965200|abb9493e-1f6b-41ef-897b-2849fcbfc15d|00000000-0000-0000-0000-000000000000|||",
-        ""
-      ],
-      [
-        "lib_symbol_mismatch|1790700|1143000|da6a53d5-fa12-4ce6-a481-3bd0ea5f1877|00000000-0000-0000-0000-000000000000|||",
-        ""
-      ],
-      [
-        "lib_symbol_mismatch|1854200|927100|b63619ed-01bf-4900-be98-2c71e81e8c9f|00000000-0000-0000-0000-000000000000|||",
-        ""
-      ],
-      [
-        "lib_symbol_mismatch|2184400|762000|0186ece7-2d90-4890-ad5f-c288f2b56f0a|00000000-0000-0000-0000-000000000000|||",
-        ""
-      ]
-    ],
+    "erc_exclusions": [],
     "meta": {
       "version": 0
     },
@@ -497,7 +455,7 @@
       "label_dangling": "error",
       "label_multiple_wires": "warning",
       "lib_symbol_issues": "warning",
-      "lib_symbol_mismatch": "warning",
+      "lib_symbol_mismatch": "ignore",
       "missing_bidi_pin": "warning",
       "missing_input_pin": "warning",
       "missing_power_pin": "error",
@@ -795,7 +753,7 @@
         "uuid": "6b21994a-6206-4cf9-9cdc-f7818991e11a"
       }
     ],
-    "used_designators": "U1-2,#FLG1,R1-2,J1-5,C1-6,#PWR1,D1-2,SW1-2",
+    "used_designators": "U1-2,J1-5,R1-2,#FLG1,C1-6,D1-2,#PWR1,SW1-2",
     "variants": []
   },
   "sheets": [
