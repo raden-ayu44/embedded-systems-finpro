@@ -1,17 +1,21 @@
 // fsm.cpp - lihat fsm.h.
 //
-// Isi berkas: semua state, aksi masuk, layar (Bagian 10.2), aturan LED (Bagian 10.3),
-// transisi pengecualian galat sensor, dan reset total. Ringkasan per langkah:
-// - GRIP (langkah 6, 6d): onset -> fase 2; dilepas sebelum 3 s -> fase 1; dilepas antara 3 dan 5 s
-//   -> COMPUTE (pengguna yang memutuskan); masih digenggam pada 5 s -> COMPUTE. ref = jendela stabil
-//   terkuat, atau jendela terkuat bila tidak pernah stabil.
-// - REST (langkah 7): tunggu dilepas -> hitung mundur REST_S (tombol diabaikan, digenggam lagi = jeda)
-//   -> tunggu TAP (NEXT).
-// - Langkah 5c: penjaga nol di READY (kg > +1 = START diabaikan, kg < -1 = tare ulang), di GRIP
-//   fase 1 (kg < -1 = kembali ke READY), dan TAHAN di READY = tare ulang manual.
-// - Langkah 8: cek rentang OUT_OF_RANGE live di GRIP dan pada ref di COMPUTE; keadaan aman, layar
-//   galat dan baris E di modul fault.cpp.
-// - Langkah 9: SUMMARY mengirim 3 baris T + 1 baris S (serial_log), menunggu ACK; gagal -> SAVE_FAILED.
+// Isi berkas: tujuh state (READY, GRIP, COMPUTE, REST, SUMMARY, FAULT, SAVE_FAILED), aksi masuk tiap
+// state, teks layar (alur-program-hgd.md Bagian 10.2), aturan LED (Bagian 10.3), pindah ke FAULT bila
+// ada galat sensor, dan reset total. Urutan kerja fsmRun() tiap putaran: cek tahan 15 s (reset
+// total), cek galat sensor, jalankan state aktif, lalu gambar layar. Perilaku sekarang:
+// - READY: penjaga nol (kg > +1 = START diabaikan, layar "Lepas genggaman"; kg < -1 = tare ulang);
+//   TAHAN = tare ulang manual; TAP = START.
+// - GRIP: kg > 1 = onset, mulai fase 2. Dilepas sebelum 3 s -> kembali menunggu genggam (fase 1;
+//   kg < -1 di fase 1 = kembali ke READY). Dilepas antara 3 dan 5 s -> COMPUTE (pengguna yang
+//   memutuskan); masih digenggam pada 5 s -> COMPUTE. LED menyala selama genggaman stabil.
+//   kg > 80 live -> FAULT OUT_OF_RANGE.
+// - COMPUTE: ref = jendela stabil terkuat, atau jendela terkuat bila tidak pernah stabil;
+//   ref <= 0 atau > 80 kg -> FAULT OUT_OF_RANGE.
+// - REST: tunggu dilepas -> hitung mundur REST_S (tombol diabaikan, digenggam lagi = jeda) -> TAP (NEXT).
+// - SUMMARY: kirim 3 baris T + 1 baris S lewat serial_log dan tunggu ACK; gagal -> SAVE_FAILED.
+// - FAULT dan SAVE_FAILED: keadaan aman, LED kedip alarm; layar galat dan baris E di fault.cpp.
+//   TAHAN di FAULT -> READY.
 #include "fsm.h"
 #include "button.h"
 #include "display.h"
@@ -232,7 +236,8 @@ static void enterRest() {
   restCounting = false;      // hitung mundur baru mulai saat genggaman dilepas
   restPaused = false;
   restDoneMs = 0;
-  // LED tidak diubah: bila GRIP keluar lewat plateau, LED tetap menyala sampai dilepas.
+  // LED tidak diubah di sini: bila GRIP berhenti di batas 5 s saat genggaman stabil, LED tetap
+  // menyala sampai genggaman dilepas (dimatikan di REST); bila dilepas sendiri, LED sudah mati.
 }
 
 static void enterSummary() {
@@ -597,7 +602,7 @@ static void drawScreen() {
     return;
   }
 
-  // Teks mengikuti Tabel 4 proposal (sama dengan firmware tim lainnya) dengan perubahan langkah 10:
+  // Teks mengikuti Tabel 4 proposal dengan perubahan langkah 10:
   // semua kg dua desimal, RINGKASAN tanpa "kg" (supaya muat), GAGALSIMPAN tiga halaman, dan
   // "Data tersimpan" setelah semua ACK. Daftar lengkap: alur-program-hgd.md Bagian 10.2 dan
   // teks-lcd-hgd.md. Semua baris <= 16 karakter.

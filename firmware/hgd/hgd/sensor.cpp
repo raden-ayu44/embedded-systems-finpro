@@ -23,7 +23,7 @@ struct SensorState {
   bool     offsetBad;     // offset di luar jendela terus-menerus >= OFFSET_BAD_MS: load cell terputus
   bool     offsetOut;     // tare terakhir di luar jendela; offsetOutSinceMs berlaku (langkah 8d)
   uint32_t offsetOutSinceMs; // millis() saat tare pertama di luar jendela dalam deret ini
-  bool     windowRetry;   // tare sedang diulang karena offset di luar jendela (layar "Lepas genggaman")
+  bool     windowRetry;   // tare sedang diulang karena offset di luar jendela (layar "Nol ulang: lepas")
 
   float    buf[BUF_SIZE]; // buffer melingkar kg
   uint8_t  bufIdx;        // posisi tulis berikutnya
@@ -148,7 +148,7 @@ bool sensorPoll() {
         // ~-39000 counts. Offset jauh dari itu berarti salah satu dari dua hal:
         // - ada beban saat tare (tangan di load cell; pelat B rakitan sendiri ~7400 counts sudah
         //   memakan sebagian jendela) -> perlakukan seperti tare yang terganggu: offset lama
-        //   dipertahankan, layar "Lepas genggaman", tare diulang;
+        //   dipertahankan, layar "Nol ulang: lepas", tare diulang;
         // - load cell tidak terhubung dengan benar (E- terputus 23 Okt.: offset ~+500 terus;
         //   pasangan sinyal tertukar: ~+39000) -> offset tetap di luar jendela di setiap ulangan,
         //   jadi bila di luar jendela terus-menerus selama OFFSET_BAD_MS (10 s): READING_INVALID.
