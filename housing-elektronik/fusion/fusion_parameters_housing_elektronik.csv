@@ -83,6 +83,6 @@ btn_hole_d,mm,btn_d + comp_hole,5.3 mm,"lubang tombol SW1 di pelat atas (pusat x
 led1_d,mm,5.9 mm,5.9 mm,"diameter LED status D1 5 mm (bibir)",false
 led1_hole_d,mm,led1_d + comp_hole,6.9 mm,"lubang LED D1 (pusat x 15, y -29.5)",false
 led2_d,mm,4 mm,4 mm,"diameter LED daya D2 3 mm (bibir)",false
-led2_hole_d,mm,led2_d + comp_hole,5 mm,"lubang LED D2 (pusat x -15.52, y -75.5)",false
+led2_hole_d,mm,led2_d + comp_hole,5 mm,"lubang LED D2 (pusat x -15.0 sejak PCB 12 Nov. 2026; model 30 Okt. masih -15.52, y -75.5)",false
 enboot_d,mm,4.9 mm,4.9 mm,"diameter akses tombol EN dan BOOT DevKit dari bawah",false
 floor_hole_d,mm,enboot_d + comp_hole,5.9 mm,"2 lubang di lantai body untuk menekan tombol EN dan BOOT DevKit (x -36.4; y -51.25 dan -66.75)",false
