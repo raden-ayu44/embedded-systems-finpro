@@ -9,8 +9,8 @@
 	(paper "A4")
 	(title_block
 		(title "Digital Hand Grip Dynamometer")
-		(date "2026-10-26")
-		(rev "1")
+		(date "2026-11-12")
+		(rev "2")
 		(company "Kelompok 01")
 	)
 	(layers
