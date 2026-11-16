@@ -1,8 +1,10 @@
-# Instruksi kerja: housing load cell di Fusion (v9)
+# Instruksi kerja: housing load cell di Fusion (v10)
 
 Lingkup: memodelkan load cell acuan, Spacer A dengan dinding klem kabel, Spacer B, serta pelat A dan B. Ridge, balok kalibrasi, dan bentuk tambahan lain dirancang bebas oleh tim. Desain dan alasan: [../desain-housing-load-cell.md](../desain-housing-load-cell.md) dan [../asumsi.md](../asumsi.md); parameter: [fusion_parameters_housing_grip.csv](fusion_parameters_housing_grip.csv) (parameter bertanda WAJIB di kolom keterangan tidak boleh diubah tanpa ukur ulang).
 
 Nama perintah ditulis seperti di menu Fusion versi bahasa Inggris; letaknya bisa sedikit berbeda antarversi. Ketik nama parameter di kotak ukuran, bukan angka.
+
+**Koordinat bukan ukuran sketsa.** Posisi di instruksi ini ditulis sebagai koordinat (mis. x = `-LC_L / 2 + cable_x`, −59,7) supaya jelas letaknya. Ukuran sketsa di Fusion adalah **jarak**, jadi tidak boleh negatif: ekspresi yang hasilnya negatif ditolak ("invalid expression"). Di sketsa, beri ukuran jarak positif dari tepi atau titik asal, mis. titik kabel = `cable_x` dari tepi muka ujung load cell (x −65) dan `cable_z` dari tepi bawah; ujung dalam Spacer A = `boss_L` dari muka ujung; lubang = `hole_x` dari titik asal. Offset bidang konstruksi (mis. `-gap`) boleh negatif karena menunjukkan arah.
 
 ## Acuan koordinat
 
@@ -47,7 +49,7 @@ Hasil akhir yang dituju:
 - [ ] Komponen baru `Load_Cell`, aktifkan.
 - [ ] **Sketch** pada bidang XY: **Center Rectangle** di titik asal, `LC_L` x `LC_W`. **Extrude** ke atas `LC_H`.
 - [ ] **Sketch** pada muka atas: empat titik di (±`hole_x`, ±`hole_y`). **Hole** Ø5, **All** (tembus), sebagai acuan ulir M6.
-- [ ] **Sketch** pada muka samping −y: titik di x = `-LC_L / 2 + cable_x`, z = `cable_z`. **Hole** `cable_hole_d`, dalam 5 mm, sebagai acuan lubang kabel.
+- [ ] **Sketch** pada muka samping −y: satu titik dekat ujung tetap, diberi ukuran `cable_x` dari tepi muka ujung (x −65) dan `cable_z` dari tepi bawah (koordinat x −59,7, z 10,75). **Hole** `cable_hole_d`, dalam 5 mm, sebagai acuan lubang kabel.
 - [ ] Klik kanan komponen di Browser, **Ground**. Jangan diekspor untuk dicetak.
 
 ## Fase 3: Spacer A (ujung tetap, di atas load cell)
@@ -67,10 +69,10 @@ Hasil akhir yang dituju:
 Kabel duduk di takik yang terbuka ke arah pelat B, lalu diikat zip tie lewat terowongan di bantalan. Takik tidak menjepit; zip tie yang menahan kabel ke segala arah.
 
 - [ ] **Sketch** pada muka luar dinding klem (y −17), profil takik:
-  - dua garis tegak selebar `notch_w`, berpusat di x = `-LC_L / 2 + cable_x` (−59,7), dari tepi bawah dinding (z 2,5) ke atas;
+  - dua garis tegak selebar `notch_w`, berpusat di x −59,7 (garis tengah berjarak `cable_x` dari bidang muka ujung load cell; atau proyeksikan lubang kabel acuan dengan **Project** dan pakai pusatnya), dari tepi bawah dinding (z 2,5) ke atas;
   - setengah lingkaran di atasnya, jari-jari `notch_w / 2`, puncaknya di z = `notch_top_z` (13,25).
 - [ ] **Extrude** profil takik menembus dinding (**Through All** ke arah +y, atau jarak `clamp_wall_t`), **Cut**, Objects = `Spacer_A` saja.
-- [ ] **Sketch** pada muka luar dinding klem: persegi panjang bantalan, x dari `-LC_L / 2 + cable_x - pad_L / 2` sampai `-LC_L / 2 + cable_x + pad_L / 2` (−65,7 sampai −53,7), z dari `notch_top_z` sampai `LC_H + gap` (13,25 sampai 24,5, menyatu dengan pelat spacer).
+- [ ] **Sketch** pada muka luar dinding klem: persegi panjang bantalan sepanjang `pad_L` berpusat di garis tengah takik (x −65,7 sampai −53,7; tepi luarnya `pad_L / 2 - cable_x` = 0,7 di luar muka ujung load cell), z dari `notch_top_z` sampai `LC_H + gap` (13,25 sampai 24,5, menyatu dengan pelat spacer).
 - [ ] **Extrude** bantalan keluar (arah −y) sejauh `pad_t`, **Join**.
 - [ ] **Sketch** pada muka ujung bantalan (x −65,7): persegi panjang terowongan `tun_w` (arah y) x `tun_h` (arah z), berpusat `tun_y` dari muka luar dinding (y −20), tepi bawah di z = `notch_top_z + tun_floor` (14,75).
 - [ ] **Extrude** terowongan menembus bantalan sepanjang `pad_L` (**Through All** ke arah +x, Objects = `Spacer_A` saja), **Cut**.
