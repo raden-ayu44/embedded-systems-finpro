@@ -7,27 +7,27 @@ Design and documentation for a hand grip strength meter, made for an embedded sy
 - Housing: two plain Al 6061-T6 plates (140 × 40 × 8 mm) with 3 mm PLA spacers, joined to the load cell with M6 × 25 stainless flange bolts. The cable sits in a notch in spacer A and is held by a zip tie. Drawings are generated from the parameter CSV (`housing-load-cell/gambar/generate_drawings.py`).
 - Budget: maximum Rp300.000.
 
-**Status (24 Oct. 2026):** breadboard prototype working.
-- **Firmware:** steps 0-11 written and tested on the board (state machine, non-blocking HX711 reading, LED rule, fault handling, watchdog, logging with ACK), built with Arduino IDE core 3.3.11. **Frozen for the UTS**: bug fixes only.
+**Status (16 Nov. 2026):** breadboard prototype working; the mid-term (UTS) stage is finished (firmware, brief and video submitted 27 Oct. 2026). Now in the final-project stage: PCB in fabrication, housings, calibration and the planned firmware changes.
+- **Firmware:** steps 0-11 written and tested on the board (state machine, non-blocking HX711 reading, LED rule, fault handling, watchdog, logging with ACK), built with Arduino IDE core 3.3.11. This is the version submitted for the UTS; outdated comments were cleaned up on 12 Nov. 2026 (no code change). The changes planned for the final project (calibration, version number, countdown timing, debug switch, LCD text redesign) are listed in `firmware/alur-program-hgd.md` section 19 and are not coded yet.
 - **Laptop logger:** `laptop/logger.py` works: it writes three daily CSV files (results, faults, grip traces), answers ACK/NAK, and reconnects after a USB unplug.
-- **Hardware design:** KiCad schematic and PCB v1 done; electronics housing and grip housing designed (not yet built). Bench tests: ESP32 pins, load cell, LCD (I2C 0x27), HX711; unloaded noise σ ≈ 0.7 g.
-- **Not yet done:** calibration (moved to the final project; force values use the nominal scale, uncalibrated), building the housings.
+- **Hardware design:** KiCad schematic and PCB v1 approved; Gerber Revision 2 (12 Nov. 2026) sent for fabrication; electronics housing and grip housing designed (not yet built). Bench tests: ESP32 pins, load cell, LCD (I2C 0x27), HX711; unloaded noise σ ≈ 0.7 g.
+- **Not yet done:** calibration (force values still use the nominal scale, uncalibrated), assembling the PCB when it arrives, building the housings, the final-project firmware changes.
 
 Documents are written in Indonesian.
 
-## Mulai di sini untuk UTS
+## Mulai di sini: firmware dan purwarupa
 
-Urutan baca untuk memahami purwarupa UTS (firmware, logger, layar), dari nol:
+Urutan baca untuk memahami purwarupa (firmware, logger, layar), dari nol. Firmware di repo sama dengan yang dikumpulkan untuk UTS (hanya komentar dirapikan 12 Nov. 2026); rencana perubahan untuk proyek akhir ada di Bagian 19 alur program.
 
 1. `README.md` (berkas ini): gambaran dan status.
-2. [`catatan-proyek-hgd.md`](catatan-proyek-hgd.md): **hanya** gambaran proyek (Bagian 1), tujuan dan spesifikasi target S1-S5 (Bagian 2), fungsi perangkat (Bagian 6), riwayat keputusan (Bagian 14), dan status (Bagian 15). Bagian lain (sumber, anggaran, risiko, audit) tidak diperlukan untuk UTS.
-3. [`firmware/alur-program-hgd.md`](firmware/alur-program-hgd.md) **Bagian 1-13**: arsitektur, struktur data, konstanta, fungsi, state machine, HX711, logging, antarmuka, uji, build, memori. Bagian 15-17 adalah lampiran lama dari catatan proyek; Bagian 6 dan 10 yang berlaku bila berbeda.
+2. [`catatan-proyek-hgd.md`](catatan-proyek-hgd.md): **hanya** gambaran proyek (Bagian 1), tujuan dan spesifikasi target S1-S5 (Bagian 2), fungsi perangkat (Bagian 6), riwayat keputusan (Bagian 14), dan status (Bagian 15). Bagian lain (sumber, anggaran, risiko, audit) tidak diperlukan untuk memahami firmware.
+3. [`firmware/alur-program-hgd.md`](firmware/alur-program-hgd.md) **Bagian 1-13 dan 19**: arsitektur, struktur data, konstanta, fungsi, state machine, HX711, logging, antarmuka, uji, build, memori; Bagian 19 = rencana perubahan firmware untuk proyek akhir. Bagian 15-17 adalah lampiran lama dari catatan proyek; Bagian 6 dan 10 yang berlaku bila berbeda.
 4. [`firmware/teks-lcd-hgd.md`](firmware/teks-lcd-hgd.md): semua layar LCD persis seperti dicetak firmware.
-5. Kode firmware di [`firmware/hgd/hgd/`](firmware/hgd/hgd/) (mulai dari `hgd.ino`, lalu `config.h`, `types.h`, `fsm.cpp`). Folder ini juga isi ZIP firmware UTS.
+5. Kode firmware di [`firmware/hgd/hgd/`](firmware/hgd/hgd/) (mulai dari `hgd.ino`, lalu `config.h`, `types.h`, `fsm.cpp`). Folder ini juga isi ZIP firmware yang dikumpulkan untuk UTS.
 6. [`laptop/logger.py`](laptop/logger.py): pencatat di laptop (CSV, ACK/NAK).
 7. [`laptop/panduan-menjalankan-hgd.md`](laptop/panduan-menjalankan-hgd.md): cara menjalankan dari nol di laptop mana pun (pasang, flash, logger, uji bench satu sesi, buka CSV, grafik genggaman).
 
-**Tidak diperlukan untuk UTS:** `housing-load-cell/`, `housing-elektronik/`, `kalibrasi/` (kalibrasi dipindah ke proyek akhir), `sitasi/`, PDF datasheet di `datasheet/pdf/`, dan sketsa uji lama di `firmware/sketches/` (hanya untuk uji modul awal).
+**Tidak diperlukan untuk memahami firmware:** `housing-load-cell/`, `housing-elektronik/`, `kalibrasi/` (kalibrasi dikerjakan di proyek akhir setelah housing grip dirakit), `sitasi/`, PDF datasheet di `datasheet/pdf/`, dan sketsa uji lama di `firmware/sketches/` (hanya untuk uji modul awal).
 
 ## Start here
 

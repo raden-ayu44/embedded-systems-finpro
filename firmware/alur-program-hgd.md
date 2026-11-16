@@ -3,10 +3,10 @@ title: Alur Program - Hand Grip Dynamometer
 
 ---
 
-# Alur Program - Hand Grip Dynamometer (v6)
+# Alur Program - Hand Grip Dynamometer (v7)
 **Proyek akhir - embedded system**
 
-> **Status (24 Okt. 2026): firmware langkah 0-11 dan `laptop/logger.py` sudah dikode dan diuji di papan, termasuk build akhir Arduino IDE core 3.3.11** (`firmware/hgd/`, `laptop/`); firmware dibekukan untuk UTS (hanya perbaikan bug); satu perubahan sesudahnya atas usulan tim: LED alarm galat, butir (12), v6 27 Okt. 2026. Bagian yang belum dikode (`kalibrasi.py`, skrip grafik, desain ulang teks LCD untuk proyek akhir) masih rencana. Bagian yang bertanda ✔ sudah selesai. Sketsa uji modul (U4, U7, U8) sudah ada di `sketches/` (Bagian 11.3); langkah uji bench ada di [protokol-uji-bench-hgd.md](protokol-uji-bench-hgd.md). Versi v5 (18 Okt. 2026), perubahan:
+> **Status (16 Nov. 2026): firmware langkah 0-11 dan `laptop/logger.py` sudah dikode dan diuji di papan, termasuk build akhir Arduino IDE core 3.3.11** (`firmware/hgd/`, `laptop/`), ditambah LED alarm galat (butir 12, 27 Okt. 2026). **Versi ini dikumpulkan untuk UTS (27 Okt. 2026)**; 12 Nov. 2026 komentar yang usang dirapikan tanpa mengubah kode. **Perubahan untuk proyek akhir direncanakan di Bagian 19 dan belum dikode**: selama butir di Bagian 19 belum bertanda ✔, perilaku firmware tetap seperti yang ditulis di Bagian 1-13. Skrip grafik sudah ada (`laptop/plot_grip.py`, `laptop/plot_session.py`); `kalibrasi.py` belum dikode. v7 (16 Nov. 2026): status ini dan Bagian 19. Bagian yang bertanda ✔ sudah selesai. Sketsa uji modul (U4, U7, U8) sudah ada di `sketches/` (Bagian 11.3); langkah uji bench ada di [protokol-uji-bench-hgd.md](protokol-uji-bench-hgd.md). Versi v5 (18 Okt. 2026), perubahan:
 > - (1) **Aturan LED baru** (menyala selama plateau di `GENGGAM`, tetap menyala sampai genggaman dilepas, kedip 5 detik setelah tiap restart, mati di galat; sejak v6 kedip cepat terus di galat, butir 12) **menggantikan spesifikasi proposal S5** (LED menyala sepanjang `GENGGAM`), karena LED kini memberi dua sinyal: "genggaman stabil" dan "restart" (Bagian 10.3).
 > - (2) **S2 diubah**: hitung mundur istirahat digambar ulang tiap `T_REFRESH_LCD_MS` = 500 ms, bukan 100 ms ±10-20 ms (aturan modul praktikum; A6 dan A7 selesai).
 > - (3) **Reset total**: tahan tombol 15 detik di state apa pun; nomor sesi naik, baris `E` `FORCE_RESET`; uji X11a-c.
@@ -18,7 +18,7 @@ title: Alur Program - Hand Grip Dynamometer
 > - (9) **`logger.py`** meneruskan tombol (`x`) ke ESP32 dan mencetak baris non-`HGD` ke konsolnya; **layar `GAGALSIMPAN`** bergantian tiap 3 detik menampilkan semua nilai (A8 selesai); X4 diperluas.
 > - (11) **Tanpa istirahat setelah percobaan 3** (keputusan tim, 24 Okt. 2026) **menyimpang dari proposal** (istirahat ≈ 1 menit setelah tiap percobaan): istirahat ada untuk pemulihan otot sebelum genggaman berikutnya, dan setelah percobaan 3 tidak ada genggaman lagi. Hasil percobaan 3 tetap tampil (`Lepas>ringkasan` sampai dilepas, lalu langsung `NEXT > ringkasan`); pengawas tetap yang memulai penyimpanan dengan TAP (Bagian 6.2, 10.2).
 > - (10) **Uji galat diperbarui:** X1 dipecah (X1a DT → `HX711_TIMEOUT`; X1b SCK direncanakan → `READING_INVALID`, hasil uji 24 Okt. 2026 dua kali `HX711_TIMEOUT`, lihat baris X1b di Bagian 11); X2 tanpa eksitasi berlebih (cabut satu kabel sinyal); X3 lewat `x`; X5 = catu hilang (bukan `GAGALSIMPAN`); X11a-c reset total.
-> - (12) **LED alarm galat** (27 Okt. 2026, usulan tim, sesudah firmware dibekukan): di `ERROR` dan `GAGALSIMPAN` LED D1 berkedip cepat 5 Hz (`LED_ALARM_MS` 100 ms) terus sampai keluar (TAHAN 1,5 s atau reset total), menggantikan "dipaksa mati". Alasan: penggenggam yang tidak melihat layar `ERR:...` atau `GAGAL SIMPAN` tetap tahu ada masalah, karena alat tidak punya buzzer. Kedip restart (2 Hz, 5 s) tetap ada, jadi kedua tanda dibedakan dari kecepatannya. LED tetap tidak mengikuti genggaman selama galat (pengukuran berhenti). Perlu uji ulang di papan (Bagian 10.3).
+> - (12) **LED alarm galat** (27 Okt. 2026, usulan tim, sesudah firmware dibekukan): di `ERROR` dan `GAGALSIMPAN` LED D1 berkedip cepat 5 Hz (`LED_ALARM_MS` 100 ms) terus sampai keluar (TAHAN 1,5 s atau reset total), menggantikan "dipaksa mati". Alasan: penggenggam yang tidak melihat layar `ERR:...` atau `GAGAL SIMPAN` tetap tahu ada masalah, karena alat tidak punya buzzer. Kedip restart (2 Hz, 5 s) tetap ada, jadi kedua tanda dibedakan dari kecepatannya. LED tetap tidak mengikuti genggaman selama galat (pengukuran berhenti). Sudah berjalan di papan sebelum brief UTS ditulis (tampil di video UTS).
 >
 > Versi v4 (16 Okt. 2026): E1 resmi setelah pemanasan (σ 35,0 counts), uji arah tekan, U8 kumulatif. Versi v3 (16 Okt. 2026): hasil uji bench 15 Okt. 2026 (U4, U5, U7, U8 sebagian, E1) dicatat; `THRESHOLD_ONSET_KG` = 1,0 kg terkonfirmasi E1; data untuk A5 dan A12 di Bagian 18. Versi v2 (15 Okt. 2026): sitasi dan rujukan silang dikoreksi terhadap modul praktikum dan buku, hal terbuka dicatat di Bagian 18; keputusan desain tidak berubah. Versi v1 (13 Okt. 2026) disusun dari alur proyek WIP-0.1 (10 Okt. 2026) dan Bagian 6-8 catatan lama. Tanda (✔ ▣ ◐ `[sitasi]`) dijelaskan di [catatan-proyek-hgd.md](../catatan-proyek-hgd.md); sumber `[sitasi]` ada di [sitasi-hgd.md](../sitasi/sitasi-hgd.md).
 
@@ -44,6 +44,7 @@ Dokumen ini memuat semua yang berkaitan dengan firmware ESP32 dan program sisi l
 16. Lampiran: narasi pengalaman pengguna (dari catatan proyek)
 17. Lampiran: catatan platform, ESP32 vs Raspberry Pi (dari catatan proyek)
 18. Hal terbuka dari pemeriksaan terhadap modul praktikum
+19. Rencana perubahan firmware untuk proyek akhir (belum dikode)
 
 ---
 
@@ -1285,3 +1286,27 @@ Argumen: alat genggam butuh ukuran kompak, daya rendah, dan pewaktuan yang bisa 
 | A12 | Debounce ISR 50 ms dari tepi pertama; klasifikasi tap dan tahan dari level pin | Pantulan saat **lepas** setelah tekanan > 50 ms dapat menghasilkan tepi FALLING baru yang diterima ISR. Modul praktikum GPIO mempercayai level hanya setelah stabil 50 ms, dan mencatat debounce perangkat keras lebih tepat bila tepi langsung memicu interrupt | Uji `uji_tombol_led` (U8): bandingkan jumlah tekanan fisik dengan "ISR diterima" dan jumlah TAP. **Sebagian 15-16 Okt. 2026:** 5 tap dan 3 tahan terbaca benar, tanpa TAP tambahan saat dilepas; sampel masih kecil, uji 10/10 belum |
 | A13 | Median sebagai cadangan pencilan (W6) | Tidak ada di PDF White yang dipakai tim; yang ada rolling average dan block average | Cek edisi cetak, atau hapus sitasi |
 
+---
+
+## 19. RENCANA PERUBAHAN FIRMWARE UNTUK PROYEK AKHIR
+
+*Ditulis 16 Nov. 2026. Semua butir di bawah **belum dikode**; firmware di `firmware/hgd/hgd/` masih versi UTS. Saat satu butir dikerjakan, tandai ✔ dengan tanggal, perbarui bagian yang terkait (Bagian 3, 6, 10, 11) dan uji ulang di papan.*
+
+| Kode | Prioritas | Rencana | Alasan |
+|------|-----------|---------|--------|
+| P1 | Tinggi | Ganti `SCALE_COUNTS_PER_KG` (53 687, nilai nominal dari datasheet) dengan hasil regresi kalibrasi ≥ 5 titik ([protokol-kalibrasi-hgd.md](../kalibrasi/protokol-kalibrasi-hgd.md), Bagian 8) | Semua nilai kg sampai sekarang belum terkalibrasi |
+| P2 | Tinggi | Ukur ulang `OFFSET_EXPECTED` dan `OFFSET_WINDOW` setelah housing grip dirakit; ulang E1 untuk `THRESHOLD_ONSET_KG` | Pelat dan baut menggeser offset jembatan; jendela lama bisa memicu `READING_INVALID` palsu |
+| P3 | Sedang | Perintah serial `k` untuk kalibrasi (cetak rata-rata sampel raw per beban): tambahkan atau hapus dari dokumen | Disebut di komentar `config.h`, belum pernah dikode |
+| P4 | Sedang | Jalankan E2 (`THRESHOLD_STABLE_KG`), E4 (`HOLD_MS`), E6 (tarik kabel load cell) di housing, lalu sesuaikan konstanta | Masih nilai awal |
+| P5 | Sedang | Galat di `REST` sekarang membuat percobaan yang sudah sah diulang (`FAULT` → TAHAN → `READY`, nomor percobaan sama). Putuskan: tetap (konservatif, alasan ditulis) atau lanjut ke percobaan berikutnya | Belum diputuskan tim |
+| P6 | Sedang | Konstanta versi firmware di `config.h`, dicetak saat boot dan di perintah `p`; ganti pesan boot "Langkah 10c: ..." | Tahu pasti build mana yang ada di papan |
+| P7 | Sedang | Saklar debug untuk build akhir: `w` (sengaja memacetkan `loop()`) dan `x` (skala demo) dimatikan (`DEBUG_CMD 0`) atau dibatasi pada perintah yang dipakai demo galat | Huruf yang tak sengaja terketik di konsol bisa me-reset alat di tengah sesi |
+| P8 | Rendah | Nomor boot lebih acak (gabungkan `esp_random()` dengan `micros()`) | Dua nomor boot di uji langkah 11 tampak tidak acak |
+| P9 | Rendah | Deteksi kabel load cell putus di tengah percobaan (sekarang baru tertangkap jendela offset saat tare berikutnya) | Batas deteksi galat |
+| P10 | Rendah | Sampel rusak sebelum `HX711_TIMEOUT` (uji X1b) bisa menutup upaya sebagai `EARLY_RELEASE`; ubah hanya bila ada aturan tanpa galat palsu | Rekaman genggaman lebih bersih saat galat |
+| P11 | Terbuka | Riwayat sesi sebelumnya di layar RINGKASAN (NVS, dikirim balik `logger.py`, atau hanya di analisis CSV) | Hal terbuka sejak proposal (Bagian 7 catatan proyek) |
+| P12 | Rendah | Satu core untuk pengembangan dan build akhir (PlatformIO masih core 2.0.17, build akhir core 3.3.11), atau tetapkan bahwa uji akhir hanya pada build Arduino IDE | Uji waktu dan galat pernah dijalankan di dua core |
+| P13 | Sedang | Hitung mundur istirahat berganti tepat di batas detik (gambar ulang saat angka detik berubah, bukan hanya tiap `LCD_REFRESH_MS`) | Sekarang angka baru muncul terlambat sampai 0,5 s; lama istirahat sendiri sudah tepat |
+| LCD | Sedang | Desain ulang teks LCD ([teks-lcd-hgd.md](teks-lcd-hgd.md)), termasuk `--.--` selama tare | Kosmetik; perilaku tidak berubah |
+
+Setelah perubahan: kompilasi di kedua build, uji ulang di papan (sesi penuh dengan `logger.py`, lima skenario galat, E8), lalu catat hasilnya di Bagian 11 dan perbarui [teks-lcd-hgd.md](teks-lcd-hgd.md) bila teks berubah.
