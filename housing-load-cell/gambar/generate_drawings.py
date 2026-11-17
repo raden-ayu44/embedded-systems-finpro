@@ -3,9 +3,10 @@
 Cara pakai (dari folder repo):
     python housing-load-cell/gambar/generate_drawings.py
 
-Skrip membaca housing-load-cell/fusion/fusion_parameters_housing_grip.csv dan menimpa enam SVG:
-potongan memanjang, exploded isometrik, dua tampak klem kabel, tampak atas, dan setup kalibrasi
-(kalibrasi/gambar/kalibrasi_setup.svg). Jalankan ulang setiap kali CSV berubah, lalu periksa
+Skrip membaca housing-load-cell/fusion/fusion_parameters_housing_grip.csv dan menimpa tujuh SVG:
+potongan memanjang, exploded isometrik, dua tampak klem kabel, tampak atas, setup kalibrasi
+(kalibrasi/gambar/kalibrasi_setup.svg), dan gambar kerja pelat untuk bengkel (A4, skala 1:1, satuan mm;
+cetak 100 % dari browser untuk dipakai sebagai mal tanda lubang). Jalankan ulang setiap kali CSV berubah, lalu periksa
 gambarnya di browser sebelum commit. Hanya memakai pustaka standar Python 3.
 
 Yang tidak diambil dari CSV (asumsi; ubah konstantanya di bawah bila sudah diukur):
@@ -582,6 +583,104 @@ def top_view():
                  'Tampak atas housing grip')
 
 
+# ------------------------------------------------------------------ 7. gambar kerja pelat (bengkel)
+def plate_drawing():
+    """Gambar kerja pelat A/B untuk bengkel: A4 mendatar, skala 1:1 dalam mm.
+
+    Satuan SVG = mm (width/height dalam mm), jadi bila dicetak 100 % ukurannya sebenarnya dan
+    lembar ini bisa dipakai sebagai mal untuk menandai (center punch) pusat lubang.
+    Pelat A dan B sama persis: lubang di satu ujung saja; saat dirakit, pelat B dibalik ujung ke ujung.
+    """
+    W, H = 297, 210
+    ox, oy = 22, 52                       # sudut kiri atas pelat pada tampak atas (mm di kertas)
+    sy = oy + BARW + 30                   # muka atas pelat pada tampak samping
+    hx = BHE                              # pusat lubang dari ujung kiri pelat
+    hy = (BARW - P['hole_cross']) / 2     # pusat lubang dari tepi panjang pelat
+    o = []
+    a = o.append
+    def t(x, y, s, c='n', anc='start'):
+        a('<text x="%.2f" y="%.2f" class="%s" text-anchor="%s">%s</text>' % (x, y, c, anc, s))
+    def ln(x0, y0, x1, y1, c='ol'):
+        a('<line x1="%.2f" y1="%.2f" x2="%.2f" y2="%.2f" class="%s"/>' % (x0, y0, x1, y1, c))
+    def hd(x0, x1, y, yref, s):           # ukuran mendatar dengan garis bantu dari yref
+        for x in (x0, x1): ln(x, yref, x, y + (1.5 if y > yref else -1.5), 'ex')
+        a('<line x1="%.2f" y1="%.2f" x2="%.2f" y2="%.2f" class="dm" marker-start="url(#a)" marker-end="url(#a)"/>' % (x0, y, x1, y))
+        t((x0 + x1) / 2, y - 1.2, s, 'd', 'middle')
+    def vd(y0, y1, x, xref, s, left=False):
+        for y in (y0, y1): ln(xref, y, x + (-1.5 if left else 1.5), y, 'ex')
+        a('<line x1="%.2f" y1="%.2f" x2="%.2f" y2="%.2f" class="dm" marker-start="url(#a)" marker-end="url(#a)"/>' % (x, y0, x, y1))
+        t(x + (-1.2 if left else 1.2), (y0 + y1) / 2 + 1.2, s, 'd', 'end' if left else 'start')
+    # bingkai dan judul
+    a('<rect x="5" y="5" width="287" height="200" class="fr"/>')
+    t(10, 14, 'Gambar Kerja Pelat Grip (pelat A dan B) — Hand Grip Dynamometer, Kelompok 01', 'h')
+    t(10, 20, 'Skala 1:1, ukuran dalam mm. Dihasilkan dari CSV parameter housing grip (generate_drawings.py). Cetak 100 % (ukuran sebenarnya), lalu cek skala di kanan bawah.', 's')
+    # tampak atas
+    t(ox, oy - 22, 'TAMPAK ATAS', 'b')
+    a('<rect x="%.2f" y="%.2f" width="%.2f" height="%.2f" class="pl"/>' % (ox, oy, BARL, BARW))
+    for dy in (hy, BARW - hy):
+        cx, cy = ox + hx, oy + dy
+        a('<circle cx="%.2f" cy="%.2f" r="%.2f" class="ho"/>' % (cx, cy, HD / 2))
+        ln(cx - 6, cy, cx + 6, cy, 'cl'); ln(cx, cy - 6, cx, cy + 6, 'cl')
+    hd(ox, ox + BARL, oy - 12, oy, fmt(BARL))
+    hd(ox, ox + hx, oy - 5, oy, fmt(hx))
+    vd(oy, oy + BARW, ox + BARL + 9, ox + BARL, fmt(BARW))
+    vd(oy, oy + hy, ox - 5, ox + hx, fmt(hy), left=True)
+    vd(oy + hy, oy + BARW - hy, ox - 5, ox + hx, fmt(P['hole_cross']), left=True)
+    vd(oy + BARW - hy, oy + BARW, ox - 5, ox + hx, fmt(hy), left=True)
+    ln(ox + hx + HD / 2 * 0.8, oy + hy + HD / 2 * 0.6, ox + hx + 20, oy + BARW / 2 - 2, 'ld')
+    t(ox + hx + 21, oy + BARW / 2 - 1, '2× Ø' + fmt(HD) + ' TEMBUS', 'b')
+    t(ox + hx + 21, oy + BARW / 2 + 3, '(lubang lewat baut M6)', 's')
+    t(ox + BARL - 2, oy + BARW / 2 + 1.2, 'ujung ini TANPA lubang', 's', 'end')
+    # tampak samping
+    t(ox, sy - 6, 'TAMPAK SAMPING', 'b')
+    a('<rect x="%.2f" y="%.2f" width="%.2f" height="%.2f" class="pl"/>' % (ox, sy, BARL, BART))
+    for x in (hx - HD / 2, hx + HD / 2): ln(ox + x, sy, ox + x, sy + BART, 'hi')
+    ln(ox + hx, sy - 3, ox + hx, sy + BART + 3, 'cl')
+    vd(sy, sy + BART, ox + BARL + 9, ox + BARL, fmt(BART))
+    # catatan
+    nx, ny = 182, 34
+    notes = [
+        ('b', 'CATATAN'),
+        ('n', 'Bahan: aluminium 6061-T6, ' + fmt(BARL) + ' × ' + fmt(BARW) + ' × ' + fmt(BART) + ' mm'),
+        ('n', 'Jumlah: 2 pelat, keduanya sama persis.'),
+        ('n', 'Lubang HANYA di satu ujung tiap pelat.'),
+        ('n', 'Saat dirakit, pelat kedua dibalik ujung ke'),
+        ('n', 'ujung, jadi lubangnya di ujung seberang.'),
+        ('n', 'Bor Ø' + fmt(HD) + ' tembus, tegak lurus muka pelat.'),
+        ('n', 'Toleransi pusat lubang ±0,2 (terutama jarak'),
+        ('n', fmt(P['hole_cross']) + ' antar lubang dan ' + fmt(hx) + ' dari ujung).'),
+        ('n', 'Hilangkan bram (deburr) di kedua sisi.'),
+        ('n', 'Tanpa ulir, tanpa countersink.'),
+        ('n', 'Ukuran lain ±0,5 (dipotong penjual).'),
+        ('s', ''),
+        ('b', 'MENANDAI LUBANG'),
+        ('n', 'Cetak lembar ini 100 %; ukur skala 100 mm.'),
+        ('n', 'Tempel pada pelat, sejajarkan ujung kiri dan'),
+        ('n', 'tepi atas; center punch di tanda silang.'),
+        ('n', 'Bor pilot kecil dulu, lalu Ø' + fmt(HD) + '.'),
+    ]
+    for i, (c, s) in enumerate(notes):
+        t(nx, ny + i * 5.2, s, c)
+    # skala cek 100 mm
+    bx, by = 182, 188
+    a('<rect x="%.2f" y="%.2f" width="100" height="3" class="sb"/>' % (bx, by))
+    for k in range(11): ln(bx + 10 * k, by + 3, bx + 10 * k, by + (6 if k % 5 == 0 else 4.5), 'ol')
+    t(bx, by + 10, '0', 's', 'middle'); t(bx + 50, by + 10, '50', 's', 'middle'); t(bx + 100, by + 10, '100 mm', 's', 'middle')
+    t(bx, by - 2, 'Cek skala: batang ini harus tepat 100 mm.', 's')
+    style = ('<style>text{font-family:"Segoe UI",Arial,sans-serif;fill:#17212b}'
+             '.h{font-size:4.6px;font-weight:700}.b{font-size:3.4px;font-weight:700}.n{font-size:3.2px}.s{font-size:2.7px;fill:#5b6774}'
+             '.d{font:3px Consolas,monospace;fill:#2c3e50}'
+             '.fr{fill:none;stroke:#17212b;stroke-width:.5}.pl{fill:#eef1f4;stroke:#17212b;stroke-width:.5}'
+             '.ho{fill:#ffffff;stroke:#17212b;stroke-width:.5}.ol{stroke:#17212b;stroke-width:.3}'
+             '.cl{stroke:#b42318;stroke-width:.25;stroke-dasharray:3 1 .6 1}.hi{stroke:#5b6774;stroke-width:.3;stroke-dasharray:1.5 1}'
+             '.ex{stroke:#9aa7b4;stroke-width:.2}.dm{stroke:#41505f;stroke-width:.25;fill:none}.ld{stroke:#41505f;stroke-width:.25}'
+             '.sb{fill:#17212b}</style>'
+             '<defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="10" markerHeight="10" orient="auto-start-reverse">'
+             '<path d="M0 2L10 5L0 8z" fill="#41505f"/></marker></defs>')
+    return ('<svg xmlns="http://www.w3.org/2000/svg" width="%dmm" height="%dmm" viewBox="0 0 %d %d" role="img" aria-label="Gambar kerja pelat grip">'
+            % (W, H, W, H) + style + '<rect width="%d" height="%d" fill="#ffffff"/>' % (W, H) + '\n'.join(o) + '</svg>\n')
+
+
 # Berkas keluaran (path relatif ke folder repo) dan fungsi yang menggambarnya.
 DRAWINGS = {
     'housing-load-cell/gambar/potongan_memanjang.svg': section_view,
@@ -590,6 +689,7 @@ DRAWINGS = {
     'housing-load-cell/gambar/klem_kabel_tampak_kiri.svg': clamp_section_view,
     'housing-load-cell/gambar/tampak_atas_housing_grip.svg': top_view,
     'kalibrasi/gambar/kalibrasi_setup.svg': calibration_setup,
+    'housing-load-cell/gambar/gambar_kerja_pelat.svg': plate_drawing,
 }
 
 if __name__ == '__main__':

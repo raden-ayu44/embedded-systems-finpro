@@ -1,8 +1,12 @@
-# Instruksi kerja: housing load cell di Fusion (v9)
+# Instruksi kerja: housing load cell di Fusion (v12)
 
 Lingkup: memodelkan load cell acuan, Spacer A dengan dinding klem kabel, Spacer B, serta pelat A dan B. Ridge, balok kalibrasi, dan bentuk tambahan lain dirancang bebas oleh tim. Desain dan alasan: [../desain-housing-load-cell.md](../desain-housing-load-cell.md) dan [../asumsi.md](../asumsi.md); parameter: [fusion_parameters_housing_grip.csv](fusion_parameters_housing_grip.csv) (parameter bertanda WAJIB di kolom keterangan tidak boleh diubah tanpa ukur ulang).
 
+Hasil acuan: [load_cell_housing.step](load_cell_housing.step) (17 Nov. 2026) adalah model Fase 2 sampai 6 yang sudah dicek terhadap CSV; bandingkan model Anda dengan berkas ini bila ragu.
+
 Nama perintah ditulis seperti di menu Fusion versi bahasa Inggris; letaknya bisa sedikit berbeda antarversi. Ketik nama parameter di kotak ukuran, bukan angka.
+
+**Koordinat bukan ukuran sketsa.** Posisi di instruksi ini ditulis sebagai koordinat (mis. x = `-LC_L / 2 + cable_x`, −59,7) supaya jelas letaknya. Ukuran sketsa di Fusion adalah **jarak**, jadi tidak boleh negatif: ekspresi yang hasilnya negatif ditolak ("invalid expression"). Di sketsa, beri ukuran jarak positif dari tepi atau titik asal, mis. titik kabel = `cable_x` dari tepi muka ujung load cell (x −65) dan `cable_z` dari tepi bawah; ujung dalam Spacer A = `boss_L` dari muka ujung; lubang = `hole_x` dari titik asal. Offset bidang konstruksi (mis. `-gap`) boleh negatif karena menunjukkan arah.
 
 ## Acuan koordinat
 
@@ -45,9 +49,9 @@ Hasil akhir yang dituju:
 ## Fase 2: load cell acuan (tidak dicetak)
 
 - [ ] Komponen baru `Load_Cell`, aktifkan.
-- [ ] **Sketch** pada bidang XY: **Center Rectangle** di titik asal, `LC_L` x `LC_W`. **Extrude** ke atas `LC_H`.
+- [ ] **Sketch** pada bidang **XY di folder Origin** (bukan bidang konstruksi `A_BOT` atau `LC_TOP`): **Center Rectangle** di titik asal, `LC_L` x `LC_W`. **Extrude** ke atas `LC_H`. Cek: muka bawah load cell di z 0 dan muka atasnya rata dengan bidang `LC_TOP`. Bila load cell "melayang" 24,5 mm, sketsanya ada di `A_BOT`: klik kanan sketsa di timeline, **Redefine Sketch Plane**, pilih XY.
 - [ ] **Sketch** pada muka atas: empat titik di (±`hole_x`, ±`hole_y`). **Hole** Ø5, **All** (tembus), sebagai acuan ulir M6.
-- [ ] **Sketch** pada muka samping −y: titik di x = `-LC_L / 2 + cable_x`, z = `cable_z`. **Hole** `cable_hole_d`, dalam 5 mm, sebagai acuan lubang kabel.
+- [ ] **Sketch** pada muka samping −y: satu titik dekat ujung tetap, diberi ukuran `cable_x` dari tepi muka ujung (x −65) dan `cable_z` dari tepi bawah (koordinat x −59,7, z 10,75). **Hole** `cable_hole_d`, dalam 5 mm, sebagai acuan lubang kabel.
 - [ ] Klik kanan komponen di Browser, **Ground**. Jangan diekspor untuk dicetak.
 
 ## Fase 3: Spacer A (ujung tetap, di atas load cell)
@@ -58,21 +62,37 @@ Hasil akhir yang dituju:
   - bibir ujung: x dari −68 sampai `-LC_L / 2 - sp_end_cl` (−65,5), selebar spacer;
   - bibir sisi +y: y dari `sp_in_W / 2` (14,5) sampai `spacer_W / 2` (17), sepanjang spacer.
 - [ ] **Extrude** kedua pita ke bawah `sp_lip_h` (sampai z 19), **Join**.
+- [ ] **Hati-hati: jangan biarkan garis sketsa bibir dan dinding menempel (snap) ke tepi load cell.** Muka dalam bibir dan dinding harus 0,5 dari load cell (`sp_end_cl`, `sp_in_W`). Tanpa celah ini, lebar dalam 28 di model tercetak sekitar 27,4 dan spacer tidak masuk ke load cell 28. Bila sudah terlanjur menempel: **Modify > Press Pull** tiap muka dalam sejauh −0,5 (menjauh dari load cell).
 - [ ] **Sketch** pada `LC_TOP`: pita dinding klem, y dari `-spacer_W / 2` (−17) sampai `-sp_in_W / 2` (−14,5), sepanjang spacer. **Extrude** ke bawah **To Object** bidang `WALL_BOT` (z 2,5), **Join**.
 - [ ] **Sketch** pada muka atas Spacer A (z 24,5): dua titik di (`-hole_x`, ±`hole_y`). **Hole** `hole_sp_d`, **All**, Objects = `Spacer_A` saja.
 - [ ] Cek: **Inspect > Measure** muka dalam bibir sisi +y ke muka samping load cell = 0,5; muka dalam dinding klem ke muka samping −y = 0,5; muka dalam bibir ujung ke muka ujung load cell = 0,5; ujung dalam spacer di x −41.
 
 ## Fase 4: klem kabel zip tie (dinding klem Spacer A)
 
-Kabel duduk di takik yang terbuka ke arah pelat B, lalu diikat zip tie lewat terowongan di bantalan. Takik tidak menjepit; zip tie yang menahan kabel ke segala arah.
+Klem kabel adalah bagian Spacer A yang memegang kabel load cell supaya tarikan kabel tidak terbaca sebagai gaya. Isinya tiga: **dinding** (sudah dibuat di Fase 3), **takik** (celah bentuk U dari tepi bawah dinding, tempat kabel duduk), dan **bantalan** di muka luar dinding dengan **terowongan** untuk zip tie. Kabel duduk di takik yang terbuka ke arah pelat B, lalu diikat zip tie lewat terowongan. Takik tidak menjepit; zip tie yang menahan kabel ke segala arah.
 
-- [ ] **Sketch** pada muka luar dinding klem (y −17), profil takik:
-  - dua garis tegak selebar `notch_w`, berpusat di x = `-LC_L / 2 + cable_x` (−59,7), dari tepi bawah dinding (z 2,5) ke atas;
-  - setengah lingkaran di atasnya, jari-jari `notch_w / 2`, puncaknya di z = `notch_top_z` (13,25).
+```
+   tampak dari sisi −y (muka luar dinding klem)
+
+   z 24,5 ┌──────────────────────────┐ ← muka atas Spacer A
+          │      ┌──────────┐        │
+          │      │ BANTALAN │        │   menonjol 6 ke arah −y
+          │      │[terowong]│        │   lubang zip tie, tembus arah x
+   z 13,25│      └───╮  ╭───┘        │
+          │          │  │ ← TAKIK    │   kabel duduk di sini
+   z 2,5  └──────────┘  └────────────┘ ← tepi bawah dinding (terbuka)
+        x −68      x −59,7         x −41
+```
+
+Semua ukuran di bawah ditulis sebagai koordinat; di sketsa beri ukuran jarak positif dari tepi (lihat catatan di awal).
+
+- [ ] **Sketch** pada muka luar dinding klem (y −17). **Project** (`P`) lubang kabel load cell acuan supaya posisi kabel terlihat (pusat x −59,7, z 10,75). Profil takik:
+  - dua garis tegak selebar `notch_w`, berpusat di x −59,7 (garis tengah berjarak `cable_x` dari bidang muka ujung load cell; atau proyeksikan lubang kabel acuan dengan **Project** dan pakai pusatnya), dari tepi bawah dinding (z 2,5) ke atas;
+  - setengah lingkaran di atasnya, jari-jari `notch_w / 2` (2,3), puncaknya di z = `notch_top_z` (13,25), jadi pusat busur di z 10,95. Ukuran dari tepi bawah dinding ke puncak busur = `notch_top_z - wall_bottom_z` (10,75). Bisa juga dengan **Center Point Slot**.
 - [ ] **Extrude** profil takik menembus dinding (**Through All** ke arah +y, atau jarak `clamp_wall_t`), **Cut**, Objects = `Spacer_A` saja.
-- [ ] **Sketch** pada muka luar dinding klem: persegi panjang bantalan, x dari `-LC_L / 2 + cable_x - pad_L / 2` sampai `-LC_L / 2 + cable_x + pad_L / 2` (−65,7 sampai −53,7), z dari `notch_top_z` sampai `LC_H + gap` (13,25 sampai 24,5, menyatu dengan pelat spacer).
+- [ ] **Sketch** pada muka luar dinding klem: persegi panjang bantalan sepanjang `pad_L` berpusat di garis tengah takik (x −65,7 sampai −53,7; tepi luarnya `pad_L / 2 - cable_x` = 0,7 di luar muka ujung load cell), z dari `notch_top_z` sampai `LC_H + gap` (13,25 sampai 24,5, menyatu dengan pelat spacer).
 - [ ] **Extrude** bantalan keluar (arah −y) sejauh `pad_t`, **Join**.
-- [ ] **Sketch** pada muka ujung bantalan (x −65,7): persegi panjang terowongan `tun_w` (arah y) x `tun_h` (arah z), berpusat `tun_y` dari muka luar dinding (y −20), tepi bawah di z = `notch_top_z + tun_floor` (14,75).
+- [ ] **Sketch** pada muka ujung bantalan (x −65,7): persegi panjang terowongan `tun_w` (arah y) x `tun_h` (arah z), berpusat `tun_y` dari muka luar dinding (y −20, jadi y −21,75 sampai −18,25), tepi bawah di z = `notch_top_z + tun_floor` (z 14,75 sampai 17,15).
 - [ ] **Extrude** terowongan menembus bantalan sepanjang `pad_L` (**Through All** ke arah +x, Objects = `Spacer_A` saja), **Cut**.
 - [ ] Opsional: **Chamfer** 0,4 di kedua tepi takik pada tepi bawah dinding supaya kabel mudah masuk.
 - [ ] Cek: puncak takik segaris dengan lubang kabel load cell acuan (lihat dari sisi −y); takik terbuka ke bawah; terowongan tembus di kedua ujung bantalan; tepi bawah dinding 5,5 mm di atas muka atas pelat B.

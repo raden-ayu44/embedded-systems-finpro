@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="297mm" height="210mm" viewBox="0 0 297 210" role="img" aria-label="Gambar kerja pelat grip"><style>text{font-family:"Segoe UI",Arial,sans-serif;fill:#17212b}.h{font-size:4.6px;font-weight:700}.b{font-size:3.4px;font-weight:700}.n{font-size:3.2px}.s{font-size:2.7px;fill:#5b6774}.d{font:3px Consolas,monospace;fill:#2c3e50}.fr{fill:none;stroke:#17212b;stroke-width:.5}.pl{fill:#eef1f4;stroke:#17212b;stroke-width:.5}.ho{fill:#ffffff;stroke:#17212b;stroke-width:.5}.ol{stroke:#17212b;stroke-width:.3}.cl{stroke:#b42318;stroke-width:.25;stroke-dasharray:3 1 .6 1}.hi{stroke:#5b6774;stroke-width:.3;stroke-dasharray:1.5 1}.ex{stroke:#9aa7b4;stroke-width:.2}.dm{stroke:#41505f;stroke-width:.25;fill:none}.ld{stroke:#41505f;stroke-width:.25}.sb{fill:#17212b}</style><defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="10" markerHeight="10" orient="auto-start-reverse"><path d="M0 2L10 5L0 8z" fill="#41505f"/></marker></defs><rect width="297" height="210" fill="#ffffff"/><rect x="5" y="5" width="287" height="200" class="fr"/>
+<text x="10.00" y="14.00" class="h" text-anchor="start">Gambar Kerja Pelat Grip (pelat A dan B) — Hand Grip Dynamometer, Kelompok 01</text>
+<text x="10.00" y="20.00" class="s" text-anchor="start">Skala 1:1, ukuran dalam mm. Dihasilkan dari CSV parameter housing grip (generate_drawings.py). Cetak 100 % (ukuran sebenarnya), lalu cek skala di kanan bawah.</text>
+<text x="22.00" y="30.00" class="b" text-anchor="start">TAMPAK ATAS</text>
+<rect x="22.00" y="52.00" width="140.00" height="40.00" class="pl"/>
+<circle cx="39.00" cy="64.50" r="3.30" class="ho"/>
+<line x1="33.00" y1="64.50" x2="45.00" y2="64.50" class="cl"/>
+<line x1="39.00" y1="58.50" x2="39.00" y2="70.50" class="cl"/>
+<circle cx="39.00" cy="79.50" r="3.30" class="ho"/>
+<line x1="33.00" y1="79.50" x2="45.00" y2="79.50" class="cl"/>
+<line x1="39.00" y1="73.50" x2="39.00" y2="85.50" class="cl"/>
+<line x1="22.00" y1="52.00" x2="22.00" y2="38.50" class="ex"/>
+<line x1="162.00" y1="52.00" x2="162.00" y2="38.50" class="ex"/>
+<line x1="22.00" y1="40.00" x2="162.00" y2="40.00" class="dm" marker-start="url(#a)" marker-end="url(#a)"/>
+<text x="92.00" y="38.80" class="d" text-anchor="middle">140</text>
+<line x1="22.00" y1="52.00" x2="22.00" y2="45.50" class="ex"/>
+<line x1="39.00" y1="52.00" x2="39.00" y2="45.50" class="ex"/>
+<line x1="22.00" y1="47.00" x2="39.00" y2="47.00" class="dm" marker-start="url(#a)" marker-end="url(#a)"/>
+<text x="30.50" y="45.80" class="d" text-anchor="middle">17</text>
+<line x1="162.00" y1="52.00" x2="172.50" y2="52.00" class="ex"/>
+<line x1="162.00" y1="92.00" x2="172.50" y2="92.00" class="ex"/>
+<line x1="171.00" y1="52.00" x2="171.00" y2="92.00" class="dm" marker-start="url(#a)" marker-end="url(#a)"/>
+<text x="172.20" y="73.20" class="d" text-anchor="start">40</text>
+<line x1="39.00" y1="52.00" x2="15.50" y2="52.00" class="ex"/>
+<line x1="39.00" y1="64.50" x2="15.50" y2="64.50" class="ex"/>
+<line x1="17.00" y1="52.00" x2="17.00" y2="64.50" class="dm" marker-start="url(#a)" marker-end="url(#a)"/>
+<text x="15.80" y="59.45" class="d" text-anchor="end">12,5</text>
+<line x1="39.00" y1="64.50" x2="15.50" y2="64.50" class="ex"/>
+<line x1="39.00" y1="79.50" x2="15.50" y2="79.50" class="ex"/>
+<line x1="17.00" y1="64.50" x2="17.00" y2="79.50" class="dm" marker-start="url(#a)" marker-end="url(#a)"/>
+<text x="15.80" y="73.20" class="d" text-anchor="end">15</text>
+<line x1="39.00" y1="79.50" x2="15.50" y2="79.50" class="ex"/>
+<line x1="39.00" y1="92.00" x2="15.50" y2="92.00" class="ex"/>
+<line x1="17.00" y1="79.50" x2="17.00" y2="92.00" class="dm" marker-start="url(#a)" marker-end="url(#a)"/>
+<text x="15.80" y="86.95" class="d" text-anchor="end">12,5</text>
+<line x1="41.64" y1="66.48" x2="59.00" y2="70.00" class="ld"/>
+<text x="60.00" y="71.00" class="b" text-anchor="start">2× Ø6,6 TEMBUS</text>
+<text x="60.00" y="75.00" class="s" text-anchor="start">(lubang lewat baut M6)</text>
+<text x="160.00" y="73.20" class="s" text-anchor="end">ujung ini TANPA lubang</text>
+<text x="22.00" y="116.00" class="b" text-anchor="start">TAMPAK SAMPING</text>
+<rect x="22.00" y="122.00" width="140.00" height="8.00" class="pl"/>
+<line x1="35.70" y1="122.00" x2="35.70" y2="130.00" class="hi"/>
+<line x1="42.30" y1="122.00" x2="42.30" y2="130.00" class="hi"/>
+<line x1="39.00" y1="119.00" x2="39.00" y2="133.00" class="cl"/>
+<line x1="162.00" y1="122.00" x2="172.50" y2="122.00" class="ex"/>
+<line x1="162.00" y1="130.00" x2="172.50" y2="130.00" class="ex"/>
+<line x1="171.00" y1="122.00" x2="171.00" y2="130.00" class="dm" marker-start="url(#a)" marker-end="url(#a)"/>
+<text x="172.20" y="127.20" class="d" text-anchor="start">8</text>
+<text x="182.00" y="34.00" class="b" text-anchor="start">CATATAN</text>
+<text x="182.00" y="39.20" class="n" text-anchor="start">Bahan: aluminium 6061-T6, 140 × 40 × 8 mm</text>
+<text x="182.00" y="44.40" class="n" text-anchor="start">Jumlah: 2 pelat, keduanya sama persis.</text>
+<text x="182.00" y="49.60" class="n" text-anchor="start">Lubang HANYA di satu ujung tiap pelat.</text>
+<text x="182.00" y="54.80" class="n" text-anchor="start">Saat dirakit, pelat kedua dibalik ujung ke</text>
+<text x="182.00" y="60.00" class="n" text-anchor="start">ujung, jadi lubangnya di ujung seberang.</text>
+<text x="182.00" y="65.20" class="n" text-anchor="start">Bor Ø6,6 tembus, tegak lurus muka pelat.</text>
+<text x="182.00" y="70.40" class="n" text-anchor="start">Toleransi pusat lubang ±0,2 (terutama jarak</text>
+<text x="182.00" y="75.60" class="n" text-anchor="start">15 antar lubang dan 17 dari ujung).</text>
+<text x="182.00" y="80.80" class="n" text-anchor="start">Hilangkan bram (deburr) di kedua sisi.</text>
+<text x="182.00" y="86.00" class="n" text-anchor="start">Tanpa ulir, tanpa countersink.</text>
+<text x="182.00" y="91.20" class="n" text-anchor="start">Ukuran lain ±0,5 (dipotong penjual).</text>
+<text x="182.00" y="96.40" class="s" text-anchor="start"></text>
+<text x="182.00" y="101.60" class="b" text-anchor="start">MENANDAI LUBANG</text>
+<text x="182.00" y="106.80" class="n" text-anchor="start">Cetak lembar ini 100 %; ukur skala 100 mm.</text>
+<text x="182.00" y="112.00" class="n" text-anchor="start">Tempel pada pelat, sejajarkan ujung kiri dan</text>
+<text x="182.00" y="117.20" class="n" text-anchor="start">tepi atas; center punch di tanda silang.</text>
+<text x="182.00" y="122.40" class="n" text-anchor="start">Bor pilot kecil dulu, lalu Ø6,6.</text>
+<rect x="182.00" y="188.00" width="100" height="3" class="sb"/>
+<line x1="182.00" y1="191.00" x2="182.00" y2="194.00" class="ol"/>
+<line x1="192.00" y1="191.00" x2="192.00" y2="192.50" class="ol"/>
+<line x1="202.00" y1="191.00" x2="202.00" y2="192.50" class="ol"/>
+<line x1="212.00" y1="191.00" x2="212.00" y2="192.50" class="ol"/>
+<line x1="222.00" y1="191.00" x2="222.00" y2="192.50" class="ol"/>
+<line x1="232.00" y1="191.00" x2="232.00" y2="194.00" class="ol"/>
+<line x1="242.00" y1="191.00" x2="242.00" y2="192.50" class="ol"/>
+<line x1="252.00" y1="191.00" x2="252.00" y2="192.50" class="ol"/>
+<line x1="262.00" y1="191.00" x2="262.00" y2="192.50" class="ol"/>
+<line x1="272.00" y1="191.00" x2="272.00" y2="192.50" class="ol"/>
+<line x1="282.00" y1="191.00" x2="282.00" y2="194.00" class="ol"/>
+<text x="182.00" y="198.00" class="s" text-anchor="middle">0</text>
+<text x="232.00" y="198.00" class="s" text-anchor="middle">50</text>
+<text x="282.00" y="198.00" class="s" text-anchor="middle">100 mm</text>
+<text x="182.00" y="186.00" class="s" text-anchor="start">Cek skala: batang ini harus tepat 100 mm.</text></svg>

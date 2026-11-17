@@ -8,6 +8,8 @@ Dikerjakan satu kali, langsung dari v4 ke v5. Sumber yang dipakai:
 
 Berkas v4 tidak ditimpa. Semua gambar **tidak berskala**, dan celah 2,5 mm digambar diperbesar.
 
+**Pembaruan 17 Nov. 2026:** model Fusion v1 (pelat, Spacer A dengan klem kabel, Spacer B; tanpa ridge) selesai dan dicek terhadap CSV v16: [`fusion/load_cell_housing.step`](fusion/load_cell_housing.step). Gambar kerja pelat untuk bengkel: [`gambar/gambar_kerja_pelat.svg`](gambar/gambar_kerja_pelat.svg). Catatan pembaruan di bawah tidak berurutan tanggal; bila berbeda, catatan yang lebih baru berlaku. Kalimat catatan 11 Okt. bahwa gambar SVG v5 belum digambar ulang sudah tidak berlaku: semua gambar digambar ulang dari CSV (berskala) sejak 8 Nov. 2026.
+
 **Pembaruan 11 Okt. 2026 (hanya teks dokumen ini):** hasil ukur load cell (130 × 28 × 21,5 mm), ulir lubang pasang (M6, tembus, bibir kisi Ø8 mm), dan diameter kabel (4 mm) sudah dimasukkan. Ringkasan di Bagian 8. **Gambar SVG v5 belum digambar ulang** dan masih memuat label lama (misalnya kabel Ø5, tinggi load cell 22).
 
 **Pembaruan 8 Nov. 2026 (desain v16):** lebar pelat menjadi 40 mm (140 x 40 x 8); angka Bagian 2 diperbarui. Gambar di `gambar/` dan `kalibrasi_setup.svg` digambar ulang dari CSV (berskala); potongan A-A klem sekarang di sumbu kabel (x = −59,7). Daftar gambar dan rincian klem di bawah (12 Okt. 2026, Bagian 4.1) adalah riwayat.

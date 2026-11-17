@@ -78,11 +78,14 @@ usb_win_W,mm,15 mm,15 mm,"lebar jendela USB di dinding kiri lid (y -66.5 sampai 
 usb_win_H,mm,9 mm,9 mm,"tinggi jendela USB (z -18.21 sampai -9.21)",false
 usb_win_z0,mm,3.79 mm,3.79 mm,"tepi bawah jendela USB di atas sambungan (z -18.21)",false
 mnt_hole_d,mm,PCB_hole_d + 1 mm + comp_hole,5 mm,"8 lubang baut dari atas di pelat lid (lubang PCB + 1 mm kelonggaran + comp_hole), di atas lubang pasang: 4 LCD (x +-37.5, y +-15.5) dan 4 PCB (x +-37.5, y -26 dan -76); PCB LCD dan PCB utama sama-sama 3 mm",false
+post_od,mm,7 mm,7 mm,"diameter luar 4 tiang PCB di bawah pelat lid, pusat (x +-37.5, y -26 dan -76) = lubang H1-H4; menjorok kira-kira 1 mm keluar tepi PCB (sengaja, bidang tumpu tetap cukup)",false
+post_bore,mm,2.5 mm + 0.4 mm + comp_hole,3.9 mm,"lubang tengah tiang untuk baut M2.5 (2.5 + 0.4 kelonggaran + comp_hole); tercetak kira-kira 2.9",false
+post_h,mm,7.55 mm,7.55 mm,"tinggi tiang dari muka bawah pelat lid (z 9) ke muka atas PCB utama (z 1.45); cut lubang tengah dibatasi sejarak ini, hanya pada Lid",false
 btn_d,mm,4.3 mm,4.3 mm,"diameter tombol SW1 yang menembus lid",false
 btn_hole_d,mm,btn_d + comp_hole,5.3 mm,"lubang tombol SW1 di pelat atas (pusat x -15.1, y -29.5)",false
 led1_d,mm,5.9 mm,5.9 mm,"diameter LED status D1 5 mm (bibir)",false
 led1_hole_d,mm,led1_d + comp_hole,6.9 mm,"lubang LED D1 (pusat x 15, y -29.5)",false
 led2_d,mm,4 mm,4 mm,"diameter LED daya D2 3 mm (bibir)",false
-led2_hole_d,mm,led2_d + comp_hole,5 mm,"lubang LED D2 (pusat x -15.0 sejak PCB 12 Nov. 2026; model 30 Okt. masih -15.52, y -75.5)",false
+led2_hole_d,mm,led2_d + comp_hole,5 mm,"lubang LED D2 (pusat x -15.0, y -75.5; dipindah dari -15.52 di model 16 Nov. 2026 mengikuti PCB 12 Nov. 2026)",false
 enboot_d,mm,4.9 mm,4.9 mm,"diameter akses tombol EN dan BOOT DevKit dari bawah",false
 floor_hole_d,mm,enboot_d + comp_hole,5.9 mm,"2 lubang di lantai body untuk menekan tombol EN dan BOOT DevKit (x -36.4; y -51.25 dan -66.75)",false
