@@ -1,6 +1,8 @@
-# Instruksi kerja: housing load cell di Fusion (v11)
+# Instruksi kerja: housing load cell di Fusion (v12)
 
 Lingkup: memodelkan load cell acuan, Spacer A dengan dinding klem kabel, Spacer B, serta pelat A dan B. Ridge, balok kalibrasi, dan bentuk tambahan lain dirancang bebas oleh tim. Desain dan alasan: [../desain-housing-load-cell.md](../desain-housing-load-cell.md) dan [../asumsi.md](../asumsi.md); parameter: [fusion_parameters_housing_grip.csv](fusion_parameters_housing_grip.csv) (parameter bertanda WAJIB di kolom keterangan tidak boleh diubah tanpa ukur ulang).
+
+Hasil acuan: [load_cell_housing.step](load_cell_housing.step) (17 Nov. 2026) adalah model Fase 2 sampai 6 yang sudah dicek terhadap CSV; bandingkan model Anda dengan berkas ini bila ragu.
 
 Nama perintah ditulis seperti di menu Fusion versi bahasa Inggris; letaknya bisa sedikit berbeda antarversi. Ketik nama parameter di kotak ukuran, bukan angka.
 
