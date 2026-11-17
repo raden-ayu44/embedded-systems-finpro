@@ -12,7 +12,7 @@ title: Desain Housing Elektronik - Hand Grip Dynamometer
 
 ## 1. Susunan ✔ desain v1 disetujui
 
-**Status v1 (17 Okt. 2026).** Desain housing elektronik versi 1 selesai di Fusion: lid berdinding dan body baki, jendela USB dan kabel load cell, bibir 45° dan 4 snap-fit (dicek dari STEP tiap fase dan uji parameter), slice uji di Bambu Studio. Model: [fusion/electronics_housing_lipped.step](fusion/electronics_housing_lipped.step) (ekspor 17 Nov. 2026: 4 tiang PCB di lid; 16 Nov. 2026: lubang D2 di x −15,0, PCB 12 Nov. 2026 ikut dirakit di model). Gambar Fusion 16 Nov. 2026 (tampak berwarna, tanpa ukuran): [gambar/electronics-housing-v1-lipped-drawing.pdf](gambar/electronics-housing-v1-lipped-drawing.pdf) (21 lembar: isometrik, tampak atas, bawah, samping, lid, body, PCB) dan [gambar/electronics-housing-v1-lipped-exploded-view.pdf](gambar/electronics-housing-v1-lipped-exploded-view.pdf) (5 lembar). **Disetujui (dikonfirmasi 17 Nov. 2026).** Sisa sebelum cetak: kupon uji pas (fit coupon) sesuai modul cetak 3D (Bagian 6 butir 7). Belum dicetak; cetak menunggu PCB tiba. Sisa pekerjaan di Bagian 6.
+**Status v1 (17 Okt. 2026).** Desain housing elektronik versi 1 selesai di Fusion: lid berdinding dan body baki, jendela USB dan kabel load cell, bibir 45° dan 4 snap-fit (dicek dari STEP tiap fase dan uji parameter), slice uji di Bambu Studio. Model: [fusion/electronics_housing_lipped.step](fusion/electronics_housing_lipped.step) (ekspor 17 Nov. 2026: 4 tiang PCB di lid; 16 Nov. 2026: lubang D2 di x −15,0, PCB 12 Nov. 2026 ikut dirakit di model). Gambar Fusion 17 Nov. 2026, dengan tiang PCB (tampak berwarna, tanpa ukuran; belum ada lembar lid dari bawah, jadi tiang hanya tampak sebagai cincin di lubang sudut PCB): [gambar/electronics-housing-v1-lipped-drawing.pdf](gambar/electronics-housing-v1-lipped-drawing.pdf) (21 lembar: isometrik, tampak atas, bawah, samping, lid, body, PCB) dan [gambar/electronics-housing-v1-lipped-exploded-view.pdf](gambar/electronics-housing-v1-lipped-exploded-view.pdf) (5 lembar). **Disetujui (dikonfirmasi 17 Nov. 2026).** Sisa sebelum cetak: kupon uji pas (fit coupon) sesuai modul cetak 3D (Bagian 6 butir 7). Belum dicetak; cetak menunggu PCB tiba. Sisa pekerjaan di Bagian 6.
 Wadah cetak 3D dua bagian (body dan lid) dimodelkan di Fusion (berkas `electronics_housing_v1`, belum di repo).
 
 | Bagian | Susunan |
@@ -173,7 +173,7 @@ Celah lid terhadap bingkai LCD memakai parameter tersendiri (mis. `lid_gap` 0,5 
 ## 8. Perubahan
 | Versi | Tanggal | Perubahan |
 |---|---|---|
-| v11 | 17 Nov. 2026 | 4 tiang PCB di lid (Bagian 6 butir 6), STEP baru dicek; parameter `post_od`, `post_bore`, `post_h` di CSV; peringatan ring di H1 (jalur GPIO27); kupon kedua (sudut lid dengan satu tiang). Gambar PDF Fusion masih versi 16 Nov. 2026 (tanpa tiang) |
+| v11 | 17 Nov. 2026 | 4 tiang PCB di lid (Bagian 6 butir 6), STEP baru dicek; parameter `post_od`, `post_bore`, `post_h` di CSV; peringatan ring di H1 (jalur GPIO27); kupon kedua (sudut lid dengan satu tiang). Gambar PDF Fusion diekspor ulang 17 Nov. 2026 (21 + 5 lembar) |
 | v10 | 17 Nov. 2026 | Desain v1 disetujui; Bagian 6 butir 7 menjadi kupon uji pas (fit coupon) sesuai modul cetak 3D |
 | v9 | 16 Nov. 2026 | Lubang LED D2 dipindah ke x −15,0 di Fusion, STEP baru di `fusion/` (dengan PCB 12 Nov. 2026), dicek: lubang lain sama, tanpa irisan; Bagian 1: PCB utama sebidang dengan PCB LCD, jarak tepi 5,5 mm; gambar Fusion (PDF) di `gambar/` |
 | v8 | 12 Nov. 2026 | Butir 5: D2 di PCB digeser 0,52 mm (12 Nov. 2026); lubang LED D2 di lid harus dipindah ke x −15,0 |
