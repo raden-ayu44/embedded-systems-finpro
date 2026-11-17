@@ -3,7 +3,7 @@ title: Catatan Proyek - Hand Grip Dynamometer
 
 ---
 
-# Catatan Proyek - Hand Grip Dynamometer (v62)
+# Catatan Proyek - Hand Grip Dynamometer (v63)
 **Proyek akhir - embedded system**
 
 > Catatan kerja proyek akhir mata kuliah embedded system, sekaligus **dokumen induk**: ringkasan, kebutuhan, rumusan masalah, spesifikasi, BOM, risiko, jadwal, anggaran, keselamatan, riwayat keputusan, dan log audit ada di sini; bahan teknis dipecah ke dokumen di peta di bawah. Ditulis supaya bisa dibaca sendiri (offline). Dipakai untuk G2-G4, makalah akhir, dan demo.
@@ -147,7 +147,7 @@ Game biofeedback, sensor jari (FSR), IMU tremor, relative HGS di firmware (dihit
 | Perumusan masalah medis | Draf kerja versi v5 ada di Bagian 5 catatan ini |
 | Spesifikasi terukur (range, akurasi, waktu respons, daya) | Belum dikunci di dokumen formal. Akurasi sistem penuh baru diverifikasi lewat RMSE di G4 |
 | Arsitektur sistem + kelayakan teknis | Lihat Bagian 15 di [alur-program-hgd.md](firmware/alur-program-hgd.md) dan Bagian 8 di [desain-pcb-hgd.md](pcb/desain-pcb-hgd.md) (netlist PCB `hgd-v1`) |
-| BOM dalam anggaran Rp300.000 | BOM aktual di Bagian 7.1 (total pembelian sekitar Rp253.875 sebelum ongkir) |
+| BOM dalam anggaran Rp300.000 | BOM aktual di Bagian 7.1 (17 Nov. 2026: diajukan reimbursement Rp272.669; pelat, tombol, dan soket betina menyusul) |
 | Jadwal selaras dengan gerbang proyek | Lihat Bagian 4.1; terkait konflik tenggat gerber |
 | Daftar risiko dan mitigasi | Belum ada dokumen risiko tersendiri; kandidat risiko di Bagian 7 |
 
@@ -234,26 +234,32 @@ tinggi badan, berat badan, tangan dominan, dan frekuensi olahraga. Opsional, han
 
 ### 7.1 BOM
 
-| No | Komponen | Part number | Qty | Sumber | Harga satuan | Subtotal | Catatan |
-|---|---|---|---|---|---|---|---|
-| 1 | ESP32 DevKit | ESP32-WROOM-32 | 1 | Lab | - | - | Disediakan lab (tim sudah memiliki papan DevKit V1; dimensi diukur 10 Okt. 2026: 51,5 x 28,2 mm, 15 pin per baris, jarak baris 25,3 mm; rinci di tab ESP32 pada [tabel pengukuran](pengukuran/tabel-pengukuran-hgd.xlsx) dan DS-ESP2). Cek varian fisik (WROOM atau WROVER) sebelum pin dikunci: GPIO 16/17 dipakai PSRAM di WROVER, sedangkan GPIO 18/19 aman di keduanya. Uji 8 Okt. 2026 (DS-ESP1 di `datasheets/datasheet-library.md`): chip ESP32-D0WD-V3 rev v3.1, flash 4 MB, tanpa PSRAM; pin 18, 19, 21, 22, 25, 27 lolos loopback; akhiran modul (WROOM-32D atau -32E) belum dipastikan |
-| 2 | Load cell straight-bar 180 kg (4 kabel, kabel 110 cm, shield) | Generik ("Nankai/YZC-133", tanpa P/N pabrikan) | 1 | Beli (Shopee) | Rp193.375 | Rp193.375 | Rated output 2,0±0,2 mV/V, non-linearity 0,02% FS, kelas C3, creep 0,0016% FS (30 menit), overload aman 150% FS, destruktif 200% FS, eksitasi 4-12 VDC (maks 15 V), IP67, aluminium, 147 x 30 x 22 mm. Harga naik dari estimasi awal Rp115.000 |
-| 3 | Modul HX711 | HX711 (papan XFW-HX711) | 1 | Beli | Rp8.500 | Rp8.500 | Channel A saja; daya 2,7-5 V dari ESP32. Header jantan belum disolder; modul belum ada di tangan pada 10 Okt. 2026. Catu 3,3 V mengikuti DS-HX1 Peringatan 2 (level DT), dengan eksitasi load cell yang lebih rendah dari pada 5 V |
-| 4 | LCD 16x2 + backpack I2C | LCD1602 (HD44780) + PCF8574T | 1 | Beli | Rp39.500 | Rp39.500 | Catu 5 V dari VIN, SDA/SCL lewat level shifter (diputuskan 15 Okt. 2026). Datang dengan backpack I2C (pin jantan). Alamat I2C 0x27 (✔) |
-| 5 | LED 5 mm diffused (paket 30 pcs) | Generik | 1 paket | Beli | Rp10.000 | Rp10.000 | Tidak bisa dibeli eceran |
-| 6 | Tactile push button | 6x5x5 mm, 2-pin (BOM) | 5 | Beli | Rp500 | Rp2.500 | Hanya butuh 1 (satu tombol untuk START/NEXT/RESTART); MOQ 5. Catatan lama menulis 6x6x5 mm: ukur untuk memastikan (dokumen [tabel-pengukuran-hgd.xlsx](pengukuran/tabel-pengukuran-hgd.xlsx)) |
-| 7 | Modul level shifter dua arah 4 kanal (BSS138) | Generik | 1 | Beli | belum dicatat | belum dicatat | Ditambahkan 15 Okt. 2026 untuk SDA/SCL LCD 5 V. Harga dari bukti beli; total di bawah belum memuatnya |
-| | Total pembelian | | | | | **Rp253.875** + ongkir | Batas Rp300.000. Belum memuat level shifter (baris 7) dan harga load cell CZL 601 (Bagian 9.1.1) |
+Daftar komponen proyek akhir (diperbarui 17 Nov. 2026 dari bukti beli). Harga = harga barang; biaya layanan tiap pesanan ditulis terpisah. Status "Tersedia" berarti komponen sudah ada dan tidak dibeli untuk proyek ini.
 
-Resistor pembatas LED (220 ohm) termasuk komponen pasif lab (panduan D.5) dan tidak dibeli. Breadboard dan kabel jumper juga disediakan lab.
+| No | Komponen | Spesifikasi | Qty | Harga | Status |
+|---|---|---|---|---|---|
+| 1 | ESP32 DevKit V1 | ESP32-D0WD-V3, 30 pin (15 per baris, jarak baris 25,4 mm) | 1 | - | Tersedia |
+| 2 | Load cell | CZL 601 80 kg, 130 x 28 x 21,5 mm, 4 kabel (Automa-88) | 1 | Rp165.000 | ✔ dibeli 9 Okt. 2026 |
+| 3 | Modul HX711 | HX711, papan XFW-HX711 (CNC Store Bandung) | 1 | Rp8.500 | ✔ dibeli 8 Okt. 2026 |
+| 4 | LCD 16x2 + backpack I2C | LCD1602 (HD44780) + PCF8574T, 5 V, alamat 0x27 (CNC Store Bandung) | 1 | Rp39.500 | ✔ dibeli 8 Okt. 2026 |
+| 5 | Level shifter | Modul dua arah 4 kanal BSS138, 3,3-5 V (Starlectric) | 1 | Rp3.500 | ✔ dibeli 15 Okt. 2026 |
+| 6 | PCB `hgd-v1` | 2 lapis, 80 x 55 mm, 1,6 mm | 1 | - | Gerber Revision 2 diteruskan ke pabrik (12 Nov. 2026) |
+| 7 | Tombol SW1 | Tactile switch 6 x 6 mm, tinggi 13 mm, THT 4 kaki (`SW_PUSH_6mm_H13mm`) | 1 | belum | Akan dibeli |
+| 8 | Soket header betina | 2,54 mm, tinggi 8,5 mm: 1x15 (2, DevKit), 1x4 (2, J1 dan J2), 1x6 (2, J3 dan J4) | 6 | belum | Akan dibeli |
+| 9 | LED | 5 mm (D1, status) dan 3 mm merah (D2, daya) | 2 | - | Tersedia |
+| 10 | Resistor | 220 ohm (R1, R2) | 2 | - | Tersedia |
+| 11 | Kapasitor | 100 nF keramik (C1, C4), 10 µF elektrolit (C2, C3) | 2 + 2 | - | Tersedia |
+| 12 | Kabel jumper | Betina-jantan (F-M), backpack LCD ke J2 | 4 | - | Tersedia |
+| 13 | Baut grip | Flange bolt M6 x 25 stainless A2-70 (8) + ring plat M6 SS316 (10) (bautnusantara) | 8 + 10 | Rp26.950 (+ biaya layanan Rp860) | ✔ dibeli 31 Okt. 2026 |
+| 14 | Baut PCB dan LCD | Baut M2,5 x 14 kepala bulat (10), mur M2,5 SS304 (10), ring plat M2,5 baja (10) (Ada Hardware) | 10 + 10 + 10 | Rp32.600 (+ biaya layanan Rp1.040) | ✔ dibeli 31 Okt. 2026 |
+| 15 | Pelat grip | Aluminium 6061-T6 140 x 40 x 8 mm, dipotong penjual ([HL11](housing-load-cell/desain-housing-load-cell.md#hl11-pengadaan-pelat-logam)) | 2 | ≈Rp40.880 + ongkir (112 cm²) | Akan dibeli |
+| 16 | Filamen PLA | Housing elektronik, spacer, klem kabel, kupon uji pas | - | - | Tersedia |
+| 17 | Zip tie | 2,5 x 100 mm (klem kabel housing grip) | 1 | - | Tersedia |
+| 18 | Kabel USB | Micro USB, data dan daya ke laptop | 1 | - | Tersedia |
 
-#### 9.1.1 Perubahan BOM (v37)
+Diajukan reimbursement: baris 2-5 (Rp211.219 termasuk biaya layanan dan potongan) dan baris 13-14 (Rp61.450), total Rp272.669. Anggaran di Bagian 12.
 
-Perubahan terhadap tabel di atas:
-- **Load cell diganti.** Yang dibeli adalah CZL 601 80 kg (listing Automa-88, Shopee; DS-LC1 di `datasheets/datasheet-library.md`), bukan load cell generik 180 kg pada baris 2. Spesifikasi di baris 2 (2,0 mV/V, overload 150%, kabel 110 cm, 147 x 30 x 22 mm) tidak berlaku lagi. Nilai baru dari DS-LC1: 130 x 28 x 22 mm (gambar penjual; GJ Impex menulis lebar 30 mm); **diukur sendiri pada barang yang tiba (10 Okt. 2026): 130 x 28 x 21,5 mm**, sensitivitas 2,0±0,2 mV/V (vendor), error gabungan ±0,03 %RO (sekitar ±24 g, sekitar ±34 g bila digabung dengan suhu dan drift HX711), overload yang dipakai desain 120% / 150% (96 / 120 kgf), kabel sekitar 28 cm (listing) atau 0,42 m (GJ Impex). Harga pembelian tidak tercatat di catatan ini: isi dari bukti beli, lalu hitung ulang total dan sisa anggaran (Rp253.875 di atas masih memuat Rp193.375 untuk load cell lama).
-- **Komponen housing grip yang belum ada di BOM** ([HL11](housing-load-cell/desain-housing-load-cell.md#hl11-pengadaan-pelat-logam)): pelat aluminium 140 x 40 x 8 mm (2 lembar, dipotong penjual; 6061-T6 dikonfirmasi penjual) dan jasa bor bila perlu, filamen PLA untuk spacer (tebal 3,0) dan klem kabel, zip tie 2,5 x 100 (printer lab), serta kabel sambungan load cell bila housing elektronik tidak berada dalam jangkauan kabel (≈28 cm; sambungan di luar lingkup dokumen housing). Harga belum diverifikasi.
-- Anggota tim sudah memiliki ESP32 DevKit V1, LED 5 mm, tombol, resistor, breadboard, dan kabel jumper; LCD (dengan backpack I2C), modul HX711, dan load cell sudah dibeli. Load cell sudah diterima dan diperiksa (Bagian 9.1 di [desain-pcb-hgd.md](pcb/desain-pcb-hgd.md)); status fisik modul HX711 dikonfirmasi (Bagian 7). Daftar komponen yang diminta dari lab disusun terpisah (tab terpisah).
-- **Tambahan untuk PCB `hgd-v1`** (Bagian 8 di [desain-pcb-hgd.md](pcb/desain-pcb-hgd.md); menggantikan daftar PCB v1): soket betina 1x15 (2 pcs), soket betina 1x4 (2 pcs) dan 1x6 (2 pcs), kabel jumper betina-jantan (F-M) untuk LCD, kapasitor 100 nF keramik (2) dan 10 uF elektrolit (2) dari komponen lab, resistor 220 ohm. Harga belum dicatat.
+Riwayat: BOM proposal memuat load cell generik 180 kg (Rp193.375), LED paket 30, dan tombol 6x5x5 mm; load cell diganti CZL 601 80 kg (v37), tombol diganti 6 x 6 mm tinggi 13 mm agar menembus lid housing elektronik, soket dan level shifter ditambahkan untuk PCB `hgd-v1`.
 
 ---
 
@@ -363,27 +369,10 @@ Housing: ukur LC → prototipe kardus → pesan pelat → cetak → rakit ──
 
 ## 12. ANGGARAN DAN PENGADAAN
 
-| No | Komponen | Qty | Harga | Status |
-|----|----------|-----|-------|--------|
-| 1 | ESP32 DevKit V1 | 1 | - (disediakan lab/tim) | ✔ ada |
-| 2 | Load cell CZL 601 80 kg | 1 | Dicatat dari bukti beli | ✔ diterima |
-| 3 | Modul HX711 | 1 | Rp8.500 | ✔ ada; lolos uji bench |
-| 4 | LCD 16x2 + backpack I2C | 1 | Rp39.500 | ✔ ada |
-| 5 | LED 5 mm (paket 30) | 1 paket | Rp10.000 | Komponen tim |
-| 6 | Tactile push button (MOQ 5) | 5 | Rp2.500 | Komponen tim |
-| 7 | Resistor, breadboard, kabel jumper | - | Disediakan lab | - |
-| 8 | Soket betina 1x15, 1x4, 1x6; kabel jumper F-M | - | Dari lab/tim | Tambahan PCB `hgd-v1` |
-| 8a | Modul level shifter 4 kanal BSS138 | 1 | Dicatat dari bukti beli | Sudah tiba |
-| 9 | Kapasitor 100 nF dan 10 µF | 2 + 2 | Komponen lab | Decoupling 3V3 dan 5V |
-| 10 | Pelat aluminium 140 x 40 x 8 mm (dipotong penjual; bor sendiri atau jasa) | 2 | ≈Rp40.880 + ongkir (112 cm²) | Akan dipesan; 6061-T6 (dikonfirmasi penjual 8 Nov. 2026) |
-| 11 | Flange bolt M6 x 25 stainless A2-70 + ring plat M6 (bautnusantara) | 8 + 10 | Rp27.810 (termasuk biaya layanan) | ✔ dibeli 31 Okt. 2026 |
-| 11a | Baut M2,5 x 14 + mur + ring plat M2,5 (pemasangan PCB dan LCD; Ada Hardware) | 10 + 10 + 10 | Rp33.640 (termasuk biaya layanan) | ✔ dibeli 31 Okt. 2026 |
-| 12 | Filamen PLA (spacer, penjepit kabel) | - | Printer lab | - |
-| 13 | Kabel sambungan load cell (shielded 4 inti) | bila perlu | Belum dicatat | - |
-| 14 | Zip tie 2,5 x 100 (klem kabel housing grip) | 1 paket | Belum dicatat | Belum dibeli |
+Daftar komponen, harga, dan status pembelian ada di Bagian 7.1.
 
 - **Batas:** Rp300.000 per tim, dengan bukti pembelian.
-- Sudah dibeli dan diajukan reimbursement: Rp211.219 (reimbursement pertama: LCD, HX711, load cell, level shifter) + Rp61.450 (baut, 31 Okt. 2026) = Rp272.669; sisa Rp27.331. Pelat 140 x 40 x 8 (≈Rp40.880 + ongkir) dan zip tie melewati sisa itu; selisihnya ditanggung tim kecuali dosen atau TA memutuskan lain. LED dan tombol (baris 5-6) adalah komponen tim, tidak diajukan.
+- Sudah dibeli dan diajukan reimbursement: Rp211.219 (reimbursement pertama: LCD, HX711, load cell, level shifter) + Rp61.450 (baut, 31 Okt. 2026) = Rp272.669; sisa Rp27.331. Pelat 140 x 40 x 8 (≈Rp40.880 + ongkir), tombol 6 x 6 x 13, dan soket betina melewati sisa itu; selisihnya ditanggung tim kecuali dosen atau TA memutuskan lain. Komponen berstatus Tersedia tidak diajukan.
 - Tiap komponen yang dibeli punya tautan supplier riil.
 
 ---
@@ -450,7 +439,7 @@ Lihat Bagian 4 di [desain-pcb-hgd.md](pcb/desain-pcb-hgd.md). Jangan dibawa lewa
 
 ### 15.2 Yang akan dikerjakan berikutnya
 1. ✔ PCB disetujui; Gerber Revision 2 dikumpulkan 12 Nov. 2026 dan diteruskan ke pabrik. Berikutnya: rakit dan uji dasar setelah papan tiba.
-2. ✔ PDF skema (26 Okt. 2026); BOM (kolom sesuai modul) belum.
+2. ✔ PDF skema (26 Okt. 2026); ✔ BOM proyek diperbarui dari bukti beli (Bagian 7.1, 17 Nov. 2026); BOM dengan kolom sesuai modul belum.
 3. Bahan laporan PCB: ✔ tangkapan ERC, DRC, Assign Footprints, dan render papan/3D (26 Okt. 2026, `pcb/gambar/`); belum: lebar jalur 5V, data papan, review papan tim lain.
 4. Housing elektronik: ✔ lubang tombol dan LED (SW1, D1, D2; D2 di x −15,0 sejak 16 Nov. 2026); ✔ desain disetujui (17 Nov. 2026); belum: kupon uji pas (fit coupon) sesuai modul cetak 3D (cetak uji satu lidah dan slot, satu sudut lid dengan tiang PCB); ✔ tiang PCB di lid (17 Nov. 2026; di bawah PCB pasang mur tanpa ring di H1, dekat jalur GPIO27); cetak setelah PCB tiba.
 5. Jalankan U8 penuh (10 tap, 10 tahan). U6 ✔ (24 Okt. 2026).
@@ -478,6 +467,7 @@ Lihat Bagian 4 di [desain-pcb-hgd.md](pcb/desain-pcb-hgd.md). Jangan dibawa lewa
 - Tenggat gerber: konflik panduan (Minggu 7) dan panduan tugas (Minggu 8) belum terkonfirmasi (Bagian 4.1).
 - Media logging: SD card hanya fasilitas opsional lab (satu unit); cloud opsional menurut Panduan; keputusan: CSV lewat USB-Serial sebagai inti (Bagian 5 dan Bagian 15.1 di [alur-program-hgd.md](firmware/alur-program-hgd.md)).
 - Persyaratan format resmi: status per item di Bagian 4.3.
+- v63 (17 Nov. 2026): BOM (Bagian 7.1) ditulis ulang dari bukti beli: harga terbaru, load cell CZL 601, level shifter Rp3.500, tombol 6 x 6 x 13 dan soket betina akan dibeli, komponen lain Tersedia; tabel di Bagian 12 diganti rujukan ke 7.1; catatan 9.1.1 lama dipadatkan menjadi satu paragraf riwayat.
 - v62 (16-17 Nov. 2026): housing elektronik dan housing grip disetujui (17 Nov. 2026); tiang PCB di lid (housing elektronik v11), sisa sebelum cetak: kupon uji pas. jadwal 11.2: baris tenggat Gerber ditandai selesai. Status disegarkan setelah UTS: tahap UTS selesai (dikumpulkan 27 Okt. 2026), PCB disetujui dan Gerber Revision 2 diteruskan ke pabrik, firmware bukan lagi "dibekukan" tetapi versi UTS dengan rencana perubahan proyek akhir di Bagian 19 alur program (v7); versi dokumen di peta dan Bagian 15.1 dibetulkan; bahan pelat di Bagian 14 (8 mm); angka yang sudah ditetapkan di Bagian 7. README, teks LCD v4, desain PCB v10, README KiCad v8 ikut diperbarui. Desain housing load cell v18 dan instruksi Fusion v12: model Fusion v1 (pelat, spacer, klem) di `housing-load-cell/fusion/load_cell_housing.step`, dicek terhadap CSV. Housing elektronik v9: lubang D2 di lid dipindah ke x −15,0 (STEP 16 Nov. 2026), gambar Fusion (PDF, 21 + 5 lembar) di `housing-elektronik/gambar/`; ZIP Gerber Revision 2 kini di repo (`pcb/kicad/gerber/`) karena PCB sudah disetujui; `hgd-v1.step` diganti versi papan 12 Nov. 2026.
 - v61 (12 Nov. 2026): PCB direvisi 12 Nov. 2026: garis silkscreen footprint D1, D2, R1, R2 yang terlalu dekat pad dihapus, D2 digeser 0,52 mm (segaris SW1), tiga via GND di tepi bawah digeser, uji beda-pustaka diatur ignore; ERC dan DRC 0 error; Gerber diekspor ulang dan dicek di JLCDFM (silkscreen ke pad 0 temuan). Desain PCB v9, log kerja KiCad v3, gambar penempatan disesuaikan; lubang LED D2 di lid housing elektronik perlu digeser ke x −15,0.
 - v60 (27 Okt. 2026): LED alarm galat (usulan tim, sesudah firmware dibekukan): di `ERROR` dan `GAGALSIMPAN` LED D1 berkedip cepat 5 Hz terus sampai TAHAN atau reset total, menggantikan "dipaksa mati", karena penggenggam bisa tidak melihat LCD dan alat tidak punya buzzer. Kedip restart 2 Hz / 5 s tetap. Kode: `led.cpp` (`ledAlarmStart()`), `fault.cpp`, `fsm.cpp` (`enterSaveFailed()`), `config.h` (`LED_ALARM_MS`). Alur program v6 (butir 12, Bagian 10.3), teks LCD v3. Sudah di papan sebelum brief UTS ditulis (tampil di video).
