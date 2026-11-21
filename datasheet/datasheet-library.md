@@ -43,7 +43,7 @@ Status: **Terisi** = entri sudah ada di file ini; **Punya** = dokumennya sudah a
 
 | No | Kode | Dokumen | Yang diambil / catatan | Status |
 |---|---|---|---|---|
-| 13 | DS-MAT1 | Datasheet pelat aluminium dari pemasok | Paduan dan temper, modulus E, kuat luluh. Perhitungan defleksi dan tegangan kita memakai E = 70 GPa. | Ambil |
+| 13 | DS-MAT1 | Datasheet pelat aluminium dari pemasok | Paduan dan temper, modulus E, kuat luluh. Perhitungan defleksi dan tegangan kita memakai E = 70 GPa. | Tidak perlu: pelat tidak dipakai sejak 18 Nov. 2026 |
 | 14 | DS-MAT2 | Technical data sheet filamen PLA | Modulus, suhu transisi gelas, catatan creep. | Ambil |
 | 15 | DS-MAT3 | Standar baut M6 | ISO 898-1 (kelas kekuatan) + standar dimensi ISO/DIN untuk tipe baut yang dipakai. | Ambil |
 | 16 | DS-MAT4 | Bahan alas karet/spacer | Hanya jika rig kalibrasi menyitasinya. | Opsional |
