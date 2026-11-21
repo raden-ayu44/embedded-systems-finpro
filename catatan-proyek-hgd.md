@@ -3,7 +3,7 @@ title: Catatan Proyek - Hand Grip Dynamometer
 
 ---
 
-# Catatan Proyek - Hand Grip Dynamometer (v64)
+# Catatan Proyek - Hand Grip Dynamometer (v65)
 **Proyek akhir - embedded system**
 
 > Catatan kerja proyek akhir mata kuliah embedded system, sekaligus **dokumen induk**: ringkasan, kebutuhan, rumusan masalah, spesifikasi, BOM, risiko, jadwal, anggaran, keselamatan, riwayat keputusan, dan log audit ada di sini; bahan teknis dipecah ke dokumen di peta di bawah. Ditulis supaya bisa dibaca sendiri (offline). Dipakai untuk G2-G4, makalah akhir, dan demo.
@@ -234,7 +234,7 @@ tinggi badan, berat badan, tangan dominan, dan frekuensi olahraga. Opsional, han
 
 ### 7.1 BOM
 
-Daftar komponen proyek akhir (diperbarui 17 Nov. 2026 dari bukti beli). Harga = harga barang; biaya layanan tiap pesanan ditulis terpisah. Status "Tersedia" berarti komponen sudah ada dan tidak dibeli untuk proyek ini.
+Daftar komponen proyek akhir (diperbarui 17 Nov. 2026 dari bukti beli; pelat dan bagian cetak grip diperbarui 21 Nov. 2026). Harga = harga barang; biaya layanan tiap pesanan ditulis terpisah. Status "Tersedia" berarti komponen sudah ada dan tidak dibeli untuk proyek ini.
 
 | No | Komponen | Spesifikasi | Qty | Harga | Status |
 |---|---|---|---|---|---|
@@ -250,10 +250,10 @@ Daftar komponen proyek akhir (diperbarui 17 Nov. 2026 dari bukti beli). Harga = 
 | 10 | Resistor | 220 ohm (R1, R2) | 2 | - | Tersedia |
 | 11 | Kapasitor | 100 nF keramik (C1, C4), 10 µF elektrolit (C2, C3) | 2 + 2 | - | Tersedia |
 | 12 | Kabel jumper | Betina-jantan (F-M), backpack LCD ke J2 | 4 | - | Tersedia |
-| 13 | Baut grip | Flange bolt M6 x 25 stainless A2-70 (8) + ring plat M6 SS316 (10) (bautnusantara) | 8 + 10 | Rp26.950 (+ biaya layanan Rp860) | ✔ dibeli 31 Okt. 2026 |
+| 13 | Baut grip | Flange bolt M6 x 25 stainless A2-70 (8) + ring plat M6 SS316 (10) (bautnusantara); susunan tekan telapak memakai 4 baut tanpa ring | 8 + 10 | Rp26.950 (+ biaya layanan Rp860) | ✔ dibeli 31 Okt. 2026 |
 | 14 | Baut PCB dan LCD | Baut M2,5 x 14 kepala bulat (10), mur M2,5 SS304 (10), ring plat M2,5 baja (10) (Ada Hardware) | 10 + 10 + 10 | Rp32.600 (+ biaya layanan Rp1.040) | ✔ dibeli 31 Okt. 2026 |
-| 15 | Pelat grip | Aluminium 6061-T6 140 x 40 x 8 mm, dipotong penjual ([HL11](housing-load-cell/desain-housing-load-cell.md#hl11-pengadaan-pelat-logam)) | 2 | ≈Rp40.880 + ongkir (112 cm²) | Akan dibeli |
-| 16 | Filamen PLA | Housing elektronik, spacer, klem kabel, kupon uji pas | - | - | Tersedia |
+| 15 | Pelat grip | Aluminium 6061-T6 140 x 40 x 8 mm ([HL11](housing-load-cell/desain-housing-load-cell.md#hl11-pengadaan-pelat-logam)) | - | - | Tidak dibeli: pelat tidak dipakai sejak 18 Nov. 2026 (tekan telapak) |
+| 16 | Filamen PLA | Housing elektronik (Body, Lid), Spacer A dengan klem kabel, Spacer B, Clamp_Pad, kupon uji pas; infill 100 % untuk bagian grip | - | - | Tersedia |
 | 17 | Zip tie | 2,5 x 100 mm (klem kabel housing grip) | 1 | - | Tersedia |
 | 18 | Kabel USB | Micro USB, data dan daya ke laptop | 1 | - | Tersedia |
 
@@ -372,7 +372,7 @@ Housing: ukur LC → prototipe kardus → pesan pelat → cetak → rakit ──
 Daftar komponen, harga, dan status pembelian ada di Bagian 7.1.
 
 - **Batas:** Rp300.000 per tim, dengan bukti pembelian.
-- Sudah dibeli dan diajukan reimbursement: Rp211.219 (reimbursement pertama: LCD, HX711, load cell, level shifter) + Rp61.450 (baut, 31 Okt. 2026) = Rp272.669; sisa Rp27.331. Pelat 140 x 40 x 8 (≈Rp40.880 + ongkir), tombol 6 x 6 x 13, dan soket betina melewati sisa itu; selisihnya ditanggung tim kecuali dosen atau TA memutuskan lain. Komponen berstatus Tersedia tidak diajukan.
+- Sudah dibeli dan diajukan reimbursement: Rp211.219 (reimbursement pertama: LCD, HX711, load cell, level shifter) + Rp61.450 (baut, 31 Okt. 2026) = Rp272.669; sisa Rp27.331. Pelat tidak dibeli (tidak dipakai sejak 18 Nov. 2026). Tombol 6 x 6 x 13 dan soket betina (harga belum dicatat) dibayar dari sisa itu; bila melewati sisa, selisihnya ditanggung tim kecuali dosen atau TA memutuskan lain. Komponen berstatus Tersedia tidak diajukan.
 - Tiap komponen yang dibeli punya tautan supplier riil.
 
 ---
@@ -467,6 +467,7 @@ Lihat Bagian 4 di [desain-pcb-hgd.md](pcb/desain-pcb-hgd.md). Jangan dibawa lewa
 - Tenggat gerber: konflik panduan (Minggu 7) dan panduan tugas (Minggu 8) belum terkonfirmasi (Bagian 4.1).
 - Media logging: SD card hanya fasilitas opsional lab (satu unit); cloud opsional menurut Panduan; keputusan: CSV lewat USB-Serial sebagai inti (Bagian 5 dan Bagian 15.1 di [alur-program-hgd.md](firmware/alur-program-hgd.md)).
 - Persyaratan format resmi: status per item di Bagian 4.3.
+- v65 (21 Nov. 2026): gambar setup kalibrasi lama (`kalibrasi_setup.svg`, `kalibrasi_protokol.svg`, `kalibrasi_cradle.svg`) dihapus, rujukannya di desain housing dan protokol diperbarui, `generate_drawings.py` ditandai riwayat (berjalan dengan CSV commit `b123228`); BOM 7.1 dan anggaran Bagian 12: pelat tidak dibeli, bagian cetak grip, baut tanpa ring.
 - v64 (18-20 Nov. 2026): susunan tekan telapak tanpa pelat. Protokol kalibrasi v2: kalibrasi 0–6 kg dengan tas dumbbell digantung di Spacer B, orientasi panah stiker ke bawah, perhitungan gaya dan tekanan dengan persamaan dan diagram benda bebas, batas tekan telapak 40 kg (faktor keamanan PLA), angka dicatat di laporan kalibrasi; gambar `kalibrasi/gambar/kal-01` sampai `kal-08`. Housing grip: CSV (dinding klem z 17), model `load_cell_housing.step` baru (Spacer A, Spacer B, Clamp_Pad), instruksi Fusion v13; koreksi arah tanda di asumsi.md 4.1.
 - v63 (17 Nov. 2026): BOM (Bagian 7.1) ditulis ulang dari bukti beli: harga terbaru, load cell CZL 601, level shifter Rp3.500, tombol 6 x 6 x 13 dan soket betina akan dibeli, komponen lain Tersedia; tabel di Bagian 12 diganti rujukan ke 7.1; catatan 9.1.1 lama dipadatkan menjadi satu paragraf riwayat.
 - v62 (16-17 Nov. 2026): housing elektronik dan housing grip disetujui (17 Nov. 2026); tiang PCB di lid (housing elektronik v11), sisa sebelum cetak: kupon uji pas. jadwal 11.2: baris tenggat Gerber ditandai selesai. Status disegarkan setelah UTS: tahap UTS selesai (dikumpulkan 27 Okt. 2026), PCB disetujui dan Gerber Revision 2 diteruskan ke pabrik, firmware bukan lagi "dibekukan" tetapi versi UTS dengan rencana perubahan proyek akhir di Bagian 19 alur program (v7); versi dokumen di peta dan Bagian 15.1 dibetulkan; bahan pelat di Bagian 14 (8 mm); angka yang sudah ditetapkan di Bagian 7. README, teks LCD v4, desain PCB v10, README KiCad v8 ikut diperbarui. Desain housing load cell v18 dan instruksi Fusion v12: model Fusion v1 (pelat, spacer, klem) di `housing-load-cell/fusion/load_cell_housing.step`, dicek terhadap CSV. Housing elektronik v9: lubang D2 di lid dipindah ke x −15,0 (STEP 16 Nov. 2026), gambar Fusion (PDF, 21 + 5 lembar) di `housing-elektronik/gambar/`; ZIP Gerber Revision 2 kini di repo (`pcb/kicad/gerber/`) karena PCB sudah disetujui; `hgd-v1.step` diganti versi papan 12 Nov. 2026.

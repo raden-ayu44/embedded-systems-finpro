@@ -12,7 +12,7 @@
 
 *Gambar 1. Load cell di sudut meja. Kiri: dari sisi kabel. Kanan: dari sisi klem C. Ujung tetap dijepit klem C di atas Clamp_Pad dengan Spacer A di bawahnya; ujung bebas menjorok keluar dari tepi meja, tas beban tergantung di Spacer B.*
 
-Semua gambar diambil dari model Fusion "calibration rig" (hanya untuk gambar, bukan untuk dicetak). Gambar setup lama di folder `gambar/` (`kalibrasi_setup.svg`, `kalibrasi_protokol.svg`, `kalibrasi_cradle.svg`) tidak berlaku lagi.
+Semua gambar diambil dari model Fusion "calibration rig" (hanya untuk gambar, bukan untuk dicetak). Gambar setup lama (`kalibrasi_setup.svg`, `kalibrasi_protokol.svg`, `kalibrasi_cradle.svg`) sudah dihapus dan tinggal di riwayat git.
 
 **Bagian-bagian menurut warna di gambar**
 

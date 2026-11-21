@@ -3,16 +3,18 @@
 Cara pakai (dari folder repo):
     python housing-load-cell/gambar/generate_drawings.py
 
-Skrip membaca housing-load-cell/fusion/fusion_parameters_housing_grip.csv dan menimpa tujuh SVG:
-potongan memanjang, exploded isometrik, dua tampak klem kabel, tampak atas, setup kalibrasi
-(kalibrasi/gambar/kalibrasi_setup.svg), dan gambar kerja pelat untuk bengkel (A4, skala 1:1, satuan mm;
+Skrip membaca housing-load-cell/fusion/fusion_parameters_housing_grip.csv dan menimpa enam SVG:
+potongan memanjang, exploded isometrik, dua tampak klem kabel, tampak atas, dan gambar kerja pelat untuk bengkel (A4, skala 1:1, satuan mm;
 cetak 100 % dari browser untuk dipakai sebagai mal tanda lubang). Jalankan ulang setiap kali CSV berubah, lalu periksa
 gambarnya di browser sebelum commit. Hanya memakai pustaka standar Python 3.
+
+RIWAYAT: skrip ini untuk desain pelat (v16). Sejak 20 Nov. 2026 CSV berisi model tekan telapak dan
+skrip ini tidak berjalan lagi (KeyError 'gap'). Untuk menggambar ulang gambar pelat, pakai CSV dari
+commit b123228. Gambar setup kalibrasi dihapus 21 Nov. 2026.
 
 Yang tidak diambil dari CSV (asumsi; ubah konstantanya di bawah bila sudah diukur):
 - kepala flange bolt M6 menurut DIN 6921: flange Ø14,2 tebal 1,5, heksagon kunci 10;
 - lubang binokular dan penutup strain gauge load cell (skematik);
-- balok PLA, papan, dumbbell, dan pemandu di setup kalibrasi (dumbbell skematik);
 - jarak eksplode di gambar isometrik dan tata letak label.
 """
 import csv, io, math, os, sys
@@ -444,69 +446,6 @@ def clamp_section_view():
                  'dihasilkan dari CSV parameter · skala 1 mm = 10 px · dilihat dari ujung tetap ke arah +x · kanan gambar = sisi kabel (−y) · pelat A di atas',
                  'Klem kabel tampak kiri potongan A-A v2')
 
-# ------------------------------------------------------------------ 5. setup kalibrasi
-def calibration_setup():
-    sc = 1.6
-    d = Canvas(1160, 960, sc, 560, 640)
-    # rakitan dibalik: z' = tinggi di atas meja. Pelat A bertumpu pada kepala bautnya bila alas lebih tipis dari tonjolan kepala.
-    lift = max(MATT, HEADP)
-    Z = lambda z: lift + (ZA1 - z)            # z rakitan -> tinggi di atas meja
-    d.rect(-340, -30, 340, 0, 'table')
-    d.rect(-120, 0, 120, MATT, 'rub'); d.rect(-HX - SLOTW / 2, 0, -HX + SLOTW / 2, MATT, 'void')
-    d.rect(-BARL / 2, Z(ZA1), BARL / 2, Z(ZA0), 'al'); d.rect(-BARL / 2, Z(ZB1), BARL / 2, Z(ZB0), 'al')
-    d.rect(E0, Z(LCH), -E0, Z(0), 'lc')
-    d.rect(SA0, Z(ZA0), SA1, Z(LCH), 'pla'); d.rect(SB0, Z(0), SB1, Z(ZB1), 'pla')
-    # baut A: kepala ke bawah (ke meja); baut B: kepala ke atas
-    for (x, zf, sg) in ((-HX, Z(ZA1), -1), (HX, Z(ZB0), 1)):
-        d.rect(x - 6, zf, x + 6, zf + sg * WSH, 'wsh'); d.rect(x - FL_D / 2, zf + sg * WSH, x + FL_D / 2, zf + sg * (WSH + FL_T), 'bolt')
-        d.rect(x - HEX_AF / 2 / C30, zf + sg * (WSH + FL_T), x + HEX_AF / 2 / C30, zf + sg * HEADP, 'bolt')
-    for x0 in (-RSP / 2 - RW, RSP / 2):
-        d.rect(x0, Z(ZB0), x0 + RW, Z(ZB0) + RH, 'free')
-    top_b = Z(ZB0)
-    tw = RSP - 1.0; th = RH + 1.0
-    d.rect(-tw / 2, top_b, tw / 2, top_b + th, 'pla')
-    d.rect(-35, top_b + th, 35, top_b + th + 18, 'pla')
-    board0 = top_b + th + 18
-    d.rect(-240, board0, 240, board0 + 12, 'wood')
-    b1 = board0 + 12
-    for sx in (-1, 1):
-        d.circ(sx * 95, b1 + 55, 55, 'db'); d.circ(sx * 95, b1 + 110 + 45, 45, 'db')
-        d.rect(sx * (95 + 55 + 10), b1, sx * (95 + 55 + 22), b1 + 150, 'wood')
-    for sx in (-1, 1):
-        d.add('<text x="%.1f" y="%.1f" class="lb" text-anchor="middle" style="fill:#fff">6 kg</text>' % (d.X(sx * 95), d.Y(b1 + 55) + 4))
-        d.add('<text x="%.1f" y="%.1f" class="lb" text-anchor="middle" style="fill:#fff">4 kg</text>' % (d.X(sx * 95), d.Y(b1 + 155) + 4))
-    # gaya
-    d.add('<line x1="%.1f" y1="%.1f" x2="%.1f" y2="%.1f" class="F"/><path d="M%.1f,%.1f l-6,-12 l12,0 z" class="Fh"/>' % (d.X(0), d.Y(b1 + 230), d.X(0), d.Y(b1 + 205) + 12, d.X(0), d.Y(b1 + 205) + 14))
-    d.text(d.X(0) + 12, d.Y(b1 + 225), 'F = m·g, menekan B ke arah A (arah remasan)', 'lb warn')
-    # ukuran
-    d.vdim(0, MATT, d.X(120) + 16, 'alas ' + fmt(MATT), d.X(120))
-    d.vdim(Z(ZA1), Z(ZB0) + RH, d.X(BARL / 2) + 30, 'rakitan ' + fmt(TOT), d.X(BARL / 2))
-    d.vdim(b1, b1 + 200, d.X(240) + 24, '≈20 cm', d.X(170))
-    d.hdim(-tw / 2, tw / 2, d.Y(top_b + th + 18) - 12, 'lidah ' + fmt(tw), None)
-    # peringatan alas
-    if MATT < HEADP:
-        d.add('<rect x="34" y="%.1f" width="560" height="56" class="wbox"/>' % (d.Y(-30) + 12))
-        d.text(46, d.Y(-30) + 32, 'Alas ' + fmt(MATT) + ' lebih tipis dari tonjolan kepala baut ' + fmt(HEADP) + ' (flange, asumsi):', 'sm warn')
-        d.text(46, d.Y(-30) + 50, 'pelat A bertumpu pada kepala baut, bukan alas. Tebalkan alas dan perbesar slot setelah kepala diukur.', 'sm warn')
-    # callout
-    d.call(1, d.X(-20), d.Y(Z(ZA1) + 4), d.X(-150), d.Y(Z(ZA1) + 25)); d.call(2, d.X(-60), d.Y(Z(ZB0) - 4), d.X(-150), d.Y(Z(ZB0) + 10))
-    d.call(3, d.X(20), d.Y(Z(LCH / 2))); d.call(4, d.X(SA0 + 5), d.Y(Z(ZA0) + 1.5), d.X(-150), d.Y(Z(LCH) - 4))
-    d.call(5, d.X(SB1 - 5), d.Y(Z(ZB1) - 1.5), d.X(150), d.Y(Z(ZB1) - 10)); d.call(6, d.X(-HX), d.Y(Z(ZA1) - 4), d.X(-HX - 40), d.Y(-15))
-    d.call(7, d.X(HX + 6), d.Y(Z(ZB0) + 5), d.X(150), d.Y(Z(ZB0) + 20)); d.call(10, d.X(RSP / 2 + RW), d.Y(top_b + 3), d.X(60), d.Y(top_b + 30))
-    d.call(19, d.X(250), d.Y(-15)); d.call(20, d.X(80), d.Y(MATT / 2), d.X(140), d.Y(-10))
-    d.call(21, d.X(95 + 40), d.Y(b1 + 160)); d.call(22, d.X(30), d.Y(top_b + th + 9), d.X(80), d.Y(top_b + th + 40))
-    d.call(23, d.X(200), d.Y(board0 + 6), d.X(200), d.Y(board0 + 40)); d.call(24, d.X(-(95 + 55 + 16)), d.Y(b1 + 120), d.X(-210), d.Y(b1 + 170))
-    draw_legend(d, 34, 800, [
-        (1, 'Pelat A — Al ' + fmt(BARL) + ' × ' + fmt(BARW) + ' × ' + fmt(BART) + ' (bawah, tidak dijepit)'), (2, 'Pelat B (atas)'), (3, 'Load cell CZL 601 80 kg'),
-        (4, 'Spacer A (PLA ' + fmt(GAP) + ')'), (5, 'Spacer B'), (6, 'Baut A, kepala ke bawah, di slot alas'), (7, 'Baut B, kepala ke atas'),
-        (10, 'Ridge (bebas); lidah masuk di antaranya'), (19, 'Meja lab'), (20, 'Alas karet ' + fmt(MATT) + ', slot ' + fmt(SLOTL) + ' × ' + fmt(SLOTW)),
-        (21, 'Dumbbell berpasangan 6 + 4 kg (20 kg)'), (22, 'Balok PLA dengan lidah ' + fmt(tw) + ' (skematik)'), (23, 'Papan kayu 480 × 350 × 12'),
-        (24, 'Pemandu kayu, ≈1 cm dari dumbbell, tidak menyentuh')], cols=2, colw=470, lh=18)
-    return d.svg('Setup Kalibrasi v12 — Tahap 1 (sampai 20 kg), rakitan v16 dibalik',
-                 'dihasilkan dari CSV parameter · rakitan, alas, papan berskala 1 mm = 1,6 px · dumbbell skematik · A (telapak) di bawah, B (jari) di atas · usulan, belum diuji',
-                 'Setup kalibrasi tahap 1 v12')
-
-
 # ------------------------------------------------------------------ 6. tampak atas
 def top_view():
     """Tampak atas rakitan (pelat A di atas): baut flange, zona genggam, slot alas kalibrasi."""
@@ -688,7 +627,6 @@ DRAWINGS = {
     'housing-load-cell/gambar/klem_kabel_tampak_depan.svg': clamp_front_view,
     'housing-load-cell/gambar/klem_kabel_tampak_kiri.svg': clamp_section_view,
     'housing-load-cell/gambar/tampak_atas_housing_grip.svg': top_view,
-    'kalibrasi/gambar/kalibrasi_setup.svg': calibration_setup,
     'housing-load-cell/gambar/gambar_kerja_pelat.svg': plate_drawing,
 }
 
