@@ -48,7 +48,7 @@ Daya hanya dari USB; **tanpa baterai** (keputusan 15 Okt. 2026).
 ## 3. Rantai sinyal
 ```
 Gaya genggam
-   │  pelat A (telapak, tetap) dan pelat B (jari, bergerak) menjepit load cell
+   │  telapak menekan ujung bebas load cell (lewat Spacer B); ujung tetap dijepit ke meja
    ▼
 Load cell CZL 601  ── 4 kabel: eksitasi (hitam, putih), sinyal (merah, hijau)
    │  tegangan diferensial: ≈ 0,083 mV/kg pada eksitasi 3,3 V
