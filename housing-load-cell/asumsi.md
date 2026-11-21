@@ -154,7 +154,7 @@ Aturan: ikuti instruksi yang lebih spesifik.
 3. **Jumlah lubang.** `koreksi_v3.md`: "pola lubang 2 × 2 per ujung" (8 lubang). `koreksi_v4.md` dan pengguna: 4 × M6, dua per ujung. → **4 lubang.**
 4. **Luas bersih spacer.** `koreksi_v4.md` E: "28 × 28 setelah empat lubang". Menurut geometri, tiap spacer hanya menutup dua lubang di ujungnya. → **Hitungan utama memakai 2 lubang**, dan nilai 4 lubang ditampilkan sebagai pembanding (3.1).
 5. **Tabel acuan `koreksi_v4.md` E:** dua sel berbeda > 2% (lihat 2.1). Satu karena pembulatan, satu karena acuan tidak konsisten (Al 8 / boss 24, δ titik beban 0,16 → 0,176). Angka tidak disamakan.
-6. **Setup kalibrasi.** `koreksi_v3.md` F.1 meminta `kalibrasi_setup_v5.svg`, `koreksi_v4.md` D meminta bertanya dulu, dan pengguna meminta jangan dibuat. → **Tidak dibuat.** Setup kalibrasi yang berlaku sekarang adalah protokol dumbbell (`kalibrasi_protokol.svg`), menurut `koreksi_v4.md`.
+6. **Setup kalibrasi.** `koreksi_v3.md` F.1 meminta `kalibrasi_setup_v5.svg`, `koreksi_v4.md` D meminta bertanya dulu, dan pengguna meminta jangan dibuat. → **Tidak dibuat.** Setup kalibrasi yang berlaku waktu itu adalah protokol dumbbell (`kalibrasi_protokol.svg`, dihapus 21 Nov. 2026), menurut `koreksi_v4.md`. Sekarang yang berlaku adalah [protokol kalibrasi tekan telapak](../kalibrasi/protokol-kalibrasi-hgd.md).
 7. **Zona genggam.** v4 ≈90 mm, sedangkan `koreksi_v3.md` dan `koreksi_v4.md` menyebut ≈85 mm. → **85 mm.**
 8. **Kasus Ø5,5.** Diminta sebagai kasus hitungan, tetapi tidak cocok untuk baut M6 (2.4). → Dihitung dan diberi tanda, tidak dihapus.
 9. **"Stop overload".** Frasa ini muncul tepat satu kali di tiap SVG v5, sebagai catatan "Stop overload belum dirancang".
