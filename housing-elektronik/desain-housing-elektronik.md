@@ -165,8 +165,7 @@ Celah lid terhadap bingkai LCD memakai parameter tersendiri (mis. `lid_gap` 0,5 
 ---
 
 ## 7. Belum dirancang (housing grip)
-- **Stop overload mekanis.** Pada 70 kgf pelat melentur ≈ 0,56 mm ke arah load cell (pelat 140 x 40 x 8, celah 3,0; desain housing grip v16); fitur penahan beban lebih belum didesain. Pada laporan dinyatakan sebagai batasan.
-- **Penjepit A ke meja untuk kalibrasi** (memakai sisa batang ≈ 11,5 mm di ujung); sementara alas karet menahan A.
+- Butir lama (stop overload pelat dan penjepit pelat A ke meja) tidak berlaku sejak 18 Nov. 2026: pelat tidak dipakai. Susunan tekan telapak (ujung tetap dijepit klem C di atas Clamp_Pad, batas tekan 40 kg) ada di [protokol kalibrasi](../kalibrasi/protokol-kalibrasi-hgd.md).
 
 ---
 

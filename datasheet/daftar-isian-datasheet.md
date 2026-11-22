@@ -104,7 +104,7 @@ Cara pakai: isi semua baris yang bertanda **ISI**. Baris yang sudah terisi beras
 
 | Isian | Nilai |
 |---|---|
-| Aluminium pelat | **ISI**: paduan (6061-T6?), modulus E, kekuatan luluh, sumber (kita memakai E = 69 GPa) |
+| Aluminium pelat | Tidak perlu diisi: pelat tidak dipakai sejak 18 Nov. 2026 (tekan telapak) |
 | Filamen PLA | **ISI**: merek, modulus, suhu transisi, catatan creep |
 | Baut M6 | **ISI**: kelas kekuatan, panjang (M6 x 20?) |
 
