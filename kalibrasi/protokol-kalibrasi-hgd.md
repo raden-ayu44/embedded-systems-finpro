@@ -361,21 +361,45 @@ Kalibrasi memakai sketsa `firmware/sketches/uji_hx711/uji_hx711.ino`, bukan firm
 
 ## Langkah Terpandu 4: Seri naik dan turun
 
-Gantung tas kosong, tunggu diam, lalu catat **nol awal (R0) tiga kali**.
+**Arti naik dan turun.** Setiap massa diukur dua kali, dari dua arah:
 
-| Titik | Isi wadah | Massa yang dicatat |
-|---|---|---|
-| 0 | kosong | 0 |
-| 1 | 1 kg | m₁ |
-| 2 | 2 kg | m₂ |
-| 3 | 3 kg | m₃ |
-| 4 | 3 kg + 1 kg | m₃ + m₁ |
-| 5 | 3 kg + 2 kg | m₃ + m₂ |
-| 6 (opsional) | 3 + 2 + 1 kg | m₁ + m₂ + m₃ |
+- **Naik:** dari ringan ke berat: kosong → 1 → 2 → 3 → 4 → 5 kg.
+- **Turun:** kembali dari berat ke ringan: 5 → 4 → 3 → 2 → 1 kg → kosong.
 
-1. **Naik:** isi wadah sesuai tabel dari titik 1 sampai titik terakhir. Dumbbell terberat selalu di bawah. Catat setiap titik.
-2. **Turun:** keluarkan beban dengan urutan terbalik, lalu catat lagi di setiap titik sampai wadah kosong (**R-akhir**).
-3. Ulangi seri naik dan turun **dua kali**.
+Di setiap titik: tunggu **10 detik** sampai tas diam, ketik `k`, lalu tulis angkanya di **Laporan Kalibrasi Tabel 9**.
+
+**Yang dikerjakan pada tas (satu seri)**
+
+Dumbbell yang ada hanya 1, 2, dan 3 kg, jadi beberapa titik berarti **menukar** dumbbell, bukan hanya menambah. Dumbbell terberat selalu di bawah.
+
+| Arah | Titik | Yang dikerjakan | Isi tas | Massa yang dicatat |
+|---|---|---|---|---|
+| Awal | R0 | gantung tas kosong, baca **tiga kali** | kosong | 0 |
+| **Naik** | 1 | masukkan 1 kg | 1 | m₁ |
+| | 2 | keluarkan 1 kg, masukkan 2 kg | 2 | m₂ |
+| | 3 | keluarkan 2 kg, masukkan 3 kg | 3 | m₃ |
+| | 4 | tambahkan 1 kg di atas 3 kg | 3 + 1 | m₃ + m₁ |
+| | 5 | keluarkan 1 kg, masukkan 2 kg | 3 + 2 | m₃ + m₂ |
+| **Turun** | 4 | keluarkan 2 kg, masukkan 1 kg | 3 + 1 | m₃ + m₁ |
+| | 3 | keluarkan 1 kg | 3 | m₃ |
+| | 2 | keluarkan 3 kg, masukkan 2 kg | 2 | m₂ |
+| | 1 | keluarkan 2 kg, masukkan 1 kg | 1 | m₁ |
+| Akhir | R-akhir | keluarkan 1 kg, baca tas kosong | kosong | 0 |
+
+1. Titik teratas dibaca **sekali** per seri (di arah naik). Kolom Turun untuk titik itu diisi "–".
+2. **Titik 6 (opsional):** setelah titik 5 naik, tambahkan 1 kg (isi 3 + 2 + 1, massa m₁ + m₂ + m₃) dan baca. Turun lalu dimulai dari titik 5: keluarkan 1 kg dan baca.
+3. Kerjakan **dua seri**. Seri kedua dimulai lagi dari R0 (tiga kali). Hasilnya empat kolom di Tabel 9: Naik 1, Turun 1, Naik 2, Turun 2.
+
+**Kenapa dua arah dan dua seri.** Setiap massa terbaca empat kali, dan perbandingannya menjawab tiga pertanyaan:
+
+1. **Naik lawan turun di massa yang sama (histeresis).** Logam load cell bisa "ingat" apakah beban datang dari bawah atau dari atas, jadi bacaan turun bisa sedikit berbeda dari bacaan naik. Selisihnya seharusnya hanya puluhan hitungan (beberapa gram). Selisih ribuan hitungan berarti ada yang bergeser: klem, sling, atau dumbbell yang salah.
+2. **R0 lawan R-akhir (drift).** Tas kosong di awal dan di akhir, jadi bacaannya harus sama. Bila R-akhir bergeser, nol bergeser selama seri: load cell belum cukup panas, atau PLA di bawah klem ambles pelan-pelan.
+3. **Seri 1 lawan seri 2 (keterulangan).** Massa yang sama di seri lain harus memberi angka yang sama.
+
+Faktor skala dihitung dari semua titik sekaligus: satu garis lurus hitungan terhadap kg (Pengolahan data).
+
+> [!NOTE]
+> Karena ada penukaran dumbbell, seri naik tidak benar-benar naik terus. Dari titik 1 ke titik 2, misalnya, tas sempat kosong saat 1 kg dikeluarkan, baru kemudian naik ke 2 kg. Uji histeresis baku hanya menambah beban saat naik dan hanya mengurangi saat turun, jadi selisih naik-turun di sini adalah **perkiraan** histeresis. Pengaruhnya kecil karena beban paling besar 6 kg (7,5 % kapasitas), tetapi ditulis di Batasan.
 
 **Mengisi Tabel 9 di Laporan Kalibrasi**
 
@@ -455,6 +479,7 @@ Satuan: alat menampilkan kilogram-gaya. Karena acuannya massa yang ditimbang, fa
 ## Batasan yang wajib ditulis
 
 - Kalibrasi hanya 0–6 kg (±7 % dari kapasitas 80 kg). Di atasnya, angka alat adalah perpanjangan garis; cek timbangan badan hanya memeriksa, tidak mengkalibrasi. Tekan telapak dipakai sampai ±20 kg atau lebih, jadi sebagian besar bacaan saat UAS ada di daerah perpanjangan ini.
+- Seri naik memakai penukaran dumbbell (tas sempat lebih ringan sebelum titik berikutnya), jadi selisih naik-turun hanya perkiraan histeresis.
 - Massa acuan berasal dari timbangan dapur; ketelitiannya membatasi ketelitian kalibrasi.
 - Beban kalibrasi bekerja di satu titik (tengah Spacer B); telapak nyata menekan bidang yang lebih lebar dan bisa meleset.
 - Batas tekan telapak ditentukan oleh uji kertas (klem C) dan oleh Spacer A (40 kg, pers. 9), bukan oleh load cell.

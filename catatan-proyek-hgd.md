@@ -3,7 +3,7 @@ title: Catatan Proyek - Hand Grip Dynamometer
 
 ---
 
-# Catatan Proyek - Hand Grip Dynamometer (v67)
+# Catatan Proyek - Hand Grip Dynamometer (v68)
 **Proyek akhir - embedded system**
 
 > Catatan kerja proyek akhir mata kuliah embedded system, sekaligus **dokumen induk**: ringkasan, kebutuhan, rumusan masalah, spesifikasi, BOM, risiko, jadwal, anggaran, keselamatan, riwayat keputusan, dan log audit ada di sini; bahan teknis dipecah ke dokumen di peta di bawah. Ditulis supaya bisa dibaca sendiri (offline). Dipakai untuk G2-G4, makalah akhir, dan demo.
@@ -467,6 +467,7 @@ Lihat Bagian 4 di [desain-pcb-hgd.md](pcb/desain-pcb-hgd.md). Jangan dibawa lewa
 - Tenggat gerber: konflik panduan (Minggu 7) dan panduan tugas (Minggu 8) belum terkonfirmasi (Bagian 4.1).
 - Media logging: SD card hanya fasilitas opsional lab (satu unit); cloud opsional menurut Panduan; keputusan: CSV lewat USB-Serial sebagai inti (Bagian 5 dan Bagian 15.1 di [alur-program-hgd.md](firmware/alur-program-hgd.md)).
 - Persyaratan format resmi: status per item di Bagian 4.3.
+- v68 (22 Nov. 2026): protokol kalibrasi, Langkah Terpandu 4 disusun ulang: arti naik dan turun, tabel langkah per titik (yang dikerjakan pada tas, isi tas, massa yang dicatat), titik teratas dibaca sekali, alasan dua arah dan dua seri, catatan bahwa penukaran dumbbell membuat histeresis hanya perkiraan (juga di Batasan).
 - v67 (21 Nov. 2026): pernyataan yang masih menyebut pelat atau kalibrasi dumbbell 42 kg diperbarui ke susunan tekan telapak: posisi saat ini (Bagian 1), kandidat risiko (Bagian 7), ringkasan housing (Bagian 8), R3 (Bagian 10), alur jadwal (Bagian 11); README diperbarui; baris pelat di desain PCB, housing elektronik Bagian 7, dan datasheet DS-MAT1 ditandai tidak berlaku.
 - v66 (21 Nov. 2026): PCB sedang dicetak; tombol SW1 dari stok lab (tidak dibeli); soket betina menunggu PCB tiba dan cek stok lab (Bagian 1, 4, 7, 7.1, 12, 15).
 - v65 (21 Nov. 2026): gambar setup kalibrasi lama (`kalibrasi_setup.svg`, `kalibrasi_protokol.svg`, `kalibrasi_cradle.svg`) dihapus, rujukannya di desain housing dan protokol diperbarui, `generate_drawings.py` ditandai riwayat (berjalan dengan CSV commit `b123228`); BOM 7.1 dan anggaran Bagian 12: pelat tidak dibeli, bagian cetak grip, baut tanpa ring.
